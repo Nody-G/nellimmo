@@ -46,12 +46,9 @@ export default function HomePage() {
         <div className="relative z-10 max-w-5xl mx-auto text-center space-y-8">
 
           <div className="space-y-4">
-            <h1 className="text-4xl sm:text-6xl md:text-7xl font-serif font-black tracking-tight leading-tight text-white">
-              Actez vos projets sereinement
+            <h1 className="text-4xl sm:text-6xl font-serif font-black tracking-tight leading-tight">
+              Nell&apos;Immo, votre agence immobilière à <span className="text-[#C59A45] italic">Pélissanne</span>
             </h1>
-            <p className="text-lg sm:text-2xl font-serif text-gray-200">
-              Nell&apos;Immo, votre agence immobilière à <span className="text-[#C59A45] italic font-semibold">Pélissanne</span>
-            </p>
             <p className="max-w-2xl mx-auto text-gray-300 text-sm sm:text-lg font-light leading-relaxed">
               Parce qu&apos;un projet immobilier est souvent le projet de toute une vie, Nell&apos;Immo vous accompagne dans la concrétisation de tous vos rêves immobiliers à Pélissanne et en Pays Salonais.
             </p>
