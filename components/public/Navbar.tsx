@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Compass, Home, Award, Calculator, Mail, Menu, X, ShieldCheck, Star, Heart } from 'lucide-react';
+import { Compass, Home, Award, Calculator, Mail, Menu, X, Star, Heart } from 'lucide-react';
 import { useFavorites } from '@/lib/useFavorites';
 import { FavoritesDrawer } from '@/components/public/FavoritesDrawer';
 
@@ -96,16 +96,6 @@ export function PublicNavbar() {
                 </span>
               )}
             </button>
-
-            {/* Espace Admin (Cockpit) */}
-            <Link
-              href="/cockpit"
-              className="ml-2 px-3 py-2 rounded-xl text-xs font-bold text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition flex items-center gap-1.5 border border-gray-200"
-              title="Accès Espace Admin"
-            >
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Espace Admin</span>
-            </Link>
           </nav>
 
           {/* Mobile Actions */}
@@ -122,14 +112,6 @@ export function PublicNavbar() {
                 </span>
               )}
             </button>
-
-            <Link
-              href="/cockpit"
-              className="text-xs bg-[#131B26] text-white px-2.5 py-1.5 rounded-lg flex items-center gap-1 font-bold"
-            >
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Espace Admin</span>
-            </Link>
 
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -170,17 +152,6 @@ export function PublicNavbar() {
               </Link>
             );
           })}
-          
-          <div className="pt-3 border-t border-gray-100 flex flex-col gap-2">
-            <Link
-              href="/cockpit"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="flex items-center justify-center gap-2 text-center py-2.5 bg-[#131B26] text-white rounded-xl font-bold text-xs uppercase"
-            >
-              <ShieldCheck className="w-4 h-4 text-emerald-400" />
-              Espace Admin (Cockpit)
-            </Link>
-          </div>
         </div>
       )}
     </header>
