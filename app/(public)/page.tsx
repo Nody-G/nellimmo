@@ -45,18 +45,18 @@ export default function HomePage() {
 
         <div className="relative z-10 max-w-5xl mx-auto text-center space-y-8">
           
-          {/* Opinion System Badge in Hero */}
-          <div className="inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-semibold text-white shadow-lg animate-fade-in">
-            <span className="flex text-amber-400">★★★★★</span>
-            <span>Avis Clients 4.9/5 • 98% de Recommandation Certifiée</span>
+          {/* Devise Officielle Nell'Immo */}
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-semibold text-white shadow-lg animate-fade-in">
+            <span className="w-2 h-2 rounded-full bg-[#E12B7B] animate-pulse"></span>
+            <span className="tracking-wide">Actez vos projets sereinement</span>
           </div>
 
           <div className="space-y-4">
             <h1 className="text-4xl sm:text-6xl font-serif font-black tracking-tight leading-tight">
-              L&apos;immobilier sur mesure en <span className="text-[#C59A45] italic">Pays Salonais</span>
+              Nell&apos;Immo, votre agence immobilière à <span className="text-[#C59A45] italic">Pélissanne</span>
             </h1>
             <p className="max-w-2xl mx-auto text-gray-300 text-sm sm:text-lg font-light leading-relaxed">
-              Vente, achat et estimation à Pélissanne, Salon-de-Provence, Lambesc et alentours avec Nelly Fernandez.
+              Parce qu&apos;un projet immobilier est souvent le projet de toute une vie, Nell&apos;Immo vous accompagne dans la concrétisation de tous vos rêves immobiliers à Pélissanne et en Pays Salonais.
             </p>
           </div>
 
@@ -203,28 +203,28 @@ export default function HomePage() {
           <div className="space-y-6">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FDF2F8] text-[#E12B7B] text-xs font-bold uppercase tracking-wider">
               <Sparkles className="w-4 h-4" />
-              <span>20 Ans d&apos;Expérience en Pays Salonais</span>
+              <span>Spécialiste de l&apos;Immobilier en Pays Salonais</span>
             </div>
 
             <h2 className="text-3xl sm:text-4xl font-serif font-bold text-[#131B26] leading-tight">
-              Une agence indépendante, proche de vous et engagée
+              Un spécialiste à l&apos;écoute de vos besoins sur Pélissanne & alentours
             </h2>
 
             <p className="text-gray-600 text-sm leading-relaxed">
-              Fondée et animée par **Nelly Fernandez**, Nell&apos;Immo privilégie la qualité à la quantité. Vous bénéficiez d&apos;un interlocuteur unique, d&apos;une écoute attentive et d&apos;une mise en valeur photographique et vidéo professionnelle de chaque propriété.
+              **Nell&apos;Immo**, c&apos;est l&apos;histoire d&apos;une négociatrice immobilière experte en la matière, qui après plus de 15 ans d&apos;exercice sur le Pays Salonais, a souhaité mettre à profit ses compétences à travers des outils innovants et des barèmes d&apos;honoraires parmi les plus bas du marché.
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 text-xs">
               <div className="p-4 bg-[#FCFAF7] rounded-2xl border border-[#F3E8EE] space-y-1">
-                <span className="text-[#E12B7B] font-black text-lg">98%</span>
-                <strong className="block text-gray-900">Satisfaction Client</strong>
-                <p className="text-[11px] text-gray-500">Avis contrôlés Opinion System</p>
+                <span className="text-[#E12B7B] font-black text-lg">15+ Ans</span>
+                <strong className="block text-gray-900">D&apos;Expérience Locale</strong>
+                <p className="text-[11px] text-gray-500">Pélissanne & Pays Salonais</p>
               </div>
 
               <div className="p-4 bg-[#FCFAF7] rounded-2xl border border-[#F3E8EE] space-y-1">
-                <span className="text-[#3D4E41] font-black text-lg">0€</span>
+                <span className="text-[#3D4E41] font-black text-lg">0 €</span>
                 <strong className="block text-gray-900">Estimation Offerte</strong>
-                <p className="text-[11px] text-gray-500">Étude de marché DVF sous 48h</p>
+                <p className="text-[11px] text-gray-500">Adéquation avec le marché</p>
               </div>
             </div>
 

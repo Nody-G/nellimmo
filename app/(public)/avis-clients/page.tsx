@@ -65,6 +65,38 @@ export default function AvisClientsPage() {
         </p>
       </div>
 
+      {/* Mot d'accueil chaleureux de Nelly */}
+      <div className="bg-[#FCFAF7] rounded-3xl p-8 sm:p-10 border border-[#F3E8EE] shadow-xs space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-[#E12B7B]/10 flex items-center justify-center text-[#E12B7B] font-serif font-black text-lg">
+            N
+          </div>
+          <div>
+            <strong className="text-sm font-bold text-gray-900 block">Le mot de Nelly FERNANDEZ</strong>
+            <span className="text-xs text-[#C59A45] font-semibold">Fondatrice de l&apos;agence Nell&apos;Immo</span>
+          </div>
+        </div>
+
+        <div className="text-xs sm:text-sm text-gray-700 leading-relaxed space-y-3 italic border-l-2 border-[#E12B7B] pl-4 sm:pl-6">
+          <p>
+            « Chers clients,
+          </p>
+          <p>
+            La concrétisation d&apos;un projet n&apos;est pas toujours un long fleuve tranquille, notamment en matière d&apos;immobilier ! J&apos;ai toujours eu à cœur d&apos;exercer mon métier avec dévouement et implication, dans le but d&apos;atteindre vos objectifs.
+          </p>
+          <p>
+            Je vous invite ici à poster vos témoignages, car comme le dit le proverbe : <span className="font-bold text-gray-900 not-italic">« Des petits ruisseaux font les grandes rivières »</span>.
+          </p>
+          <p>
+            En espérant que vos mots reflètent la qualité du travail que je souhaite accomplir au quotidien, et qu&apos;ainsi Nell&apos;Immo devienne votre agence locale, innovante, incontournable et de confiance.
+          </p>
+          <p className="font-bold not-italic text-gray-900">
+            Bien à vous,<br />
+            Nelly
+          </p>
+        </div>
+      </div>
+
       {/* Opinion System Certified Widget Box */}
       <div className="bg-white rounded-3xl p-8 border border-[#F3E8EE] shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
         <div className="flex items-center gap-5">
@@ -73,13 +105,12 @@ export default function AvisClientsPage() {
             <span className="text-[10px] font-bold uppercase tracking-wider opacity-90">/ 5</span>
           </div>
           <div className="space-y-1">
-            <div className="flex text-amber-400 text-lg">★★★★★</div>
             <h3 className="font-serif font-bold text-lg text-[#131B26]">
-              Taux de Recommandation Client : 98%
+              Avis Clients Contrôlés & Certifiés ISO 20252
             </h3>
-            <span className="text-xs text-gray-500 block">
-              Certifié par Opinion System (Organisme indépendant de contrôle d&apos;avis ISO 20252)
-            </span>
+            <p className="text-xs text-gray-600 max-w-xl">
+              Notre entreprise est adhérente à <strong className="text-gray-900">Opinion System</strong>, n°1 des avis clients contrôlés pour professionnels du service, vous garantissant des témoignages clients authentiques.
+            </p>
           </div>
         </div>
 
@@ -88,7 +119,7 @@ export default function AvisClientsPage() {
             href="/estimation"
             className="px-6 py-3 bg-[#E12B7B] hover:bg-[#C71B62] text-white rounded-xl text-xs font-bold uppercase tracking-wider shadow-md transition flex items-center gap-2"
           >
-            <span>Confier mon bien à Nelly</span>
+            <span>Confier mon projet</span>
             <ArrowRight className="w-4 h-4" />
           </Link>
         </div>

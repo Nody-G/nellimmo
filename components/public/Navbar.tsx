@@ -46,7 +46,7 @@ export function PublicNavbar() {
                 NELL&apos;IMMO
               </span>
               <span className="text-[10px] uppercase font-bold tracking-widest text-[#E12B7B] -mt-1">
-                L&apos;immobilier sur mesure en Provence
+                Actez vos projets sereinement
               </span>
             </div>
           </Link>

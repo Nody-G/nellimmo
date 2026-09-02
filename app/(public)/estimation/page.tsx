@@ -55,7 +55,7 @@ export default function PublicEstimationPage() {
           Connaître la Valeur Réelle de Votre Bien en Provence
         </h1>
         <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
-          Bénéficiez d&apos;une étude de marché objective et personnalisée réalisée par Nelly Fernandez, basée sur les ventes réelles de votre secteur.
+          Vous envisagez une mise en vente de votre bien immobilier ? Nous réalisons votre estimation gratuitement, en adéquation avec la réalité du marché immobilier. Bénéficiez d&apos;une étude personnalisée réalisée par Nelly Fernandez.
         </p>
       </div>
 

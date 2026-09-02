@@ -29,10 +29,10 @@ export default function AgencyPage() {
             alt="L'agence Nell'Immo à Pélissanne"
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex items-end p-8">
+          <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-transparent flex items-end p-8">
             <div className="text-white space-y-1">
-              <span className="font-serif font-bold text-xl block">Nelly Fernandez</span>
-              <span className="text-xs text-[#C59A45] font-semibold block">Fondatrice & Agent Immobilier • 20 ans d&apos;expertise</span>
+              <span className="font-serif font-bold text-xl block">Nelly FERNANDEZ</span>
+              <span className="text-xs text-[#C59A45] font-semibold block">Fondatrice & Négociatrice Immobilière • Pélissanne</span>
               <span className="text-[11px] text-gray-300 block">26 Avenue des Enjouvènes, 13330 Pélissanne</span>
             </div>
           </div>
@@ -40,47 +40,55 @@ export default function AgencyPage() {
 
         <div className="space-y-6">
           <div className="space-y-3">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FDF2F8] text-[#E12B7B] text-xs font-bold uppercase tracking-wider">
+              <span>Actez vos projets sereinement</span>
+            </div>
             <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#131B26]">
-              L&apos;immobilier comme une rencontre humaine
+              Le Concept de l&apos;Agence Nell&apos;Immo
             </h2>
-            <p className="text-sm text-gray-600 leading-relaxed">
-              Chez **Nell&apos;Immo**, vous n&apos;êtes pas un numéro parmi des centaines de mandats. Chaque bien immobilier possède son histoire, et chaque projet de vie mérite une attention totale et exclusive.
+            <p className="text-sm text-gray-700 leading-relaxed">
+              Le concept de l&apos;agence **Nell&apos;Immo** est né aux pieds du magnifique **Massif des Costes à PÉLISSANNE**.
             </p>
-            <p className="text-sm text-gray-600 leading-relaxed">
-              Forte de près de 20 ans de pratique sur le Pays Salonais (Pélissanne, Salon-de-Provence, Lambesc, Aurons, Grans, Lançon), Nelly met un point d&apos;honneur à vous offrir un accompagnement direct, réactif et sans intermédiaire du premier rendez-vous d&apos;estimation jusqu&apos;à la signature de l&apos;acte authentique.
+            <p className="text-sm text-gray-700 leading-relaxed">
+              Forte de plus de **15 années d&apos;exercice** en qualité de négociatrice immobilier sur le **PAYS SALONAIS**, sa créatrice **Nelly FERNANDEZ** est à votre écoute du lundi au samedi, par mail ou téléphone.
             </p>
           </div>
 
           <div className="space-y-3 pt-2">
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-lg bg-[#FDF2F8] text-[#E12B7B] flex items-center justify-center shrink-0 mt-0.5">
-                <Camera className="w-4 h-4" />
-              </div>
-              <div>
-                <strong className="text-sm font-bold text-gray-900 block">Mise en valeur Visuelle Haute Qualité</strong>
-                <p className="text-xs text-gray-500">Reportage photographique soigné, plans cotés et vidéos immersives pour sublimer votre bien.</p>
-              </div>
-            </div>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-800">
+              Avec le concept Nell&apos;Immo, vous bénéficiez :
+            </h3>
+            
+            <ul className="space-y-2.5 text-xs text-gray-700">
+              <li className="flex items-start gap-2.5">
+                <CheckCircle2 className="w-4 h-4 text-[#E12B7B] shrink-0 mt-0.5" />
+                <span><strong>Des conseils d&apos;un agent immobilier local expérimenté</strong>, mobile et à votre écoute</span>
+              </li>
+              <li className="flex items-start gap-2.5">
+                <CheckCircle2 className="w-4 h-4 text-[#E12B7B] shrink-0 mt-0.5" />
+                <span><strong>De barèmes d&apos;honoraires parmi les plus bas du marché</strong></span>
+              </li>
+              <li className="flex items-start gap-2.5">
+                <CheckCircle2 className="w-4 h-4 text-[#E12B7B] shrink-0 mt-0.5" />
+                <span><strong>D&apos;une diffusion de vos biens</strong> sur des sites web d&apos;annonces immobilières à forte audience</span>
+              </li>
+              <li className="flex items-start gap-2.5">
+                <CheckCircle2 className="w-4 h-4 text-[#E12B7B] shrink-0 mt-0.5" />
+                <span><strong>D&apos;un accompagnement suivi de votre projet</strong>, avec une visibilité à tout instant grâce à notre espace client</span>
+              </li>
+              <li className="flex items-start gap-2.5">
+                <CheckCircle2 className="w-4 h-4 text-[#E12B7B] shrink-0 mt-0.5" />
+                <span><strong>D&apos;outils web de pointe</strong> tels que la diffusion de vidéo mettant en valeur vos biens, pour faire la différence !</span>
+              </li>
+            </ul>
+          </div>
 
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-lg bg-[#EEF3EF] text-[#3D4E41] flex items-center justify-center shrink-0 mt-0.5">
-                <ShieldCheck className="w-4 h-4" />
-              </div>
-              <div>
-                <strong className="text-sm font-bold text-gray-900 block">Rigueur Juridique & Conformité Loi Hoguet</strong>
-                <p className="text-xs text-gray-500">Vérification scrupuleuse des diagnostics, solvabilité des acquéreurs et actes sécurisés.</p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 rounded-lg bg-[#FBF6E9] text-[#C59A45] flex items-center justify-center shrink-0 mt-0.5">
-                <Award className="w-4 h-4" />
-              </div>
-              <div>
-                <strong className="text-sm font-bold text-gray-900 block">Honoraires Compétitifs & Justes</strong>
-                <p className="text-xs text-gray-500">Barème transparent conforme Loi ALUR, charge acquéreur ou vendeur clairement définie.</p>
-              </div>
-            </div>
+          {/* Citation Personnelle de Nelly */}
+          <div className="p-4 bg-[#FCFAF7] rounded-2xl border-l-4 border-[#E12B7B] border-y border-r border-[#F3E8EE] space-y-2">
+            <p className="text-xs text-gray-800 italic leading-relaxed">
+              « Attentive, dévouée, créative et dynamique, je saurai être votre agent immobilier de confiance... pour que vos rêves d&apos;immobilier aboutissent. Alors à bientôt ! »
+            </p>
+            <span className="text-[11px] font-bold text-[#E12B7B] block">— Nelly FERNANDEZ</span>
           </div>
         </div>
       </div>

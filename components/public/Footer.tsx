@@ -58,13 +58,18 @@ export function PublicFooter() {
                   (e.target as HTMLElement).style.display = 'none';
                 }}
               />
-              <span className="font-serif font-black text-2xl text-white tracking-tight">
-                NELL&apos;IMMO
-              </span>
+              <div className="flex flex-col">
+                <span className="font-serif font-black text-2xl text-white tracking-tight">
+                  NELL&apos;IMMO
+                </span>
+                <span className="text-[10px] uppercase font-bold tracking-widest text-[#E12B7B] -mt-1">
+                  Actez vos projets sereinement
+                </span>
+              </div>
             </div>
 
             <p className="text-xs text-gray-400 leading-relaxed max-w-sm">
-              Agence immobilière indépendante à Pélissanne dirigée par Nelly Fernandez. Achat, vente, estimation DVF et valorisation de vos maisons, appartements et terrains en Provence.
+              Agence immobilière indépendante à Pélissanne dirigée par Nelly Fernandez. Parce qu&apos;un projet immobilier est souvent le projet de toute une vie, nous vous accompagnons dans la concrétisation de tous vos projets en Pays Salonais.
             </p>
 
             <div className="space-y-2 text-xs text-gray-300 pt-2">
