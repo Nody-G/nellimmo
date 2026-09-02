@@ -12,7 +12,12 @@ import {
   User,
   Home,
   PlusCircle,
-  Printer
+  Printer,
+  Calendar,
+  MapPin,
+  MessageCircle,
+  Send,
+  ExternalLink
 } from 'lucide-react';
 
 export default function VisitSheetsPage() {
@@ -99,6 +104,44 @@ export default function VisitSheetsPage() {
     setIsSigned(true);
   };
 
+  const handleAddToGoogleCalendar = () => {
+    if (!selectedProperty || !selectedBuyer) return;
+    const title = encodeURIComponent(`Visite Immobilière : ${selectedProperty.title} avec ${selectedBuyer.first_name} ${selectedBuyer.last_name}`);
+    const details = encodeURIComponent(`Visite agence Nell'Immo avec l'acquéreur ${selectedBuyer.first_name} ${selectedBuyer.last_name} (${selectedBuyer.phone}).\nMandat N°${selectedProperty.mandate_number} - Prix FAI: ${selectedProperty.price_fai.toLocaleString('fr-FR')} €.\nNotes : ${notes || 'Aucune'}`);
+    const location = encodeURIComponent(`${selectedProperty.address}, ${selectedProperty.postal_code} ${selectedProperty.city}`);
+    
+    const start = new Date(Date.now() + 3600000);
+    const end = new Date(Date.now() + 7200000);
+    const formatGDate = (d: Date) => d.toISOString().replace(/-|:|\.\d+/g, '');
+    const dates = `${formatGDate(start)}/${formatGDate(end)}`;
+
+    const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}&location=${location}&dates=${dates}`;
+    window.open(url, '_blank');
+  };
+
+  const handleSendGpsRouteWhatsApp = () => {
+    if (!selectedProperty || !selectedBuyer) return;
+    const addressQuery = encodeURIComponent(`${selectedProperty.address}, ${selectedProperty.postal_code} ${selectedProperty.city}`);
+    const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${addressQuery}`;
+    const message = encodeURIComponent(`Bonjour ${selectedBuyer.first_name}, c'est Nelly Fernandez de l'agence Nell'Immo. Voici l'adresse et le point GPS Google Maps pour notre visite : ${selectedProperty.address}, ${selectedProperty.postal_code} ${selectedProperty.city}.\nLien direct Google Maps : ${mapsUrl}\nÀ tout à l'heure !`);
+    const cleanPhone = selectedBuyer.phone.replace(/\s+/g, '').replace(/^0/, '33');
+    window.open(`https://wa.me/${cleanPhone}?text=${message}`, '_blank');
+  };
+
+  const handleSendReminderEveWhatsApp = () => {
+    if (!selectedProperty || !selectedBuyer) return;
+    const message = encodeURIComponent(`Bonsoir ${selectedBuyer.first_name}, petit rappel pour notre visite de demain pour la maison à ${selectedProperty.city}. Merci de me confirmer si le créneau vous convient toujours en répondant à ce message. Belle soirée, Nelly Fernandez (07 55 68 61 09).`);
+    const cleanPhone = selectedBuyer.phone.replace(/\s+/g, '').replace(/^0/, '33');
+    window.open(`https://wa.me/${cleanPhone}?text=${message}`, '_blank');
+  };
+
+  const handleSendFeedbackRequestWhatsApp = () => {
+    if (!selectedProperty || !selectedBuyer) return;
+    const message = encodeURIComponent(`Bonjour ${selectedBuyer.first_name}, j'espère que vous allez bien ! Avez-vous eu le temps de mûrir votre ressenti suite à notre visite d'hier à ${selectedProperty.city} ? Avez-vous des questions complémentaires sur la maison ou le quartier ? Je reste à votre écoute ! Nelly Fernandez.`);
+    const cleanPhone = selectedBuyer.phone.replace(/\s+/g, '').replace(/^0/, '33');
+    window.open(`https://wa.me/${cleanPhone}?text=${message}`, '_blank');
+  };
+
   return (
     <div className="space-y-8 animate-fade-in pb-16">
       
@@ -107,13 +150,13 @@ export default function VisitSheetsPage() {
         <div>
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#E12B7B]">
             <PenTool className="w-4 h-4" />
-            <span>Gestion des Visites</span>
+            <span>Gestion des Visites & Hub Google</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#131B26] mt-1">
-            Bons de Visite
+            Bons de Visite & Organisation Terrain
           </h1>
           <p className="text-xs text-gray-500">
-            Faites signer vos acquéreurs sur smartphone ou tablette lors des visites.
+            Faites signer vos acquéreurs sur mobile, synchronisez Google Calendar et envoyez l&apos;itinéraire GPS par WhatsApp.
           </p>
         </div>
 
@@ -122,7 +165,7 @@ export default function VisitSheetsPage() {
             setIsSigned(false);
             clearCanvas();
           }}
-          className="px-4 py-2.5 bg-[#E12B7B] hover:bg-[#C71B62] text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-sm transition"
+          className="px-4 py-2.5 bg-[#E12B7B] hover:bg-[#C71B62] text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-sm transition cursor-pointer"
         >
           <PlusCircle className="w-4 h-4" />
           Nouveau Bon de Visite
@@ -173,8 +216,52 @@ export default function VisitSheetsPage() {
             </div>
           </div>
 
+          {/* Quick Actions Hub Google & WhatsApp */}
+          <div className="p-4 bg-[#FCFAF7] rounded-2xl border border-[#F3E8EE] space-y-3">
+            <span className="text-xs font-bold uppercase text-[#131B26] tracking-wider block">
+              Actions Mobiles Terrain (1 Clic)
+            </span>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <button
+                type="button"
+                onClick={handleAddToGoogleCalendar}
+                className="p-2.5 bg-white border border-gray-200 hover:border-blue-300 rounded-xl text-xs font-bold text-gray-800 flex flex-col items-center justify-center gap-1.5 transition text-center shadow-2xs group cursor-pointer"
+              >
+                <Calendar className="w-4 h-4 text-blue-600 group-hover:scale-110 transition" />
+                <span className="text-[10px] leading-tight">Google Agenda</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleSendGpsRouteWhatsApp}
+                className="p-2.5 bg-white border border-gray-200 hover:border-emerald-300 rounded-xl text-xs font-bold text-gray-800 flex flex-col items-center justify-center gap-1.5 transition text-center shadow-2xs group cursor-pointer"
+              >
+                <MapPin className="w-4 h-4 text-red-500 group-hover:scale-110 transition" />
+                <span className="text-[10px] leading-tight">Itinéraire GPS</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleSendReminderEveWhatsApp}
+                className="p-2.5 bg-white border border-gray-200 hover:border-purple-300 rounded-xl text-xs font-bold text-gray-800 flex flex-col items-center justify-center gap-1.5 transition text-center shadow-2xs group cursor-pointer"
+              >
+                <MessageCircle className="w-4 h-4 text-purple-600 group-hover:scale-110 transition" />
+                <span className="text-[10px] leading-tight">Rappel J-1</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleSendFeedbackRequestWhatsApp}
+                className="p-2.5 bg-white border border-gray-200 hover:border-pink-300 rounded-xl text-xs font-bold text-gray-800 flex flex-col items-center justify-center gap-1.5 transition text-center shadow-2xs group cursor-pointer"
+              >
+                <Send className="w-4 h-4 text-[#E12B7B] group-hover:scale-110 transition" />
+                <span className="text-[10px] leading-tight">Avis J+1</span>
+              </button>
+            </div>
+          </div>
+
           {/* Legal clause */}
-          <div className="p-4 bg-[#FCFAF7] rounded-2xl border border-[#F3E8EE] text-xs text-gray-700 space-y-2">
+          <div className="p-4 bg-gray-50 rounded-2xl border border-gray-200 text-xs text-gray-700 space-y-2">
             <span className="font-bold text-gray-900 block">Engagement Juridique du Visiteur :</span>
             <p className="leading-relaxed text-[11px] text-gray-600">
               « Je soussigné(e) {selectedBuyer?.first_name} {selectedBuyer?.last_name}, reconnais que l&apos;agence Nellimo Immobilier m&apos;a fait visiter ce jour le bien désigné ci-dessus au prix de {selectedProperty?.price_fai.toLocaleString('fr-FR')} € FAI. Je m&apos;interdis formellement de traiter directement ou indirectement avec le mandant sans le concours de l&apos;agence. »

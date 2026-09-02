@@ -23,7 +23,8 @@ import {
   Phone,
   MessageCircle,
   Trash2,
-  Check
+  Check,
+  Landmark
 } from 'lucide-react';
 
 export default function CockpitDashboard() {
@@ -31,6 +32,7 @@ export default function CockpitDashboard() {
     properties,
     buyers,
     visits,
+    transactions,
     contactLeads,
     estimationLeads,
     updateContactLeadStatus,
@@ -45,6 +47,9 @@ export default function CockpitDashboard() {
   const totalFai = activeProperties.reduce((sum, p) => sum + p.price_fai, 0);
   const totalFees = activeProperties.reduce((sum, p) => sum + p.agency_fees_amount, 0);
   const exclusiveCount = activeProperties.filter((p) => p.mandate_type === 'exclusif').length;
+
+  const activeTransactions = transactions.filter(t => t.status !== 'acte_signe' && t.status !== 'annule');
+  const pendingClosingFees = activeTransactions.reduce((sum, t) => sum + (t.agency_fees_amount || 0), 0);
 
   const newContactsCount = contactLeads.filter((l) => l.status === 'nouveau').length;
   const newEstimationsCount = estimationLeads.filter((l) => l.status === 'nouveau').length;
@@ -77,6 +82,13 @@ export default function CockpitDashboard() {
 
         <div className="flex items-center gap-3">
           <Link
+            href="/cockpit/transactions"
+            className="px-4 py-2.5 bg-white hover:bg-gray-50 text-gray-800 border border-gray-200 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-xs transition"
+          >
+            <Landmark className="w-4 h-4 text-blue-600" />
+            Ventes ({activeTransactions.length})
+          </Link>
+          <Link
             href="/cockpit/mandats/nouveau"
             className="px-4 py-2.5 bg-[#E12B7B] hover:bg-[#C71B62] text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-sm transition"
           >
@@ -94,10 +106,10 @@ export default function CockpitDashboard() {
       </div>
 
       {/* KPI Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         
         {/* Card 1 : Portefeuille Actif */}
-        <div className="bg-white rounded-2xl p-6 border border-[#F3E8EE] shadow-xs space-y-3">
+        <div className="bg-white rounded-2xl p-5 border border-[#F3E8EE] shadow-xs space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase text-gray-500">Portefeuille Actif</span>
             <div className="w-8 h-8 rounded-lg bg-[#FDF2F8] text-[#E12B7B] flex items-center justify-center">
@@ -116,7 +128,7 @@ export default function CockpitDashboard() {
         </div>
 
         {/* Card 2 : Honoraires Potentiels */}
-        <div className="bg-white rounded-2xl p-6 border border-[#F3E8EE] shadow-xs space-y-3">
+        <div className="bg-white rounded-2xl p-5 border border-[#F3E8EE] shadow-xs space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase text-gray-500">Honoraires Attendus</span>
             <div className="w-8 h-8 rounded-lg bg-[#EEF3EF] text-[#3D4E41] flex items-center justify-center">
@@ -128,13 +140,35 @@ export default function CockpitDashboard() {
               {totalFees.toLocaleString('fr-FR')} €
             </div>
             <div className="text-xs text-gray-500 mt-1">
-              Pipeline des honoraires agence TTC
+              Pipeline total TTC
             </div>
           </div>
         </div>
 
-        {/* Card 3 : Acquéreurs CRM */}
-        <div className="bg-white rounded-2xl p-6 border border-[#F3E8EE] shadow-xs space-y-3">
+        {/* Card 3 : Ventes & Notaire */}
+        <Link
+          href="/cockpit/transactions"
+          className="bg-white rounded-2xl p-5 border border-[#F3E8EE] shadow-xs space-y-3 hover:border-blue-400 hover:shadow-md transition block group cursor-pointer"
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase text-gray-500 group-hover:text-blue-600 transition">Ventes Notaire</span>
+            <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center">
+              <Landmark className="w-4 h-4" />
+            </div>
+          </div>
+          <div>
+            <div className="text-2xl font-black text-blue-950">
+              {pendingClosingFees.toLocaleString('fr-FR')} €
+            </div>
+            <div className="text-xs text-gray-500 mt-1 flex items-center justify-between">
+              <span>{activeTransactions.length} dossiers en cours</span>
+              <ArrowRight className="w-3.5 h-3.5 text-blue-600 group-hover:translate-x-1 transition" />
+            </div>
+          </div>
+        </Link>
+
+        {/* Card 4 : Acquéreurs CRM */}
+        <div className="bg-white rounded-2xl p-5 border border-[#F3E8EE] shadow-xs space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase text-gray-500">Acquéreurs Actifs</span>
             <div className="w-8 h-8 rounded-lg bg-[#FBF6E9] text-[#C59A45] flex items-center justify-center">
@@ -146,13 +180,13 @@ export default function CockpitDashboard() {
               {buyers.filter((b) => b.status === 'actif').length} contacts
             </div>
             <div className="text-xs text-gray-500 mt-1">
-              Rapprochements & alertes CRM
+              Rapprochements CRM
             </div>
           </div>
         </div>
 
-        {/* Card 4 : Bons de Visite */}
-        <div className="bg-white rounded-2xl p-6 border border-[#F3E8EE] shadow-xs space-y-3">
+        {/* Card 5 : Bons de Visite */}
+        <div className="bg-white rounded-2xl p-5 border border-[#F3E8EE] shadow-xs space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase text-gray-500">Bons Signés</span>
             <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
@@ -164,7 +198,7 @@ export default function CockpitDashboard() {
               {visits.length} visites
             </div>
             <div className="text-xs text-gray-500 mt-1">
-              Signatures tactiles horodatées
+              Signatures horodatées
             </div>
           </div>
         </div>

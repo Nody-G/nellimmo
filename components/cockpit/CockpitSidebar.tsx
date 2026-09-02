@@ -16,7 +16,8 @@ import {
   FileSpreadsheet,
   Settings,
   ExternalLink,
-  PlusCircle
+  PlusCircle,
+  Landmark
 } from 'lucide-react';
 
 export function CockpitSidebar() {
@@ -25,7 +26,8 @@ export function CockpitSidebar() {
   const navigation = [
     { name: 'Tableau de Bord', href: '/cockpit', icon: LayoutDashboard },
     { name: 'Mandats & Biens', href: '/cockpit/mandats', icon: FileText },
-    { name: 'Studio Rédaction', href: '/cockpit/redacteur', icon: Sparkles },
+    { name: 'Pipeline Ventes & Notaire', href: '/cockpit/transactions', icon: Landmark },
+    { name: 'Studio Rédaction & Réseaux', href: '/cockpit/redacteur', icon: Sparkles },
     { name: 'Avis de Valeur', href: '/cockpit/avis-de-valeur', icon: TrendingUp },
     { name: 'Acquéreurs & Matching', href: '/cockpit/acquereurs', icon: Users },
     { name: 'Bons de Visite', href: '/cockpit/visites', icon: PenTool },
@@ -33,7 +35,7 @@ export function CockpitSidebar() {
     { name: 'Multidiffusion Portails', href: '/cockpit/diffusion', icon: Radio },
     { name: 'Registre des Mandats', href: '/cockpit/registre-dgccrf', icon: ShieldCheck },
     { name: 'Import Hektor', href: '/cockpit/import-hektor', icon: FileSpreadsheet },
-    { name: 'Paramètres Agence', href: '/cockpit/parametres', icon: Settings },
+    { name: 'Paramètres & Connexions', href: '/cockpit/parametres', icon: Settings },
   ];
 
   return (

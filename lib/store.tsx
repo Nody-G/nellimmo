@@ -8,7 +8,8 @@ import {
   MandateAuditLog,
   AgencySettings,
   ContactLead,
-  EstimationLead
+  EstimationLead,
+  TransactionDeal
 } from './types';
 import {
   INITIAL_PROPERTIES,
@@ -17,7 +18,8 @@ import {
   INITIAL_AUDIT_LOGS,
   DEFAULT_AGENCY_SETTINGS,
   INITIAL_CONTACT_LEADS,
-  INITIAL_ESTIMATION_LEADS
+  INITIAL_ESTIMATION_LEADS,
+  INITIAL_TRANSACTIONS
 } from './mock-data';
 import { computeSHA256 } from './hoguet';
 import { getSupabaseClient, isSupabaseConfigured } from './supabase';
@@ -30,6 +32,7 @@ const STORAGE_KEYS = {
   SETTINGS: 'nellimo_settings_v4',
   CONTACT_LEADS: 'nellimo_contact_leads_v4',
   ESTIMATION_LEADS: 'nellimo_estimation_leads_v4',
+  TRANSACTIONS: 'nellimo_transactions_v1',
 };
 
 function loadFromStorage<T>(key: string, defaultValue: T): T {
@@ -60,6 +63,7 @@ interface NellimoContextType {
   settings: AgencySettings;
   contactLeads: ContactLead[];
   estimationLeads: EstimationLead[];
+  transactions: TransactionDeal[];
   isLoaded: boolean;
   isSupabaseActive: boolean;
   createProperty: (propertyData: Omit<Property, 'id' | 'mandate_number' | 'created_at' | 'updated_at'>) => Promise<Property>;
@@ -76,6 +80,9 @@ interface NellimoContextType {
   addEstimationLead: (leadData: Omit<EstimationLead, 'id' | 'created_at' | 'status'>) => Promise<EstimationLead>;
   updateEstimationLeadStatus: (id: string, status: EstimationLead['status']) => Promise<void>;
   deleteEstimationLead: (id: string) => Promise<void>;
+  createTransaction: (dealData: Omit<TransactionDeal, 'id' | 'created_at' | 'updated_at'>) => Promise<TransactionDeal>;
+  updateTransaction: (id: string, updates: Partial<TransactionDeal>) => Promise<TransactionDeal | null>;
+  deleteTransaction: (id: string) => Promise<void>;
   resetToDemoData: () => void;
 }
 
@@ -89,6 +96,7 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<AgencySettings>(() => loadFromStorage(STORAGE_KEYS.SETTINGS, DEFAULT_AGENCY_SETTINGS));
   const [contactLeads, setContactLeads] = useState<ContactLead[]>(() => loadFromStorage(STORAGE_KEYS.CONTACT_LEADS, INITIAL_CONTACT_LEADS));
   const [estimationLeads, setEstimationLeads] = useState<EstimationLead[]>(() => loadFromStorage(STORAGE_KEYS.ESTIMATION_LEADS, INITIAL_ESTIMATION_LEADS));
+  const [transactions, setTransactions] = useState<TransactionDeal[]>(() => loadFromStorage(STORAGE_KEYS.TRANSACTIONS, INITIAL_TRANSACTIONS));
   const [isLoaded, setIsLoaded] = useState(true);
   const [isSupabaseActive] = useState(() => isSupabaseConfigured());
 
@@ -125,6 +133,11 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
   const updateEstimationLeads = useCallback((newLeads: EstimationLead[]) => {
     setEstimationLeads(newLeads);
     saveToStorage(STORAGE_KEYS.ESTIMATION_LEADS, newLeads);
+  }, []);
+
+  const updateTransactions = useCallback((newTrans: TransactionDeal[]) => {
+    setTransactions(newTrans);
+    saveToStorage(STORAGE_KEYS.TRANSACTIONS, newTrans);
   }, []);
 
   // --- SUPABASE REALTIME & INITIAL FETCH SYNC ---
@@ -585,6 +598,77 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // --- TRANSACTIONS & PIPELINE NOTAIRE ---
+
+  const createTransaction = async (dealData: Omit<TransactionDeal, 'id' | 'created_at' | 'updated_at'>): Promise<TransactionDeal> => {
+    const newDeal: TransactionDeal = {
+      ...dealData,
+      id: `trans-${Date.now()}`,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+
+    const updated = [newDeal, ...transactions];
+    updateTransactions(updated);
+
+    if (isSupabaseConfigured()) {
+      const supabase = getSupabaseClient();
+      if (supabase) {
+        try {
+          await supabase.from('transaction_deals').insert([newDeal]);
+        } catch (e) {
+          console.error('Error creating transaction in Supabase:', e);
+        }
+      }
+    }
+
+    return newDeal;
+  };
+
+  const updateTransaction = async (id: string, updates: Partial<TransactionDeal>): Promise<TransactionDeal | null> => {
+    let updatedDeal: TransactionDeal | null = null;
+    const updated = transactions.map(t => {
+      if (t.id === id) {
+        updatedDeal = { ...t, ...updates, updated_at: new Date().toISOString() };
+        return updatedDeal;
+      }
+      return t;
+    });
+
+    if (updatedDeal) {
+      updateTransactions(updated);
+
+      if (isSupabaseConfigured()) {
+        const supabase = getSupabaseClient();
+        if (supabase) {
+          try {
+            await supabase.from('transaction_deals').update(updates).eq('id', id);
+          } catch (e) {
+            console.error('Error updating transaction in Supabase:', e);
+          }
+        }
+      }
+    }
+
+    return updatedDeal;
+  };
+
+  const deleteTransaction = async (id: string) => {
+    const updated = transactions.filter(t => t.id !== id);
+    updateTransactions(updated);
+
+    if (isSupabaseConfigured()) {
+      const supabase = getSupabaseClient();
+      if (supabase) {
+        try {
+          await supabase.from('transaction_deals').delete().eq('id', id);
+        } catch (e) {
+          console.error('Error deleting transaction from Supabase:', e);
+        }
+      }
+    }
+  };
+
   // --- RESET DEMO PROVENCE ---
 
   const resetToDemoData = () => {
@@ -595,6 +679,7 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
     updateSettingsHandler(DEFAULT_AGENCY_SETTINGS);
     updateContactLeads(INITIAL_CONTACT_LEADS);
     updateEstimationLeads(INITIAL_ESTIMATION_LEADS);
+    updateTransactions(INITIAL_TRANSACTIONS);
   };
 
   const value: NellimoContextType = {
@@ -605,6 +690,7 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
     settings,
     contactLeads,
     estimationLeads,
+    transactions,
     isLoaded,
     isSupabaseActive,
     createProperty,
@@ -621,6 +707,9 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
     addEstimationLead,
     updateEstimationLeadStatus,
     deleteEstimationLead,
+    createTransaction,
+    updateTransaction,
+    deleteTransaction,
     resetToDemoData,
   };
 
@@ -638,6 +727,7 @@ export function useNellimoStore(): NellimoContextType {
       settings: DEFAULT_AGENCY_SETTINGS,
       contactLeads: INITIAL_CONTACT_LEADS,
       estimationLeads: INITIAL_ESTIMATION_LEADS,
+      transactions: INITIAL_TRANSACTIONS,
       isLoaded: true,
       isSupabaseActive: false,
       createProperty: async (p) => ({ ...p, id: 'prop-temp', mandate_number: 999, created_at: '', updated_at: '' }),
@@ -654,6 +744,9 @@ export function useNellimoStore(): NellimoContextType {
       addEstimationLead: async (e) => ({ ...e, id: 'est-temp', status: 'nouveau', created_at: '' }),
       updateEstimationLeadStatus: async () => {},
       deleteEstimationLead: async () => {},
+      createTransaction: async (t) => ({ ...t, id: 'trans-temp', created_at: '', updated_at: '' }),
+      updateTransaction: async () => null,
+      deleteTransaction: async () => {},
       resetToDemoData: () => {},
     };
   }

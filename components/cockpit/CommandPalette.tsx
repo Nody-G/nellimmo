@@ -20,7 +20,8 @@ import {
   Command,
   HelpCircle,
   PlusCircle,
-  Clock
+  Clock,
+  Landmark
 } from 'lucide-react';
 
 export function CommandPalette() {
@@ -70,14 +71,15 @@ export function CommandPalette() {
     { id: 'nav-nouveau', title: 'Nouveau Mandat', subtitle: 'Créer un nouveau mandat Loi Hoguet', category: 'Actions', href: '/cockpit/mandats/nouveau', icon: PlusCircle },
     { id: 'nav-dashboard', title: 'Tableau de Bord Cockpit', subtitle: 'Supervision globale de l\'agence', category: 'Outils', href: '/cockpit', icon: ShieldCheck },
     { id: 'nav-mandats', title: 'Registre des Mandats', subtitle: 'Consulter tous les mandats', category: 'Outils', href: '/cockpit/mandats', icon: FileText },
+    { id: 'nav-transactions', title: 'Pipeline Ventes & Notaire', subtitle: 'Suivi des compromis, délais SRU, prêts J+60 et factures', category: 'Outils', href: '/cockpit/transactions', icon: Landmark },
     { id: 'nav-acquereurs', title: 'CRM Acquéreurs & Alertes WhatsApp', subtitle: 'Rapprochement et acquéreurs qualifiés', category: 'Outils', href: '/cockpit/acquereurs', icon: Users },
     { id: 'nav-visites', title: 'Bons de Visite Électroniques', subtitle: 'Signatures tactiles sur tablette/mobile', category: 'Outils', href: '/cockpit/visites', icon: PenTool },
     { id: 'nav-dvf', title: 'Avis de Valeur DVF & Estimations', subtitle: 'Étude de marché et données notariales', category: 'Outils', href: '/cockpit/avis-de-valeur', icon: TrendingUp },
     { id: 'nav-vitrine', title: 'Studio Fiches Vitrine LED & Affiches', subtitle: 'Affiches vitrine A4/A3 haute définition', category: 'Outils', href: '/cockpit/fiches-vitrine', icon: Printer },
-    { id: 'nav-redacteur', title: 'Rédacteur IA & Copywriting Portails', subtitle: 'Générateur d\'annonces multi-styles', category: 'Outils', href: '/cockpit/redacteur', icon: Sparkles },
+    { id: 'nav-redacteur', title: 'Rédacteur IA & Réseaux Sociaux', subtitle: 'Générateur d\'annonces et posts Instagram/Meta', category: 'Outils', href: '/cockpit/redacteur', icon: Sparkles },
     { id: 'nav-diffusion', title: 'Hub Multidiffusion (SeLoger, BienIci, LeBonCoin)', subtitle: 'Passerelles et flux d\'export', category: 'Outils', href: '/cockpit/diffusion', icon: Radio },
     { id: 'nav-dgccrf', title: 'Registre Légal DGCCRF & Loi Hoguet', subtitle: 'Audit scellé SHA-256 et export officiel', category: 'Outils', href: '/cockpit/registre-dgccrf', icon: ShieldCheck },
-    { id: 'nav-params', title: 'Paramètres & Sauvegarde Agence', subtitle: 'Configuration carte T et sauvegarde JSON', category: 'Outils', href: '/cockpit/parametres', icon: Settings },
+    { id: 'nav-params', title: 'Paramètres & Connexions API', subtitle: 'Mentions légales, Meta API, Google et sauvegarde', category: 'Outils', href: '/cockpit/parametres', icon: Settings },
   ], []);
 
   // Filtered results

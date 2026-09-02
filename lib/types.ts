@@ -183,6 +183,99 @@ export interface MatchingResult {
   };
 }
 
+export type TransactionStatus =
+  | 'offre_acceptee'
+  | 'dossier_notaire_en_cours'
+  | 'compromis_signe'
+  | 'delai_sru_en_cours'
+  | 'sru_purgee'
+  | 'attente_pret'
+  | 'pret_accorde'
+  | 'acte_planifie'
+  | 'acte_signe'
+  | 'annule';
+
+export interface TransactionDeal {
+  id: string;
+  property_id: string;
+  buyer_id?: string;
+  status: TransactionStatus;
+  
+  // Financials
+  offer_price_fai: number;
+  offer_price_net: number;
+  agency_fees_amount: number;
+  deposit_amount: number;
+  deposit_holder: string; // 'Notaire Vendeur', 'Notaire Acquéreur'
+  
+  // Parties & Notaires
+  seller_name: string;
+  seller_phone: string;
+  seller_email?: string;
+  buyer_name: string;
+  buyer_phone: string;
+  buyer_email?: string;
+  
+  seller_notary_name: string;
+  seller_notary_email: string;
+  seller_notary_phone: string;
+  seller_notary_office: string;
+  
+  buyer_notary_name?: string;
+  buyer_notary_email?: string;
+  buyer_notary_phone?: string;
+  buyer_notary_office?: string;
+  
+  // Deadlines & Dates
+  offer_date: string;
+  compromis_date?: string;
+  sru_notification_date?: string;
+  sru_expiry_date?: string; // J+10
+  loan_application_deadline?: string; // J+30
+  loan_approval_deadline?: string; // J+45 ou J+60
+  final_deed_target_date?: string;
+  actual_closing_date?: string;
+  
+  // Financing
+  loan_amount_requested?: number;
+  loan_interest_rate_max?: number;
+  loan_duration_years?: number;
+  loan_bank_name?: string;
+  broker_name?: string;
+  
+  // ALUR Checklist
+  checklist_documents: {
+    titre_propriete: boolean;
+    taxe_fonciere: boolean;
+    dossier_diagnostics: boolean;
+    audit_energetique: boolean;
+    pre_etat_date: boolean;
+    reglement_copro: boolean;
+    cni_vendeur: boolean;
+    cni_acquereur: boolean;
+    justificatif_domicile: boolean;
+    simulation_pret: boolean;
+    offre_achat_signee: boolean;
+  };
+  
+  // Facturation & Honoraires
+  invoice_number?: string;
+  invoice_date?: string;
+  invoice_sent_to_notary: boolean;
+  fees_received: boolean;
+  
+  // Google Review
+  google_review_requested?: boolean;
+  
+  notes?: string;
+  created_at: string;
+  updated_at: string;
+  
+  // Relations
+  property?: Property;
+  buyer?: Buyer;
+}
+
 export interface AgencySettings {
   agency_name: string;
   agent_name: string;
@@ -192,6 +285,24 @@ export interface AgencySettings {
   address: string;
   city: string;
   postal_code: string;
+
+  // Mentions Légales & Inviolabilité
+  siren?: string;
+  rcs_city?: string;
+  capital_social?: string;
+  cci_card_t?: string;
+  guarantee_fund_name?: string;
+  guarantee_fund_amount?: string;
+  guarantee_fund_address?: string;
+  insurance_name?: string;
+  insurance_policy?: string;
+  mediator_name?: string;
+  mediator_url?: string;
+  bareme_honoraires_url?: string;
+  agency_rib_iban?: string;
+  agency_rib_bic?: string;
+
+  // Passerelles SFTP Portails
   seloger_agency_code: string;
   seloger_sftp_host: string;
   seloger_sftp_user: string;
@@ -203,7 +314,30 @@ export interface AgencySettings {
   last_sftp_sync_at?: string;
   last_sftp_sync_status?: 'success' | 'error' | 'idle';
   bienici_feed_token: string;
+
+  // Intelligence Artificielle
   deepseek_api_key?: string;
+
+  // Réseaux Sociaux (Meta & LinkedIn)
+  meta_app_id?: string;
+  meta_app_secret?: string;
+  facebook_page_id?: string;
+  facebook_page_access_token?: string;
+  instagram_business_id?: string;
+  linkedin_client_id?: string;
+  linkedin_client_secret?: string;
+  social_autopost_new_mandate?: boolean;
+  social_autopost_price_drop?: boolean;
+  social_autopost_sold?: boolean;
+
+  // Écosystème Google
+  google_client_id?: string;
+  google_client_secret?: string;
+  google_calendar_id?: string;
+  google_maps_api_key?: string;
+  google_my_business_url?: string;
+  google_drive_folder_id?: string;
+  google_contacts_sync_enabled?: boolean;
 }
 
 export interface ContactLead {
