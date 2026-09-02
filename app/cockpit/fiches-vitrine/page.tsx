@@ -25,6 +25,8 @@ import {
   ZoomIn,
   X,
   ChevronLeft,
+  ChevronDown,
+  ChevronUp,
   Eye
 } from 'lucide-react';
 
@@ -45,6 +47,9 @@ export default function WindowFlyersPage() {
 
   // Active slot for click-to-assign
   const [activeSlot, setActiveSlot] = useState<0 | 1 | 2>(0);
+
+  // Gallery collapsible state (false = déroulable au besoin, n'encombre pas l'écran)
+  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
 
   // Big HD preview modal state
   const [previewPhotoIndex, setPreviewPhotoIndex] = useState<number | null>(null);
@@ -359,13 +364,32 @@ export default function WindowFlyersPage() {
               <ImageIcon className="w-3.5 h-3.5 text-[#E12B7B]" />
               Photos Sélectionnées (3 Emplacements)
             </label>
-            <span className="text-[10px] text-gray-400 font-semibold">Cliquez pour modifier</span>
+            <button
+              type="button"
+              onClick={() => setIsGalleryOpen(!isGalleryOpen)}
+              className="text-xs font-bold text-[#E12B7B] hover:text-[#C71B62] transition flex items-center gap-1 cursor-pointer"
+            >
+              {isGalleryOpen ? (
+                <>
+                  <span>Masquer la galerie</span>
+                  <ChevronUp className="w-3.5 h-3.5" />
+                </>
+              ) : (
+                <>
+                  <span>Dérouler ({availableImages.length})</span>
+                  <ChevronDown className="w-3.5 h-3.5" />
+                </>
+              )}
+            </button>
           </div>
 
           <div className="grid grid-cols-3 gap-2.5">
             {/* Slot 0 : Hero */}
             <div
-              onClick={() => setActiveSlot(0)}
+              onClick={() => {
+                setActiveSlot(0);
+                setIsGalleryOpen(true);
+              }}
               className={`relative rounded-2xl overflow-hidden border-2 transition cursor-pointer group bg-gray-100 aspect-4/3 ${
                 activeSlot === 0 ? 'border-[#E12B7B] ring-2 ring-[#E12B7B]/30' : 'border-gray-200 hover:border-gray-300'
               }`}
@@ -391,7 +415,10 @@ export default function WindowFlyersPage() {
 
             {/* Slot 1 */}
             <div
-              onClick={() => setActiveSlot(1)}
+              onClick={() => {
+                setActiveSlot(1);
+                setIsGalleryOpen(true);
+              }}
               className={`relative rounded-2xl overflow-hidden border-2 transition cursor-pointer group bg-gray-100 aspect-4/3 ${
                 activeSlot === 1 ? 'border-[#E12B7B] ring-2 ring-[#E12B7B]/30' : 'border-gray-200 hover:border-gray-300'
               }`}
@@ -417,7 +444,10 @@ export default function WindowFlyersPage() {
 
             {/* Slot 2 */}
             <div
-              onClick={() => setActiveSlot(2)}
+              onClick={() => {
+                setActiveSlot(2);
+                setIsGalleryOpen(true);
+              }}
               className={`relative rounded-2xl overflow-hidden border-2 transition cursor-pointer group bg-gray-100 aspect-4/3 ${
                 activeSlot === 2 ? 'border-[#E12B7B] ring-2 ring-[#E12B7B]/30' : 'border-gray-200 hover:border-gray-300'
               }`}
@@ -442,156 +472,204 @@ export default function WindowFlyersPage() {
             </div>
           </div>
 
-          <div className="text-[10px] text-gray-500 bg-[#FCFAF7] p-2 rounded-xl border border-[#F3E8EE]">
-            Emplacement actif : <span className="font-bold text-[#E12B7B]">Emplacement #{activeSlot + 1}</span>. Choisissez ci-dessous une photo pour la remplacer.
+          <div className="flex items-center justify-between text-[10px] text-gray-500 bg-[#FCFAF7] p-2.5 rounded-xl border border-[#F3E8EE]">
+            <span>
+              Emplacement actif : <span className="font-bold text-[#E12B7B]">#{activeSlot + 1}</span> ({activeSlot === 0 ? 'Hero principal' : `Photo ${activeSlot + 1}`})
+            </span>
+            <button
+              type="button"
+              onClick={() => setIsGalleryOpen(!isGalleryOpen)}
+              className="text-[#E12B7B] font-bold hover:underline cursor-pointer flex items-center gap-1"
+            >
+              {isGalleryOpen ? 'Replier la galerie' : 'Dérouler la galerie pour choisir'}
+              {isGalleryOpen ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+            </button>
           </div>
         </div>
 
       </div>
 
       {/* ========================================================================= */}
-      {/* GALERIE VISUELLE COMPLÈTE DU BIEN (PETITS & GRANDS APERÇUS) */}
+      {/* GALERIE VISUELLE COMPLÈTE DU BIEN (DÉROULABLE AU BESOIN) */}
       {/* ========================================================================= */}
-      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#F3E8EE] shadow-xs space-y-4 print:hidden">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-100 pb-3">
-          <div>
-            <h3 className="font-serif font-bold text-base text-[#131B26] flex items-center gap-2">
-              <ImageIcon className="w-4 h-4 text-[#E12B7B]" />
-              Galerie Photos du Bien ({availableImages.length} photos)
-            </h3>
-            <p className="text-xs text-gray-500">
-              Cliquez sur une photo pour l&apos;affecter à l&apos;emplacement #{activeSlot + 1}, ou cliquez sur la loupe pour le grand aperçu HD.
-            </p>
-          </div>
-          
-          <div className="flex items-center gap-2 text-xs">
-            <span className="text-gray-500 font-semibold">Affecter vers :</span>
-            <button
-              onClick={() => setActiveSlot(0)}
-              className={`px-3 py-1 rounded-lg font-bold transition ${
-                activeSlot === 0 ? 'bg-[#E12B7B] text-white shadow-xs' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              1. Hero
-            </button>
-            <button
-              onClick={() => setActiveSlot(1)}
-              className={`px-3 py-1 rounded-lg font-bold transition ${
-                activeSlot === 1 ? 'bg-[#E12B7B] text-white shadow-xs' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              2. Photo
-            </button>
-            <button
-              onClick={() => setActiveSlot(2)}
-              className={`px-3 py-1 rounded-lg font-bold transition ${
-                activeSlot === 2 ? 'bg-[#E12B7B] text-white shadow-xs' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              3. Photo
-            </button>
-          </div>
-        </div>
-
-        {/* Visual Thumbnails Grid with Hover Controls */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
-          {availableImages.map((img, idx) => {
-            const isSlot0 = selectedPhotoIndex0 === idx;
-            const isSlot1 = selectedPhotoIndex1 === idx;
-            const isSlot2 = selectedPhotoIndex2 === idx;
-
-            return (
-              <div
-                key={img.id || idx}
-                onClick={() => assignPhotoToSlot(idx, activeSlot)}
-                className={`relative aspect-4/3 rounded-2xl overflow-hidden border-2 transition-all cursor-pointer group bg-gray-100 shadow-2xs hover:scale-102 ${
-                  isSlot0 || isSlot1 || isSlot2
-                    ? 'border-[#E12B7B] ring-2 ring-[#E12B7B]/20'
-                    : 'border-gray-200 hover:border-gray-400'
-                }`}
-              >
-                <img src={img.image_url} alt="" className="w-full h-full object-cover" />
-
-                {/* Badges for currently assigned slots */}
-                <div className="absolute top-1 left-1 flex flex-col gap-1">
-                  {isSlot0 && (
-                    <span className="px-1.5 py-0.5 bg-[#E12B7B] text-white text-[9px] font-black rounded-md shadow-xs">
-                      #1 Hero
-                    </span>
-                  )}
-                  {isSlot1 && (
-                    <span className="px-1.5 py-0.5 bg-[#131B26] text-white text-[9px] font-black rounded-md shadow-xs">
-                      #2
-                    </span>
-                  )}
-                  {isSlot2 && (
-                    <span className="px-1.5 py-0.5 bg-[#131B26] text-white text-[9px] font-black rounded-md shadow-xs">
-                      #3
-                    </span>
-                  )}
-                </div>
-
-                {/* Photo number indicator */}
-                <span className="absolute bottom-1 right-1 bg-black/60 backdrop-blur-xs text-white text-[9px] font-bold px-1.5 py-0.5 rounded">
-                  #{idx + 1}
+      <div className="bg-white rounded-3xl p-5 sm:p-6 border border-[#F3E8EE] shadow-xs print:hidden transition-all">
+        {/* En-tête cliquable accordéon */}
+        <button
+          type="button"
+          onClick={() => setIsGalleryOpen(!isGalleryOpen)}
+          className="w-full flex items-center justify-between text-left cursor-pointer group"
+          aria-expanded={isGalleryOpen}
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-[#FDF2F8] text-[#E12B7B] flex items-center justify-center shrink-0 shadow-xs">
+              <ImageIcon className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="font-serif font-bold text-base text-[#131B26] group-hover:text-[#E12B7B] transition flex items-center gap-2">
+                <span>Galerie Photos du Bien</span>
+                <span className="text-xs font-sans font-semibold px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-700">
+                  {availableImages.length} photos
                 </span>
+              </h3>
+              <p className="text-xs text-gray-500">
+                {isGalleryOpen
+                  ? "Cliquez sur une photo pour l'affecter à l'emplacement sélectionné, ou sur la loupe pour le grand aperçu HD."
+                  : "Dérouler pour changer les photos de l'affiche vitrine parmi toutes les photos du bien."}
+              </p>
+            </div>
+          </div>
 
-                {/* Hover overlay with Quick Actions & Big Preview Trigger */}
-                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-1.5">
-                  <div className="flex justify-end">
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setPreviewPhotoIndex(idx);
-                      }}
-                      className="p-1.5 bg-white/90 hover:bg-white text-gray-900 rounded-lg shadow-sm transition"
-                      title="Ouvrir le grand aperçu HD"
-                    >
-                      <ZoomIn className="w-3.5 h-3.5 text-[#E12B7B]" />
-                    </button>
-                  </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="text-xs font-bold text-[#E12B7B] hidden sm:inline">
+              {isGalleryOpen ? 'Masquer la galerie' : 'Dérouler la galerie'}
+            </span>
+            <div className="p-2 rounded-xl bg-gray-50 group-hover:bg-[#FDF2F8] text-gray-600 group-hover:text-[#E12B7B] transition">
+              {isGalleryOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </div>
+          </div>
+        </button>
 
-                  <div className="flex justify-center gap-1">
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        assignPhotoToSlot(idx, 0);
-                      }}
-                      className="px-1.5 py-0.5 bg-[#E12B7B] hover:bg-[#c42068] text-white text-[9px] font-bold rounded"
-                      title="Mettre en photo 1 (Hero)"
-                    >
-                      1
-                    </button>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        assignPhotoToSlot(idx, 1);
-                      }}
-                      className="px-1.5 py-0.5 bg-[#131B26] hover:bg-gray-800 text-white text-[9px] font-bold rounded"
-                      title="Mettre en photo 2"
-                    >
-                      2
-                    </button>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        assignPhotoToSlot(idx, 2);
-                      }}
-                      className="px-1.5 py-0.5 bg-[#131B26] hover:bg-gray-800 text-white text-[9px] font-bold rounded"
-                      title="Mettre en photo 3"
-                    >
-                      3
-                    </button>
-                  </div>
-                </div>
+        {/* Contenu déroulé */}
+        {isGalleryOpen && (
+          <div className="mt-5 pt-5 border-t border-gray-100 space-y-4 animate-fade-in">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#FCFAF7] p-3 rounded-2xl border border-[#F3E8EE]">
+              <div className="text-xs text-gray-700">
+                Affectation sur : <span className="font-bold text-[#E12B7B]">Emplacement #{activeSlot + 1} ({activeSlot === 0 ? 'Hero' : `Photo ${activeSlot + 1}`})</span>
               </div>
-            );
-          })}
-        </div>
+              
+              <div className="flex items-center gap-1.5 text-xs">
+                <span className="text-gray-500 font-semibold mr-1">Changer la cible :</span>
+                <button
+                  type="button"
+                  onClick={() => setActiveSlot(0)}
+                  className={`px-3 py-1.5 rounded-xl font-bold transition cursor-pointer ${
+                    activeSlot === 0 ? 'bg-[#E12B7B] text-white shadow-xs' : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
+                  }`}
+                >
+                  1. Hero
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveSlot(1)}
+                  className={`px-3 py-1.5 rounded-xl font-bold transition cursor-pointer ${
+                    activeSlot === 1 ? 'bg-[#E12B7B] text-white shadow-xs' : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
+                  }`}
+                >
+                  2. Photo
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveSlot(2)}
+                  className={`px-3 py-1.5 rounded-xl font-bold transition cursor-pointer ${
+                    activeSlot === 2 ? 'bg-[#E12B7B] text-white shadow-xs' : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
+                  }`}
+                >
+                  3. Photo
+                </button>
+              </div>
+            </div>
+
+            {/* Visual Thumbnails Grid with Hover Controls & Max Height */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 max-h-[380px] overflow-y-auto pr-1">
+              {availableImages.map((img, idx) => {
+                const isSlot0 = selectedPhotoIndex0 === idx;
+                const isSlot1 = selectedPhotoIndex1 === idx;
+                const isSlot2 = selectedPhotoIndex2 === idx;
+
+                return (
+                  <div
+                    key={img.id || idx}
+                    onClick={() => assignPhotoToSlot(idx, activeSlot)}
+                    className={`relative aspect-4/3 rounded-2xl overflow-hidden border-2 transition-all cursor-pointer group bg-gray-100 shadow-2xs hover:scale-102 ${
+                      isSlot0 || isSlot1 || isSlot2
+                        ? 'border-[#E12B7B] ring-2 ring-[#E12B7B]/20'
+                        : 'border-gray-200 hover:border-gray-400'
+                    }`}
+                  >
+                    <img src={img.image_url} alt="" className="w-full h-full object-cover" />
+
+                    {/* Badges for currently assigned slots */}
+                    <div className="absolute top-1 left-1 flex flex-col gap-1">
+                      {isSlot0 && (
+                        <span className="px-1.5 py-0.5 bg-[#E12B7B] text-white text-[9px] font-black rounded-md shadow-xs">
+                          #1 Hero
+                        </span>
+                      )}
+                      {isSlot1 && (
+                        <span className="px-1.5 py-0.5 bg-[#131B26] text-white text-[9px] font-black rounded-md shadow-xs">
+                          #2
+                        </span>
+                      )}
+                      {isSlot2 && (
+                        <span className="px-1.5 py-0.5 bg-[#131B26] text-white text-[9px] font-black rounded-md shadow-xs">
+                          #3
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Photo number indicator */}
+                    <span className="absolute bottom-1 right-1 bg-black/60 backdrop-blur-xs text-white text-[9px] font-bold px-1.5 py-0.5 rounded">
+                      #{idx + 1}
+                    </span>
+
+                    {/* Hover overlay with Quick Actions & Big Preview Trigger */}
+                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-1.5">
+                      <div className="flex justify-end">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setPreviewPhotoIndex(idx);
+                          }}
+                          className="p-1.5 bg-white/90 hover:bg-white text-gray-900 rounded-lg shadow-sm transition"
+                          title="Ouvrir le grand aperçu HD"
+                        >
+                          <ZoomIn className="w-3.5 h-3.5 text-[#E12B7B]" />
+                        </button>
+                      </div>
+
+                      <div className="flex justify-center gap-1">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            assignPhotoToSlot(idx, 0);
+                          }}
+                          className="px-1.5 py-0.5 bg-[#E12B7B] hover:bg-[#c42068] text-white text-[9px] font-bold rounded"
+                          title="Mettre en photo 1 (Hero)"
+                        >
+                          1
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            assignPhotoToSlot(idx, 1);
+                          }}
+                          className="px-1.5 py-0.5 bg-[#131B26] hover:bg-gray-800 text-white text-[9px] font-bold rounded"
+                          title="Mettre en photo 2"
+                        >
+                          2
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            assignPhotoToSlot(idx, 2);
+                          }}
+                          className="px-1.5 py-0.5 bg-[#131B26] hover:bg-gray-800 text-white text-[9px] font-bold rounded"
+                          title="Mettre en photo 3"
+                        >
+                          3
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* ========================================================================= */}
