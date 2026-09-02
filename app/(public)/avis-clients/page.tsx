@@ -1,0 +1,164 @@
+'use client';
+
+import React from 'react';
+import Link from 'next/link';
+import { ShieldCheck, CheckCircle2, ArrowRight, Phone } from 'lucide-react';
+
+export default function AvisClientsPage() {
+  const reviews = [
+    {
+      id: 1,
+      author: 'Michel et Marie-Hélène D.',
+      role: 'Vendeurs d’une villa à Pélissanne',
+      date: 'Janvier 2026',
+      rating: 5,
+      title: 'Un accompagnement d’un professionnalisme exceptionnel',
+      comment:
+        'Nelly a été d’une efficacité et d’une bienveillance remarquables pour la vente de notre maison. Estimation DVF au juste prix, photos et vidéo de grande qualité, et vente réalisée en moins de 3 semaines au prix net vendeur convenu. Nous recommandons Nell’Immo les yeux fermés !',
+    },
+    {
+      id: 2,
+      author: 'Thomas et Sophie V.',
+      role: 'Acquéreurs à Salon-de-Provence',
+      date: 'Décembre 2025',
+      rating: 5,
+      title: 'Une écoute rare et un suivi irréprochable',
+      comment:
+        'Après des mois de recherche infructueuse, Nelly a su cerner nos attentes dès la première visite. Son expertise du Pays Salonais, ses conseils sur les diagnostics et sa présence jusqu’à la signature chez le notaire nous ont totalement rassurés.',
+    },
+    {
+      id: 3,
+      author: 'Claire B.',
+      role: 'Vendeuse d’un appartement à Lambesc',
+      date: 'Novembre 2025',
+      rating: 5,
+      title: 'Honoraires très justes et transparence totale',
+      comment:
+        'La différence avec les grands réseaux est immense : ici, Nelly gère personnellement chaque étape avec rigueur et réactivité. Mandat exclusif scrupuleusement respecté et compte-rendu après chaque visite. Merci infiniment Nelly !',
+    },
+    {
+      id: 4,
+      author: 'Gilles F.',
+      role: 'Acquéreur d’un terrain à Aurons',
+      date: 'Octobre 2025',
+      rating: 5,
+      title: 'Maîtrise parfaite du marché local',
+      comment:
+        'Près de 20 ans d’expérience sur le secteur, ça se ressent immédiatement. Nelly connaît chaque quartier, chaque réglementation et défend les intérêts des deux parties avec une grande équité.',
+    },
+  ];
+
+  return (
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12 animate-fade-in">
+      
+      {/* Header */}
+      <div className="text-center max-w-3xl mx-auto space-y-4">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FDF2F8] text-[#E12B7B] text-xs font-bold uppercase tracking-wider">
+          <ShieldCheck className="w-4 h-4 text-emerald-600" />
+          <span>Avis Contrôlés & Certifiés Conformes</span>
+        </div>
+        <h1 className="text-3xl sm:text-5xl font-serif font-bold text-[#131B26]">
+          Avis Clients & Témoignages
+        </h1>
+        <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
+          Découvrez les retours d&apos;expérience authentiques de nos propriétaires vendeurs et acquéreurs accompagnés par Nelly Fernandez à Pélissanne et en Pays Salonais.
+        </p>
+      </div>
+
+      {/* Opinion System Certified Widget Box */}
+      <div className="bg-white rounded-3xl p-8 border border-[#F3E8EE] shadow-xs flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="flex items-center gap-5">
+          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#E12B7B] to-[#9F1239] text-white flex flex-col items-center justify-center shadow-md">
+            <span className="text-2xl font-black font-serif">4.9</span>
+            <span className="text-[10px] font-bold uppercase tracking-wider opacity-90">/ 5</span>
+          </div>
+          <div className="space-y-1">
+            <div className="flex text-amber-400 text-lg">★★★★★</div>
+            <h3 className="font-serif font-bold text-lg text-[#131B26]">
+              Taux de Recommandation Client : 98%
+            </h3>
+            <span className="text-xs text-gray-500 block">
+              Certifié par Opinion System (Organisme indépendant de contrôle d&apos;avis ISO 20252)
+            </span>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <Link
+            href="/estimation"
+            className="px-6 py-3 bg-[#E12B7B] hover:bg-[#C71B62] text-white rounded-xl text-xs font-bold uppercase tracking-wider shadow-md transition flex items-center gap-2"
+          >
+            <span>Confier mon bien à Nelly</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+      </div>
+
+      {/* Reviews Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {reviews.map((rev) => (
+          <div
+            key={rev.id}
+            className="bg-white rounded-3xl p-6 sm:p-8 border border-[#F3E8EE] shadow-xs space-y-4 hover:shadow-md transition"
+          >
+            <div className="flex items-start justify-between">
+              <div>
+                <div className="flex text-amber-400 text-sm mb-1">
+                  {'★'.repeat(rev.rating)}
+                </div>
+                <h4 className="font-serif font-bold text-base text-[#131B26]">
+                  {rev.title}
+                </h4>
+              </div>
+              <span className="text-[11px] text-gray-400">{rev.date}</span>
+            </div>
+
+            <p className="text-xs sm:text-sm text-gray-700 leading-relaxed italic">
+              « {rev.comment} »
+            </p>
+
+            <div className="pt-3 border-t border-gray-100 flex items-center justify-between text-xs">
+              <div>
+                <strong className="block text-gray-900 font-bold">{rev.author}</strong>
+                <span className="text-[11px] text-[#E12B7B]">{rev.role}</span>
+              </div>
+              <span className="text-[10px] bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded flex items-center gap-1">
+                <CheckCircle2 className="w-3 h-3" />
+                Vérifié
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* CTA Bottom Box */}
+      <div className="bg-[#131B26] text-white rounded-3xl p-8 sm:p-12 text-center space-y-4 shadow-xl">
+        <span className="text-xs uppercase font-bold tracking-widest text-[#C59A45]">
+          Votre Projet Immobilier en Provence
+        </span>
+        <h2 className="text-2xl sm:text-3xl font-serif font-bold max-w-2xl mx-auto">
+          Vous souhaitez vendre ou acquérir un bien en toute sérénité ?
+        </h2>
+        <p className="text-xs sm:text-sm text-gray-300 max-w-xl mx-auto">
+          Contactez directement Nelly Fernandez pour une estimation offerte et un entretien personnalisé à Pélissanne.
+        </p>
+        <div className="pt-4 flex flex-wrap justify-center gap-4">
+          <a
+            href="tel:0755686109"
+            className="px-6 py-3 bg-[#E12B7B] hover:bg-[#C71B62] text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-md transition"
+          >
+            <Phone className="w-4 h-4" />
+            07 55 68 61 09
+          </a>
+          <Link
+            href="/contact"
+            className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition"
+          >
+            Envoyer un message
+          </Link>
+        </div>
+      </div>
+
+    </div>
+  );
+}

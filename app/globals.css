@@ -1,26 +1,137 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #FCFAF7;
+  --foreground: #1C232B;
+  --card: #FFFFFF;
+  --card-foreground: #1C232B;
+  
+  /* Palette Provençale Haute Finition Nellimo */
+  --primary: #E12B7B;        /* pink chaleureux */
+  --primary-hover: #C71B62;
+  --primary-light: #FDF2F8;
+  --primary-dark: #9F1239;
+
+  --secondary: #3D4E41;      /* Vert Olive / Sauge des Alpilles */
+  --secondary-light: #EEF3EF;
+
+  --accent-gold: #C59A45;    /* Or antique / Pierre du Luberon */
+  --accent-gold-light: #FBF6E9;
+
+  --dark-navy: #131B26;      /* Ardoise nuit profonde */
+  --stone-bg: #FAF5F8;       /* Pierre de Rognes naturelle */
+  --border-color: #F3E8EE;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-light: var(--primary-light);
+  --color-primary-dark: var(--primary-dark);
+  --color-secondary: var(--secondary);
+  --color-secondary-light: var(--secondary-light);
+  --color-gold: var(--accent-gold);
+  --color-gold-light: var(--accent-gold-light);
+  --color-navy: var(--dark-navy);
+  --color-stone: var(--stone-bg);
+  --color-border: var(--border-color);
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-serif: var(--font-playfair), Georgia, serif;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Glassmorphism Classes */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(232, 223, 213, 0.6);
+}
+
+.glass-panel-dark {
+  background: rgba(19, 27, 38, 0.88);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Gradients */
+.gradient-provence {
+  background: linear-gradient(135deg, #131B26 0%, #223042 100%);
+}
+
+.gradient-pink {
+  background: linear-gradient(135deg, #E12B7B 0%, #F44293 100%);
+}
+
+.gradient-gold {
+  background: linear-gradient(135deg, #C59A45 0%, #D8B263 100%);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #FAF5F8;
+}
+::-webkit-scrollbar-thumb {
+  background: #E5D0DC;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #E12B7B;
+}
+
+/* Animation utilities */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideDrawerRight {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes fadeInOverlay {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.animate-slide-drawer {
+  animation: slideDrawerRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fade-overlay {
+  animation: fadeInOverlay 0.25s ease-out forwards;
+}
+
+/* Print utilities for A4/A3 physical window flyers */
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-page {
+    page-break-after: always;
+    break-after: page;
+  }
 }
