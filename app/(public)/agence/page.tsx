@@ -7,7 +7,7 @@ import { Award, ShieldCheck, Sparkles, CheckCircle2, Phone, MapPin, ArrowRight, 
 export default function AgencyPage() {
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16 animate-fade-in">
-      
+
       {/* Header */}
       <div className="text-center max-w-3xl mx-auto space-y-4">
         <span className="text-xs uppercase font-bold tracking-widest text-[#E12B7B]">
@@ -31,7 +31,7 @@ export default function AgencyPage() {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-transparent flex items-end p-8">
             <div className="text-white space-y-1">
-              <span className="font-serif font-bold text-xl block">Nelly FERNANDEZ</span>
+              <span className="font-serif font-bold text-xl block">Nelly Fernandez</span>
               <span className="text-xs text-[#C59A45] font-semibold block">Fondatrice & Négociatrice Immobilière • Pélissanne</span>
               <span className="text-[11px] text-gray-300 block">26 Avenue des Enjouvènes, 13330 Pélissanne</span>
             </div>
@@ -47,10 +47,10 @@ export default function AgencyPage() {
               Le Concept de l&apos;Agence Nell&apos;Immo
             </h2>
             <p className="text-sm text-gray-700 leading-relaxed">
-              Le concept de l&apos;agence **Nell&apos;Immo** est né aux pieds du magnifique **Massif des Costes à PÉLISSANNE**.
+              Le concept de l&apos;agence <strong>Nell&apos;Immo</strong> est né aux pieds du magnifique <strong>Massif des Costes à Pélissanne</strong>.
             </p>
             <p className="text-sm text-gray-700 leading-relaxed">
-              Forte de plus de **15 années d&apos;exercice** en qualité de négociatrice immobilier sur le **PAYS SALONAIS**, sa créatrice **Nelly FERNANDEZ** est à votre écoute du lundi au samedi, par mail ou téléphone.
+              Forte de plus de <strong>15 années d&apos;exercice</strong> en qualité de négociatrice immobilier sur le <strong>Pays Salonais</strong>, sa créatrice <strong>Nelly Fernandez</strong> est à votre écoute du lundi au samedi, par mail ou téléphone.
             </p>
           </div>
 
@@ -58,7 +58,7 @@ export default function AgencyPage() {
             <h3 className="text-xs font-bold uppercase tracking-wider text-gray-800">
               Avec le concept Nell&apos;Immo, vous bénéficiez :
             </h3>
-            
+
             <ul className="space-y-2.5 text-xs text-gray-700">
               <li className="flex items-start gap-2.5">
                 <CheckCircle2 className="w-4 h-4 text-[#E12B7B] shrink-0 mt-0.5" />
@@ -88,7 +88,7 @@ export default function AgencyPage() {
             <p className="text-xs text-gray-800 italic leading-relaxed">
               « Attentive, dévouée, créative et dynamique, je saurai être votre agent immobilier de confiance... pour que vos rêves d&apos;immobilier aboutissent. Alors à bientôt ! »
             </p>
-            <span className="text-[11px] font-bold text-[#E12B7B] block">— Nelly FERNANDEZ</span>
+            <span className="text-[11px] font-bold text-[#E12B7B] block">— Nelly Fernandez</span>
           </div>
         </div>
       </div>

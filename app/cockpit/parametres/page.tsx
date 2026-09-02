@@ -26,7 +26,7 @@ export default function AgencySettingsPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 animate-fade-in pb-16">
-      
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#F3E8EE] pb-4">
         <div>
@@ -52,7 +52,7 @@ export default function AgencySettingsPage() {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        
+
         {/* 1. Agence & Carte T */}
         <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#F3E8EE] shadow-xs space-y-4">
           <div className="flex items-center gap-2 font-serif font-bold text-lg text-[#131B26] border-b border-[#FAF5F8] pb-3">
@@ -94,7 +94,7 @@ export default function AgencySettingsPage() {
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
             <div>
               <label className="block text-xs font-bold uppercase text-gray-700 mb-1">Téléphone</label>
               <input
@@ -114,11 +114,20 @@ export default function AgencySettingsPage() {
               />
             </div>
             <div>
-              <label className="block text-xs font-bold uppercase text-gray-700 mb-1">Ville & Code Postal</label>
+              <label className="block text-xs font-bold uppercase text-gray-700 mb-1">Ville</label>
               <input
                 type="text"
-                value={`${formData.city} (${formData.postal_code})`}
+                value={formData.city}
                 onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold focus:outline-[#E12B7B]"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold uppercase text-gray-700 mb-1">Code Postal</label>
+              <input
+                type="text"
+                value={formData.postal_code}
+                onChange={(e) => setFormData({ ...formData, postal_code: e.target.value })}
                 className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold focus:outline-[#E12B7B]"
               />
             </div>

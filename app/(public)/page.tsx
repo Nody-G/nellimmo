@@ -29,10 +29,10 @@ export default function HomePage() {
 
   return (
     <div className="space-y-20 pb-20 animate-fade-in">
-      
+
       {/* 1. HERO SECTION PRESTIGE AVEC MOTEUR DE RECHERCHE */}
       <section className="relative min-h-[620px] flex items-center justify-center bg-[#131B26] text-white overflow-hidden py-20 px-4">
-        
+
         {/* Background Image with warm Provence glow */}
         <div className="absolute inset-0 z-0">
           <img
@@ -44,7 +44,7 @@ export default function HomePage() {
         </div>
 
         <div className="relative z-10 max-w-5xl mx-auto text-center space-y-8">
-          
+
           {/* Devise Officielle Nell'Immo */}
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-semibold text-white shadow-lg animate-fade-in">
             <span className="w-2 h-2 rounded-full bg-[#E12B7B] animate-pulse"></span>
@@ -63,7 +63,7 @@ export default function HomePage() {
           {/* Search Box Glassmorphism */}
           <div className="max-w-4xl mx-auto bg-white/95 backdrop-blur-xl p-4 sm:p-6 rounded-3xl shadow-2xl border border-white/30 text-gray-900">
             <form onSubmit={handleSearch} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-end">
-              
+
               {/* Type de bien */}
               <div className="text-left">
                 <label className="block text-[11px] font-bold uppercase tracking-wider text-gray-600 mb-1 flex items-center gap-1">
@@ -168,7 +168,7 @@ export default function HomePage() {
 
       {/* 2. DERNIERS BIENS EN VENTE (PORTFOLIO) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-        
+
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-[#F3E8EE] pb-4">
           <div>
             <span className="text-xs font-bold uppercase tracking-widest text-[#E12B7B]">
@@ -199,7 +199,7 @@ export default function HomePage() {
       {/* 3. SECTION L'AGENCE DE NELLY (STORYTELLING & HUMAIN) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white rounded-3xl p-8 sm:p-14 border border-[#F3E8EE] shadow-xs grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
-          
+
           <div className="space-y-6">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FDF2F8] text-[#E12B7B] text-xs font-bold uppercase tracking-wider">
               <Sparkles className="w-4 h-4" />
@@ -211,7 +211,7 @@ export default function HomePage() {
             </h2>
 
             <p className="text-gray-600 text-sm leading-relaxed">
-              **Nell&apos;Immo**, c&apos;est l&apos;histoire d&apos;une négociatrice immobilière experte en la matière, qui après plus de 15 ans d&apos;exercice sur le Pays Salonais, a souhaité mettre à profit ses compétences à travers des outils innovants et des barèmes d&apos;honoraires parmi les plus bas du marché.
+              <strong>Nell&apos;Immo</strong>, c&apos;est l&apos;histoire d&apos;une négociatrice immobilière experte en la matière, qui après plus de 15 ans d&apos;exercice sur le Pays Salonais, a souhaité mettre à profit ses compétences à travers des outils innovants et des barèmes d&apos;honoraires parmi les plus bas du marché.
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 text-xs">
@@ -265,7 +265,7 @@ export default function HomePage() {
       {/* 4. BANNIÈRE ESTIMATION DVF VENDEUR */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-gradient-to-r from-[#131B26] via-[#1C2532] to-[#131B26] rounded-3xl p-8 sm:p-14 text-white shadow-2xl relative overflow-hidden">
-          
+
           <div className="relative z-10 grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
             <div className="lg:col-span-2 space-y-4">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#C59A45]/20 text-[#C59A45] text-xs font-bold uppercase tracking-wider border border-[#C59A45]/30">

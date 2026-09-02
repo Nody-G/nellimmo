@@ -50,7 +50,7 @@ export default function AvisClientsPage() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12 animate-fade-in">
-      
+
       {/* Header */}
       <div className="text-center max-w-3xl mx-auto space-y-4">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FDF2F8] text-[#E12B7B] text-xs font-bold uppercase tracking-wider">
@@ -72,7 +72,7 @@ export default function AvisClientsPage() {
             N
           </div>
           <div>
-            <strong className="text-sm font-bold text-gray-900 block">Le mot de Nelly FERNANDEZ</strong>
+            <strong className="text-sm font-bold text-gray-900 block">Le mot de Nelly Fernandez</strong>
             <span className="text-xs text-[#C59A45] font-semibold">Fondatrice de l&apos;agence Nell&apos;Immo</span>
           </div>
         </div>
