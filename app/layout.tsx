@@ -31,6 +31,11 @@ export const metadata: Metadata = {
     'estimation immobiliere DVF',
     'Nelly Fernandez Nellimmo',
   ],
+  icons: {
+    icon: '/favicon.png',
+    shortcut: '/favicon.png',
+    apple: '/favicon.png',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

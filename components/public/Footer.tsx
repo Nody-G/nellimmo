@@ -51,19 +51,16 @@ export function PublicFooter() {
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center gap-3">
               <img
-                src="https://nellimmo.staticlbi.com/original/images/logoSite.png"
+                src="/logo.png"
                 alt="Nell'Immo"
                 className="h-10 w-auto object-contain brightness-0 invert"
-                onError={(e) => {
-                  (e.target as HTMLElement).style.display = 'none';
-                }}
               />
               <div className="flex flex-col">
-                <span className="font-serif font-black text-2xl text-white tracking-tight">
+                <span className="text-xl font-serif font-black tracking-tight text-white">
                   NELL&apos;IMMO
                 </span>
-                <span className="text-[10px] uppercase font-bold tracking-widest text-[#E12B7B] -mt-1">
-                  Actez vos projets sereinement
+                <span className="text-[10px] uppercase font-bold tracking-widest text-[#C59A45] -mt-1">
+                  Pélissanne & Pays Salonais
                 </span>
               </div>
             </div>

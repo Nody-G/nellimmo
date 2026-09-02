@@ -33,13 +33,9 @@ export function PublicNavbar() {
           {/* Brand Logo Nell'Immo */}
           <Link href="/" className="flex items-center gap-3 group">
             <img
-              src="https://nellimmo.staticlbi.com/original/images/logoSite.png"
+              src="/logo.png"
               alt="Nell'Immo Agence Immobilière Pélissanne"
               className="h-12 w-auto object-contain"
-              onError={(e) => {
-                // Fallback elegant logo if remote image fails
-                (e.target as HTMLElement).style.display = 'none';
-              }}
             />
             <div className="flex flex-col">
               <span className="text-2xl font-serif font-black tracking-tight text-[#131B26] group-hover:text-[#E12B7B] transition-colors">
