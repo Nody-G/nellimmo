@@ -39,6 +39,7 @@ export default function TransactionsPipelinePage() {
   const { transactions, properties, settings, updateTransaction, createTransaction } = useNellimoStore();
   const [selectedDeal, setSelectedDeal] = useState<TransactionDeal | null>(null);
   const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
+  const [invoiceDocumentType, setInvoiceDocumentType] = useState<'facture' | 'sequestre'>('facture');
   const [isNewDealModalOpen, setIsNewDealModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -497,18 +498,38 @@ export default function TransactionsPipelinePage() {
         <div className="fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
           <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[92vh] overflow-y-auto p-8 space-y-6 shadow-2xl border border-gray-200 print:p-0 print:border-none">
             
-            {/* Top Bar print/close */}
-            <div className="flex items-center justify-between border-b pb-4 print:hidden">
-              <span className="text-xs font-bold uppercase tracking-widest text-[#E12B7B]">
-                Aperçu Officiel de la Note d&apos;Honoraires
-              </span>
+            {/* Top Bar print/close with Document Switcher */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b pb-4 print:hidden">
               <div className="flex items-center gap-2">
                 <button
+                  onClick={() => setInvoiceDocumentType('facture')}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
+                    invoiceDocumentType === 'facture'
+                      ? 'bg-[#E12B7B] text-white shadow-xs'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  Facture d&apos;Honoraires (Acte)
+                </button>
+                <button
+                  onClick={() => setInvoiceDocumentType('sequestre')}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
+                    invoiceDocumentType === 'sequestre'
+                      ? 'bg-[#131B26] text-white shadow-xs'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  Appel de Fonds Séquestre Notaire
+                </button>
+              </div>
+
+              <div className="flex items-center gap-2 self-end sm:self-auto">
+                <button
                   onClick={() => window.print()}
-                  className="px-4 py-2 bg-[#E12B7B] hover:bg-[#C71B62] text-white rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-xs"
+                  className="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-xs"
                 >
                   <Printer className="w-4 h-4" />
-                  Imprimer / Exporter PDF
+                  Imprimer Format A4 Officiel
                 </button>
                 <button
                   onClick={() => setIsInvoiceModalOpen(false)}
@@ -520,10 +541,10 @@ export default function TransactionsPipelinePage() {
             </div>
 
             {/* Official Document Body */}
-            <div className="border border-gray-300 p-8 rounded-2xl bg-white space-y-6 text-gray-900 font-sans">
+            <div className="border border-gray-300 p-8 rounded-2xl bg-white space-y-6 text-gray-900 font-sans print:border-none print:p-0">
               
               {/* Agency Header */}
-              <div className="flex justify-between items-start border-b border-gray-200 pb-4">
+              <div className="flex justify-between items-start border-b-2 border-[#131B26] pb-4">
                 <div>
                   <h1 className="text-xl font-serif font-black tracking-tight text-[#131B26]">
                     {settings.agency_name || "SASU NELL'IMMO"}
@@ -535,16 +556,16 @@ export default function TransactionsPipelinePage() {
                     SIREN : {settings.siren || '853 807 006'} RCS {settings.rcs_city || 'Salon-de-Provence'} — Capital : {settings.capital_social || '2 000 €'}
                   </p>
                   <p className="text-[10px] text-gray-500">
-                    Carte Pro CPI : {settings.card_t_number} ({settings.cci_card_t || 'CCI Marseille Provence'})
+                    Carte Professionnelle CPI : {settings.card_t_number} ({settings.cci_card_t || 'CCI Marseille Provence'})
                   </p>
                   <p className="text-[10px] text-gray-500">
-                    Garantie Financière : {settings.guarantee_fund_name || 'GALIAN Assurances (120 000 €)'}
+                    Garantie Financière : {settings.guarantee_fund_name || 'GALIAN Assurances (120 000 €)'} — Sans maniement de fonds
                   </p>
                 </div>
 
                 <div className="text-right">
-                  <div className="p-3 bg-gray-50 border border-gray-200 rounded-xl text-right">
-                    <span className="text-[10px] font-bold uppercase text-gray-500 block">Destinataire (Notaire)</span>
+                  <div className="p-3 bg-gray-50 border border-gray-200 rounded-xl text-right max-w-xs">
+                    <span className="text-[10px] font-bold uppercase text-gray-500 block">Étude Notariale Instrumentaire</span>
                     <p className="text-xs font-bold text-gray-900 mt-0.5">{selectedDeal.seller_notary_name}</p>
                     <p className="text-xs text-gray-700">{selectedDeal.seller_notary_office}</p>
                     <p className="text-[11px] text-gray-500">{selectedDeal.seller_notary_email}</p>
@@ -552,89 +573,168 @@ export default function TransactionsPipelinePage() {
                 </div>
               </div>
 
-              {/* Invoice Meta */}
-              <div className="flex justify-between items-center bg-gray-50 p-3 rounded-xl">
-                <div>
-                  <span className="text-[10px] uppercase font-bold text-gray-400 block">Document</span>
-                  <span className="text-sm font-bold text-gray-900">
-                    NOTE D&apos;HONORAIRES N° {selectedDeal.invoice_number || 'FACT-2026-004'}
-                  </span>
+              {/* MODE 1: FACTURE D'HONORAIRES */}
+              {invoiceDocumentType === 'facture' && (
+                <>
+                  {/* Invoice Meta */}
+                  <div className="flex justify-between items-center bg-gray-50 p-3 rounded-xl">
+                    <div>
+                      <span className="text-[10px] uppercase font-bold text-gray-400 block">Type d&apos;acte</span>
+                      <span className="text-sm font-bold text-gray-900">
+                        FACTURE D&apos;HONORAIRES N° {selectedDeal.invoice_number || 'FACT-2026-004'}
+                      </span>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-[10px] uppercase font-bold text-gray-400 block">Date d&apos;Émission</span>
+                      <span className="text-xs font-bold text-gray-900">
+                        {selectedDeal.invoice_date || new Date().toLocaleDateString('fr-FR')}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Transaction Target Description */}
+                  <div className="space-y-1.5 text-xs bg-[#FAF5F8]/40 p-4 rounded-xl border border-[#F3E8EE]">
+                    <span className="text-[11px] font-bold uppercase text-[#E12B7B] block">Objet de la Transaction</span>
+                    <p className="font-bold text-gray-900 text-sm">
+                      {properties.find(p => p.id === selectedDeal.property_id)?.title}
+                    </p>
+                    <div className="grid grid-cols-2 gap-2 text-gray-700 mt-2">
+                      <p><span className="font-semibold">Mandat N° :</span> {properties.find(p => p.id === selectedDeal.property_id)?.mandate_number} (Loi Hoguet)</p>
+                      <p><span className="font-semibold">Date de compromis :</span> {selectedDeal.compromis_date || 'En cours'}</p>
+                      <p><span className="font-semibold">Vendeur(s) :</span> {selectedDeal.seller_name}</p>
+                      <p><span className="font-semibold">Acquéreur(s) :</span> {selectedDeal.buyer_name}</p>
+                    </div>
+                  </div>
+
+                  {/* Line Items Table with VAT 20% Breakdown */}
+                  {(() => {
+                    const feesTTC = selectedDeal.agency_fees_amount || 0;
+                    const feesHT = Math.round(feesTTC / 1.20);
+                    const tva20 = feesTTC - feesHT;
+
+                    return (
+                      <div className="space-y-3">
+                        <table className="w-full text-xs border border-gray-200 rounded-xl overflow-hidden">
+                          <thead className="bg-gray-100 text-gray-700 font-bold uppercase text-[10px]">
+                            <tr>
+                              <th className="p-3 text-left">Désignation des Prestations</th>
+                              <th className="p-3 text-right">Base HT</th>
+                              <th className="p-3 text-right">Taux TVA</th>
+                              <th className="p-3 text-right">Montant TVA</th>
+                              <th className="p-3 text-right">Total TTC</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-gray-200">
+                            <tr>
+                              <td className="p-3">
+                                <span className="font-bold text-gray-900 block">Honoraires de négociation et transaction immobilière</span>
+                                <span className="text-[11px] text-gray-500">
+                                  Conformément au mandat de vente et au barème d&apos;honoraires de l&apos;agence.
+                                </span>
+                              </td>
+                              <td className="p-3 text-right font-mono">{feesHT.toLocaleString('fr-FR')} €</td>
+                              <td className="p-3 text-right font-mono">20,00 %</td>
+                              <td className="p-3 text-right font-mono">{tva20.toLocaleString('fr-FR')} €</td>
+                              <td className="p-3 text-right font-black text-[#E12B7B] text-sm">{feesTTC.toLocaleString('fr-FR')} €</td>
+                            </tr>
+                          </tbody>
+                        </table>
+
+                        {/* Total & Bank Details */}
+                        <div className="flex flex-col sm:flex-row justify-between items-start gap-4 pt-2">
+                          <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl text-xs space-y-1.5 flex-1">
+                            <span className="font-bold text-gray-800 block text-[11px]">Coordonnées Bancaires pour Virement Notarié :</span>
+                            <p className="font-mono text-[11px] text-gray-800">Titulaire : SASU NELL&apos;IMMO</p>
+                            <p className="font-mono text-[11px] text-gray-800">IBAN : {settings.agency_rib_iban || 'FR76 3000 4000 5000 6000 7000 123'}</p>
+                            <p className="font-mono text-[11px] text-gray-800">BIC : {settings.agency_rib_bic || 'BNPAFRPP'}</p>
+                            <p className="text-[10px] text-gray-500 italic mt-1">
+                              Conformément à l&apos;article 6 de la Loi Hoguet (loi n° 70-9 du 2 janvier 1970), aucun versement ne peut être exigé avant la réitération effective par acte authentique de vente.
+                            </p>
+                          </div>
+
+                          <div className="text-right p-4 bg-[#FAF5F8] border border-[#F3E8EE] rounded-xl shrink-0 min-w-[220px] space-y-1">
+                            <span className="text-[10px] font-bold uppercase text-gray-500 block">Total Net à Verser</span>
+                            <span className="text-2xl font-serif font-black text-[#E12B7B] block">
+                              {feesTTC.toLocaleString('fr-FR')} €
+                            </span>
+                            <span className="text-[10px] text-gray-600 block">Dont TVA 20% : {tva20.toLocaleString('fr-FR')} €</span>
+                            {selectedDeal.fees_received && (
+                              <span className="inline-block mt-2 px-2.5 py-0.5 bg-emerald-100 text-emerald-800 rounded font-bold text-[10px] uppercase">
+                                ✓ Honoraires Acquittés
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </>
+              )}
+
+              {/* MODE 2: APPEL DE FONDS SÉQUESTRE NOTAIRE */}
+              {invoiceDocumentType === 'sequestre' && (
+                <>
+                  <div className="flex justify-between items-center bg-blue-50/70 border border-blue-200 p-3 rounded-xl">
+                    <div>
+                      <span className="text-[10px] uppercase font-bold text-blue-700 block">Fiche de Liaison Notariale</span>
+                      <span className="text-sm font-bold text-gray-900">
+                        APPEL DE FONDS SÉQUESTRE & DÉPÔT DE GARANTIE
+                      </span>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-[10px] uppercase font-bold text-blue-700 block">Date de la Demande</span>
+                      <span className="text-xs font-bold text-gray-900">
+                        {new Date().toLocaleDateString('fr-FR')}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3 text-xs leading-relaxed">
+                    <p>
+                      Maître, faisant suite à la signature de l&apos;avant-contrat de vente sous seing privé portant sur le bien situé à <strong>{properties.find(p => p.id === selectedDeal.property_id)?.city}</strong>, nous vous prions de bien vouloir appeler auprès de l&apos;acquéreur le versement du dépôt de garantie (séquestre) ci-après désigné :
+                    </p>
+
+                    <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl space-y-2">
+                      <div className="flex justify-between border-b border-gray-200 pb-1.5">
+                        <span className="text-gray-600">Acquéreur Débiteur :</span>
+                        <span className="font-bold text-gray-900">{selectedDeal.buyer_name} ({selectedDeal.buyer_phone})</span>
+                      </div>
+                      <div className="flex justify-between border-b border-gray-200 pb-1.5">
+                        <span className="text-gray-600">Vendeur Bénéficiaire :</span>
+                        <span className="font-bold text-gray-900">{selectedDeal.seller_name}</span>
+                      </div>
+                      <div className="flex justify-between border-b border-gray-200 pb-1.5">
+                        <span className="text-gray-600">Prix de Vente Convenu :</span>
+                        <span className="font-bold text-gray-900">{selectedDeal.offer_price_net?.toLocaleString('fr-FR')} € Net Vendeur</span>
+                      </div>
+                      <div className="flex justify-between pt-1">
+                        <span className="text-gray-800 font-bold">Montant du Dépôt de Garantie à Consigner :</span>
+                        <span className="text-base font-black text-blue-900 font-mono">
+                          {selectedDeal.deposit_amount?.toLocaleString('fr-FR') || '15 000'} € ({selectedDeal.deposit_percentage || 5}%)
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-[11px] text-amber-900 space-y-1">
+                      <strong className="block font-bold">Mention Déontologique & Loi Hoguet (Art. 55) :</strong>
+                      <p>
+                        La SASU Nell&apos;Immo ne détenant pas de compte séquestre pour maniement direct de fonds, le dépôt de garantie ci-dessus doit être versé exclusivement par virement bancaire sur le compte de l&apos;étude notariale instrumentaire ou de la Caisse des Dépôts et Consignations (CDC).
+                      </p>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* Signature Block */}
+              <div className="pt-4 border-t border-gray-200 flex justify-between items-end">
+                <div className="text-[10px] text-gray-500 max-w-sm">
+                  <p>Membre d&apos;une association agréée par l&apos;administration fiscale acceptant le règlement des honoraires par virement bancaire.</p>
                 </div>
-                <div className="text-right">
-                  <span className="text-[10px] uppercase font-bold text-gray-400 block">Date d&apos;Émission</span>
-                  <span className="text-xs font-bold text-gray-900">
-                    {selectedDeal.invoice_date || new Date().toLocaleDateString('fr-FR')}
-                  </span>
-                </div>
-              </div>
 
-              {/* Transaction Target Description */}
-              <div className="space-y-1.5 text-xs">
-                <span className="text-[11px] font-bold uppercase text-gray-500 block">Objet de la Transaction</span>
-                <p className="font-bold text-gray-900">
-                  {properties.find(p => p.id === selectedDeal.property_id)?.title}
-                </p>
-                <p className="text-gray-600">
-                  Mandat N° {properties.find(p => p.id === selectedDeal.property_id)?.mandate_number} enregistré au Registre Légal des Mandats.
-                </p>
-                <p className="text-gray-600">
-                  <span className="font-semibold">Vendeur(s) :</span> {selectedDeal.seller_name}
-                </p>
-                <p className="text-gray-600">
-                  <span className="font-semibold">Acquéreur(s) :</span> {selectedDeal.buyer_name}
-                </p>
-              </div>
-
-              {/* Line Items Table */}
-              <table className="w-full text-xs border border-gray-200 rounded-lg overflow-hidden">
-                <thead className="bg-gray-100 text-gray-700 font-bold uppercase text-[10px]">
-                  <tr>
-                    <th className="p-2.5 text-left">Désignation</th>
-                    <th className="p-2.5 text-right">Prix Net Vendeur</th>
-                    <th className="p-2.5 text-right">Montant Honoraires TTC</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  <tr>
-                    <td className="p-2.5">
-                      Honoraires de transaction immobilière et de négociation conformément au barème d&apos;agence affiché.
-                    </td>
-                    <td className="p-2.5 text-right font-medium">
-                      {selectedDeal.offer_price_net?.toLocaleString('fr-FR')} €
-                    </td>
-                    <td className="p-2.5 text-right font-bold text-[#E12B7B]">
-                      {selectedDeal.agency_fees_amount?.toLocaleString('fr-FR')} €
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-
-              {/* Total & Bank Details */}
-              <div className="flex flex-col sm:flex-row justify-between items-start gap-4 pt-2">
-                <div className="p-3 bg-gray-50 border border-gray-200 rounded-xl text-xs space-y-1 flex-1">
-                  <span className="font-bold text-gray-800 block text-[11px]">Règlement par Virement Notarié :</span>
-                  <p className="font-mono text-[11px] text-gray-700">IBAN : {settings.agency_rib_iban || 'FR76 3000 4000 5000 6000 7000 123'}</p>
-                  <p className="font-mono text-[11px] text-gray-700">BIC : {settings.agency_rib_bic || 'BNPAFRPP'}</p>
-                  <p className="text-[10px] text-gray-500 italic mt-1">
-                    Conformément à la Loi Hoguet (Art. 6), aucun versement ne peut être exigé avant la conclusion effective de l&apos;acte authentique.
-                  </p>
-                </div>
-
-                <div className="text-right p-3 bg-[#FAF5F8] border border-[#F3E8EE] rounded-xl shrink-0 min-w-[200px]">
-                  <span className="text-[10px] font-bold uppercase text-gray-500 block">Total Net à Verser</span>
-                  <span className="text-2xl font-serif font-black text-[#E12B7B] block mt-0.5">
-                    {selectedDeal.agency_fees_amount?.toLocaleString('fr-FR')} €
-                  </span>
-                  <span className="text-[10px] text-gray-500 block">TVA incluse au taux en vigueur</span>
-                </div>
-              </div>
-
-              {/* Signature */}
-              <div className="pt-4 flex justify-end">
                 <div className="text-center">
                   <span className="text-xs font-bold text-gray-900 block">{settings.agent_name || 'Nelly Fernandez'}</span>
                   <span className="text-[10px] text-gray-500 block">Présidente SASU Nell&apos;Immo</span>
-                  <div className="h-10 flex items-center justify-center italic text-gray-400 text-xs mt-1">
+                  <div className="h-8 flex items-center justify-center italic text-gray-400 text-xs mt-1">
                     Pour valoir ce que de droit
                   </div>
                 </div>

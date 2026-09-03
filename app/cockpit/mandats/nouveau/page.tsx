@@ -4,29 +4,18 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useNellimoStore } from '@/lib/store';
-import { calculateFinancials, getDpeLetterFromValue, getGesLetterFromValue, isAuditEnergetiqueObligatoire } from '@/lib/hoguet';
+import { calculateFinancials, getDpeLetterFromValue, getGesLetterFromValue } from '@/lib/hoguet';
 import { MandateType, PropertyType, SellerCivility, FeesPaidBy, PropertyImage } from '@/lib/types';
-import {
-  User,
-  Home,
-  Zap,
-  Euro,
-  Image as ImageIcon,
-  Radio,
-  AlertTriangle,
-  ArrowLeft,
-  Plus,
-  Trash2,
-  Sparkles,
-  Wand2,
-  FileText,
-  Upload,
-  CheckCircle2,
-  Copy,
-  Layers,
-  ChevronRight,
-  Info
-} from 'lucide-react';
+import { ArrowLeft, Wand2, Plus } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
+import { MandateWizardStepper } from '@/components/cockpit/mandats/wizard/MandateWizardStepper';
+import { StepSeller } from '@/components/cockpit/mandats/wizard/StepSeller';
+import { StepLocation } from '@/components/cockpit/mandats/wizard/StepLocation';
+import { StepFinancials } from '@/components/cockpit/mandats/wizard/StepFinancials';
+import { StepFeatures } from '@/components/cockpit/mandats/wizard/StepFeatures';
+import { StepDpe } from '@/components/cockpit/mandats/wizard/StepDpe';
+import { StepMediaPublishing } from '@/components/cockpit/mandats/wizard/StepMediaPublishing';
+import { FastFillModal } from '@/components/cockpit/mandats/wizard/FastFillModal';
 
 export default function NewMandatePage() {
   const router = useRouter();
@@ -35,15 +24,14 @@ export default function NewMandatePage() {
 
   // Fast-Fill & AI Helper
   const [showAutoFillModal, setShowAutoFillModal] = useState(false);
-  const [autoFillText, setAutoFillText] = useState('');
   const [autoFillSuccess, setAutoFillSuccess] = useState(false);
   const [isAiGenerating, setIsAiGenerating] = useState(false);
-  const [aiMode, setAiMode] = useState<'portail' | 'luxe' | 'social' | 'bullet'>('portail');
 
   // Next Mandate Number calculation
-  const nextMandateNumber = properties.length > 0
-    ? Math.max(...properties.map(p => p.mandate_number || 0)) + 1
-    : 245;
+  const nextMandateNumber =
+    properties.length > 0
+      ? Math.max(...properties.map((p) => p.mandate_number || 0)) + 1
+      : 245;
 
   // Form State
   const [mandateType, setMandateType] = useState<MandateType>('exclusif');
@@ -74,7 +62,9 @@ export default function NewMandatePage() {
   const [roomsCount, setRoomsCount] = useState<number>(5);
   const [bedroomsCount, setBedroomsCount] = useState<number>(3);
   const [bathroomsCount, setBathroomsCount] = useState<number>(2);
-  const [featuresInput, setFeaturesInput] = useState('Piscine, Climatisation réversible, Garage, Terrasse, Jardin arboré');
+  const [featuresInput, setFeaturesInput] = useState(
+    'Piscine, Climatisation réversible, Garage, Terrasse, Jardin arboré'
+  );
 
   // Diagnostics
   const [dpeValue, setDpeValue] = useState<number>(95);
@@ -99,54 +89,53 @@ export default function NewMandatePage() {
   const [publishLeboncoin, setPublishLeboncoin] = useState(true);
   const [publishBienici, setPublishBienici] = useState(true);
 
-  // Images & Médias state
+  // Media
   const [videoUrl, setVideoUrl] = useState('');
   const [virtualTourUrl, setVirtualTourUrl] = useState('');
   const [images, setImages] = useState<PropertyImage[]>([
     {
-      id: 'img-new-1',
+      id: 'img-1',
       property_id: '',
-      image_url: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=80',
+      image_url: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80',
       display_order: 1,
       is_cover: true,
       created_at: new Date().toISOString()
+    },
+    {
+      id: 'img-2',
+      property_id: '',
+      image_url: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80',
+      display_order: 2,
+      is_cover: false,
+      created_at: new Date().toISOString()
+    },
+    {
+      id: 'img-3',
+      property_id: '',
+      image_url: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80',
+      display_order: 3,
+      is_cover: false,
+      created_at: new Date().toISOString()
     }
   ]);
-  const [newImageUrl, setNewImageUrl] = useState('');
 
-  // Calculations
+  // Derived calculations
   const financials = calculateFinancials({
     priceNetSeller,
-    agencyFeesPercentage,
     agencyFeesAmount,
+    agencyFeesPercentage,
     feesPaidBy
   });
-
   const dpeLetter = getDpeLetterFromValue(dpeValue);
   const gesLetter = getGesLetterFromValue(gesValue);
-  const isPassoireThermique = isAuditEnergetiqueObligatoire(dpeLetter);
 
-  const handlePriceNetChange = (val: number) => {
-    setPriceNetSeller(val);
-    const amount = Math.round((val * agencyFeesPercentage) / 100);
-    setAgencyFeesAmount(amount);
-  };
-
-  const handleFeesPercentChange = (val: number) => {
-    setAgencyFeesPercentage(val);
-    const amount = Math.round((priceNetSeller * val) / 100);
-    setAgencyFeesAmount(amount);
-  };
-
-  // Smart Auto-Fill Parser
-  const handleRunAutoFill = () => {
-    if (!autoFillText.trim()) return;
-
-    const text = autoFillText;
+  // Smart Fast-Fill text parser
+  const handleProcessFastFill = (text: string) => {
+    if (!text.trim()) return;
     const textLower = text.toLowerCase();
 
-    // Detect price
-    const priceMatch = text.match(/([\d\s\xa0]{4,})\s*€/);
+    // Price
+    const priceMatch = text.match(/(?:prix|vendu|montant|fai)?\s*:?\s*(\d[\d\s\xa0]{3,})\s*(?:€|euros)/i);
     if (priceMatch) {
       const p = parseInt(priceMatch[1].replace(/\s+/g, '').replace(/\xa0/g, ''), 10);
       if (!isNaN(p) && p > 10000) {
@@ -156,7 +145,7 @@ export default function NewMandatePage() {
       }
     }
 
-    // Detect surface
+    // Surface
     const surfMatch = text.match(/(\d+(?:[.,]\d+)?)\s*(?:m²|m2|mètres)/i);
     if (surfMatch) {
       const s = parseFloat(surfMatch[1].replace(',', '.'));
@@ -166,43 +155,62 @@ export default function NewMandatePage() {
       }
     }
 
-    // Detect terrain
+    // Terrain
     const terrainMatch = text.match(/(?:terrain|parcelle)\s*(?:de)?\s*(\d+(?:[.,]\d+)?)\s*(?:m²|m2)/i);
     if (terrainMatch) {
       const t = parseFloat(terrainMatch[1].replace(',', '.'));
       if (!isNaN(t)) setLandArea(t);
     }
 
-    // Detect rooms
+    // Rooms
     const roomsMatch = text.match(/(\d+)\s*(?:pièces|pieces|piece|pièce|T(\d+))/i);
     if (roomsMatch) {
       const r = parseInt(roomsMatch[1] || roomsMatch[2], 10);
       if (!isNaN(r)) setRoomsCount(r);
     }
 
-    // Detect bedrooms
+    // Bedrooms
     const bedMatch = text.match(/(\d+)\s*(?:chambres|chambre|chb)/i);
     if (bedMatch) {
       const b = parseInt(bedMatch[1], 10);
       if (!isNaN(b)) setBedroomsCount(b);
     }
 
-    // Detect city
-    if (textLower.includes('salon')) { setCity('Salon-de-Provence'); setPostalCode('13300'); }
-    else if (textLower.includes('pélissanne') || textLower.includes('pelissanne')) { setCity('Pélissanne'); setPostalCode('13330'); }
-    else if (textLower.includes('lançon') || textLower.includes('lancon')) { setCity('Lançon-Provence'); setPostalCode('13680'); }
-    else if (textLower.includes('éguilles') || textLower.includes('eguilles')) { setCity('Éguilles'); setPostalCode('13510'); }
-    else if (textLower.includes('sénas') || textLower.includes('senas')) { setCity('Sénas'); setPostalCode('13560'); }
-    else if (textLower.includes('la fare')) { setCity('La Fare-les-Oliviers'); setPostalCode('13580'); }
+    // City
+    if (textLower.includes('salon')) {
+      setCity('Salon-de-Provence');
+      setPostalCode('13300');
+    } else if (textLower.includes('pélissanne') || textLower.includes('pelissanne')) {
+      setCity('Pélissanne');
+      setPostalCode('13330');
+    } else if (textLower.includes('lançon') || textLower.includes('lancon')) {
+      setCity('Lançon-Provence');
+      setPostalCode('13680');
+    } else if (textLower.includes('éguilles') || textLower.includes('eguilles')) {
+      setCity('Éguilles');
+      setPostalCode('13510');
+    } else if (textLower.includes('sénas') || textLower.includes('senas')) {
+      setCity('Sénas');
+      setPostalCode('13560');
+    } else if (textLower.includes('la fare')) {
+      setCity('La Fare-les-Oliviers');
+      setPostalCode('13580');
+    }
 
-    // Detect property type
-    if (textLower.includes('appartement') || textLower.includes('studio')) setPropertyType('appartement');
-    else if (textLower.includes('terrain')) setPropertyType('terrain');
-    else if (textLower.includes('immeuble')) setPropertyType('immeuble');
-    else if (textLower.includes('commercial') || textLower.includes('bureau')) setPropertyType('local_commercial');
-    else setPropertyType('maison');
+    // Property type
+    if (textLower.includes('appartement') || textLower.includes('studio')) {
+      setPropertyType('appartement');
+    } else if (textLower.includes('terrain')) {
+      setPropertyType('terrain');
+    } else if (textLower.includes('immeuble')) {
+      setPropertyType('immeuble');
+    } else if (textLower.includes('commercial') || textLower.includes('bureau')) {
+      setPropertyType('local_commercial');
+    } else {
+      setPropertyType('maison');
+    }
 
-    // Title & Description
+    // Description & Title
     if (text.length > 50) {
       setDescription(text.trim());
       const firstLine = text.split('\n')[0].replace(/^#+\s*/, '').trim();
@@ -221,26 +229,33 @@ export default function NewMandatePage() {
   // AI Copywriting Generator
   const handleGenerateAiDescription = (mode: 'portail' | 'luxe' | 'social' | 'bullet') => {
     setIsAiGenerating(true);
-    setAiMode(mode);
 
     setTimeout(() => {
       let generated = '';
-      const typeLabel = propertyType === 'maison' ? 'Villa / Maison' : propertyType === 'appartement' ? 'Appartement' : 'Bien immobilier';
+      const typeLabel =
+        propertyType === 'maison'
+          ? 'Villa / Maison'
+          : propertyType === 'appartement'
+          ? 'Appartement'
+          : 'Bien immobilier';
 
       if (mode === 'portail') {
-        generated = `NELL'IMMO vous présente en EXCLUSIVITÉ cette superbe ${typeLabel.toLowerCase()} de ${livingArea}m² idéalement située sur la commune prisée de ${city} (${postalCode}).\n\n` +
+        generated =
+          `NELL'IMMO vous présente en EXCLUSIVITÉ cette superbe ${typeLabel.toLowerCase()} de ${livingArea}m² idéalement située sur la commune prisée de ${city} (${postalCode}).\n\n` +
           `Ce bien de ${roomsCount} pièces (${bedroomsCount} chambres) se compose d'une lumineuse pièce de vie avec cuisine équipée ouverte, bénéficiant d'une exposition idéale.\n\n` +
           `À l'extérieur, vous profiterez d'un agréable terrain de ${landArea}m² ${featuresInput.toLowerCase().includes('piscine') ? 'avec piscine et espace détente,' : ''} parfait pour vos moments de convivialité en famille.\n\n` +
           `Prestations complémentaires : ${featuresInput}.\n` +
           `DPE : ${dpeLetter} (${dpeValue} kWh/m²/an) - GES : ${gesLetter}.\n\n` +
           `Pour toute information ou pour organiser une visite, contactez Nelly FERNANDEZ au 07 55 68 61 09 ou par email à nellimmo.acte@gmail.com. Mandat n°${nextMandateNumber}.`;
       } else if (mode === 'luxe') {
-        generated = `L'agence NELL'IMMO a le privilège de vous dévoiler cette demeure d'exception nichée dans l'un des cadres les plus recherchés de ${city}.\n\n` +
+        generated =
+          `L'agence NELL'IMMO a le privilège de vous dévoiler cette demeure d'exception nichée dans l'un des cadres les plus recherchés de ${city}.\n\n` +
           `Déployant ${livingArea}m² d'élégance et de volumes généreux, cette propriété sublime l'art de vivre provençal. Les espaces de réception baignés de lumière s'ouvrent harmonieusement sur un parc paysager de ${landArea}m² ${featuresInput.toLowerCase().includes('piscine') ? 'agrémenté d\'un superbe espace piscine.' : '.'}\n\n` +
           `L'espace nuit offre ${bedroomsCount} suites raffinées alliant confort absolu et sérénité. Matériaux nobles, finitions haut de gamme (${featuresInput}) et performance énergétique exemplaire font de cette adresse une opportunité rare sur le Pays Salonais.\n\n` +
           `Dossier complet et visites privées sur demande auprès de Nelly Fernandez (07 55 68 61 09).`;
       } else if (mode === 'social') {
-        generated = `🔥 NOUVEAUTÉ NELL'IMMO À ${city.toUpperCase()} ! 🔥\n\n` +
+        generated =
+          `🔥 NOUVEAUTÉ NELL'IMMO À ${city.toUpperCase()} ! 🔥\n\n` +
           `🏡 Coup de cœur pour cette superbe ${typeLabel.toLowerCase()} de ${livingArea}m² avec terrain de ${landArea}m² !\n\n` +
           `✨ Ce qu'on adore :\n` +
           `✔️ ${roomsCount} pièces spacieuses et lumineuses\n` +
@@ -251,7 +266,8 @@ export default function NewMandatePage() {
           `📞 Contactez-nous vite pour visiter : 07 55 68 61 09\n\n` +
           `#Immobilier #${city.replace(/\s+/g, '')} #PaysSalonais #NellImmo #MaisonAVendre #VillaPACA #ProvenceRealEstate #Exclusivite`;
       } else {
-        generated = `Fiche synthétique - Mandat #${nextMandateNumber} - ${city} :\n` +
+        generated =
+          `Fiche synthétique - Mandat #${nextMandateNumber} - ${city} :\n` +
           `- Type : ${typeLabel}\n` +
           `- Surface : ${livingArea} m² habitable (Carrez: ${carrezArea} m²)\n` +
           `- Terrain : ${landArea} m²\n` +
@@ -267,10 +283,9 @@ export default function NewMandatePage() {
     }, 500);
   };
 
-  // Image handlers
-  const handleAddImage = () => {
-    if (!newImageUrl.trim()) return;
-    const urls = newImageUrl.split(/[\n,]+/).map(u => u.trim()).filter(Boolean);
+  // Image helpers
+  const handleAddImageByUrl = (url: string) => {
+    const urls = url.split(/[\n,]+/).map((u) => u.trim()).filter(Boolean);
     const newItems: PropertyImage[] = urls.map((u, i) => ({
       id: `img-${Date.now()}-${i}`,
       property_id: '',
@@ -280,13 +295,9 @@ export default function NewMandatePage() {
       created_at: new Date().toISOString()
     }));
     setImages([...images, ...newItems]);
-    setNewImageUrl('');
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files) return;
-
+  const handleUploadFiles = (files: FileList) => {
     Array.from(files).forEach((file, index) => {
       const reader = new FileReader();
       reader.onload = (event) => {
@@ -299,7 +310,7 @@ export default function NewMandatePage() {
             is_cover: images.length === 0 && index === 0,
             created_at: new Date().toISOString()
           };
-          setImages(prev => [...prev, newImg]);
+          setImages((prev) => [...prev, newImg]);
         }
       };
       reader.readAsDataURL(file);
@@ -308,7 +319,7 @@ export default function NewMandatePage() {
 
   const handleRemoveImage = (index: number) => {
     const updated = images.filter((_, i) => i !== index);
-    if (updated.length > 0 && !updated.some(img => img.is_cover)) {
+    if (updated.length > 0 && !updated.some((img) => img.is_cover)) {
       updated[0].is_cover = true;
     }
     setImages(updated);
@@ -322,13 +333,14 @@ export default function NewMandatePage() {
     setImages(updated);
   };
 
+  // Form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     const featuresList = featuresInput
       .split(',')
-      .map(f => f.trim())
+      .map((f) => f.trim())
       .filter(Boolean);
 
     try {
@@ -342,7 +354,9 @@ export default function NewMandatePage() {
         seller_email: sellerEmail || 'vendeur@nellimmo.fr',
         seller_phone: sellerPhone || '07 55 68 61 09',
         seller_address: sellerAddress || `${city}, Pays Salonais`,
-        title: title || `${propertyType === 'maison' ? 'Villa' : 'Appartement'} ${roomsCount} pièces à ${city}`,
+        title:
+          title ||
+          `${propertyType === 'maison' ? 'Villa' : 'Appartement'} ${roomsCount} pièces à ${city}`,
         property_type: propertyType,
         address: address || `Secteur ${city}`,
         postal_code: postalCode,
@@ -379,7 +393,7 @@ export default function NewMandatePage() {
 
       router.push(`/cockpit/mandats/${created.id}`);
     } catch (err) {
-      console.error(err);
+      console.error('Erreur lors de la création du mandat :', err);
       alert('Erreur lors de la création du mandat');
     } finally {
       setIsSubmitting(false);
@@ -387,8 +401,7 @@ export default function NewMandatePage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 animate-fade-in pb-20">
-      
+    <div className="max-w-4xl mx-auto space-y-6 animate-fade-in pb-20">
       {/* Top Navigation */}
       <div className="flex items-center justify-between">
         <Link
@@ -399,15 +412,15 @@ export default function NewMandatePage() {
           Retour au registre des mandats
         </Link>
 
-        {/* Smart Fast-Fill Trigger */}
-        <button
+        <Button
           type="button"
+          variant="gold"
+          size="sm"
           onClick={() => setShowAutoFillModal(true)}
-          className="px-4 py-2 bg-gradient-to-r from-[#E12B7B] to-[#C59A45] hover:opacity-95 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-sm transition cursor-pointer"
+          leftIcon={<Wand2 className="w-4 h-4" />}
         >
-          <Wand2 className="w-4 h-4" />
           Remplissage Express / Import Texte
-        </button>
+        </Button>
       </div>
 
       {/* Header Banner */}
@@ -426,710 +439,138 @@ export default function NewMandatePage() {
 
         <div className="px-4 py-2 bg-[#FAF5F8] border border-[#F3E8EE] rounded-2xl flex items-center gap-3">
           <div className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="text-xs font-bold text-gray-700">Régistre Loi Hoguet Prêt</span>
+          <span className="text-xs font-bold text-gray-700">Registre Loi Hoguet Prêt</span>
         </div>
       </div>
 
-      {/* AUTO-FILL MODAL */}
-      {showAutoFillModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-fade-in">
-          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-xl w-full space-y-4 shadow-2xl border border-gray-100">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="p-2 bg-[#FDF2F8] text-[#E12B7B] rounded-xl">
-                  <Wand2 className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="font-serif font-bold text-lg text-[#131B26]">
-                    Remplissage Express Intelligent
-                  </h3>
-                  <p className="text-xs text-gray-500">
-                    Collez le texte d&apos;une annonce, un email ou des notes de visite.
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => setShowAutoFillModal(false)}
-                className="text-gray-400 hover:text-gray-600 text-lg font-bold p-1 cursor-pointer"
-              >
-                ✕
-              </button>
-            </div>
+      {/* Stepper navigation bar */}
+      <MandateWizardStepper />
 
-            <textarea
-              rows={6}
-              value={autoFillText}
-              onChange={(e) => setAutoFillText(e.target.value)}
-              placeholder="Ex: Villa contemporaine T5 de 140m2 à Salon-de-Provence avec piscine sur 800m2 de terrain. Prix 485000 euros FAI. DPE C. 4 chambres, garage..."
-              className="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl text-xs focus:outline-[#E12B7B]"
-            />
+      {/* Main Form */}
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <StepSeller
+          mandateType={mandateType}
+          onMandateTypeChange={setMandateType}
+          mandateDate={mandateDate}
+          onMandateDateChange={setMandateDate}
+          mandateEndDate={mandateEndDate}
+          onMandateEndDateChange={setMandateEndDate}
+          sellerCivility={sellerCivility}
+          onSellerCivilityChange={setSellerCivility}
+          sellerName={sellerName}
+          onSellerNameChange={setSellerName}
+          sellerEmail={sellerEmail}
+          onSellerEmailChange={setSellerEmail}
+          sellerPhone={sellerPhone}
+          onSellerPhoneChange={setSellerPhone}
+          sellerAddress={sellerAddress}
+          onSellerAddressChange={setSellerAddress}
+        />
 
-            <div className="flex items-center justify-between pt-2">
-              <span className="text-[11px] text-gray-400">
-                Extraction auto : prix, surfaces, pièces, ville, DPE, équipements.
-              </span>
-              <button
-                type="button"
-                onClick={handleRunAutoFill}
-                disabled={!autoFillText.trim()}
-                className="px-6 py-2.5 bg-[#E12B7B] hover:bg-[#c42068] text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-sm transition cursor-pointer disabled:opacity-50"
-              >
-                {autoFillSuccess ? <CheckCircle2 className="w-4 h-4" /> : <Sparkles className="w-4 h-4" />}
-                {autoFillSuccess ? 'Injecté !' : 'Extraire & Remplir'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+        <StepLocation
+          title={title}
+          onTitleChange={setTitle}
+          propertyType={propertyType}
+          onPropertyTypeChange={setPropertyType}
+          address={address}
+          onAddressChange={setAddress}
+          postalCode={postalCode}
+          onPostalCodeChange={setPostalCode}
+          city={city}
+          onCityChange={setCity}
+        />
 
-      <form onSubmit={handleSubmit} className="space-y-8">
-        
-        {/* 1. INFORMATIONS JURIDIQUES & VENDEUR */}
-        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#F3E8EE] shadow-xs space-y-6">
-          <div className="flex items-center gap-2.5 font-serif font-bold text-lg text-[#131B26] border-b border-[#FAF5F8] pb-3">
-            <User className="w-5 h-5 text-[#E12B7B]" />
-            <span>1. Vendeur (Mandant) & Modalités Juridiques</span>
-          </div>
+        <StepFinancials
+          priceNetSeller={priceNetSeller}
+          onPriceNetSellerChange={setPriceNetSeller}
+          agencyFeesPercentage={agencyFeesPercentage}
+          onAgencyFeesPercentageChange={setAgencyFeesPercentage}
+          agencyFeesAmount={agencyFeesAmount}
+          onAgencyFeesAmountChange={setAgencyFeesAmount}
+          feesPaidBy={feesPaidBy}
+          onFeesPaidByChange={setFeesPaidBy}
+          financials={financials}
+        />
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-xs font-bold uppercase text-gray-700 mb-1">Type de mandat</label>
-              <select
-                value={mandateType}
-                onChange={(e) => setMandateType(e.target.value as MandateType)}
-                className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-[#E12B7B] focus:outline-[#E12B7B]"
-              >
-                <option value="exclusif">Mandat Exclusif (Recommandé)</option>
-                <option value="simple">Mandat Simple</option>
-                <option value="semi-exclusif">Mandat Semi-Exclusif</option>
-              </select>
-            </div>
+        <StepFeatures
+          livingArea={livingArea}
+          onLivingAreaChange={setLivingArea}
+          carrezArea={carrezArea}
+          onCarrezAreaChange={setCarrezArea}
+          landArea={landArea}
+          onLandAreaChange={setLandArea}
+          roomsCount={roomsCount}
+          onRoomsCountChange={setRoomsCount}
+          bedroomsCount={bedroomsCount}
+          onBedroomsCountChange={setBedroomsCount}
+          bathroomsCount={bathroomsCount}
+          onBathroomsCountChange={setBathroomsCount}
+          featuresInput={featuresInput}
+          onFeaturesInputChange={setFeaturesInput}
+        />
 
-            <div>
-              <label className="block text-xs font-bold uppercase text-gray-700 mb-1">Date d&apos;effet</label>
-              <input
-                type="date"
-                required
-                value={mandateDate}
-                onChange={(e) => setMandateDate(e.target.value)}
-                className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold focus:outline-[#E12B7B]"
-              />
-            </div>
+        <StepDpe
+          dpeValue={dpeValue}
+          onDpeValueChange={setDpeValue}
+          gesValue={gesValue}
+          onGesValueChange={setGesValue}
+          energyCostMin={energyCostMin}
+          onEnergyCostMinChange={setEnergyCostMin}
+          energyCostMax={energyCostMax}
+          onEnergyCostMaxChange={setEnergyCostMax}
+        />
 
-            <div>
-              <label className="block text-xs font-bold uppercase text-gray-700 mb-1">Date d&apos;échéance</label>
-              <input
-                type="date"
-                required
-                value={mandateEndDate}
-                onChange={(e) => setMandateEndDate(e.target.value)}
-                className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold focus:outline-[#E12B7B]"
-              />
-            </div>
-          </div>
+        <StepMediaPublishing
+          description={description}
+          onDescriptionChange={setDescription}
+          onGenerateAiDescription={handleGenerateAiDescription}
+          isAiGenerating={isAiGenerating}
+          images={images}
+          onAddImageByUrl={handleAddImageByUrl}
+          onUploadFiles={handleUploadFiles}
+          onRemoveImage={handleRemoveImage}
+          onSetCoverImage={handleSetCover}
+          videoUrl={videoUrl}
+          onVideoUrlChange={setVideoUrl}
+          virtualTourUrl={virtualTourUrl}
+          onVirtualTourUrlChange={setVirtualTourUrl}
+          publishWebsite={publishWebsite}
+          onPublishWebsiteChange={setPublishWebsite}
+          publishSeloger={publishSeloger}
+          onPublishSelogerChange={setPublishSeloger}
+          publishLeboncoin={publishLeboncoin}
+          onPublishLeboncoinChange={setPublishLeboncoin}
+          publishBienici={publishBienici}
+          onPublishBieniciChange={setPublishBienici}
+        />
 
-          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-            <div>
-              <label className="block text-xs font-bold uppercase text-gray-700 mb-1">Civilité</label>
-              <select
-                value={sellerCivility}
-                onChange={(e) => setSellerCivility(e.target.value as SellerCivility)}
-                className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold focus:outline-[#E12B7B]"
-              >
-                <option value="M_Mme">M. et Mme</option>
-                <option value="M">Monsieur</option>
-                <option value="Mme">Madame</option>
-                <option value="SCI">SCI</option>
-                <option value="Societe">Société / Autre</option>
-              </select>
-            </div>
-
-            <div className="sm:col-span-3">
-              <label className="block text-xs font-bold uppercase text-gray-700 mb-1">Nom complet du vendeur / SCI</label>
-              <input
-                type="text"
-                required
-                placeholder="Ex: Jean et Claire Dupont"
-                value={sellerName}
-                onChange={(e) => setSellerName(e.target.value)}
-                className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold focus:outline-[#E12B7B]"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-bold uppercase text-gray-700 mb-1">Téléphone du vendeur</label>
-              <input
-                type="tel"
-                required
-                placeholder="06 12 34 56 78"
-                value={sellerPhone}
-                onChange={(e) => setSellerPhone(e.target.value)}
-                className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold focus:outline-[#E12B7B]"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-bold uppercase text-gray-700 mb-1">E-mail du vendeur</label>
-              <input
-                type="email"
-                placeholder="vendeur@email.fr"
-                value={sellerEmail}
-                onChange={(e) => setSellerEmail(e.target.value)}
-                className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold focus:outline-[#E12B7B]"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold uppercase text-gray-700 mb-1">Adresse personnelle du vendeur</label>
-            <input
-              type="text"
-              placeholder="Ex: 12 Chemin des Costes, 13330 Pélissanne"
-              value={sellerAddress}
-              onChange={(e) => setSellerAddress(e.target.value)}
-              className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold focus:outline-[#E12B7B]"
-            />
-          </div>
-        </div>
-
-        {/* 2. CARACTÉRISTIQUES DU BIEN */}
-        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#F3E8EE] shadow-xs space-y-6">
-          <div className="flex items-center gap-2.5 font-serif font-bold text-lg text-[#131B26] border-b border-[#FAF5F8] pb-3">
-            <Home className="w-5 h-5 text-[#E12B7B]" />
-            <span>2. Caractéristiques & Localisation</span>
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold uppercase text-gray-700 mb-1">Titre commercial de l&apos;annonce</label>
-            <input
-              type="text"
-              required
-              placeholder="Ex: Superbe Villa Contemporaine de Plain-Pied avec Piscine"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-gray-900 focus:outline-[#E12B7B]"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-xs font-bold uppercase text-gray-700 mb-1">Type de bien</label>
-              <select
-                value={propertyType}
-                onChange={(e) => setPropertyType(e.target.value as PropertyType)}
-                className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold focus:outline-[#E12B7B]"
-              >
-                <option value="maison">Maison / Villa</option>
-                <option value="appartement">Appartement</option>
-                <option value="terrain">Terrain</option>
-                <option value="immeuble">Immeuble</option>
-                <option value="local_commercial">Local Commercial</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold uppercase text-gray-700 mb-1">Commune</label>
-              <input
-                type="text"
-                required
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-                className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold focus:outline-[#E12B7B]"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold uppercase text-gray-700 mb-1">Code Postal</label>
-              <input
-                type="text"
-                required
-                value={postalCode}
-                onChange={(e) => setPostalCode(e.target.value)}
-                className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold focus:outline-[#E12B7B]"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold uppercase text-gray-700 mb-1">Adresse exacte du bien</label>
-            <input
-              type="text"
-              placeholder="Ex: 145 Chemin des Oliviers"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold focus:outline-[#E12B7B]"
-            />
-          </div>
-
-          {/* Surfaces & Pièces */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <div>
-              <label className="block text-xs font-bold uppercase text-gray-700 mb-1">Surface Habitable (m²)</label>
-              <input
-                type="number"
-                step="0.1"
-                required
-                value={livingArea}
-                onChange={(e) => setLivingArea(Number(e.target.value))}
-                className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold focus:outline-[#E12B7B]"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold uppercase text-gray-700 mb-1">Surface Carrez (m²)</label>
-              <input
-                type="number"
-                step="0.1"
-                value={carrezArea}
-                onChange={(e) => setCarrezArea(Number(e.target.value))}
-                className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold focus:outline-[#E12B7B]"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold uppercase text-gray-700 mb-1">Surface Terrain (m²)</label>
-              <input
-                type="number"
-                value={landArea}
-                onChange={(e) => setLandArea(Number(e.target.value))}
-                className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold focus:outline-[#E12B7B]"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold uppercase text-gray-700 mb-1">Nombre de pièces</label>
-              <input
-                type="number"
-                required
-                value={roomsCount}
-                onChange={(e) => setRoomsCount(Number(e.target.value))}
-                className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold focus:outline-[#E12B7B]"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-xs font-bold uppercase text-gray-700 mb-1">Nombre de chambres</label>
-              <input
-                type="number"
-                required
-                value={bedroomsCount}
-                onChange={(e) => setBedroomsCount(Number(e.target.value))}
-                className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold focus:outline-[#E12B7B]"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold uppercase text-gray-700 mb-1">Salles de bains / eau</label>
-              <input
-                type="number"
-                value={bathroomsCount}
-                onChange={(e) => setBathroomsCount(Number(e.target.value))}
-                className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold focus:outline-[#E12B7B]"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold uppercase text-gray-700 mb-1">Équipements clés</label>
-              <input
-                type="text"
-                placeholder="Piscine, Climatisation, Garage..."
-                value={featuresInput}
-                onChange={(e) => setFeaturesInput(e.target.value)}
-                className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold focus:outline-[#E12B7B]"
-              />
-            </div>
-          </div>
-
-          {/* AI Description Studio */}
-          <div className="space-y-3 pt-2">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <label className="block text-xs font-bold uppercase text-gray-700">Descriptif de l&apos;annonce</label>
-              
-              <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="text-[10px] font-bold text-gray-400 uppercase mr-1 flex items-center gap-1">
-                  <Sparkles className="w-3 h-3 text-[#E12B7B]" />
-                  Générer IA :
-                </span>
-                <button
-                  type="button"
-                  onClick={() => handleGenerateAiDescription('portail')}
-                  disabled={isAiGenerating}
-                  className="px-2.5 py-1 bg-[#FDF2F8] hover:bg-[#FCE7F3] text-[#E12B7B] rounded-lg text-[11px] font-bold transition cursor-pointer"
-                >
-                  🚀 Portails
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleGenerateAiDescription('luxe')}
-                  disabled={isAiGenerating}
-                  className="px-2.5 py-1 bg-[#FAF6EE] hover:bg-[#F4EBD7] text-[#C59A45] rounded-lg text-[11px] font-bold transition cursor-pointer"
-                >
-                  ✨ Luxe
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleGenerateAiDescription('social')}
-                  disabled={isAiGenerating}
-                  className="px-2.5 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-[11px] font-bold transition cursor-pointer"
-                >
-                  📱 Réseaux
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleGenerateAiDescription('bullet')}
-                  disabled={isAiGenerating}
-                  className="px-2.5 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-[11px] font-bold transition cursor-pointer"
-                >
-                  📋 Synthèse
-                </button>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between text-[11px] text-gray-500 font-mono">
-              <span>Zone d&apos;écriture étendue (supporte les longs textes sans forcer le scroll)</span>
-              <span className="font-bold text-[#E12B7B] bg-[#FDF2F8] px-2.5 py-0.5 rounded-full">
-                {description.split('\n').length} ligne(s) • {description.length} car.
-              </span>
-            </div>
-
-            <textarea
-              rows={26}
-              required
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Rédigez ou collez ici le texte complet de votre annonce (paragraphes, détails des pièces, extérieur, environnement, mentions légales)..."
-              className="w-full min-h-[500px] p-4 bg-gray-50 border border-gray-200 rounded-2xl text-xs sm:text-sm font-sans font-normal text-gray-800 focus:outline-[#E12B7B] leading-relaxed resize-y shadow-inner"
-            />
-          </div>
-        </div>
-
-        {/* 3. DIAGNOSTICS ÉNERGÉTIQUES */}
-        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#F3E8EE] shadow-xs space-y-6">
-          <div className="flex items-center justify-between border-b border-[#FAF5F8] pb-3">
-            <div className="flex items-center gap-2.5 font-serif font-bold text-lg text-[#131B26]">
-              <Zap className="w-5 h-5 text-[#E12B7B]" />
-              <span>3. Diagnostics Énergétiques (DPE / GES)</span>
-            </div>
-            {isPassoireThermique && (
-              <span className="px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-bold flex items-center gap-1">
-                <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
-                Audit Énergétique Obligatoire
-              </span>
-            )}
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div>
-              <label className="block text-xs font-bold uppercase text-gray-700 mb-1">
-                DPE (kWh/m²/an)
-              </label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="number"
-                  value={dpeValue}
-                  onChange={(e) => setDpeValue(Number(e.target.value))}
-                  className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold focus:outline-[#E12B7B]"
-                />
-                <span className={`px-3 py-2 rounded-xl font-black text-sm ${
-                  ['A', 'B'].includes(dpeLetter || '') ? 'bg-emerald-100 text-emerald-800' :
-                  ['C', 'D'].includes(dpeLetter || '') ? 'bg-amber-100 text-amber-800' :
-                  'bg-red-100 text-red-800'
-                }`}>
-                  {dpeLetter || '-'}
-                </span>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold uppercase text-gray-700 mb-1">
-                GES (kg CO₂/m²/an)
-              </label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="number"
-                  value={gesValue}
-                  onChange={(e) => setGesValue(Number(e.target.value))}
-                  className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold focus:outline-[#E12B7B]"
-                />
-                <span className="px-3 py-2 bg-blue-50 text-blue-800 rounded-xl font-black text-sm">
-                  {gesLetter || '-'}
-                </span>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold uppercase text-gray-700 mb-1">Coûts Min (€/an)</label>
-              <input
-                type="number"
-                value={energyCostMin}
-                onChange={(e) => setEnergyCostMin(Number(e.target.value))}
-                className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold focus:outline-[#E12B7B]"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold uppercase text-gray-700 mb-1">Coûts Max (€/an)</label>
-              <input
-                type="number"
-                value={energyCostMax}
-                onChange={(e) => setEnergyCostMax(Number(e.target.value))}
-                className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold focus:outline-[#E12B7B]"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* 4. DONNÉES FINANCIÈRES */}
-        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#F3E8EE] shadow-xs space-y-6">
-          <div className="flex items-center gap-2.5 font-serif font-bold text-lg text-[#131B26] border-b border-[#FAF5F8] pb-3">
-            <Euro className="w-5 h-5 text-[#E12B7B]" />
-            <span>4. Prix & Honoraires (Loi ALUR)</span>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-xs font-bold uppercase text-gray-700 mb-1">Prix Net Vendeur (€)</label>
-              <input
-                type="number"
-                required
-                value={priceNetSeller}
-                onChange={(e) => handlePriceNetChange(Number(e.target.value))}
-                className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-gray-900 focus:outline-[#E12B7B]"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold uppercase text-gray-700 mb-1">Honoraires TTC (%)</label>
-              <input
-                type="number"
-                step="0.05"
-                required
-                value={agencyFeesPercentage}
-                onChange={(e) => handleFeesPercentChange(Number(e.target.value))}
-                className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-gray-900 focus:outline-[#E12B7B]"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold uppercase text-gray-700 mb-1">Charge des Honoraires</label>
-              <select
-                value={feesPaidBy}
-                onChange={(e) => setFeesPaidBy(e.target.value as FeesPaidBy)}
-                className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold focus:outline-[#E12B7B]"
-              >
-                <option value="vendeur">Charge Vendeur (Standard Nell&apos;Immo)</option>
-                <option value="acquereur">Charge Acquéreur</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Financial summary */}
-          <div className="bg-[#FCFAF7] rounded-2xl p-6 border border-[#F3E8EE] grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
-            <div>
-              <span className="text-[11px] uppercase font-bold text-gray-400">Prix Net Vendeur</span>
-              <div className="text-xl font-bold text-gray-900 mt-1">
-                {priceNetSeller.toLocaleString('fr-FR')} €
-              </div>
-            </div>
-            <div>
-              <span className="text-[11px] uppercase font-bold text-gray-400">Honoraires TTC ({agencyFeesPercentage}%)</span>
-              <div className="text-xl font-bold text-gray-900 mt-1">
-                {financials.agencyFeesAmount.toLocaleString('fr-FR')} €
-              </div>
-            </div>
-            <div>
-              <span className="text-[11px] uppercase font-bold text-[#E12B7B]">Prix Public Affiché (FAI)</span>
-              <div className="text-2xl font-black text-[#E12B7B] mt-0.5">
-                {financials.priceFai.toLocaleString('fr-FR')} €
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* 5. PHOTOS & MÉDIAS */}
-        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#F3E8EE] shadow-xs space-y-6">
-          <div className="flex items-center justify-between border-b border-[#FAF5F8] pb-3">
-            <div className="flex items-center gap-2.5 font-serif font-bold text-lg text-[#131B26]">
-              <ImageIcon className="w-5 h-5 text-[#E12B7B]" />
-              <span>5. Photos HD & Visite Virtuelle</span>
-            </div>
-            <span className="text-xs font-bold text-gray-500">{images.length} photo(s)</span>
-          </div>
-
-          {/* Photo Upload & URL adder */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <label className="p-4 border-2 border-dashed border-gray-300 hover:border-[#E12B7B] bg-gray-50 hover:bg-[#FDF2F8]/30 rounded-2xl flex flex-col items-center justify-center gap-2 cursor-pointer transition text-center">
-              <Upload className="w-5 h-5 text-[#E12B7B]" />
-              <span className="text-xs font-bold text-gray-800">
-                Glisser ou Parcourir vos photos
-              </span>
-              <span className="text-[10px] text-gray-400">JPG, PNG, WebP (Multi-sélection)</span>
-              <input
-                type="file"
-                multiple
-                accept="image/*"
-                onChange={handleFileUpload}
-                className="hidden"
-              />
-            </label>
-
-            <div className="flex flex-col gap-2">
-              <textarea
-                rows={2}
-                placeholder="Ou coller des URLs d'images (séparées par une virgule)..."
-                value={newImageUrl}
-                onChange={(e) => setNewImageUrl(e.target.value)}
-                className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:outline-[#E12B7B]"
-              />
-              <button
-                type="button"
-                onClick={handleAddImage}
-                className="px-4 py-2 bg-[#131B26] hover:bg-[#E12B7B] text-white rounded-xl text-xs font-bold uppercase tracking-wider transition flex items-center justify-center gap-1.5 cursor-pointer"
-              >
-                <Plus className="w-4 h-4" />
-                Ajouter ces photos
-              </button>
-            </div>
-          </div>
-
-          {/* Images Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {images.map((img, idx) => (
-              <div
-                key={img.id || idx}
-                className={`relative group rounded-2xl overflow-hidden aspect-4/3 border-2 transition-all ${
-                  img.is_cover ? 'border-[#E12B7B] shadow-md' : 'border-gray-200'
-                }`}
-              >
-                <img src={img.image_url} alt="" className="w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-2">
-                  <div className="flex justify-between items-center">
-                    <button
-                      type="button"
-                      onClick={() => handleSetCover(idx)}
-                      className={`text-[10px] font-bold px-2 py-0.5 rounded cursor-pointer ${
-                        img.is_cover ? 'bg-[#E12B7B] text-white' : 'bg-white text-gray-800'
-                      }`}
-                    >
-                      {img.is_cover ? '★ Couverture' : 'Mettre couv.'}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveImage(idx)}
-                      className="p-1 bg-red-600 text-white rounded hover:bg-red-700 cursor-pointer"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                  <span className="text-[10px] text-white font-mono">Photo #{idx + 1}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Video & Virtual Tour URLs */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-gray-100">
-            <div>
-              <label className="block text-xs font-bold uppercase text-gray-700 mb-1">
-                Lien Vidéo (YouTube / Vimeo / MP4)
-              </label>
-              <input
-                type="url"
-                placeholder="https://www.youtube.com/watch?v=..."
-                value={videoUrl}
-                onChange={(e) => setVideoUrl(e.target.value)}
-                className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-medium focus:outline-[#E12B7B]"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold uppercase text-gray-700 mb-1">
-                Visite Virtuelle 360° (Matterport / Nodalview)
-              </label>
-              <input
-                type="url"
-                placeholder="https://my.matterport.com/show/?m=..."
-                value={virtualTourUrl}
-                onChange={(e) => setVirtualTourUrl(e.target.value)}
-                className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-medium focus:outline-[#E12B7B]"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* 6. DIFFUSION PORTAILS */}
-        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#F3E8EE] shadow-xs space-y-4">
-          <div className="flex items-center gap-2.5 font-serif font-bold text-lg text-[#131B26] border-b border-[#FAF5F8] pb-3">
-            <Radio className="w-5 h-5 text-[#E12B7B]" />
-            <span>6. Passerelles de Diffusion Portails</span>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-2">
-            <label className="flex items-center gap-2.5 p-3 bg-gray-50 rounded-xl border border-gray-200 cursor-pointer text-xs font-bold text-gray-800">
-              <input
-                type="checkbox"
-                checked={publishWebsite}
-                onChange={(e) => setPublishWebsite(e.target.checked)}
-                className="rounded text-[#E12B7B] accent-[#E12B7B] w-4 h-4"
-              />
-              <span>Site nellimmo.fr</span>
-            </label>
-
-            <label className="flex items-center gap-2.5 p-3 bg-gray-50 rounded-xl border border-gray-200 cursor-pointer text-xs font-bold text-gray-800">
-              <input
-                type="checkbox"
-                checked={publishSeloger}
-                onChange={(e) => setPublishSeloger(e.target.checked)}
-                className="rounded text-[#E12B7B] accent-[#E12B7B] w-4 h-4"
-              />
-              <span>SeLoger / Logic-Immo</span>
-            </label>
-
-            <label className="flex items-center gap-2.5 p-3 bg-gray-50 rounded-xl border border-gray-200 cursor-pointer text-xs font-bold text-gray-800">
-              <input
-                type="checkbox"
-                checked={publishLeboncoin}
-                onChange={(e) => setPublishLeboncoin(e.target.checked)}
-                className="rounded text-[#E12B7B] accent-[#E12B7B] w-4 h-4"
-              />
-              <span>LeBonCoin</span>
-            </label>
-
-            <label className="flex items-center gap-2.5 p-3 bg-gray-50 rounded-xl border border-gray-200 cursor-pointer text-xs font-bold text-gray-800">
-              <input
-                type="checkbox"
-                checked={publishBienici}
-                onChange={(e) => setPublishBienici(e.target.checked)}
-                className="rounded text-[#E12B7B] accent-[#E12B7B] w-4 h-4"
-              />
-              <span>Bien&apos;ici</span>
-            </label>
-          </div>
-        </div>
-
-        {/* SUBMIT BUTTON */}
-        <div className="pt-4 flex items-center justify-between">
+        {/* Submit Bar */}
+        <div className="pt-4 flex items-center justify-between border-t border-gray-200">
           <Link
             href="/cockpit/mandats"
-            className="px-6 py-3 border border-gray-300 rounded-xl text-xs font-bold uppercase tracking-wider text-gray-600 hover:bg-gray-100 transition"
+            className="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-xs font-bold transition"
           >
-            Annuler
+            Abandonner
           </Link>
-
-          <button
+          <Button
             type="submit"
-            disabled={isSubmitting}
-            className="px-8 py-3.5 bg-[#E12B7B] hover:bg-[#c42068] text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-lg transition cursor-pointer disabled:opacity-50"
+            variant="primary"
+            size="lg"
+            isLoading={isSubmitting}
+            leftIcon={<Plus className="w-5 h-5" />}
           >
-            {isSubmitting ? 'Création & Enregistrement...' : 'Enregistrer le Mandat & Publier'}
-            <ChevronRight className="w-4 h-4" />
-          </button>
+            Créer et Sceller le Mandat #{nextMandateNumber}
+          </Button>
         </div>
-
       </form>
+
+      {/* Auto Fill Modal */}
+      <FastFillModal
+        isOpen={showAutoFillModal}
+        onClose={() => setShowAutoFillModal(false)}
+        onProcessText={handleProcessFastFill}
+        isSuccess={autoFillSuccess}
+      />
     </div>
   );
 }

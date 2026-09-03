@@ -22,7 +22,9 @@ import {
   FileCheck2,
   BrainCircuit,
   Flame,
-  Handshake
+  Handshake,
+  KeyRound,
+  Calendar
 } from 'lucide-react';
 
 export function CockpitSidebar() {
@@ -31,8 +33,10 @@ export function CockpitSidebar() {
   const navigation = [
     { name: 'Tableau de Bord', href: '/cockpit', icon: LayoutDashboard },
     { name: 'Mandats & Biens', href: '/cockpit/mandats', icon: FileText },
+    { name: 'Planning & Agenda', href: '/cockpit/agenda', icon: Calendar },
     { name: 'Pipeline Notaire & Ventes', href: '/cockpit/transactions', icon: Landmark },
     { name: 'Bourse Inter-Agences', href: '/cockpit/inter-agences', icon: Handshake },
+    { name: 'Clés & Panneaux', href: '/cockpit/cles-panneaux', icon: KeyRound },
     { name: 'Studio Rédaction & Pitchs', href: '/cockpit/redacteur', icon: Sparkles },
     { name: 'Fiches Vitrine & Affiches', href: '/cockpit/fiches-vitrine', icon: Printer },
     { name: 'Avis de Valeur DVF', href: '/cockpit/avis-de-valeur', icon: TrendingUp },

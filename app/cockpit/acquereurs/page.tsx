@@ -26,6 +26,7 @@ import {
   Coins
 } from 'lucide-react';
 import { NotaryFinanceCalculator } from '@/components/cockpit/NotaryFinanceCalculator';
+import { BuyerSelectionModal } from '@/components/cockpit/acquereurs/BuyerSelectionModal';
 
 export default function BuyersCrmPage() {
   const { buyers, properties, createBuyer } = useNellimoStore();
@@ -35,6 +36,7 @@ export default function BuyersCrmPage() {
   const [isLoanSimulatorOpen, setIsLoanSimulatorOpen] = useState(false);
   const [isNotaryCalcOpen, setIsNotaryCalcOpen] = useState(false);
   const [isBroadcastModalOpen, setIsBroadcastModalOpen] = useState(false);
+  const [selectedBuyerForSelection, setSelectedBuyerForSelection] = useState<Buyer | null>(null);
 
   // New buyer form state
   const [firstName, setFirstName] = useState('');
@@ -408,23 +410,34 @@ export default function BuyersCrmPage() {
               </div>
 
               {/* Action buttons */}
-              <div className="flex items-center gap-2 pt-3 border-t border-gray-100">
-                <a
-                  href={`tel:${b.phone}`}
-                  className="flex-1 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition"
+              <div className="space-y-2 pt-3 border-t border-gray-100">
+                <button
+                  type="button"
+                  onClick={() => setSelectedBuyerForSelection(b)}
+                  className="w-full py-2 bg-[#FDF2F8] hover:bg-[#FCE7F3] text-[#E12B7B] border border-[#F3E8EE] rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition shadow-2xs cursor-pointer"
                 >
-                  <Phone className="w-3.5 h-3.5" />
-                  Appeler
-                </a>
-                <a
-                  href={`https://wa.me/${b.phone.replace(/\s+/g, '').replace(/^0/, '33')}?text=${encodeURIComponent(`Bonjour ${b.first_name}, c'est Nelly de l'agence Nell'Immo. J'espère que vos recherches immobilières avancent bien !`)}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex-1 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition shadow-2xs"
-                >
-                  <MessageCircle className="w-3.5 h-3.5" />
-                  WhatsApp
-                </a>
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Sélection & Dossier VIP ({matchingProperties.length})</span>
+                </button>
+
+                <div className="flex items-center gap-2">
+                  <a
+                    href={`tel:${b.phone}`}
+                    className="flex-1 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition"
+                  >
+                    <Phone className="w-3.5 h-3.5" />
+                    Appeler
+                  </a>
+                  <a
+                    href={`https://wa.me/${b.phone.replace(/\s+/g, '').replace(/^0/, '33')}?text=${encodeURIComponent(`Bonjour ${b.first_name}, c'est Nelly de l'agence Nell'Immo. J'espère que vos recherches immobilières avancent bien !`)}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex-1 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition shadow-2xs"
+                  >
+                    <MessageCircle className="w-3.5 h-3.5" />
+                    WhatsApp
+                  </a>
+                </div>
               </div>
             </div>
           );
@@ -784,13 +797,22 @@ export default function BuyersCrmPage() {
             <div className="pt-2 flex justify-end gap-2 border-t border-gray-100">
               <button
                 onClick={() => setIsBroadcastModalOpen(false)}
-                className="px-5 py-2.5 bg-[#131B26] hover:bg-gray-800 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition"
+                className="px-5 py-2.5 bg-[#131B26] hover:bg-gray-800 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition cursor-pointer"
               >
                 Fermer
               </button>
             </div>
           </div>
         </div>
+      )}
+
+      {/* MODAL DOSSIER DE SÉLECTION MULTI-BIENS VIP */}
+      {selectedBuyerForSelection && (
+        <BuyerSelectionModal
+          buyer={selectedBuyerForSelection}
+          activeProperties={activeProperties}
+          onClose={() => setSelectedBuyerForSelection(null)}
+        />
       )}
 
     </div>

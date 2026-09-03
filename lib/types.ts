@@ -248,6 +248,7 @@ export interface TransactionDeal {
   offer_price_net: number;
   agency_fees_amount: number;
   deposit_amount: number;
+  deposit_percentage?: number;
   deposit_holder: string; // 'Notaire Vendeur', 'Notaire Acquéreur'
   
   // Parties & Notaires
@@ -467,5 +468,103 @@ export interface VendorReport {
   shared_via_email: boolean;
   viewed_by_seller_at?: string;
   created_at: string;
+}
+
+// ----------------------------------------------------
+// REGISTRE DES CLÉS & PARC DE PANNEAUX D'AGENCE
+// ----------------------------------------------------
+
+export type KeyStatus = 'disponible' | 'prete' | 'double_proprietaire' | 'perdu';
+export type KeyBorrowerRole = 'artisan' | 'diagnostiqueur' | 'confrere' | 'acquereur' | 'proprietaire' | 'autre';
+
+export interface KeyLoanRecord {
+  id: string;
+  key_id: string;
+  borrower_name: string;
+  borrower_phone: string;
+  borrower_company?: string;
+  borrower_role: KeyBorrowerRole;
+  borrowed_at: string;
+  expected_return_at: string;
+  returned_at?: string;
+  purpose: string;
+  signature_data_url?: string;
+  discharged: boolean;
+}
+
+export interface AgencyKey {
+  id: string;
+  property_id: string;
+  keyring_number: number;
+  cabinet_location: string;
+  keys_count: number;
+  has_alarm_badge: boolean;
+  status: KeyStatus;
+  current_borrower?: KeyLoanRecord;
+  loan_history?: KeyLoanRecord[];
+  notes?: string;
+  created_at: string;
+  property?: Property;
+}
+
+export type SignboardType = 'a_vendre' | 'vendu' | 'exclusivite' | 'nouveau';
+export type SignboardStatus = 'en_stock' | 'pose' | 'a_deposer' | 'depose';
+
+export interface AgencySignboard {
+  id: string;
+  property_id?: string;
+  signboard_type: SignboardType;
+  status: SignboardStatus;
+  installed_at?: string;
+  removal_deadline?: string;
+  location_details?: string;
+  photo_url?: string;
+  notes?: string;
+  created_at: string;
+  property?: Property;
+}
+
+// ----------------------------------------------------
+// JURIDIQUE : AVENANTS AU MANDAT (LOI HOGUET ART. 72)
+// ----------------------------------------------------
+
+export type AvenantType = 'baisse_prix' | 'prorogation' | 'changement_conditions';
+
+export interface MandateAvenant {
+  id: string;
+  mandate_number: number;
+  property_id: string;
+  avenant_number: number;
+  avenant_type: AvenantType;
+  previous_price_fai: number;
+  new_price_fai: number;
+  previous_price_net: number;
+  new_price_net: number;
+  previous_fees_amount: number;
+  new_fees_amount: number;
+  new_end_date?: string;
+  reason: string;
+  effective_date: string;
+  is_signed: boolean;
+  signed_at?: string;
+  signature_sha256?: string;
+  created_at: string;
+}
+
+// ----------------------------------------------------
+// CRM : HISTORIQUE DE PROPOSITIONS & MATCHING 360°
+// ----------------------------------------------------
+
+export type ProposalChannel = 'whatsapp' | 'email' | 'telephone' | 'rdv_agence';
+export type ProposalStatus = 'propose' | 'interesse' | 'visite_programmee' | 'refuse';
+
+export interface ProposalHistory {
+  id: string;
+  property_id: string;
+  buyer_id: string;
+  proposed_at: string;
+  channel: ProposalChannel;
+  status: ProposalStatus;
+  feedback?: string;
 }
 

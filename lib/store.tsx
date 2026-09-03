@@ -11,7 +11,13 @@ import {
   EstimationLead,
   TransactionDeal,
   ProspectingLead,
-  VendorReport
+  VendorReport,
+  AgencyKey,
+  AgencySignboard,
+  MandateAvenant,
+  ProposalHistory,
+  KeyLoanRecord,
+  ProposalStatus
 } from './types';
 import {
   INITIAL_PROPERTIES,
@@ -23,7 +29,11 @@ import {
   INITIAL_ESTIMATION_LEADS,
   INITIAL_TRANSACTIONS,
   INITIAL_PROSPECTING_LEADS,
-  INITIAL_VENDOR_REPORTS
+  INITIAL_VENDOR_REPORTS,
+  INITIAL_AGENCY_KEYS,
+  INITIAL_AGENCY_SIGNBOARDS,
+  INITIAL_MANDATE_AVENANTS,
+  INITIAL_PROPOSALS
 } from './mock-data';
 import { computeSHA256 } from './hoguet';
 import { getSupabaseClient, isSupabaseConfigured } from './supabase';
@@ -39,6 +49,10 @@ const STORAGE_KEYS = {
   TRANSACTIONS: 'nellimo_transactions_v1',
   PROSPECTING_LEADS: 'nellimo_prospecting_leads_v1',
   VENDOR_REPORTS: 'nellimo_vendor_reports_v1',
+  KEYS: 'nellimo_agency_keys_v1',
+  SIGNBOARDS: 'nellimo_agency_signboards_v1',
+  AVENANTS: 'nellimo_mandate_avenants_v1',
+  PROPOSALS: 'nellimo_buyer_proposals_v1',
 };
 
 function loadFromStorage<T>(key: string, defaultValue: T): T {
@@ -72,6 +86,10 @@ interface NellimoContextType {
   transactions: TransactionDeal[];
   prospectingLeads: ProspectingLead[];
   vendorReports: VendorReport[];
+  keys: AgencyKey[];
+  signboards: AgencySignboard[];
+  avenants: MandateAvenant[];
+  proposals: ProposalHistory[];
   isLoaded: boolean;
   isSupabaseActive: boolean;
   createProperty: (propertyData: Omit<Property, 'id' | 'mandate_number' | 'created_at' | 'updated_at'>) => Promise<Property>;
@@ -96,6 +114,17 @@ interface NellimoContextType {
   deleteProspectingLead: (id: string) => Promise<void>;
   createVendorReport: (data: Omit<VendorReport, 'id' | 'created_at'>) => Promise<VendorReport>;
   updateVendorReport: (id: string, updates: Partial<VendorReport>) => Promise<void>;
+  createKey: (data: Omit<AgencyKey, 'id' | 'created_at'>) => Promise<AgencyKey>;
+  updateKey: (id: string, updates: Partial<AgencyKey>) => Promise<AgencyKey | null>;
+  deleteKey: (id: string) => Promise<void>;
+  borrowKey: (keyId: string, loanData: Omit<KeyLoanRecord, 'id'>) => Promise<void>;
+  returnKey: (keyId: string) => Promise<void>;
+  createSignboard: (data: Omit<AgencySignboard, 'id' | 'created_at'>) => Promise<AgencySignboard>;
+  updateSignboard: (id: string, updates: Partial<AgencySignboard>) => Promise<void>;
+  deleteSignboard: (id: string) => Promise<void>;
+  createMandateAvenant: (data: Omit<MandateAvenant, 'id' | 'created_at'>) => Promise<MandateAvenant>;
+  createProposal: (data: Omit<ProposalHistory, 'id'>) => Promise<ProposalHistory>;
+  updateProposalStatus: (id: string, status: ProposalStatus, feedback?: string) => Promise<void>;
   resetToDemoData: () => void;
 }
 
@@ -112,6 +141,10 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
   const [transactions, setTransactions] = useState<TransactionDeal[]>(() => loadFromStorage(STORAGE_KEYS.TRANSACTIONS, INITIAL_TRANSACTIONS));
   const [prospectingLeads, setProspectingLeads] = useState<ProspectingLead[]>(() => loadFromStorage(STORAGE_KEYS.PROSPECTING_LEADS, INITIAL_PROSPECTING_LEADS));
   const [vendorReports, setVendorReports] = useState<VendorReport[]>(() => loadFromStorage(STORAGE_KEYS.VENDOR_REPORTS, INITIAL_VENDOR_REPORTS));
+  const [keys, setKeys] = useState<AgencyKey[]>(() => loadFromStorage(STORAGE_KEYS.KEYS, INITIAL_AGENCY_KEYS));
+  const [signboards, setSignboards] = useState<AgencySignboard[]>(() => loadFromStorage(STORAGE_KEYS.SIGNBOARDS, INITIAL_AGENCY_SIGNBOARDS));
+  const [avenants, setAvenants] = useState<MandateAvenant[]>(() => loadFromStorage(STORAGE_KEYS.AVENANTS, INITIAL_MANDATE_AVENANTS));
+  const [proposals, setProposals] = useState<ProposalHistory[]>(() => loadFromStorage(STORAGE_KEYS.PROPOSALS, INITIAL_PROPOSALS));
   const [isLoaded, setIsLoaded] = useState(true);
   const [isSupabaseActive] = useState(() => isSupabaseConfigured());
 
@@ -153,6 +186,26 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
   const updateTransactions = useCallback((newTrans: TransactionDeal[]) => {
     setTransactions(newTrans);
     saveToStorage(STORAGE_KEYS.TRANSACTIONS, newTrans);
+  }, []);
+
+  const updateKeys = useCallback((newKeys: AgencyKey[]) => {
+    setKeys(newKeys);
+    saveToStorage(STORAGE_KEYS.KEYS, newKeys);
+  }, []);
+
+  const updateSignboards = useCallback((newSigns: AgencySignboard[]) => {
+    setSignboards(newSigns);
+    saveToStorage(STORAGE_KEYS.SIGNBOARDS, newSigns);
+  }, []);
+
+  const updateAvenants = useCallback((newAvenants: MandateAvenant[]) => {
+    setAvenants(newAvenants);
+    saveToStorage(STORAGE_KEYS.AVENANTS, newAvenants);
+  }, []);
+
+  const updateProposals = useCallback((newProposals: ProposalHistory[]) => {
+    setProposals(newProposals);
+    saveToStorage(STORAGE_KEYS.PROPOSALS, newProposals);
   }, []);
 
   // --- SUPABASE REALTIME & INITIAL FETCH SYNC ---
@@ -735,6 +788,147 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
     updateReports(updated);
   };
 
+  // --- REGISTRE DES CLÉS D'AGENCE ---
+
+  const createKey = async (data: Omit<AgencyKey, 'id' | 'created_at'>): Promise<AgencyKey> => {
+    const newKey: AgencyKey = {
+      ...data,
+      id: `key-${Date.now()}`,
+      created_at: new Date().toISOString(),
+    };
+    const updated = [newKey, ...keys];
+    updateKeys(updated);
+    return newKey;
+  };
+
+  const updateKey = async (id: string, updates: Partial<AgencyKey>): Promise<AgencyKey | null> => {
+    let result: AgencyKey | null = null;
+    const updated = keys.map((k) => {
+      if (k.id === id) {
+        result = { ...k, ...updates };
+        return result;
+      }
+      return k;
+    });
+    updateKeys(updated);
+    return result;
+  };
+
+  const deleteKey = async (id: string): Promise<void> => {
+    const updated = keys.filter((k) => k.id !== id);
+    updateKeys(updated);
+  };
+
+  const borrowKey = async (keyId: string, loanData: Omit<KeyLoanRecord, 'id'>): Promise<void> => {
+    const loanRecord: KeyLoanRecord = {
+      ...loanData,
+      id: `loan-${Date.now()}`,
+    };
+    const updated = keys.map((k) => {
+      if (k.id === keyId) {
+        return {
+          ...k,
+          status: 'prete' as const,
+          current_borrower: loanRecord,
+          loan_history: [loanRecord, ...(k.loan_history || [])],
+        };
+      }
+      return k;
+    });
+    updateKeys(updated);
+  };
+
+  const returnKey = async (keyId: string): Promise<void> => {
+    const now = new Date().toISOString();
+    const updated = keys.map((k) => {
+      if (k.id === keyId) {
+        const history = (k.loan_history || []).map((h, idx) =>
+          idx === 0 && !h.returned_at ? { ...h, returned_at: now } : h
+        );
+        return {
+          ...k,
+          status: 'disponible' as const,
+          current_borrower: undefined,
+          loan_history: history,
+        };
+      }
+      return k;
+    });
+    updateKeys(updated);
+  };
+
+  // --- PARC DE PANNEAUX D'AGENCE ---
+
+  const createSignboard = async (data: Omit<AgencySignboard, 'id' | 'created_at'>): Promise<AgencySignboard> => {
+    const newSign: AgencySignboard = {
+      ...data,
+      id: `sign-${Date.now()}`,
+      created_at: new Date().toISOString(),
+    };
+    const updated = [newSign, ...signboards];
+    updateSignboards(updated);
+    return newSign;
+  };
+
+  const updateSignboard = async (id: string, updates: Partial<AgencySignboard>): Promise<void> => {
+    const updated = signboards.map((s) => (s.id === id ? { ...s, ...updates } : s));
+    updateSignboards(updated);
+  };
+
+  const deleteSignboard = async (id: string): Promise<void> => {
+    const updated = signboards.filter((s) => s.id !== id);
+    updateSignboards(updated);
+  };
+
+  // --- JURIDIQUE : AVENANTS AU MANDAT (LOI HOGUET ART. 72) ---
+
+  const createMandateAvenant = async (data: Omit<MandateAvenant, 'id' | 'created_at'>): Promise<MandateAvenant> => {
+    const newAvenant: MandateAvenant = {
+      ...data,
+      id: `avenant-${Date.now()}`,
+      created_at: new Date().toISOString(),
+    };
+    const updatedAvenants = [newAvenant, ...avenants];
+    updateAvenants(updatedAvenants);
+
+    // Synchroniser automatiquement avec le mandat et l'audit log
+    const targetProp = properties.find((p) => p.mandate_number === data.mandate_number || p.id === data.property_id);
+    if (targetProp) {
+      const propUpdates: Partial<Property> = {};
+      if (data.avenant_type === 'baisse_prix') {
+        propUpdates.price_fai = data.new_price_fai;
+        propUpdates.price_net_seller = data.new_price_net;
+        propUpdates.agency_fees_amount = data.new_fees_amount;
+        if (data.new_price_fai > 0) {
+          propUpdates.agency_fees_percentage = Number(((data.new_fees_amount / data.new_price_fai) * 100).toFixed(2));
+        }
+      }
+      if (data.avenant_type === 'prorogation' && data.new_end_date) {
+        propUpdates.mandate_end_date = data.new_end_date;
+      }
+      await updateProperty(targetProp.id, propUpdates);
+    }
+
+    return newAvenant;
+  };
+
+  // --- PROPOSITIONS ACQUÉREURS CRM ---
+
+  const createProposal = async (data: Omit<ProposalHistory, 'id'>): Promise<ProposalHistory> => {
+    const newProp: ProposalHistory = {
+      ...data,
+      id: `prop-hist-${Date.now()}`,
+    };
+    const updated = [newProp, ...proposals];
+    updateProposals(updated);
+    return newProp;
+  };
+
+  const updateProposalStatus = async (id: string, status: ProposalStatus, feedback?: string): Promise<void> => {
+    const updated = proposals.map((p) => (p.id === id ? { ...p, status, feedback: feedback !== undefined ? feedback : p.feedback } : p));
+    updateProposals(updated);
+  };
+
   // --- RESET DEMO PROVENCE ---
 
   const resetToDemoData = () => {
@@ -748,6 +942,10 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
     updateTransactions(INITIAL_TRANSACTIONS);
     updateProspecting(INITIAL_PROSPECTING_LEADS);
     updateReports(INITIAL_VENDOR_REPORTS);
+    updateKeys(INITIAL_AGENCY_KEYS);
+    updateSignboards(INITIAL_AGENCY_SIGNBOARDS);
+    updateAvenants(INITIAL_MANDATE_AVENANTS);
+    updateProposals(INITIAL_PROPOSALS);
   };
 
   const value: NellimoContextType = {
@@ -761,6 +959,10 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
     transactions,
     prospectingLeads,
     vendorReports,
+    keys,
+    signboards,
+    avenants,
+    proposals,
     isLoaded,
     isSupabaseActive,
     createProperty,
@@ -785,6 +987,17 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
     deleteProspectingLead,
     createVendorReport,
     updateVendorReport,
+    createKey,
+    updateKey,
+    deleteKey,
+    borrowKey,
+    returnKey,
+    createSignboard,
+    updateSignboard,
+    deleteSignboard,
+    createMandateAvenant,
+    createProposal,
+    updateProposalStatus,
     resetToDemoData,
   };
 
@@ -805,6 +1018,10 @@ export function useNellimoStore(): NellimoContextType {
       transactions: INITIAL_TRANSACTIONS,
       prospectingLeads: INITIAL_PROSPECTING_LEADS,
       vendorReports: INITIAL_VENDOR_REPORTS,
+      keys: INITIAL_AGENCY_KEYS,
+      signboards: INITIAL_AGENCY_SIGNBOARDS,
+      avenants: INITIAL_MANDATE_AVENANTS,
+      proposals: INITIAL_PROPOSALS,
       isLoaded: true,
       isSupabaseActive: false,
       createProperty: async (p) => ({ ...p, id: 'prop-temp', mandate_number: 999, created_at: '', updated_at: '' }),
@@ -829,8 +1046,113 @@ export function useNellimoStore(): NellimoContextType {
       deleteProspectingLead: async () => {},
       createVendorReport: async (r) => ({ ...r, id: 'rep-temp', created_at: '' }),
       updateVendorReport: async () => {},
+      createKey: async (k) => ({ ...k, id: 'key-temp', created_at: '' }),
+      updateKey: async () => null,
+      deleteKey: async () => {},
+      borrowKey: async () => {},
+      returnKey: async () => {},
+      createSignboard: async (s) => ({ ...s, id: 'sign-temp', created_at: '' }),
+      updateSignboard: async () => {},
+      deleteSignboard: async () => {},
+      createMandateAvenant: async (a) => ({ ...a, id: 'av-temp', created_at: '' }),
+      createProposal: async (p) => ({ ...p, id: 'prop-temp' }),
+      updateProposalStatus: async () => {},
       resetToDemoData: () => {},
     };
   }
   return context;
 }
+
+export const useNellimo = useNellimoStore;
+
+export function useProperties() {
+  const store = useNellimoStore();
+  return {
+    properties: store.properties,
+    createProperty: store.createProperty,
+    updateProperty: store.updateProperty,
+    deleteProperty: store.deleteProperty,
+    auditLogs: store.auditLogs,
+    avenants: store.avenants,
+    createMandateAvenant: store.createMandateAvenant,
+    isLoaded: store.isLoaded,
+    isSupabaseActive: store.isSupabaseActive
+  };
+}
+
+export function useBuyers() {
+  const store = useNellimoStore();
+  return {
+    buyers: store.buyers,
+    createBuyer: store.createBuyer,
+    updateBuyer: store.updateBuyer,
+    deleteBuyer: store.deleteBuyer,
+    proposals: store.proposals,
+    createProposal: store.createProposal,
+    updateProposalStatus: store.updateProposalStatus
+  };
+}
+
+export function useTransactions() {
+  const store = useNellimoStore();
+  return {
+    transactions: store.transactions,
+    createTransaction: store.createTransaction,
+    updateTransaction: store.updateTransaction,
+    deleteTransaction: store.deleteTransaction
+  };
+}
+
+export function useKeysAndSignboards() {
+  const store = useNellimoStore();
+  return {
+    keys: store.keys,
+    signboards: store.signboards,
+    createKey: store.createKey,
+    updateKey: store.updateKey,
+    deleteKey: store.deleteKey,
+    borrowKey: store.borrowKey,
+    returnKey: store.returnKey,
+    createSignboard: store.createSignboard,
+    updateSignboard: store.updateSignboard,
+    deleteSignboard: store.deleteSignboard
+  };
+}
+
+export function useVisits() {
+  const store = useNellimoStore();
+  return {
+    visits: store.visits,
+    createVisitSheet: store.createVisitSheet
+  };
+}
+
+export function useAgencySettings() {
+  const store = useNellimoStore();
+  return {
+    settings: store.settings,
+    updateSettings: store.updateSettings
+  };
+}
+
+export function useLeads() {
+  const store = useNellimoStore();
+  return {
+    contactLeads: store.contactLeads,
+    addContactLead: store.addContactLead,
+    updateContactLeadStatus: store.updateContactLeadStatus,
+    deleteContactLead: store.deleteContactLead,
+    estimationLeads: store.estimationLeads,
+    addEstimationLead: store.addEstimationLead,
+    updateEstimationLeadStatus: store.updateEstimationLeadStatus,
+    deleteEstimationLead: store.deleteEstimationLead,
+    prospectingLeads: store.prospectingLeads,
+    createProspectingLead: store.createProspectingLead,
+    updateProspectingLead: store.updateProspectingLead,
+    deleteProspectingLead: store.deleteProspectingLead,
+    vendorReports: store.vendorReports,
+    createVendorReport: store.createVendorReport,
+    updateVendorReport: store.updateVendorReport
+  };
+}
+

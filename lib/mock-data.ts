@@ -1,4 +1,4 @@
-import { Property, Buyer, VisitSheet, MandateAuditLog, AgencySettings, DVFTransaction, ContactLead, EstimationLead, TransactionDeal, ProspectingLead, VendorReport } from './types';
+import { Property, Buyer, VisitSheet, MandateAuditLog, AgencySettings, DVFTransaction, ContactLead, EstimationLead, TransactionDeal, ProspectingLead, VendorReport, AgencyKey, AgencySignboard, MandateAvenant, ProposalHistory } from './types';
 
 export const INITIAL_AGENCY_SETTINGS: AgencySettings = {
   agency_name: "SASU Nell'Immo",
@@ -5127,5 +5127,171 @@ export const INITIAL_VENDOR_REPORTS: VendorReport[] = [
     shared_via_email: false,
     viewed_by_seller_at: '2026-02-21T11:40:00Z',
     created_at: '2026-02-20T17:00:00Z'
+  }
+];
+
+export const INITIAL_AGENCY_KEYS: AgencyKey[] = [
+  {
+    id: 'key-1',
+    property_id: 'prop-227',
+    keyring_number: 244,
+    cabinet_location: 'Armoire A • Rgt 01',
+    keys_count: 3,
+    has_alarm_badge: true,
+    status: 'disponible',
+    notes: 'Trousseau complet : Portail coulissant, porte entrée sécurité 5 points, porte de garage motorisé + badge Vigik alarme.',
+    created_at: '2025-10-06T09:00:00Z'
+  },
+  {
+    id: 'key-2',
+    property_id: 'prop-228',
+    keyring_number: 228,
+    cabinet_location: 'Armoire A • Rgt 02',
+    keys_count: 2,
+    has_alarm_badge: false,
+    status: 'prete',
+    current_borrower: {
+      id: 'loan-1',
+      key_id: 'key-2',
+      borrower_name: 'Jean-Luc Morvan',
+      borrower_phone: '06 12 34 56 78',
+      borrower_company: 'DiagMéditerranée SAS',
+      borrower_role: 'diagnostiqueur',
+      borrowed_at: new Date(Date.now() - 3600000 * 24).toISOString(),
+      expected_return_at: new Date(Date.now() + 3600000 * 6).toISOString(),
+      purpose: 'Réalisation du métrage Loi Carrez et mise à jour de l\'audit énergétique',
+      discharged: true
+    },
+    loan_history: [
+      {
+        id: 'loan-1',
+        key_id: 'key-2',
+        borrower_name: 'Jean-Luc Morvan',
+        borrower_phone: '06 12 34 56 78',
+        borrower_company: 'DiagMéditerranée SAS',
+        borrower_role: 'diagnostiqueur',
+        borrowed_at: new Date(Date.now() - 3600000 * 24).toISOString(),
+        expected_return_at: new Date(Date.now() + 3600000 * 6).toISOString(),
+        purpose: 'Réalisation du métrage Loi Carrez et mise à jour de l\'audit énergétique',
+        discharged: true
+      }
+    ],
+    notes: 'Prêt en cours au diagnostiqueur agréé.',
+    created_at: '2025-09-12T10:00:00Z'
+  },
+  {
+    id: 'key-3',
+    property_id: 'prop-229',
+    keyring_number: 229,
+    cabinet_location: 'Armoire B • Rgt 05',
+    keys_count: 4,
+    has_alarm_badge: true,
+    status: 'disponible',
+    notes: 'Clés maison de village Lambesc (Porte principale, cave voûtée, atelier jardin).',
+    created_at: '2025-11-04T11:30:00Z'
+  },
+  {
+    id: 'key-4',
+    property_id: 'prop-230',
+    keyring_number: 230,
+    cabinet_location: 'Armoire B • Rgt 06',
+    keys_count: 1,
+    has_alarm_badge: false,
+    status: 'double_proprietaire',
+    notes: 'Le propriétaire réside sur place, double de secours d\'agence pour visites accompagnées.',
+    created_at: '2026-01-08T14:15:00Z'
+  }
+];
+
+export const INITIAL_AGENCY_SIGNBOARDS: AgencySignboard[] = [
+  {
+    id: 'sign-1',
+    property_id: 'prop-227',
+    signboard_type: 'exclusivite',
+    status: 'pose',
+    installed_at: '2025-10-10',
+    location_details: 'Portail d\'entrée sur voie publique, Les Viougues, Salon-de-Provence',
+    notes: 'Panneau Akilux 80x60 cm avec œillets et colliers de serrage renforcés.',
+    created_at: '2025-10-10T10:00:00Z'
+  },
+  {
+    id: 'sign-2',
+    property_id: 'prop-228',
+    signboard_type: 'vendu',
+    status: 'a_deposer',
+    installed_at: '2025-11-15',
+    removal_deadline: new Date(Date.now() + 3600000 * 24 * 4).toISOString().slice(0, 10),
+    location_details: 'Clôture sur avenue principale, Pélissanne',
+    notes: 'Réglementation Loi Grenelle II : dépose obligatoire sous 3 mois après la signature de l\'acte authentique.',
+    created_at: '2025-11-15T09:00:00Z'
+  },
+  {
+    id: 'sign-3',
+    property_id: 'prop-229',
+    signboard_type: 'a_vendre',
+    status: 'pose',
+    installed_at: '2026-01-18',
+    location_details: 'Façade sur rue commerçante, Lambesc',
+    notes: 'Panneau en V pour double visibilité piétonne et routière.',
+    created_at: '2026-01-18T14:00:00Z'
+  },
+  {
+    id: 'sign-4',
+    signboard_type: 'a_vendre',
+    status: 'en_stock',
+    location_details: 'Réserve Agence Nell\'Immo',
+    notes: 'Panneau neuf prêt pour nouveau mandat exclusif.',
+    created_at: '2026-02-01T08:00:00Z'
+  },
+  {
+    id: 'sign-5',
+    signboard_type: 'vendu',
+    status: 'en_stock',
+    location_details: 'Réserve Agence Nell\'Immo',
+    notes: 'Panneau VENDU réutilisable en parfait état.',
+    created_at: '2026-02-01T08:00:00Z'
+  }
+];
+
+export const INITIAL_MANDATE_AVENANTS: MandateAvenant[] = [
+  {
+    id: 'avenant-1',
+    mandate_number: 244,
+    property_id: 'prop-227',
+    avenant_number: 1,
+    avenant_type: 'baisse_prix',
+    previous_price_fai: 815000,
+    new_price_fai: 786600,
+    previous_price_net: 782400,
+    new_price_net: 755136,
+    previous_fees_amount: 32600,
+    new_fees_amount: 31464,
+    reason: 'Repositionnement tarifaire après 4 visites qualifiées pour dynamiser les offres avant le printemps.',
+    effective_date: '2025-11-20',
+    is_signed: true,
+    signed_at: '2025-11-20T14:30:00Z',
+    signature_sha256: '9f8e7d6c5b4a3f2e1d0c9b8a7f6e5d4c3b2a1f0e9d8c7b6a5f4e3d2c1b0a9f8e',
+    created_at: '2025-11-20T14:00:00Z'
+  }
+];
+
+export const INITIAL_PROPOSALS: ProposalHistory[] = [
+  {
+    id: 'prop-hist-1',
+    property_id: 'prop-227',
+    buyer_id: 'buyer-1',
+    proposed_at: '2026-02-15T10:00:00Z',
+    channel: 'whatsapp',
+    status: 'interesse',
+    feedback: 'Très enthousiaste sur la pièce de vie de 65m² et la piscine. Visite programmée avec succès.'
+  },
+  {
+    id: 'prop-hist-2',
+    property_id: 'prop-227',
+    buyer_id: 'buyer-2',
+    proposed_at: '2026-02-18T15:30:00Z',
+    channel: 'email',
+    status: 'refuse',
+    feedback: 'Recherche une parcelle plus vaste (> 1 000 m²) pour chevaux.'
   }
 ];
