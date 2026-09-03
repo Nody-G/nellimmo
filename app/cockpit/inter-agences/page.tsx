@@ -347,7 +347,7 @@ export default function InterAgencesPage() {
                   <label className="block font-bold uppercase text-gray-700 mb-1">Partage Honoraires</label>
                   <select
                     value={formShareRatio}
-                    onChange={(e) => setFormShareRatio(e.target.value as any)}
+                    onChange={(e) => setFormShareRatio(e.target.value as '50_50' | '60_40' | '70_30')}
                     className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl font-semibold focus:outline-[#E12B7B]"
                   >
                     <option value="50_50">50% / 50% (Standard équilibré)</option>

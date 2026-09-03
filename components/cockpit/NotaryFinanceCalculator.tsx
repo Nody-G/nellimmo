@@ -221,7 +221,7 @@ export function NotaryFinanceCalculator() {
                 <select
                   id={propertyStateId}
                   value={propertyState}
-                  onChange={(e) => setPropertyState(e.target.value as any)}
+                  onChange={(e) => setPropertyState(e.target.value as 'ancien' | 'neuf')}
                   className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl font-semibold focus:outline-[#E12B7B]"
                 >
                   <option value="ancien">Logement Ancien (~7-8 %)</option>
@@ -361,7 +361,7 @@ export function NotaryFinanceCalculator() {
                 <select
                   id={worksOptionId}
                   value={worksOption}
-                  onChange={(e) => setWorksOption(e.target.value as any)}
+                  onChange={(e) => setWorksOption(e.target.value as 'forfait' | 'reel')}
                   className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl font-semibold focus:outline-[#E12B7B]"
                 >
                   <option value="forfait">Forfait légal 15% (détention &gt; 5 ans)</option>

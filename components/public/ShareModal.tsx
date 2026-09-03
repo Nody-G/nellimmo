@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Copy, Check, MessageCircle, Mail, QrCode, Share2 } from 'lucide-react';
 import { useToast } from '@/components/ui/Toast';
@@ -16,14 +16,14 @@ interface ShareModalProps {
 }
 
 export function ShareModal({ isOpen, onClose, title, url, price, city, mandateRef }: ShareModalProps) {
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
   const { showToast } = useToast();
   const [copied, setCopied] = useState(false);
   const [showQr, setShowQr] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   // Lock body scroll
   useEffect(() => {

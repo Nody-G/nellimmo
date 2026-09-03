@@ -9,10 +9,19 @@ export async function GET() {
 
   // Load archiver dynamically for route handler
   const archiverModule = await import('archiver');
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const archiver = ((archiverModule as unknown as { default: any }).default || archiverModule) as any;
+  const mod = (archiverModule as unknown as { default?: unknown; ZipArchive?: new (opts?: unknown) => unknown }).default || archiverModule;
+  const ZipArchiveClass = (archiverModule as unknown as { ZipArchive?: new (opts?: unknown) => unknown }).ZipArchive ||
+    (mod as unknown as { ZipArchive?: new (opts?: unknown) => unknown }).ZipArchive;
 
-  const archive = archiver('zip', { zlib: { level: 9 } });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const archive: any = ZipArchiveClass
+    ? new ZipArchiveClass({ zlib: { level: 9 } })
+    : typeof mod === 'function'
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ? (mod as any)('zip', { zlib: { level: 9 } })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    : new (mod as any).ZipArchive({ zlib: { level: 9 } });
+
   const chunks: Buffer[] = [];
 
   archive.on('data', (chunk: Buffer) => chunks.push(chunk));

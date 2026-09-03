@@ -19,7 +19,7 @@ export interface ParseResult<T> {
 /**
  * Nettoyage des chaînes de caractères (supprime les guillemets superflus, trim)
  */
-function cleanString(val: any): string {
+function cleanString(val: unknown): string {
   if (val === null || val === undefined) return '';
   return String(val)
     .replace(/^["']|["']$/g, '')
@@ -30,7 +30,7 @@ function cleanString(val: any): string {
 /**
  * Nettoyage et conversion des montants numériques (gère '585 000 €', '585,00', '585000')
  */
-function parseNumeric(val: any, fallback = 0): number {
+function parseNumeric(val: unknown, fallback = 0): number {
   if (typeof val === 'number') return isNaN(val) ? fallback : val;
   if (!val) return fallback;
   const cleaned = String(val)
@@ -46,7 +46,7 @@ function parseNumeric(val: any, fallback = 0): number {
 /**
  * Normalisation de dates (DD/MM/YYYY, YYYY-MM-DD, DD-MM-YYYY)
  */
-function parseDate(val: any, fallbackDays = 90): { start: string; end: string } {
+function parseDate(val: unknown, fallbackDays = 90): { start: string; end: string } {
   const now = new Date();
   const defaultStart = now.toISOString().slice(0, 10);
   const defaultEnd = new Date(now.getTime() + fallbackDays * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
@@ -195,7 +195,7 @@ export function parseHektorPropertiesCsv(csvContent: string): ParseResult<Proper
       let priceFai = priceFaiIdx !== -1 ? parseNumeric(row[priceFaiIdx]) : 0;
       let priceNet = priceNetIdx !== -1 ? parseNumeric(row[priceNetIdx]) : 0;
       let feesAmount = feesIdx !== -1 ? parseNumeric(row[feesIdx]) : 0;
-      let feesPct = feesPctIdx !== -1 ? parseNumeric(row[feesPctIdx]) : 4.0;
+      const feesPct = feesPctIdx !== -1 ? parseNumeric(row[feesPctIdx]) : 4.0;
 
       if (priceFai > 0 && priceNet === 0) {
         feesAmount = Math.round(priceFai * (feesPct / (100 + feesPct)));
@@ -217,13 +217,13 @@ export function parseHektorPropertiesCsv(csvContent: string): ParseResult<Proper
       const bathroomsCount = bathroomsIdx !== -1 ? Math.max(1, Math.round(parseNumeric(row[bathroomsIdx], 1))) : 1;
 
       // DPE / GES
-      let dpeVal = dpeValIdx !== -1 ? parseNumeric(row[dpeValIdx], 140) : 140;
-      let rawDpeLet = (dpeLetIdx !== -1 && row[dpeLetIdx] ? row[dpeLetIdx].toUpperCase().slice(0, 1) : getDpeLetterFromValue(dpeVal)) || 'C';
-      let dpeLetter: DpeLetter = (['A', 'B', 'C', 'D', 'E', 'F', 'G'].includes(rawDpeLet) ? rawDpeLet : 'C') as DpeLetter;
+      const dpeVal = dpeValIdx !== -1 ? parseNumeric(row[dpeValIdx], 140) : 140;
+      const rawDpeLet = (dpeLetIdx !== -1 && row[dpeLetIdx] ? row[dpeLetIdx].toUpperCase().slice(0, 1) : getDpeLetterFromValue(dpeVal)) || 'C';
+      const dpeLetter: DpeLetter = (['A', 'B', 'C', 'D', 'E', 'F', 'G'].includes(rawDpeLet) ? rawDpeLet : 'C') as DpeLetter;
 
-      let gesVal = gesValIdx !== -1 ? parseNumeric(row[gesValIdx], 12) : 12;
-      let rawGesLet = (gesLetIdx !== -1 && row[gesLetIdx] ? row[gesLetIdx].toUpperCase().slice(0, 1) : getGesLetterFromValue(gesVal)) || 'B';
-      let gesLetter: GesLetter = (['A', 'B', 'C', 'D', 'E', 'F', 'G'].includes(rawGesLet) ? rawGesLet : 'B') as GesLetter;
+      const gesVal = gesValIdx !== -1 ? parseNumeric(row[gesValIdx], 12) : 12;
+      const rawGesLet = (gesLetIdx !== -1 && row[gesLetIdx] ? row[gesLetIdx].toUpperCase().slice(0, 1) : getGesLetterFromValue(gesVal)) || 'B';
+      const gesLetter: GesLetter = (['A', 'B', 'C', 'D', 'E', 'F', 'G'].includes(rawGesLet) ? rawGesLet : 'B') as GesLetter;
 
       // Photos
       const rawPhotos = photosIdx !== -1 && row[photosIdx] ? row[photosIdx] : '';
@@ -344,8 +344,9 @@ export function parseHektorPropertiesCsv(csvContent: string): ParseResult<Proper
       };
 
       items.push(property);
-    } catch (err: any) {
-      warnings.push(`Ligne ${rowIdx + 2} ignorée en raison d'une erreur de lecture : ${err?.message || 'Format invalide'}`);
+    } catch (err: unknown) {
+      const errMsg = err instanceof Error ? err.message : 'Format invalide';
+      warnings.push(`Ligne ${rowIdx + 2} ignorée en raison d'une erreur de lecture : ${errMsg}`);
     }
   });
 
@@ -454,8 +455,9 @@ export function parseHektorBuyersCsv(csvContent: string): ParseResult<Buyer> {
       };
 
       items.push(buyer);
-    } catch (err: any) {
-      warnings.push(`Acquéreur ligne ${rowIdx + 2} ignoré : ${err?.message || 'Données invalides'}`);
+    } catch (err: unknown) {
+      const errMsg = err instanceof Error ? err.message : 'Données invalides';
+      warnings.push(`Acquéreur ligne ${rowIdx + 2} ignoré : ${errMsg}`);
     }
   });
 

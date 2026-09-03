@@ -40,7 +40,13 @@ export function CommandPalette() {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
-        setIsOpen((prev) => !prev);
+        setIsOpen((prev) => {
+          if (!prev) {
+            setSearch('');
+            setSelectedIndex(0);
+          }
+          return !prev;
+        });
       } else if (e.key === 'Escape' && isOpen) {
         setIsOpen(false);
       }
@@ -53,8 +59,6 @@ export function CommandPalette() {
   // Focus input on open
   useEffect(() => {
     if (isOpen) {
-      setSearch('');
-      setSelectedIndex(0);
       setTimeout(() => inputRef.current?.focus(), 50);
     }
   }, [isOpen]);
@@ -210,7 +214,11 @@ export function CommandPalette() {
   if (!isOpen) {
     return (
       <button
-        onClick={() => setIsOpen(true)}
+        onClick={() => {
+          setSearch('');
+          setSelectedIndex(0);
+          setIsOpen(true);
+        }}
         className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 border border-gray-200 text-gray-600 rounded-xl text-xs font-semibold transition"
         title="Recherche globale (Ctrl+K)"
       >

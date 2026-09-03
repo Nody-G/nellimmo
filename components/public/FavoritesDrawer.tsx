@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { useNellimoStore } from '@/lib/store';
@@ -14,13 +14,13 @@ interface FavoritesDrawerProps {
 }
 
 export function FavoritesDrawer({ isOpen, onClose }: FavoritesDrawerProps) {
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
   const { properties } = useNellimoStore();
   const { favorites, toggleFavorite, clearFavorites } = useFavorites();
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   // Lock body scroll while drawer is open
   useEffect(() => {

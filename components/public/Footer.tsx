@@ -115,6 +115,12 @@ export function PublicFooter() {
                 <Link href="/avis-clients" className="hover:text-white transition">Avis clients vérifiés</Link>
               </li>
               <li>
+                <Link href="/espace-vendeur" className="hover:text-[#E12B7B] transition flex items-center gap-1.5 font-medium text-white/90">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#E12B7B]"></span>
+                  <span>Espace Vendeur en ligne</span>
+                </Link>
+              </li>
+              <li>
                 <Link href="/contact" className="hover:text-white transition">Contact</Link>
               </li>
             </ul>

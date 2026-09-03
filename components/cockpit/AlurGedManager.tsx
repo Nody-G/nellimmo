@@ -196,6 +196,32 @@ const CHECKLIST_DEFINITIONS: ChecklistItemDef[] = [
   }
 ];
 
+function createPropertyDocument(params: {
+  propertyId: string;
+  category: AlurDocumentCategory;
+  docName: string;
+  filename: string;
+  validityDurationMonths?: number;
+  customExpiry?: string;
+  mandatory: boolean;
+}): PropertyDocument {
+  const now = Date.now();
+  const expiresAt = params.customExpiry || (params.validityDurationMonths ? new Date(now + params.validityDurationMonths * 30 * 24 * 3600 * 1000).toISOString().slice(0, 10) : undefined);
+  return {
+    id: `doc-${now}`,
+    property_id: params.propertyId,
+    category: params.category,
+    name: params.docName,
+    filename: params.filename,
+    file_size: Math.round(150000 + Math.random() * 850000),
+    uploaded_at: new Date(now).toISOString(),
+    expires_at: expiresAt,
+    status: 'valide',
+    mandatory: params.mandatory,
+    notes: `Ajouté le ${new Date(now).toLocaleDateString('fr-FR')}`
+  };
+}
+
 export function AlurGedManager({ property, onUpdateProperty }: AlurGedManagerProps) {
   const currentDocuments: PropertyDocument[] = property.documents || [];
 
@@ -236,19 +262,15 @@ export function AlurGedManager({ property, onUpdateProperty }: AlurGedManagerPro
     const docName = docDef ? docDef.name : customDocName || 'Document';
     const category = docDef ? docDef.category : customCategory;
 
-    const newDoc: PropertyDocument = {
-      id: `doc-${Date.now()}`,
-      property_id: property.id,
+    const newDoc = createPropertyDocument({
+      propertyId: property.id,
       category,
-      name: docName,
+      docName,
       filename: uploadedFileName || `${docName.toLowerCase().replace(/\s+/g, '_')}.pdf`,
-      file_size: Math.round(150000 + Math.random() * 850000), // ~150KB - 1MB
-      uploaded_at: new Date().toISOString(),
-      expires_at: customExpiry || (docDef?.validityDurationMonths ? new Date(Date.now() + docDef.validityDurationMonths * 30 * 24 * 3600 * 1000).toISOString().slice(0, 10) : undefined),
-      status: 'valide',
+      validityDurationMonths: docDef?.validityDurationMonths,
+      customExpiry: customExpiry || undefined,
       mandatory: docDef ? docDef.mandatory : false,
-      notes: `Ajouté le ${new Date().toLocaleDateString('fr-FR')}`
-    };
+    });
 
     const updatedDocuments = [...currentDocuments.filter((d) => d.name !== docName), newDoc];
 

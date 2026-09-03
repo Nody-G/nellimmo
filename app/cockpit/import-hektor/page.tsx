@@ -20,6 +20,7 @@ import {
   Users,
   Check,
   RefreshCw,
+  Coins,
 } from 'lucide-react';
 
 export default function HektorMigrationPage() {
@@ -189,7 +190,16 @@ export default function HektorMigrationPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
+          <a
+            href="/simulateur-economies-hektor.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-4 py-2.5 bg-gradient-to-r from-[#E12B7B] to-[#9F1239] text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-md hover:opacity-95 transition cursor-pointer"
+          >
+            <Coins className="w-4 h-4 text-amber-300" />
+            <span>Audit Gains vs Hektor</span>
+          </a>
           <button
             onClick={() => handleDownloadSampleCsv(importType)}
             className="px-4 py-2.5 bg-white border border-[#F3E8EE] hover:bg-gray-50 text-gray-700 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition shadow-xs cursor-pointer"

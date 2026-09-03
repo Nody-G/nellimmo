@@ -56,7 +56,7 @@ export default function DgccrfRegisterPage() {
           <div className="p-3 bg-[#FCFAF7] rounded-xl border border-[#F3E8EE] text-xs text-right space-y-0.5">
             <span className="font-bold text-gray-900 block">Agence Nellimo</span>
             <span className="text-gray-500">{settings.address}, {settings.postal_code} {settings.city}</span>
-            <span className="text-gray-400 block text-[10px]">Horodatage UTC : {new Date().toISOString()}</span>
+            <span suppressHydrationWarning className="text-gray-400 block text-[10px]">Horodatage UTC : {new Date().toISOString()}</span>
           </div>
         </div>
 

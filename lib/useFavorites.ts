@@ -1,50 +1,39 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useSyncExternalStore, useCallback, useMemo } from 'react';
 
 const FAVORITES_STORAGE_KEY = 'nellimo_favorites_v1';
 const FAVORITES_CHANGE_EVENT = 'nellimo_favorites_changed';
 
+function subscribe(callback: () => void) {
+  if (typeof window === 'undefined') return () => {};
+  window.addEventListener('storage', callback);
+  window.addEventListener(FAVORITES_CHANGE_EVENT, callback);
+  return () => {
+    window.removeEventListener('storage', callback);
+    window.removeEventListener(FAVORITES_CHANGE_EVENT, callback);
+  };
+}
+
+function getSnapshot(): string {
+  if (typeof window === 'undefined') return '[]';
+  return localStorage.getItem(FAVORITES_STORAGE_KEY) || '[]';
+}
+
+function getServerSnapshot(): string {
+  return '[]';
+}
+
 export function useFavorites() {
-  const [favorites, setFavorites] = useState<string[]>([]);
-  const [isReady, setIsReady] = useState(false);
+  const rawFavorites = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
-  const loadFavorites = useCallback(() => {
-    if (typeof window === 'undefined') return;
+  const favorites = useMemo<string[]>(() => {
     try {
-      const stored = localStorage.getItem(FAVORITES_STORAGE_KEY);
-      if (stored) {
-        setFavorites(JSON.parse(stored));
-      } else {
-        setFavorites([]);
-      }
+      return JSON.parse(rawFavorites);
     } catch {
-      setFavorites([]);
+      return [];
     }
-    setIsReady(true);
-  }, []);
-
-  useEffect(() => {
-    loadFavorites();
-
-    const handleStorage = (e: StorageEvent) => {
-      if (e.key === FAVORITES_STORAGE_KEY) {
-        loadFavorites();
-      }
-    };
-
-    const handleCustomChange = () => {
-      loadFavorites();
-    };
-
-    window.addEventListener('storage', handleStorage);
-    window.addEventListener(FAVORITES_CHANGE_EVENT, handleCustomChange);
-
-    return () => {
-      window.removeEventListener('storage', handleStorage);
-      window.removeEventListener(FAVORITES_CHANGE_EVENT, handleCustomChange);
-    };
-  }, [loadFavorites]);
+  }, [rawFavorites]);
 
   const toggleFavorite = useCallback((propertyId: string) => {
     if (typeof window === 'undefined') return;
@@ -60,7 +49,6 @@ export function useFavorites() {
       }
 
       localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(updated));
-      setFavorites(updated);
       window.dispatchEvent(new CustomEvent(FAVORITES_CHANGE_EVENT));
     } catch (e) {
       console.error('Error toggling favorite:', e);
@@ -74,7 +62,6 @@ export function useFavorites() {
   const clearFavorites = useCallback(() => {
     if (typeof window === 'undefined') return;
     localStorage.removeItem(FAVORITES_STORAGE_KEY);
-    setFavorites([]);
     window.dispatchEvent(new CustomEvent(FAVORITES_CHANGE_EVENT));
   }, []);
 
@@ -84,6 +71,6 @@ export function useFavorites() {
     isFavorite,
     toggleFavorite,
     clearFavorites,
-    isReady
+    isReady: true
   };
 }

@@ -58,6 +58,13 @@ const OBJECTION_SCRIPTS = [
   }
 ];
 
+function computeDefaultMandateDates(durationDays = 90) {
+  const now = new Date();
+  const start = now.toISOString().split('T')[0];
+  const end = new Date(now.getTime() + durationDays * 86400000).toISOString().split('T')[0];
+  return { start, end };
+}
+
 export default function ProspectingPage() {
   const router = useRouter();
   const { prospectingLeads, createProspectingLead, updateProspectingLead, createProperty } = useNellimoStore();
@@ -128,10 +135,11 @@ export default function ProspectingPage() {
     if (!confirm(`Transformer le prospect ${lead.seller_name} (${lead.title}) en mandat officiel ?`)) return;
 
     // Create property in portfolio
+    const { start: mandateDate, end: mandateEndDate } = computeDefaultMandateDates(90);
     const newProperty = await createProperty({
       mandate_type: 'exclusif',
-      mandate_date: new Date().toISOString().split('T')[0],
-      mandate_end_date: new Date(Date.now() + 90 * 86400000).toISOString().split('T')[0],
+      mandate_date: mandateDate,
+      mandate_end_date: mandateEndDate,
       status: 'brouillon',
       seller_name: lead.seller_name,
       seller_phone: lead.seller_phone,

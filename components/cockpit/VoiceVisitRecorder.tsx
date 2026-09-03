@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useSyncExternalStore } from 'react';
 import {
   Mic,
   MicOff,
@@ -13,6 +13,28 @@ import {
   ThumbsDown,
   Volume2
 } from 'lucide-react';
+
+interface ISpeechRecognitionEvent {
+  results: {
+    length: number;
+    [index: number]: {
+      [index: number]: {
+        transcript: string;
+      };
+    };
+  };
+}
+
+interface ISpeechRecognition {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  onresult: ((event: ISpeechRecognitionEvent) => void) | null;
+  onerror: ((event: unknown) => void) | null;
+  onend: (() => void) | null;
+  start: () => void;
+  stop: () => void;
+}
 
 interface VoiceVisitRecorderProps {
   onTranscriptComplete: (data: {
@@ -33,7 +55,11 @@ export function VoiceVisitRecorder({
 }: VoiceVisitRecorderProps) {
   const [isRecording, setIsRecording] = useState(false);
   const [transcript, setTranscript] = useState('');
-  const [isSupported, setIsSupported] = useState(true);
+  const isSupported = useSyncExternalStore(
+    () => () => {},
+    () => typeof window !== 'undefined' && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window),
+    () => true
+  );
   const [analysisResult, setAnalysisResult] = useState<{
     sentiment: 'coup_de_coeur' | 'interesse' | 'neutre' | 'refus';
     strengths: string[];
@@ -41,20 +67,23 @@ export function VoiceVisitRecorder({
     priceFeedback: string;
   } | null>(null);
 
-  const recognitionRef = useRef<any>(null);
+  const recognitionRef = useRef<ISpeechRecognition | null>(null);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const SpeechRecognition =
-        (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      const windowWithSpeech = window as unknown as {
+        SpeechRecognition?: new () => ISpeechRecognition;
+        webkitSpeechRecognition?: new () => ISpeechRecognition;
+      };
+      const SpeechRecognitionClass = windowWithSpeech.SpeechRecognition || windowWithSpeech.webkitSpeechRecognition;
 
-      if (SpeechRecognition) {
-        const rec = new SpeechRecognition();
+      if (SpeechRecognitionClass) {
+        const rec = new SpeechRecognitionClass();
         rec.continuous = true;
         rec.interimResults = true;
         rec.lang = 'fr-FR';
 
-        rec.onresult = (event: any) => {
+        rec.onresult = (event: ISpeechRecognitionEvent) => {
           let current = '';
           for (let i = 0; i < event.results.length; i++) {
             current += event.results[i][0].transcript + ' ';
@@ -62,7 +91,7 @@ export function VoiceVisitRecorder({
           setTranscript(current.trim());
         };
 
-        rec.onerror = (e: any) => {
+        rec.onerror = (e: unknown) => {
           console.warn('Speech recognition error:', e);
           setIsRecording(false);
         };
@@ -72,8 +101,6 @@ export function VoiceVisitRecorder({
         };
 
         recognitionRef.current = rec;
-      } else {
-        setIsSupported(false);
       }
     }
   }, []);

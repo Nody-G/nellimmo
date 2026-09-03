@@ -125,7 +125,7 @@ export function generateAnglesAndGems(property: Partial<Property>): string[] {
   const dpe = property.dpe_letter || 'C';
 
   return [
-    `🌿 L'Art de Vivre Provençal sans compromis : Une alliance rare entre le calme résidentiel de ${city} et la proximité immédiate à pied des écoles et commerces.`,
+    `🌿 L'Art de Vivre Provençal sans compromis : De beaux volumes (${surface} m² habitables) combinant le calme résidentiel de ${city} et la proximité immédiate à pied des écoles et commerces.`,
     `☀️ Économies d'Énergie & Sérénité : Excellentes performances thermiques (DPE ${dpe}) assurant des factures très maîtrisées été comme hiver.`,
     `👨‍👩‍👧‍👦 Évolution Familiale Parfaite : ${bedrooms} chambres bien distribuées avec possibilité d'aménager un espace bureau télétravail ou studio indépendant.`,
     `🏊 Oasis Extérieure Privative : Parcelle de ${land} m² intimiste sans aucun vis-à-vis gênant, parfaite pour les déjeuners sous la tonnelle et les baignades.`,

@@ -57,18 +57,29 @@ export default function RedacteurPage() {
   const [showAnglesDrawer, setShowAnglesDrawer] = useState(false);
   const [showTitlesDrawer, setShowTitlesDrawer] = useState(false);
 
+  const currentProperty: Property | undefined = properties.find((p) => p.id === selectedPropertyId) || properties[0];
+
   // Generation state
-  const [currentText, setCurrentText] = useState('');
+  const [currentText, setCurrentText] = useState(() => {
+    return currentProperty ? generateListingCopy(currentProperty, selectedStyle, customNotes) : '';
+  });
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationSource, setGenerationSource] = useState<'deepseek' | 'local_template'>('local_template');
   const [generationMessage, setGenerationMessage] = useState('');
+
+  const [prevSelection, setPrevSelection] = useState({ propId: selectedPropertyId, style: selectedStyle });
+  if (prevSelection.propId !== selectedPropertyId || prevSelection.style !== selectedStyle) {
+    setPrevSelection({ propId: selectedPropertyId, style: selectedStyle });
+    if (currentProperty) {
+      setCurrentText(generateListingCopy(currentProperty, selectedStyle, customNotes));
+      setGenerationSource('local_template');
+    }
+  }
 
   // Copy feedback state
   const [copied, setCopied] = useState(false);
   const [appliedToMandate, setAppliedToMandate] = useState(false);
   const [isPublishingSocial, setIsPublishingSocial] = useState(false);
-
-  const currentProperty: Property | undefined = properties.find((p) => p.id === selectedPropertyId) || properties[0];
 
   const filteredTemplates = STYLE_TEMPLATES.filter((t) => {
     if (activeCategory === 'all') return true;
@@ -94,15 +105,6 @@ export default function RedacteurPage() {
       setIsPublishingSocial(false);
     }
   };
-
-  // Initialize text on first load or when switching property/style locally
-  useEffect(() => {
-    if (currentProperty) {
-      const initial = generateListingCopy(currentProperty, selectedStyle, customNotes);
-      setCurrentText(initial);
-      setGenerationSource('local_template');
-    }
-  }, [selectedPropertyId, selectedStyle]);
 
   // DeepSeek AI Generation Handler
   const handleGenerateWithAI = async () => {

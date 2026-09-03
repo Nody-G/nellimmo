@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useNellimoStore } from '@/lib/store';
 import { formatMandateRef } from '@/lib/hoguet';
+import { Property, Buyer, VisitSheet } from '@/lib/types';
 import {
   PenTool,
   ShieldCheck,
@@ -30,6 +31,15 @@ import {
 } from 'lucide-react';
 import { VoiceVisitRecorder } from '@/components/cockpit/VoiceVisitRecorder';
 
+interface PrintableVisit {
+  property?: Property;
+  buyer?: Buyer;
+  visit_date: string;
+  signature_data_url: string;
+  notes?: string;
+  hash: string;
+}
+
 export default function VisitSheetsPage() {
   const { properties, buyers, visits, createVisitSheet } = useNellimoStore();
   const [selectedPropertyId, setSelectedPropertyId] = useState(properties[0]?.id || '');
@@ -40,7 +50,7 @@ export default function VisitSheetsPage() {
   const [copiedCalendarLink, setCopiedCalendarLink] = useState(false);
   const [isLegalPrintModalOpen, setIsLegalPrintModalOpen] = useState(false);
   const [lastSavedSignatureUrl, setLastSavedSignatureUrl] = useState<string | null>(null);
-  const [selectedVisitToPrint, setSelectedVisitToPrint] = useState<any>(null);
+  const [selectedVisitToPrint, setSelectedVisitToPrint] = useState<PrintableVisit | null>(null);
 
   // Sentiment & Feedback state
   const [visitorSentiment, setVisitorSentiment] = useState<'coup_de_coeur' | 'interesse' | 'neutre' | 'refus'>('coup_de_coeur');
@@ -48,28 +58,31 @@ export default function VisitSheetsPage() {
   const [selectedWeaknesses, setSelectedWeaknesses] = useState<string[]>([]);
   const [priceFeedback, setPriceFeedback] = useState<string>('Au prix du marché');
 
+  const selectedProperty = properties.find((p) => p.id === selectedPropertyId) || properties[0];
+  const selectedBuyer = buyers.find((b) => b.id === selectedBuyerId) || buyers[0];
+
   // Instant Offer Modal
   const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
-  const [offerPrice, setOfferPrice] = useState<number>(0);
+  const [offerPrice, setOfferPrice] = useState<number>(() => selectedProperty ? selectedProperty.price_fai : 0);
   const [offerValidityDays, setOfferValidityDays] = useState<number>(7);
-  const [offerLoanAmount, setOfferLoanAmount] = useState<number>(0);
+  const [offerLoanAmount, setOfferLoanAmount] = useState<number>(() => selectedProperty ? Math.round(selectedProperty.price_fai * 0.85) : 0);
   const [offerLoanRate, setOfferLoanRate] = useState<number>(3.6);
   const [offerLoanDuration, setOfferLoanDuration] = useState<number>(25);
   const [copiedOffer, setCopiedOffer] = useState(false);
 
-  // Canvas drawing state
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [isDrawing, setIsDrawing] = useState(false);
-
-  const selectedProperty = properties.find((p) => p.id === selectedPropertyId) || properties[0];
-  const selectedBuyer = buyers.find((b) => b.id === selectedBuyerId) || buyers[0];
-
-  useEffect(() => {
+  // Adjust offer price when selected property changes
+  const [prevSelectedPropId, setPrevSelectedPropId] = useState(selectedPropertyId);
+  if (prevSelectedPropId !== selectedPropertyId) {
+    setPrevSelectedPropId(selectedPropertyId);
     if (selectedProperty) {
       setOfferPrice(selectedProperty.price_fai);
       setOfferLoanAmount(Math.round(selectedProperty.price_fai * 0.85));
     }
-  }, [selectedPropertyId]);
+  }
+
+  // Canvas drawing state
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [isDrawing, setIsDrawing] = useState(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -1015,7 +1028,7 @@ Signature de l'Offrant :`;
                   <div className="h-16 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center bg-white overflow-hidden p-1">
                     {(selectedVisitToPrint?.signature_data_url || lastSavedSignatureUrl) ? (
                       <img
-                        src={selectedVisitToPrint?.signature_data_url || lastSavedSignatureUrl}
+                        src={(selectedVisitToPrint?.signature_data_url || lastSavedSignatureUrl) || undefined}
                         alt="Signature Acquéreur"
                         className="max-h-full object-contain"
                       />
@@ -1028,7 +1041,7 @@ Signature de l'Offrant :`;
 
               {/* Cryptographic Footnote */}
               <div className="pt-2 border-t border-gray-200 flex items-center justify-between text-[9px] text-gray-400 font-mono">
-                <span>Horodatage UTC : {new Date().toISOString()} • IP : 82.65.144.21</span>
+                <span suppressHydrationWarning>Horodatage UTC : {new Date().toISOString()} • IP : 82.65.144.21</span>
                 <span>Scellement SHA-256 : {selectedVisitToPrint?.hash || 'sha256-bv-certifie-inviolable'}</span>
               </div>
             </div>
