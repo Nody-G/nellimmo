@@ -17,15 +17,16 @@ import {
   X,
   ArrowRight,
   Sparkles,
-  Command,
   HelpCircle,
   PlusCircle,
   Clock,
   Landmark,
   Radar,
   FileCheck2,
-  BrainCircuit
+  BrainCircuit,
+  BookOpen
 } from 'lucide-react';
+import { HELP_GUIDES } from '@/lib/help-content';
 
 export function CommandPalette() {
   const [isOpen, setIsOpen] = useState(false);
@@ -75,6 +76,7 @@ export function CommandPalette() {
 
   // Static Cockpit Navigation Items
   const staticNavigation: PaletteItem[] = useMemo(() => [
+    { id: 'nav-aide', title: 'Cockpit Academy & Guides Pratiques', subtitle: '12 guides et tutoriels complets avec exemples concrets et scripts', category: 'Formation & Aide', href: '/cockpit/aide', icon: BookOpen },
     { id: 'nav-nouveau', title: 'Nouveau Mandat', subtitle: 'Créer un nouveau mandat Loi Hoguet', category: 'Actions', href: '/cockpit/mandats/nouveau', icon: PlusCircle },
     { id: 'nav-dashboard', title: 'Tableau de Bord Cockpit', subtitle: 'Supervision globale de l\'agence', category: 'Outils', href: '/cockpit', icon: ShieldCheck },
     { id: 'nav-mandats', title: 'Registre des Mandats', subtitle: 'Consulter tous les mandats', category: 'Outils', href: '/cockpit/mandats', icon: FileText },
@@ -183,6 +185,28 @@ export function CommandPalette() {
           category: 'Navigation Outils',
           href: nav.href,
           icon: nav.icon,
+        });
+      }
+    });
+
+    // Search help guides
+    HELP_GUIDES.forEach((guide) => {
+      if (
+        guide.title.toLowerCase().includes(q) ||
+        guide.shortTitle.toLowerCase().includes(q) ||
+        guide.tags.some((t) => t.toLowerCase().includes(q)) ||
+        'aide'.includes(q) ||
+        'tuto'.includes(q) ||
+        'guide'.includes(q)
+      ) {
+        items.push({
+          id: `help-${guide.id}`,
+          title: `Tuto : ${guide.shortTitle}`,
+          subtitle: `${guide.title} (${guide.readTimeMinutes} min)`,
+          category: 'Guides & Tutoriels',
+          href: `/cockpit/aide?guide=${guide.id}`,
+          icon: BookOpen,
+          badge: guide.badge,
         });
       }
     });

@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { CockpitSidebar } from '@/components/cockpit/CockpitSidebar';
 import { CommandPalette } from '@/components/cockpit/CommandPalette';
 import { CockpitMobileNav } from '@/components/cockpit/CockpitMobileNav';
-import { Menu, X, PlusCircle, ShieldCheck } from 'lucide-react';
+import { ContextualHelpDrawer } from '@/components/cockpit/ContextualHelpDrawer';
+import { Menu, X, PlusCircle } from 'lucide-react';
 
 export default function CockpitLayout({ children }: { children: React.ReactNode }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -36,6 +37,7 @@ export default function CockpitLayout({ children }: { children: React.ReactNode 
         </div>
 
         <div className="flex items-center gap-2">
+          <ContextualHelpDrawer />
           <CommandPalette />
           <Link
             href="/cockpit/mandats/nouveau"
@@ -72,6 +74,7 @@ export default function CockpitLayout({ children }: { children: React.ReactNode 
           </div>
 
           <div className="flex items-center gap-3">
+            <ContextualHelpDrawer />
             <CommandPalette />
             <Link
               href="/biens"

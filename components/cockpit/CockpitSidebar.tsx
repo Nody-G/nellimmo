@@ -21,10 +21,10 @@ import {
   Radar,
   FileCheck2,
   BrainCircuit,
-  Flame,
   Handshake,
   KeyRound,
-  Calendar
+  Calendar,
+  BookOpen
 } from 'lucide-react';
 
 export function CockpitSidebar() {
@@ -32,6 +32,7 @@ export function CockpitSidebar() {
 
   const navigation = [
     { name: 'Tableau de Bord', href: '/cockpit', icon: LayoutDashboard },
+    { name: 'Guides & Tutoriels', href: '/cockpit/aide', icon: BookOpen, badge: 'Academy' },
     { name: 'Mandats & Biens', href: '/cockpit/mandats', icon: FileText },
     { name: 'Planning & Agenda', href: '/cockpit/agenda', icon: Calendar },
     { name: 'Pipeline Notaire & Ventes', href: '/cockpit/transactions', icon: Landmark },
@@ -119,6 +120,11 @@ export function CockpitSidebar() {
               {item.highlight && !isActive && (
                 <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#C59A45]/20 text-[#C59A45]">
                   LAB
+                </span>
+              )}
+              {item.badge && !isActive && (
+                <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#E12B7B]/20 text-[#F44293]">
+                  {item.badge}
                 </span>
               )}
             </Link>
