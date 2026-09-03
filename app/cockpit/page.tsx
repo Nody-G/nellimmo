@@ -205,6 +205,76 @@ export default function CockpitDashboard() {
 
       </div>
 
+      {/* Super-Cockpit Métier : Avance Technologique */}
+      <div className="bg-gradient-to-r from-[#131B26] via-[#1E293B] to-[#131B26] text-white rounded-3xl p-6 sm:p-7 shadow-xl space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-3">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-[#E12B7B]/20 border border-[#E12B7B]/40 flex items-center justify-center text-[#E12B7B]">
+              <Sparkles className="w-4 h-4" />
+            </div>
+            <div>
+              <h3 className="font-serif font-bold text-base text-white">
+                Cockpit Nell&apos;Immo • Statut des Services Autonomes
+              </h3>
+              <span className="text-[11px] text-gray-400">
+                L&apos;alternative indépendante à Hektor : zéro surcoût, 100% réactivité
+              </span>
+            </div>
+          </div>
+
+          <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1.5 self-start sm:self-auto">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            Système 100% Opérationnel
+          </span>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+          <Link
+            href="/cockpit/mandats"
+            className="p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl transition group"
+          >
+            <span className="text-[10px] font-bold uppercase text-gray-400 block mb-1">GED Notaire & ALUR</span>
+            <strong className="text-sm font-bold text-white group-hover:text-[#E12B7B] transition block">
+              Checklist & Jauge %
+            </strong>
+            <span className="text-[10px] text-gray-400">Bordereau notarial en 1 clic</span>
+          </Link>
+
+          <Link
+            href="/cockpit/inter-agences"
+            className="p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl transition group"
+          >
+            <span className="text-[10px] font-bold uppercase text-[#C59A45] block mb-1">Bourse Inter-Agences</span>
+            <strong className="text-sm font-bold text-white group-hover:text-[#C59A45] transition block">
+              Anti-Interkab Actif
+            </strong>
+            <span className="text-[10px] text-gray-400">Conventions 50/50 Loi Hoguet</span>
+          </Link>
+
+          <Link
+            href="/cockpit/visites"
+            className="p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl transition group"
+          >
+            <span className="text-[10px] font-bold uppercase text-gray-400 block mb-1">Terrain & Visites</span>
+            <strong className="text-sm font-bold text-white group-hover:text-emerald-400 transition block">
+              PWA & Dictée Vocale
+            </strong>
+            <span className="text-[10px] text-gray-400">Agenda iCal & Bons scellés</span>
+          </Link>
+
+          <Link
+            href="/cockpit/acquereurs"
+            className="p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl transition group"
+          >
+            <span className="text-[10px] font-bold uppercase text-gray-400 block mb-1">Finances & Notaire</span>
+            <strong className="text-sm font-bold text-white group-hover:text-blue-400 transition block">
+              Décret 2020-179
+            </strong>
+            <span className="text-[10px] text-gray-400">Notaire exact & Plus-value</span>
+          </Link>
+        </div>
+      </div>
+
       {/* Alerts & Vigilance Section */}
       {(energyAuditProperties.length > 0 || expiringProperties.length > 0) && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

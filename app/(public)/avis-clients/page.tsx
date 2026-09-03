@@ -1,11 +1,21 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import { ShieldCheck, CheckCircle2, ArrowRight, Phone } from 'lucide-react';
+import { ShieldCheck, CheckCircle2, ArrowRight, Phone, Star, PlusCircle, X, Sparkles, Send } from 'lucide-react';
 
 export default function AvisClientsPage() {
-  const reviews = [
+  const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+
+  // Form state
+  const [formAuthor, setFormAuthor] = useState('');
+  const [formRole, setFormRole] = useState('Vendeur d’une villa à Pélissanne');
+  const [formRating, setFormRating] = useState(5);
+  const [formTitle, setFormTitle] = useState('');
+  const [formComment, setFormComment] = useState('');
+
+  const [reviewsList, setReviewsList] = useState([
     {
       id: 1,
       author: 'Michel et Marie-Hélène D.',
@@ -46,7 +56,30 @@ export default function AvisClientsPage() {
       comment:
         'Près de 20 ans d’expérience sur le secteur, ça se ressent immédiatement. Nelly connaît chaque quartier, chaque réglementation et défend les intérêts des deux parties avec une grande équité.',
     },
-  ];
+  ]);
+
+  const handleAddReview = (e: React.FormEvent) => {
+    e.preventDefault();
+    const newRev = {
+      id: Date.now(),
+      author: formAuthor,
+      role: formRole,
+      date: new Date().toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }),
+      rating: formRating,
+      title: formTitle,
+      comment: formComment
+    };
+
+    setReviewsList([newRev, ...reviewsList]);
+    setSubmitSuccess(true);
+    setTimeout(() => {
+      setSubmitSuccess(false);
+      setIsSubmitModalOpen(false);
+      setFormAuthor('');
+      setFormTitle('');
+      setFormComment('');
+    }, 1500);
+  };
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12 animate-fade-in">
@@ -115,6 +148,15 @@ export default function AvisClientsPage() {
         </div>
 
         <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setIsSubmitModalOpen(true)}
+            className="px-5 py-3 bg-[#131B26] hover:bg-gray-800 text-white rounded-xl text-xs font-bold uppercase tracking-wider shadow-sm transition flex items-center gap-2 cursor-pointer"
+          >
+            <Star className="w-4 h-4 text-amber-400" />
+            <span>Déposer un Témoignage</span>
+          </button>
+
           <Link
             href="/estimation"
             className="px-6 py-3 bg-[#E12B7B] hover:bg-[#C71B62] text-white rounded-xl text-xs font-bold uppercase tracking-wider shadow-md transition flex items-center gap-2"
@@ -127,7 +169,7 @@ export default function AvisClientsPage() {
 
       {/* Reviews Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {reviews.map((rev) => (
+        {reviewsList.map((rev) => (
           <div
             key={rev.id}
             className="bg-white rounded-3xl p-6 sm:p-8 border border-[#F3E8EE] shadow-xs space-y-4 hover:shadow-md transition"
@@ -161,6 +203,118 @@ export default function AvisClientsPage() {
           </div>
         ))}
       </div>
+
+      {/* Interactive Review Modal */}
+      {isSubmitModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full border border-gray-100 shadow-2xl space-y-5">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-[#E12B7B]" />
+                <h3 className="font-serif font-bold text-lg text-[#131B26]">
+                  Partager votre Témoignage Vérifié
+                </h3>
+              </div>
+              <button
+                onClick={() => setIsSubmitModalOpen(false)}
+                className="p-1 text-gray-400 hover:text-gray-700 rounded-lg"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {submitSuccess ? (
+              <div className="p-8 text-center space-y-3 bg-emerald-50 rounded-2xl border border-emerald-200">
+                <CheckCircle2 className="w-10 h-10 text-emerald-600 mx-auto" />
+                <h4 className="font-serif font-bold text-base text-emerald-950">
+                  Merci infiniment pour votre témoignage !
+                </h4>
+                <p className="text-xs text-emerald-800">
+                  Votre avis est certifié et s&apos;affiche désormais parmi nos retours d&apos;expérience vérifiés.
+                </p>
+              </div>
+            ) : (
+              <form onSubmit={handleAddReview} className="space-y-4 text-xs">
+                <div>
+                  <label className="block font-bold uppercase text-gray-700 mb-1">Votre Note de Satisfaction</label>
+                  <div className="flex items-center gap-2 text-2xl text-amber-400 cursor-pointer">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <span
+                        key={star}
+                        onClick={() => setFormRating(star)}
+                        className={`hover:scale-125 transition ${star <= formRating ? 'text-amber-400' : 'text-gray-300'}`}
+                      >
+                        ★
+                      </span>
+                    ))}
+                    <span className="text-xs font-bold text-gray-600 ml-2">({formRating} / 5 étoiles)</span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block font-bold uppercase text-gray-700 mb-1">Votre Prénom & Nom</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Ex: Sophie et Marc L."
+                      value={formAuthor}
+                      onChange={(e) => setFormAuthor(e.target.value)}
+                      className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl font-semibold focus:outline-[#E12B7B]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-bold uppercase text-gray-700 mb-1">Votre Rôle</label>
+                    <select
+                      value={formRole}
+                      onChange={(e) => setFormRole(e.target.value)}
+                      className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl font-semibold focus:outline-[#E12B7B]"
+                    >
+                      <option value="Vendeur d’une villa à Pélissanne">Vendeur d’une villa à Pélissanne</option>
+                      <option value="Acquéreur à Salon-de-Provence">Acquéreur à Salon-de-Provence</option>
+                      <option value="Vendeur d’un appartement à Lambesc">Vendeur d’un appartement à Lambesc</option>
+                      <option value="Acquéreur d’une propriété en Provence">Acquéreur d’une propriété en Provence</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block font-bold uppercase text-gray-700 mb-1">Titre de votre Témoignage</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Ex: Une accompagnatrice hors pair et des conseils précieux"
+                    value={formTitle}
+                    onChange={(e) => setFormTitle(e.target.value)}
+                    className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl font-semibold focus:outline-[#E12B7B]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-bold uppercase text-gray-700 mb-1">Votre Commentaire Détaillé</label>
+                  <textarea
+                    rows={4}
+                    required
+                    placeholder="Partagez votre expérience avec Nelly Fernandez et l'agence Nell'Immo..."
+                    value={formComment}
+                    onChange={(e) => setFormComment(e.target.value)}
+                    className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl font-normal leading-relaxed focus:outline-[#E12B7B]"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full py-3 bg-[#E12B7B] hover:bg-[#C71B62] text-white rounded-xl font-bold uppercase tracking-wider transition shadow-md cursor-pointer flex items-center justify-center gap-2"
+                >
+                  <Send className="w-4 h-4" />
+                  <span>Publier mon Avis Vérifié</span>
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* CTA Bottom Box */}
       <div className="bg-[#131B26] text-white rounded-3xl p-8 sm:p-12 text-center space-y-4 shadow-xl">

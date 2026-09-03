@@ -88,8 +88,50 @@ export interface Property {
   created_at: string;
   updated_at: string;
 
+  // Seller Space & Security
+  seller_token?: string; // Token d'accès unique pour l'Espace Vendeur en ligne
+
+  // GED & Documents ALUR
+  documents?: PropertyDocument[];
+
+  // Signature Électronique
+  electronic_signature?: SignatureCertificate;
+
   // Joined images
   images?: PropertyImage[];
+}
+
+export type AlurDocumentCategory = 'identite' | 'propriete' | 'diagnostics' | 'copropriete' | 'urbanisme' | 'autre';
+export type AlurDocumentStatus = 'valide' | 'a_renouveler' | 'manquant' | 'en_attente';
+
+export interface PropertyDocument {
+  id: string;
+  property_id: string;
+  category: AlurDocumentCategory;
+  name: string;
+  filename?: string;
+  file_url?: string;
+  file_size?: number;
+  uploaded_at: string;
+  expires_at?: string;
+  status: AlurDocumentStatus;
+  mandatory: boolean;
+  notes?: string;
+}
+
+export interface SignatureCertificate {
+  id: string;
+  mandate_number: number;
+  signed_at: string;
+  signer_name: string;
+  signer_email: string;
+  signer_phone: string;
+  otp_code: string;
+  sha256_fingerprint: string;
+  ip_address: string;
+  eidas_level: 'simple' | 'avance' | 'qualifie';
+  contract_type: 'mandat_exclusif' | 'mandat_simple' | 'avenant_prix' | 'offre_achat';
+  pdf_signed_url?: string;
 }
 
 export interface Buyer {
@@ -367,6 +409,63 @@ export interface EstimationLead {
   rooms_count?: number;
   has_pool: boolean;
   status: 'nouveau' | 'en_cours' | 'avis_envoye' | 'archive';
+  created_at: string;
+}
+
+export type ProspectingSource = 'leboncoin' | 'pap' | 'paruvendu' | 'boitage' | 'recommandation';
+export type ProspectingStatus = 'nouveau' | 'a_rappeler' | 'rdv_pris' | 'refus_agent' | 'deja_vendu' | 'mandat_obtenu';
+
+export interface ProspectingLead {
+  id: string;
+  source: ProspectingSource;
+  source_url?: string;
+  title: string;
+  property_type: PropertyType;
+  city: string;
+  postal_code: string;
+  price_asked: number;
+  initial_price?: number;
+  price_drops_count: number;
+  living_area: number;
+  land_area?: number;
+  rooms_count: number;
+  bedrooms_count?: number;
+  description: string;
+  photos_urls: string[];
+  seller_name: string;
+  seller_phone: string;
+  seller_email?: string;
+  status: ProspectingStatus;
+  call_attempts_count: number;
+  last_contacted_at?: string;
+  next_followup_date?: string;
+  notes?: string;
+  estimated_dvf_m2?: number;
+  estimated_dvf_price?: number;
+  days_online: number;
+  created_at: string;
+}
+
+export interface VendorReport {
+  id: string;
+  property_id: string;
+  report_period: 'hebdomadaire' | 'mensuel' | 'bilan_30_jours';
+  generated_at: string;
+  views_seloger: number;
+  views_leboncoin: number;
+  views_bienici: number;
+  views_website: number;
+  total_leads_count: number;
+  visits_count: number;
+  positive_feedbacks_count: number;
+  neutral_feedbacks_count: number;
+  negative_feedbacks_count: number;
+  executive_summary: string;
+  price_recommendation_text: string;
+  suggested_price_adjustment: number;
+  shared_via_whatsapp: boolean;
+  shared_via_email: boolean;
+  viewed_by_seller_at?: string;
   created_at: string;
 }
 

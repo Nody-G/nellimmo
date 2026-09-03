@@ -9,7 +9,9 @@ import {
   AgencySettings,
   ContactLead,
   EstimationLead,
-  TransactionDeal
+  TransactionDeal,
+  ProspectingLead,
+  VendorReport
 } from './types';
 import {
   INITIAL_PROPERTIES,
@@ -19,7 +21,9 @@ import {
   DEFAULT_AGENCY_SETTINGS,
   INITIAL_CONTACT_LEADS,
   INITIAL_ESTIMATION_LEADS,
-  INITIAL_TRANSACTIONS
+  INITIAL_TRANSACTIONS,
+  INITIAL_PROSPECTING_LEADS,
+  INITIAL_VENDOR_REPORTS
 } from './mock-data';
 import { computeSHA256 } from './hoguet';
 import { getSupabaseClient, isSupabaseConfigured } from './supabase';
@@ -33,6 +37,8 @@ const STORAGE_KEYS = {
   CONTACT_LEADS: 'nellimo_contact_leads_v4',
   ESTIMATION_LEADS: 'nellimo_estimation_leads_v4',
   TRANSACTIONS: 'nellimo_transactions_v1',
+  PROSPECTING_LEADS: 'nellimo_prospecting_leads_v1',
+  VENDOR_REPORTS: 'nellimo_vendor_reports_v1',
 };
 
 function loadFromStorage<T>(key: string, defaultValue: T): T {
@@ -64,6 +70,8 @@ interface NellimoContextType {
   contactLeads: ContactLead[];
   estimationLeads: EstimationLead[];
   transactions: TransactionDeal[];
+  prospectingLeads: ProspectingLead[];
+  vendorReports: VendorReport[];
   isLoaded: boolean;
   isSupabaseActive: boolean;
   createProperty: (propertyData: Omit<Property, 'id' | 'mandate_number' | 'created_at' | 'updated_at'>) => Promise<Property>;
@@ -83,6 +91,11 @@ interface NellimoContextType {
   createTransaction: (dealData: Omit<TransactionDeal, 'id' | 'created_at' | 'updated_at'>) => Promise<TransactionDeal>;
   updateTransaction: (id: string, updates: Partial<TransactionDeal>) => Promise<TransactionDeal | null>;
   deleteTransaction: (id: string) => Promise<void>;
+  createProspectingLead: (data: Omit<ProspectingLead, 'id' | 'created_at'>) => Promise<ProspectingLead>;
+  updateProspectingLead: (id: string, updates: Partial<ProspectingLead>) => Promise<void>;
+  deleteProspectingLead: (id: string) => Promise<void>;
+  createVendorReport: (data: Omit<VendorReport, 'id' | 'created_at'>) => Promise<VendorReport>;
+  updateVendorReport: (id: string, updates: Partial<VendorReport>) => Promise<void>;
   resetToDemoData: () => void;
 }
 
@@ -97,6 +110,8 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
   const [contactLeads, setContactLeads] = useState<ContactLead[]>(() => loadFromStorage(STORAGE_KEYS.CONTACT_LEADS, INITIAL_CONTACT_LEADS));
   const [estimationLeads, setEstimationLeads] = useState<EstimationLead[]>(() => loadFromStorage(STORAGE_KEYS.ESTIMATION_LEADS, INITIAL_ESTIMATION_LEADS));
   const [transactions, setTransactions] = useState<TransactionDeal[]>(() => loadFromStorage(STORAGE_KEYS.TRANSACTIONS, INITIAL_TRANSACTIONS));
+  const [prospectingLeads, setProspectingLeads] = useState<ProspectingLead[]>(() => loadFromStorage(STORAGE_KEYS.PROSPECTING_LEADS, INITIAL_PROSPECTING_LEADS));
+  const [vendorReports, setVendorReports] = useState<VendorReport[]>(() => loadFromStorage(STORAGE_KEYS.VENDOR_REPORTS, INITIAL_VENDOR_REPORTS));
   const [isLoaded, setIsLoaded] = useState(true);
   const [isSupabaseActive] = useState(() => isSupabaseConfigured());
 
@@ -669,6 +684,57 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // --- PROSPECTING LEADS (MODULE 05) ---
+
+  const updateProspecting = useCallback((newLeads: ProspectingLead[]) => {
+    setProspectingLeads(newLeads);
+    saveToStorage(STORAGE_KEYS.PROSPECTING_LEADS, newLeads);
+  }, []);
+
+  const createProspectingLead = async (data: Omit<ProspectingLead, 'id' | 'created_at'>): Promise<ProspectingLead> => {
+    const newLead: ProspectingLead = {
+      ...data,
+      id: `pige-${Date.now()}`,
+      created_at: new Date().toISOString(),
+    };
+    const updated = [newLead, ...prospectingLeads];
+    updateProspecting(updated);
+    return newLead;
+  };
+
+  const updateProspectingLead = async (id: string, updates: Partial<ProspectingLead>): Promise<void> => {
+    const updated = prospectingLeads.map((l) => (l.id === id ? { ...l, ...updates } : l));
+    updateProspecting(updated);
+  };
+
+  const deleteProspectingLead = async (id: string): Promise<void> => {
+    const updated = prospectingLeads.filter((l) => l.id !== id);
+    updateProspecting(updated);
+  };
+
+  // --- VENDOR REPORTS (MODULE 02) ---
+
+  const updateReports = useCallback((newReports: VendorReport[]) => {
+    setVendorReports(newReports);
+    saveToStorage(STORAGE_KEYS.VENDOR_REPORTS, newReports);
+  }, []);
+
+  const createVendorReport = async (data: Omit<VendorReport, 'id' | 'created_at'>): Promise<VendorReport> => {
+    const newReport: VendorReport = {
+      ...data,
+      id: `rep-${Date.now()}`,
+      created_at: new Date().toISOString(),
+    };
+    const updated = [newReport, ...vendorReports];
+    updateReports(updated);
+    return newReport;
+  };
+
+  const updateVendorReport = async (id: string, updates: Partial<VendorReport>): Promise<void> => {
+    const updated = vendorReports.map((r) => (r.id === id ? { ...r, ...updates } : r));
+    updateReports(updated);
+  };
+
   // --- RESET DEMO PROVENCE ---
 
   const resetToDemoData = () => {
@@ -680,6 +746,8 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
     updateContactLeads(INITIAL_CONTACT_LEADS);
     updateEstimationLeads(INITIAL_ESTIMATION_LEADS);
     updateTransactions(INITIAL_TRANSACTIONS);
+    updateProspecting(INITIAL_PROSPECTING_LEADS);
+    updateReports(INITIAL_VENDOR_REPORTS);
   };
 
   const value: NellimoContextType = {
@@ -691,6 +759,8 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
     contactLeads,
     estimationLeads,
     transactions,
+    prospectingLeads,
+    vendorReports,
     isLoaded,
     isSupabaseActive,
     createProperty,
@@ -710,6 +780,11 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
     createTransaction,
     updateTransaction,
     deleteTransaction,
+    createProspectingLead,
+    updateProspectingLead,
+    deleteProspectingLead,
+    createVendorReport,
+    updateVendorReport,
     resetToDemoData,
   };
 
@@ -728,6 +803,8 @@ export function useNellimoStore(): NellimoContextType {
       contactLeads: INITIAL_CONTACT_LEADS,
       estimationLeads: INITIAL_ESTIMATION_LEADS,
       transactions: INITIAL_TRANSACTIONS,
+      prospectingLeads: INITIAL_PROSPECTING_LEADS,
+      vendorReports: INITIAL_VENDOR_REPORTS,
       isLoaded: true,
       isSupabaseActive: false,
       createProperty: async (p) => ({ ...p, id: 'prop-temp', mandate_number: 999, created_at: '', updated_at: '' }),
@@ -747,6 +824,11 @@ export function useNellimoStore(): NellimoContextType {
       createTransaction: async (t) => ({ ...t, id: 'trans-temp', created_at: '', updated_at: '' }),
       updateTransaction: async () => null,
       deleteTransaction: async () => {},
+      createProspectingLead: async (l) => ({ ...l, id: 'pige-temp', created_at: '' }),
+      updateProspectingLead: async () => {},
+      deleteProspectingLead: async () => {},
+      createVendorReport: async (r) => ({ ...r, id: 'rep-temp', created_at: '' }),
+      updateVendorReport: async () => {},
       resetToDemoData: () => {},
     };
   }

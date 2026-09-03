@@ -30,11 +30,15 @@ import {
   CopywritingStyle,
   STYLE_TEMPLATES
 } from '@/lib/copywriting';
+import { AlurGedManager } from '@/components/cockpit/AlurGedManager';
+import { ElectronicSignatureModal } from '@/components/cockpit/ElectronicSignatureModal';
+import { FileCheck2, FileSignature } from 'lucide-react';
 
 export default function MandateDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
-  const { properties, buyers, auditLogs, updateProperty } = useNellimoStore();
-  const [activeTab, setActiveTab] = useState<'details' | 'crm' | 'copywriting' | 'vendor_report' | 'flyer' | 'poliris' | 'audit'>('details');
+  const { properties, buyers, auditLogs, settings, updateProperty } = useNellimoStore();
+  const [activeTab, setActiveTab] = useState<'details' | 'alur_ged' | 'signature' | 'crm' | 'copywriting' | 'vendor_report' | 'flyer' | 'poliris' | 'audit'>('details');
+  const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
   const [selectedCopyStyle, setSelectedCopyStyle] = useState<CopywritingStyle>('signature_nelly');
   const [copyNotes, setCopyNotes] = useState('');
   const [copiedText, setCopiedText] = useState(false);
@@ -125,6 +129,14 @@ export default function MandateDetailPage({ params }: { params: Promise<{ id: st
             <span>Vitrine</span>
           </Link>
 
+          <button
+            onClick={() => setIsSignatureModalOpen(true)}
+            className="px-3.5 py-2 bg-[#131B26] hover:bg-gray-800 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition shadow-xs cursor-pointer"
+          >
+            <FileSignature className="w-3.5 h-3.5 text-[#C59A45]" />
+            <span>{property.electronic_signature ? 'Mandat Signé' : 'Signer eIDAS'}</span>
+          </button>
+
           <Link
             href={`/cockpit/mandats/${property.id}/edit`}
             className="px-3.5 py-2 bg-[#E12B7B] hover:bg-[#C71B62] text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition shadow-xs"
@@ -147,6 +159,30 @@ export default function MandateDetailPage({ params }: { params: Promise<{ id: st
         >
           <FileText className="w-4 h-4" />
           Synthèse Mandat & ALUR
+        </button>
+
+        <button
+          onClick={() => setActiveTab('alur_ged')}
+          className={`py-3 px-4 border-b-2 flex items-center gap-2 transition cursor-pointer ${
+            activeTab === 'alur_ged'
+              ? 'border-[#E12B7B] text-[#E12B7B]'
+              : 'border-transparent text-gray-500 hover:text-gray-900'
+          }`}
+        >
+          <FileCheck2 className="w-4 h-4 text-emerald-600" />
+          Dossier ALUR & GED ({property.documents?.length || 0})
+        </button>
+
+        <button
+          onClick={() => setActiveTab('signature')}
+          className={`py-3 px-4 border-b-2 flex items-center gap-2 transition cursor-pointer ${
+            activeTab === 'signature'
+              ? 'border-[#E12B7B] text-[#E12B7B]'
+              : 'border-transparent text-gray-500 hover:text-gray-900'
+          }`}
+        >
+          <FileSignature className="w-4 h-4 text-[#C59A45]" />
+          Signature eIDAS
         </button>
 
         <button
@@ -819,6 +855,99 @@ export default function MandateDetailPage({ params }: { params: Promise<{ id: st
           </div>
         </div>
       )}
+
+      {/* TAB GED & CONFORMITÉ ALUR */}
+      {activeTab === 'alur_ged' && (
+        <div className="animate-fade-in">
+          <AlurGedManager property={property} onUpdateProperty={updateProperty} />
+        </div>
+      )}
+
+      {/* TAB SIGNATURE ÉLECTRONIQUE eIDAS */}
+      {activeTab === 'signature' && (
+        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#F3E8EE] shadow-xs space-y-6 animate-fade-in">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100 pb-4">
+            <div>
+              <span className="text-xs font-bold uppercase tracking-widest text-[#E12B7B]">
+                Signature Électronique Certifiée
+              </span>
+              <h3 className="text-xl font-serif font-bold text-[#131B26]">
+                Mandat Légal Loi Hoguet & Certificat eIDAS
+              </h3>
+            </div>
+            <button
+              onClick={() => setIsSignatureModalOpen(true)}
+              className="px-5 py-2.5 bg-[#E12B7B] hover:bg-[#C71B62] text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-md transition cursor-pointer"
+            >
+              <FileSignature className="w-4 h-4" />
+              {property.electronic_signature ? 'Revoir / Re-signer le Mandat' : 'Lancer la Signature par SMS OTP'}
+            </button>
+          </div>
+
+          {property.electronic_signature ? (
+            <div className="p-6 bg-emerald-50/40 rounded-2xl border border-emerald-200 space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                  <ShieldCheck className="w-6 h-6" />
+                </div>
+                <div>
+                  <span className="text-xs font-bold uppercase tracking-wider text-emerald-800 block">
+                    Mandat Actif & Juridiquement Scellé
+                  </span>
+                  <span className="text-sm font-semibold text-gray-900">
+                    Signé le {new Date(property.electronic_signature.signed_at).toLocaleString('fr-FR')} par {property.electronic_signature.signer_name}
+                  </span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                <div className="p-3 bg-white rounded-xl border border-emerald-100">
+                  <span className="text-gray-400 block text-[10px]">Identifiant Certificat :</span>
+                  <span className="font-mono font-bold text-gray-800">{property.electronic_signature.id}</span>
+                </div>
+                <div className="p-3 bg-white rounded-xl border border-emerald-100">
+                  <span className="text-gray-400 block text-[10px]">Authentification SMS OTP :</span>
+                  <span className="font-mono font-bold text-emerald-700">Code validé ({property.electronic_signature.signer_phone})</span>
+                </div>
+                <div className="p-3 bg-white rounded-xl border border-emerald-100">
+                  <span className="text-gray-400 block text-[10px]">Niveau de Conformité :</span>
+                  <span className="font-bold text-gray-800 uppercase">eIDAS Avancé (UE 910/2014)</span>
+                </div>
+              </div>
+
+              <div className="p-3 bg-white rounded-xl border border-emerald-100 font-mono text-[11px] text-gray-700 break-all">
+                <span className="text-gray-400 block text-[10px] uppercase font-bold mb-0.5">Empreinte d&apos;Intégrité SHA-256 :</span>
+                {property.electronic_signature.sha256_fingerprint}
+              </div>
+            </div>
+          ) : (
+            <div className="p-8 bg-[#FCFAF7] rounded-3xl border border-[#F3E8EE] text-center space-y-3">
+              <FileSignature className="w-12 h-12 text-[#C59A45] mx-auto opacity-70" />
+              <h4 className="font-bold text-base text-[#131B26]">Aucune signature électronique enregistrée</h4>
+              <p className="text-xs text-gray-500 max-w-md mx-auto">
+                Générez le contrat officiel Loi Hoguet pré-rempli et envoyez-le par SMS avec code OTP sécurisé au propriétaire mandant.
+              </p>
+              <button
+                onClick={() => setIsSignatureModalOpen(true)}
+                className="px-6 py-2.5 bg-[#131B26] hover:bg-gray-800 text-white rounded-xl text-xs font-bold uppercase tracking-wider inline-flex items-center gap-2 shadow-xs transition cursor-pointer"
+              >
+                Démarrer la Procédure de Signature
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Modal Signature Électronique eIDAS */}
+      <ElectronicSignatureModal
+        property={property}
+        settings={settings}
+        isOpen={isSignatureModalOpen}
+        onClose={() => setIsSignatureModalOpen(false)}
+        onSigned={async (cert) => {
+          await updateProperty(property.id, { electronic_signature: cert });
+        }}
+      />
 
     </div>
   );

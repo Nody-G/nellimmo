@@ -17,7 +17,12 @@ import {
   Settings,
   ExternalLink,
   PlusCircle,
-  Landmark
+  Landmark,
+  Radar,
+  FileCheck2,
+  BrainCircuit,
+  Flame,
+  Handshake
 } from 'lucide-react';
 
 export function CockpitSidebar() {
@@ -26,12 +31,16 @@ export function CockpitSidebar() {
   const navigation = [
     { name: 'Tableau de Bord', href: '/cockpit', icon: LayoutDashboard },
     { name: 'Mandats & Biens', href: '/cockpit/mandats', icon: FileText },
-    { name: 'Pipeline Ventes & Notaire', href: '/cockpit/transactions', icon: Landmark },
-    { name: 'Studio Rédaction & Réseaux', href: '/cockpit/redacteur', icon: Sparkles },
-    { name: 'Avis de Valeur', href: '/cockpit/avis-de-valeur', icon: TrendingUp },
+    { name: 'Pipeline Notaire & Ventes', href: '/cockpit/transactions', icon: Landmark },
+    { name: 'Bourse Inter-Agences', href: '/cockpit/inter-agences', icon: Handshake },
+    { name: 'Studio Rédaction & Pitchs', href: '/cockpit/redacteur', icon: Sparkles },
+    { name: 'Fiches Vitrine & Affiches', href: '/cockpit/fiches-vitrine', icon: Printer },
+    { name: 'Avis de Valeur DVF', href: '/cockpit/avis-de-valeur', icon: TrendingUp },
     { name: 'Acquéreurs & Matching', href: '/cockpit/acquereurs', icon: Users },
-    { name: 'Bons de Visite', href: '/cockpit/visites', icon: PenTool },
-    { name: 'Fiches Vitrine', href: '/cockpit/fiches-vitrine', icon: Printer },
+    { name: 'Bons de Visite & Sentiment', href: '/cockpit/visites', icon: PenTool },
+    { name: 'Comptes-Rendus Vendeurs', href: '/cockpit/comptes-rendus', icon: FileCheck2 },
+    { name: 'Pige & Prospection PAP', href: '/cockpit/pige', icon: Radar },
+    { name: 'Nell\'IA Infinite Lab', href: '/cockpit/lab', icon: BrainCircuit, highlight: true },
     { name: 'Multidiffusion Portails', href: '/cockpit/diffusion', icon: Radio },
     { name: 'Registre des Mandats', href: '/cockpit/registre-dgccrf', icon: ShieldCheck },
     { name: 'Import Hektor', href: '/cockpit/import-hektor', icon: FileSpreadsheet },
@@ -63,7 +72,7 @@ export function CockpitSidebar() {
         {/* Quick CTA New Mandate */}
         <Link
           href="/cockpit/mandats/nouveau"
-          className="w-full py-2.5 px-3 bg-[#E12B7B] hover:bg-[#C71B62] text-white rounded-xl text-xs font-bold uppercase tracking-wider shadow-md hover:shadow-lg transition flex items-center justify-center gap-2"
+          className="w-full py-2.5 px-3 bg-[#E12B7B] hover:bg-[#C71B62] text-white rounded-xl text-xs font-bold uppercase tracking-wider shadow-md hover:shadow-lg transition flex items-center justify-center gap-2 cursor-pointer"
         >
           <PlusCircle className="w-4 h-4" />
           Nouveau Mandat
@@ -87,13 +96,27 @@ export function CockpitSidebar() {
               className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
                 isActive
                   ? 'bg-[#E12B7B] text-white shadow-md'
+                  : item.highlight
+                  ? 'bg-white/10 text-white hover:bg-white/15 border border-[#C59A45]/30'
                   : 'text-gray-300 hover:text-white hover:bg-white/5'
               }`}
             >
               <div className="flex items-center gap-2.5">
-                <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-gray-400'}`} />
+                <Icon className={`w-4 h-4 ${
+                  isActive
+                    ? 'text-white'
+                    : item.highlight
+                    ? 'text-[#C59A45]'
+                    : 'text-gray-400'
+                }`} />
                 <span>{item.name}</span>
               </div>
+
+              {item.highlight && !isActive && (
+                <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#C59A45]/20 text-[#C59A45]">
+                  LAB
+                </span>
+              )}
             </Link>
           );
         })}
@@ -114,15 +137,13 @@ export function CockpitSidebar() {
         <Link
           href="/"
           target="_blank"
-          className="flex items-center justify-center gap-1.5 text-[11px] font-semibold text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 p-2 rounded-lg transition"
+          className="w-full py-2 px-3 rounded-lg border border-gray-800 hover:border-gray-700 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white text-xs font-medium flex items-center justify-center gap-2 transition"
         >
-          <span>Voir le site public nellimo.fr</span>
           <ExternalLink className="w-3.5 h-3.5" />
+          <span>Voir Site Vitrine Public</span>
         </Link>
       </div>
 
     </aside>
   );
 }
-
-export default CockpitSidebar;

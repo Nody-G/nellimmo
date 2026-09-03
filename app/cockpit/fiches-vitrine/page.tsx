@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import Link from 'next/link';
 import { useNellimoStore } from '@/lib/store';
 import { formatMandateRef } from '@/lib/hoguet';
 import {
@@ -10,46 +9,54 @@ import {
   Home,
   Palette,
   Sparkles,
-  Download,
   Image as ImageIcon,
   Check,
-  Zap,
   Phone,
   Mail,
   MapPin,
-  ExternalLink,
-  Layers,
   ChevronRight,
-  Maximize2,
-  Share2,
   ZoomIn,
   X,
   ChevronLeft,
   ChevronDown,
   ChevronUp,
-  Eye
+  Tag,
+  Share2,
+  Sliders,
+  Compass,
+  Copy
 } from 'lucide-react';
 
-type ColorTheme = 'nellimo' | 'gold' | 'minimal' | 'provence';
-type LayoutFormat = 'A4_landscape' | 'A4_portrait' | 'A3_landscape' | 'social_square';
+type ColorTheme = 'nellimo' | 'gold' | 'minimal' | 'provence' | 'terracotta' | 'dark_led';
+type LayoutFormat = 'A4_landscape' | 'A4_portrait' | 'A3_landscape' | 'social_square' | 'story_vertical';
+type PhotoArrangement = 'standard_3' | 'hero_only' | 'split_2' | 'grid_4' | 'mosaic_5';
+type BadgePreset = 'auto' | 'exclusif' | 'coup_de_coeur' | 'baisse_prix' | 'sous_compromis' | 'offre_en_cours' | 'vendu' | 'dpe_a' | 'custom';
+type QrDestination = 'web' | 'whatsapp' | 'visite360' | 'google_review' | 'gps';
 
 export default function WindowFlyersPage() {
   const { properties, settings } = useNellimoStore();
   const [selectedPropertyId, setSelectedPropertyId] = useState(properties[0]?.id || '');
   const [flyerFormat, setFlyerFormat] = useState<LayoutFormat>('A4_landscape');
   const [colorTheme, setColorTheme] = useState<ColorTheme>('nellimo');
+  const [photoArrangement, setPhotoArrangement] = useState<PhotoArrangement>('standard_3');
+  const [badgePreset, setBadgePreset] = useState<BadgePreset>('auto');
+  const [customBadgeText, setCustomBadgeText] = useState('★ COUP DE CŒUR EN PROVENCE');
+  const [customBadgeColor, setCustomBadgeColor] = useState('#E12B7B');
+  const [qrDestination, setQrDestination] = useState<QrDestination>('web');
   const [showQrCode, setShowQrCode] = useState(true);
-  
-  // Selected photos for the 3 slots
-  const [selectedPhotoIndex0, setSelectedPhotoIndex0] = useState(0);
-  const [selectedPhotoIndex1, setSelectedPhotoIndex1] = useState(1);
-  const [selectedPhotoIndex2, setSelectedPhotoIndex2] = useState(2);
+  const [copiedCaption, setCopiedCaption] = useState(false);
 
-  // Active slot for click-to-assign
-  const [activeSlot, setActiveSlot] = useState<0 | 1 | 2>(0);
+  // Custom text overrides
+  const [customTitle, setCustomTitle] = useState('');
+  const [customSubtitle, setCustomSubtitle] = useState('');
 
-  // Gallery collapsible state (false = déroulable au besoin, n'encombre pas l'écran)
+  // Selected photos for up to 5 slots
+  const [photoSlots, setPhotoSlots] = useState<number[]>([0, 1, 2, 3, 4]);
+  const [activeSlot, setActiveSlot] = useState<number>(0);
+
+  // Gallery collapsible state
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const [showCustomizer, setShowCustomizer] = useState(false);
 
   // Big HD preview modal state
   const [previewPhotoIndex, setPreviewPhotoIndex] = useState<number | null>(null);
@@ -67,15 +74,30 @@ export default function WindowFlyersPage() {
         created_at: ''
       }];
 
-  // Theme color maps
-  const themeStyles = {
+  // Theme styles definition
+  const themeStyles: Record<ColorTheme, {
+    primary: string;
+    secondary: string;
+    accent: string;
+    badgeBg: string;
+    border: string;
+    textAccent: string;
+    bgWrapper: string;
+    textColor: string;
+    subText: string;
+    cardBg: string;
+  }> = {
     nellimo: {
       primary: '#E12B7B',
       secondary: '#131B26',
       accent: '#FDF2F8',
       badgeBg: 'bg-[#E12B7B] text-white',
       border: 'border-[#E12B7B]',
-      textAccent: 'text-[#E12B7B]'
+      textAccent: 'text-[#E12B7B]',
+      bgWrapper: 'bg-white',
+      textColor: 'text-[#131B26]',
+      subText: 'text-gray-500',
+      cardBg: 'bg-gray-50'
     },
     gold: {
       primary: '#C59A45',
@@ -83,7 +105,11 @@ export default function WindowFlyersPage() {
       accent: '#FAF6EE',
       badgeBg: 'bg-[#C59A45] text-white',
       border: 'border-[#C59A45]',
-      textAccent: 'text-[#C59A45]'
+      textAccent: 'text-[#C59A45]',
+      bgWrapper: 'bg-white',
+      textColor: 'text-[#0F172A]',
+      subText: 'text-gray-500',
+      cardBg: 'bg-[#FAF6EE]/50'
     },
     minimal: {
       primary: '#18181B',
@@ -91,7 +117,11 @@ export default function WindowFlyersPage() {
       accent: '#F4F4F5',
       badgeBg: 'bg-zinc-900 text-white',
       border: 'border-zinc-900',
-      textAccent: 'text-zinc-900'
+      textAccent: 'text-zinc-900',
+      bgWrapper: 'bg-white',
+      textColor: 'text-zinc-900',
+      subText: 'text-zinc-500',
+      cardBg: 'bg-zinc-50'
     },
     provence: {
       primary: '#0284C7',
@@ -99,31 +129,95 @@ export default function WindowFlyersPage() {
       accent: '#F0F9FF',
       badgeBg: 'bg-[#0284C7] text-white',
       border: 'border-[#0284C7]',
-      textAccent: 'text-[#0284C7]'
+      textAccent: 'text-[#0284C7]',
+      bgWrapper: 'bg-white',
+      textColor: 'text-[#0C4A6E]',
+      subText: 'text-sky-700',
+      cardBg: 'bg-sky-50/50'
+    },
+    terracotta: {
+      primary: '#C05621',
+      secondary: '#7B341E',
+      accent: '#FFFAF0',
+      badgeBg: 'bg-[#C05621] text-white',
+      border: 'border-[#C05621]',
+      textAccent: 'text-[#C05621]',
+      bgWrapper: 'bg-white',
+      textColor: 'text-[#7B341E]',
+      subText: 'text-amber-800',
+      cardBg: 'bg-amber-50/40'
+    },
+    dark_led: {
+      primary: '#F43F5E',
+      secondary: '#020617',
+      accent: '#1E293B',
+      badgeBg: 'bg-[#F43F5E] text-white',
+      border: 'border-[#F43F5E]',
+      textAccent: 'text-[#F43F5E]',
+      bgWrapper: 'bg-[#0B1120]',
+      textColor: 'text-white',
+      subText: 'text-gray-400',
+      cardBg: 'bg-white/5 border border-white/10'
     }
   };
 
   const currentTheme = themeStyles[colorTheme];
 
-  const photo0 = availableImages[selectedPhotoIndex0]?.image_url || availableImages[0]?.image_url;
-  const photo1 = availableImages[selectedPhotoIndex1]?.image_url || availableImages[1]?.image_url || photo0;
-  const photo2 = availableImages[selectedPhotoIndex2]?.image_url || availableImages[2]?.image_url || photo0;
+  const getPhotoUrl = (slotIndex: number) => {
+    const photoIdx = photoSlots[slotIndex] ?? 0;
+    return availableImages[photoIdx]?.image_url || availableImages[0]?.image_url;
+  };
+
+  const assignPhotoToSlot = (photoIndex: number, slot: number) => {
+    setPhotoSlots((prev) => {
+      const next = [...prev];
+      next[slot] = photoIndex;
+      return next;
+    });
+  };
+
+  // Badge label calculation
+  const getBadgeText = () => {
+    if (badgePreset === 'custom' && customBadgeText.trim()) return customBadgeText;
+    if (badgePreset === 'exclusif') return "★ EXCLUSIVITÉ NELL'IMMO";
+    if (badgePreset === 'coup_de_coeur') return "❤️ COUP DE CŒUR";
+    if (badgePreset === 'baisse_prix') return "📉 BAISSE DE PRIX RÉCENTE";
+    if (badgePreset === 'sous_compromis') return "🔒 SOUS COMPROMIS";
+    if (badgePreset === 'offre_en_cours') return "📝 OFFRE EN COURS";
+    if (badgePreset === 'vendu') return "🎉 VENDU PAR NELL'IMMO";
+    if (badgePreset === 'dpe_a') return "🌱 DPE A • ÉCO-PERFORMANT";
+    return property?.mandate_type === 'exclusif' ? "★ EXCLUSIVITÉ NELL'IMMO" : "NOUVEAUTÉ EXCLUSIVE";
+  };
+
+  // QR Code destination calculation
+  const getQrTargetUrl = () => {
+    if (!property) return 'https://www.nellimmo.fr';
+    if (qrDestination === 'whatsapp') {
+      const msg = encodeURIComponent(`Bonjour Nelly Fernandez, je vous contacte au sujet du bien ${property.title} (Réf. ${mandateRef}) vu en vitrine.`);
+      return `https://wa.me/33755686109?text=${msg}`;
+    }
+    if (qrDestination === 'visite360') {
+      return property.virtual_tour_url || property.video_url || `https://www.nellimmo.fr/biens/${property.id}`;
+    }
+    if (qrDestination === 'google_review') {
+      return settings.google_my_business_url || 'https://g.page/r/nellimmo/review';
+    }
+    if (qrDestination === 'gps') {
+      return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${property.address}, ${property.postal_code} ${property.city}`)}`;
+    }
+    return typeof window !== 'undefined'
+      ? `${window.location.origin}/biens/${property.id}`
+      : `https://www.nellimmo.fr/biens/${property.id}`;
+  };
+
+  const qrCodeImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(getQrTargetUrl())}&color=13-27-38&bgcolor=255-255-255`;
+
+  const displayTitle = customTitle.trim() || property?.title || '';
+  const displaySubtitle = customSubtitle.trim() || `${property?.city} (${property?.postal_code}) • ${property?.property_type.toUpperCase()}`;
 
   const handlePrint = () => {
     window.print();
   };
-
-  const assignPhotoToSlot = (photoIndex: number, slot: 0 | 1 | 2) => {
-    if (slot === 0) setSelectedPhotoIndex0(photoIndex);
-    if (slot === 1) setSelectedPhotoIndex1(photoIndex);
-    if (slot === 2) setSelectedPhotoIndex2(photoIndex);
-  };
-
-  // QR Code URL based on domain
-  const publicPropertyUrl = typeof window !== 'undefined'
-    ? `${window.location.origin}/biens/${property?.id}`
-    : `https://www.nellimmo.fr/biens/${property?.id}`;
-  const qrCodeImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(publicPropertyUrl)}&color=13-27-38&bgcolor=255-255-255`;
 
   return (
     <div className="space-y-8 animate-fade-in pb-20">
@@ -140,9 +234,11 @@ export default function WindowFlyersPage() {
                   ? 'A3 landscape'
                   : flyerFormat === 'social_square'
                   ? '210mm 210mm'
+                  : flyerFormat === 'story_vertical'
+                  ? '108mm 192mm'
                   : 'A4 landscape'
               };
-              margin: 6mm;
+              margin: 4mm;
             }
             body {
               background: white !important;
@@ -178,32 +274,151 @@ export default function WindowFlyersPage() {
         <div>
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#E12B7B]">
             <Printer className="w-4 h-4" />
-            <span>Marketing & Affichage Vitrine</span>
+            <span>Marketing Vitrine & Atelier Graphique Illimité</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#131B26] mt-1">
-            Studio Fiches Vitrine & Affiches
+            Studio Fiches Vitrine & Affiches LED
           </h1>
           <p className="text-xs text-gray-500">
-            Créez des affiches sur-mesure avec sélection visuelle des photos en petit et grand aperçu.
+            5 agencements photos, badges sans restriction, QR code multi-destinations et 6 thèmes haute couture.
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <button
+            type="button"
+            onClick={() => setShowCustomizer(!showCustomizer)}
+            className={`px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 border transition cursor-pointer ${
+              showCustomizer ? 'bg-[#131B26] text-white border-[#131B26]' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+            }`}
+          >
+            <Sliders className="w-4 h-4 text-[#C59A45]" />
+            <span>Personnaliser Titres & Badges</span>
+          </button>
+
           <button
             onClick={handlePrint}
-            className="px-5 py-3 bg-[#E12B7B] hover:bg-[#c42068] text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-md transition cursor-pointer"
+            className="px-5 py-2.5 bg-[#E12B7B] hover:bg-[#c42068] text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-md transition cursor-pointer"
           >
             <Printer className="w-4 h-4" />
-            <span>Imprimer en {flyerFormat.replace('_', ' ').toUpperCase()}</span>
+            <span>Imprimer ({flyerFormat.replace('_', ' ').toUpperCase()})</span>
           </button>
         </div>
       </div>
 
+      {/* Customizer Drawer (Badges & Content Overrides) */}
+      {showCustomizer && (
+        <div className="bg-gradient-to-r from-[#FCFAF7] to-white rounded-3xl p-6 border border-[#E9DFD3] shadow-md space-y-4 animate-fade-in print:hidden">
+          <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+            <h3 className="font-serif font-bold text-base text-[#131B26] flex items-center gap-2">
+              <Sliders className="w-4 h-4 text-[#E12B7B]" />
+              Personnalisation Poussée du Contenu de l&apos;Affiche
+            </h3>
+            <button onClick={() => setShowCustomizer(false)} className="text-xs text-gray-400 hover:text-gray-800">✕</button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Title Override */}
+            <div>
+              <label className="block text-xs font-bold uppercase text-gray-700 mb-1">
+                Titre d&apos;Accroche Vitrine (Optionnel)
+              </label>
+              <input
+                type="text"
+                placeholder={property?.title || 'Titre du bien'}
+                value={customTitle}
+                onChange={(e) => setCustomTitle(e.target.value)}
+                className="w-full p-2.5 bg-white border border-gray-200 rounded-xl text-xs font-semibold focus:outline-[#E12B7B]"
+              />
+            </div>
+
+            {/* Subtitle Override */}
+            <div>
+              <label className="block text-xs font-bold uppercase text-gray-700 mb-1">
+                Sous-Titre / Localisation (Optionnel)
+              </label>
+              <input
+                type="text"
+                placeholder={`${property?.city} (${property?.postal_code}) • ${property?.property_type.toUpperCase()}`}
+                value={customSubtitle}
+                onChange={(e) => setCustomSubtitle(e.target.value)}
+                className="w-full p-2.5 bg-white border border-gray-200 rounded-xl text-xs font-semibold focus:outline-[#E12B7B]"
+              />
+            </div>
+
+            {/* Badge Selection */}
+            <div>
+              <label className="block text-xs font-bold uppercase text-gray-700 mb-1">
+                Type de Badge Vitrine
+              </label>
+              <select
+                value={badgePreset}
+                onChange={(e) => setBadgePreset(e.target.value as BadgePreset)}
+                className="w-full p-2.5 bg-white border border-gray-200 rounded-xl text-xs font-semibold focus:outline-[#E12B7B]"
+              >
+                <option value="auto">Automatique selon Mandat</option>
+                <option value="exclusif">★ EXCLUSIVITÉ NELL&apos;IMMO</option>
+                <option value="coup_de_coeur">❤️ COUP DE CŒUR</option>
+                <option value="baisse_prix">📉 BAISSE DE PRIX</option>
+                <option value="sous_compromis">🔒 SOUS COMPROMIS</option>
+                <option value="offre_en_cours">📝 OFFRE EN COURS</option>
+                <option value="vendu">🎉 VENDU PAR NELL&apos;IMMO</option>
+                <option value="dpe_a">🌱 DPE A • ÉCO-PERFORMANT</option>
+                <option value="custom">Badge Texte Libre Personnalisé</option>
+              </select>
+            </div>
+          </div>
+
+          {badgePreset === 'custom' && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+              <div>
+                <label className="block text-xs font-bold uppercase text-[#E12B7B] mb-1">
+                  Texte Libre du Badge
+                </label>
+                <input
+                  type="text"
+                  value={customBadgeText}
+                  onChange={(e) => setCustomBadgeText(e.target.value)}
+                  placeholder="Ex: VUE SAINTE-VICTOIRE, TERRAIN PISCINABLE..."
+                  className="w-full p-2.5 bg-white border border-gray-200 rounded-xl text-xs font-bold focus:outline-[#E12B7B]"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold uppercase text-[#E12B7B] mb-1">
+                  Couleur du Badge
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={customBadgeColor}
+                    onChange={(e) => setCustomBadgeColor(e.target.value)}
+                    className="w-9 h-9 rounded-lg cursor-pointer border border-gray-200"
+                  />
+                  <input
+                    type="text"
+                    value={customBadgeColor}
+                    onChange={(e) => setCustomBadgeColor(e.target.value)}
+                    className="w-28 p-2 bg-white border border-gray-200 rounded-xl text-xs font-mono font-bold"
+                  />
+                  <span className="text-xs text-gray-500">Aperçu :</span>
+                  <span
+                    className="px-3 py-1 rounded-full text-xs font-black text-white"
+                    style={{ backgroundColor: customBadgeColor }}
+                  >
+                    {customBadgeText || 'VOTRE BADGE'}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Control Panel Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 print:hidden">
         
-        {/* 1. Property & Format Selection */}
-        <div className="bg-white rounded-3xl p-6 border border-[#F3E8EE] shadow-xs space-y-4">
+        {/* 1. Property, Format & Layout */}
+        <div className="bg-white rounded-3xl p-6 border border-[#F3E8EE] shadow-2xs space-y-4">
           <div>
             <label className="block text-xs font-bold uppercase text-gray-700 mb-1 flex items-center gap-1">
               <Home className="w-3.5 h-3.5 text-[#E12B7B]" />
@@ -213,9 +428,7 @@ export default function WindowFlyersPage() {
               value={selectedPropertyId}
               onChange={(e) => {
                 setSelectedPropertyId(e.target.value);
-                setSelectedPhotoIndex0(0);
-                setSelectedPhotoIndex1(1);
-                setSelectedPhotoIndex2(2);
+                setPhotoSlots([0, 1, 2, 3, 4]);
               }}
               className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold focus:outline-[#E12B7B]"
             >
@@ -229,987 +442,578 @@ export default function WindowFlyersPage() {
 
           <div>
             <label className="block text-xs font-bold uppercase text-gray-700 mb-1.5">
-              Format d&apos;Affichage Réel
+              Format d&apos;Affichage
             </label>
             <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
                 onClick={() => setFlyerFormat('A4_landscape')}
-                className={`p-3 rounded-2xl text-xs font-bold transition flex flex-col items-center gap-1 ${
+                className={`p-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 ${
                   flyerFormat === 'A4_landscape'
-                    ? 'bg-[#131B26] text-white shadow-sm ring-2 ring-[#E12B7B]'
+                    ? 'bg-[#131B26] text-white shadow-2xs ring-2 ring-[#E12B7B]'
                     : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200'
                 }`}
               >
-                <div className="w-8 h-5 border-2 border-current rounded-sm flex items-center justify-center opacity-80">
-                  <span className="text-[7px]">LED</span>
+                <div className="w-5 h-3.5 border border-current rounded-2xs flex items-center justify-center shrink-0">
+                  <span className="text-[6px]">LED</span>
                 </div>
-                <span>A4 Paysage (LED)</span>
+                <span>A4 Paysage</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setFlyerFormat('A4_portrait')}
-                className={`p-3 rounded-2xl text-xs font-bold transition flex flex-col items-center gap-1 ${
+                className={`p-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 ${
                   flyerFormat === 'A4_portrait'
-                    ? 'bg-[#131B26] text-white shadow-sm ring-2 ring-[#E12B7B]'
+                    ? 'bg-[#131B26] text-white shadow-2xs ring-2 ring-[#E12B7B]'
                     : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200'
                 }`}
               >
-                <div className="w-5 h-7 border-2 border-current rounded-sm flex items-center justify-center opacity-80">
-                  <span className="text-[7px]">A4</span>
+                <div className="w-3.5 h-5 border border-current rounded-2xs flex items-center justify-center shrink-0">
+                  <span className="text-[6px]">A4</span>
                 </div>
-                <span>A4 Portrait (Fiche)</span>
+                <span>A4 Portrait</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setFlyerFormat('A3_landscape')}
-                className={`p-3 rounded-2xl text-xs font-bold transition flex flex-col items-center gap-1 ${
+                className={`p-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 ${
                   flyerFormat === 'A3_landscape'
-                    ? 'bg-[#131B26] text-white shadow-sm ring-2 ring-[#E12B7B]'
+                    ? 'bg-[#131B26] text-white shadow-2xs ring-2 ring-[#E12B7B]'
                     : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200'
                 }`}
               >
-                <div className="w-9 h-6 border-2 border-current rounded-sm flex items-center justify-center opacity-80">
-                  <span className="text-[7px]">A3</span>
+                <div className="w-6 h-4 border border-current rounded-2xs flex items-center justify-center shrink-0">
+                  <span className="text-[6px]">A3</span>
                 </div>
-                <span>A3 Vitrine Grand</span>
+                <span>A3 Grand Vitrine</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setFlyerFormat('social_square')}
-                className={`p-3 rounded-2xl text-xs font-bold transition flex flex-col items-center gap-1 ${
+                className={`p-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 ${
                   flyerFormat === 'social_square'
-                    ? 'bg-[#131B26] text-white shadow-sm ring-2 ring-[#E12B7B]'
+                    ? 'bg-[#131B26] text-white shadow-2xs ring-2 ring-[#E12B7B]'
                     : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200'
                 }`}
               >
-                <div className="w-6 h-6 border-2 border-current rounded-sm flex items-center justify-center opacity-80">
-                  <span className="text-[7px]">1:1</span>
+                <div className="w-4 h-4 border border-current rounded-2xs flex items-center justify-center shrink-0">
+                  <span className="text-[6px]">1:1</span>
                 </div>
-                <span>Carré Social (1:1)</span>
+                <span>Carré Post 1:1</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setFlyerFormat('story_vertical')}
+                className={`p-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 ${
+                  flyerFormat === 'story_vertical'
+                    ? 'bg-[#131B26] text-white shadow-2xs ring-2 ring-[#E12B7B]'
+                    : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200'
+                }`}
+              >
+                <div className="w-3 h-5 border border-current rounded-2xs flex items-center justify-center shrink-0">
+                  <span className="text-[5px]">9:16</span>
+                </div>
+                <span>Story Insta 9:16</span>
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold uppercase text-gray-700 mb-1.5">
+              Agencement Photos
+            </label>
+            <div className="grid grid-cols-3 gap-1.5 text-[10px] font-bold">
+              <button
+                type="button"
+                onClick={() => setPhotoArrangement('hero_only')}
+                className={`p-2 rounded-xl border text-center transition cursor-pointer ${
+                  photoArrangement === 'hero_only' ? 'bg-[#131B26] text-white border-[#131B26]' : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
+                }`}
+              >
+                1 Solo Hero
+              </button>
+              <button
+                type="button"
+                onClick={() => setPhotoArrangement('split_2')}
+                className={`p-2 rounded-xl border text-center transition cursor-pointer ${
+                  photoArrangement === 'split_2' ? 'bg-[#131B26] text-white border-[#131B26]' : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
+                }`}
+              >
+                2 Photos Split
+              </button>
+              <button
+                type="button"
+                onClick={() => setPhotoArrangement('standard_3')}
+                className={`p-2 rounded-xl border text-center transition cursor-pointer ${
+                  photoArrangement === 'standard_3' ? 'bg-[#131B26] text-white border-[#131B26]' : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
+                }`}
+              >
+                3 Photos Classique
+              </button>
+              <button
+                type="button"
+                onClick={() => setPhotoArrangement('grid_4')}
+                className={`p-2 rounded-xl border text-center transition cursor-pointer ${
+                  photoArrangement === 'grid_4' ? 'bg-[#131B26] text-white border-[#131B26]' : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
+                }`}
+              >
+                4 Photos Grille
+              </button>
+              <button
+                type="button"
+                onClick={() => setPhotoArrangement('mosaic_5')}
+                className={`p-2 rounded-xl border text-center transition cursor-pointer col-span-2 ${
+                  photoArrangement === 'mosaic_5' ? 'bg-[#131B26] text-white border-[#131B26]' : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
+                }`}
+              >
+                5 Photos Mosaïque Prestige
               </button>
             </div>
           </div>
         </div>
 
-        {/* 2. Color Themes & Options */}
-        <div className="bg-white rounded-3xl p-6 border border-[#F3E8EE] shadow-xs space-y-4">
+        {/* 2. Color Themes & QR Code Destination */}
+        <div className="bg-white rounded-3xl p-6 border border-[#F3E8EE] shadow-2xs space-y-4">
           <label className="block text-xs font-bold uppercase text-gray-700 mb-1 flex items-center gap-1">
             <Palette className="w-3.5 h-3.5 text-[#E12B7B]" />
-            Ambiance Graphique & Marque
+            Ambiance Graphique ({Object.keys(themeStyles).length} Thèmes)
           </label>
           <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
               onClick={() => setColorTheme('nellimo')}
-              className={`p-3 rounded-2xl text-xs font-bold flex items-center gap-2 border transition ${
+              className={`p-2.5 rounded-xl text-xs font-bold flex items-center gap-2 border transition cursor-pointer ${
                 colorTheme === 'nellimo' ? 'border-[#E12B7B] bg-[#FDF2F8] text-[#E12B7B]' : 'border-gray-200 bg-gray-50 text-gray-700'
               }`}
             >
-              <span className="w-4 h-4 rounded-full bg-[#E12B7B]" />
+              <span className="w-3.5 h-3.5 rounded-full bg-[#E12B7B]" />
               Nell&apos;Immo Rose
             </button>
             <button
               type="button"
               onClick={() => setColorTheme('gold')}
-              className={`p-3 rounded-2xl text-xs font-bold flex items-center gap-2 border transition ${
+              className={`p-2.5 rounded-xl text-xs font-bold flex items-center gap-2 border transition cursor-pointer ${
                 colorTheme === 'gold' ? 'border-[#C59A45] bg-[#FAF6EE] text-[#C59A45]' : 'border-gray-200 bg-gray-50 text-gray-700'
               }`}
             >
-              <span className="w-4 h-4 rounded-full bg-[#C59A45]" />
+              <span className="w-3.5 h-3.5 rounded-full bg-[#C59A45]" />
               Or Prestige
             </button>
             <button
               type="button"
               onClick={() => setColorTheme('minimal')}
-              className={`p-3 rounded-2xl text-xs font-bold flex items-center gap-2 border transition ${
+              className={`p-2.5 rounded-xl text-xs font-bold flex items-center gap-2 border transition cursor-pointer ${
                 colorTheme === 'minimal' ? 'border-zinc-900 bg-zinc-100 text-zinc-900' : 'border-gray-200 bg-gray-50 text-gray-700'
               }`}
             >
-              <span className="w-4 h-4 rounded-full bg-zinc-900" />
+              <span className="w-3.5 h-3.5 rounded-full bg-zinc-900" />
               Noir Minimal
             </button>
             <button
               type="button"
               onClick={() => setColorTheme('provence')}
-              className={`p-3 rounded-2xl text-xs font-bold flex items-center gap-2 border transition ${
+              className={`p-2.5 rounded-xl text-xs font-bold flex items-center gap-2 border transition cursor-pointer ${
                 colorTheme === 'provence' ? 'border-[#0284C7] bg-[#F0F9FF] text-[#0284C7]' : 'border-gray-200 bg-gray-50 text-gray-700'
               }`}
             >
-              <span className="w-4 h-4 rounded-full bg-[#0284C7]" />
+              <span className="w-3.5 h-3.5 rounded-full bg-[#0284C7]" />
               Bleu Azur
+            </button>
+            <button
+              type="button"
+              onClick={() => setColorTheme('terracotta')}
+              className={`p-2.5 rounded-xl text-xs font-bold flex items-center gap-2 border transition cursor-pointer ${
+                colorTheme === 'terracotta' ? 'border-[#C05621] bg-[#FFFAF0] text-[#C05621]' : 'border-gray-200 bg-gray-50 text-gray-700'
+              }`}
+            >
+              <span className="w-3.5 h-3.5 rounded-full bg-[#C05621]" />
+              Terracotta
+            </button>
+            <button
+              type="button"
+              onClick={() => setColorTheme('dark_led')}
+              className={`p-2.5 rounded-xl text-xs font-bold flex items-center gap-2 border transition cursor-pointer ${
+                colorTheme === 'dark_led' ? 'border-[#F43F5E] bg-gray-900 text-white' : 'border-gray-200 bg-gray-50 text-gray-700'
+              }`}
+            >
+              <span className="w-3.5 h-3.5 rounded-full bg-[#F43F5E]" />
+              Nuit LED Sombre
             </button>
           </div>
 
-          <div className="pt-2 flex items-center gap-4">
-            <label className="flex items-center gap-2 text-xs font-bold text-gray-700 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={showQrCode}
-                onChange={(e) => setShowQrCode(e.target.checked)}
-                className="rounded text-[#E12B7B] accent-[#E12B7B]"
-              />
-              <span>QR Code Web</span>
-            </label>
+          <div className="pt-2 space-y-2 border-t border-gray-100">
+            <div className="flex items-center justify-between">
+              <label className="flex items-center gap-2 text-xs font-bold text-gray-700 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={showQrCode}
+                  onChange={(e) => setShowQrCode(e.target.checked)}
+                  className="rounded text-[#E12B7B] accent-[#E12B7B]"
+                />
+                <span>Activer QR Code</span>
+              </label>
+
+              <span className="text-[10px] uppercase font-bold text-gray-400">Destination</span>
+            </div>
+
+            {showQrCode && (
+              <select
+                value={qrDestination}
+                onChange={(e) => setQrDestination(e.target.value as QrDestination)}
+                className="w-full p-2 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold focus:outline-[#E12B7B]"
+              >
+                <option value="web">🌐 Fiche Web Publique Nell&apos;Immo</option>
+                <option value="whatsapp">💬 WhatsApp Direct Nelly (avec message)</option>
+                <option value="visite360">🕶️ Visite Virtuelle 360° / Vidéo</option>
+                <option value="google_review">⭐ Déposer un Avis Google</option>
+                <option value="gps">📍 Itinéraire Google Maps</option>
+              </select>
+            )}
           </div>
         </div>
 
-        {/* 3. Les 3 Emplacements Actuels de l'Affiche */}
-        <div className="bg-white rounded-3xl p-6 border border-[#F3E8EE] shadow-xs space-y-3">
+        {/* 3. Slot Photo Manager */}
+        <div className="bg-white rounded-3xl p-6 border border-[#F3E8EE] shadow-2xs space-y-3">
           <div className="flex items-center justify-between">
             <label className="text-xs font-bold uppercase text-gray-700 flex items-center gap-1">
               <ImageIcon className="w-3.5 h-3.5 text-[#E12B7B]" />
-              Photos Sélectionnées (3 Emplacements)
+              Emplacements Photos (Actif: #{activeSlot + 1})
             </label>
             <button
               type="button"
               onClick={() => setIsGalleryOpen(!isGalleryOpen)}
               className="text-xs font-bold text-[#E12B7B] hover:text-[#C71B62] transition flex items-center gap-1 cursor-pointer"
             >
-              {isGalleryOpen ? (
-                <>
-                  <span>Masquer la galerie</span>
-                  <ChevronUp className="w-3.5 h-3.5" />
-                </>
-              ) : (
-                <>
-                  <span>Dérouler ({availableImages.length})</span>
-                  <ChevronDown className="w-3.5 h-3.5" />
-                </>
-              )}
+              {isGalleryOpen ? 'Replier' : `Dérouler (${availableImages.length})`}
+              {isGalleryOpen ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
             </button>
           </div>
 
-          <div className="grid grid-cols-3 gap-2.5">
-            {/* Slot 0 : Hero */}
-            <div
-              onClick={() => {
-                setActiveSlot(0);
-                setIsGalleryOpen(true);
-              }}
-              className={`relative rounded-2xl overflow-hidden border-2 transition cursor-pointer group bg-gray-100 aspect-4/3 ${
-                activeSlot === 0 ? 'border-[#E12B7B] ring-2 ring-[#E12B7B]/30' : 'border-gray-200 hover:border-gray-300'
-              }`}
-            >
-              <img src={photo0} alt="" className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5">
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setPreviewPhotoIndex(selectedPhotoIndex0);
-                  }}
-                  className="p-1.5 bg-white text-gray-900 rounded-full hover:bg-[#E12B7B] hover:text-white transition"
-                  title="Grand aperçu HD"
-                >
-                  <ZoomIn className="w-3.5 h-3.5" />
-                </button>
-              </div>
-              <span className="absolute bottom-1 left-1 right-1 bg-black/75 backdrop-blur-xs text-white text-[9px] font-bold py-0.5 px-1 rounded text-center truncate">
-                1. Hero ({selectedPhotoIndex0 + 1})
-              </span>
-            </div>
+          <div className="grid grid-cols-5 gap-1.5">
+            {[0, 1, 2, 3, 4].map((slot) => {
+              const url = getPhotoUrl(slot);
+              const isActive = activeSlot === slot;
 
-            {/* Slot 1 */}
-            <div
-              onClick={() => {
-                setActiveSlot(1);
-                setIsGalleryOpen(true);
-              }}
-              className={`relative rounded-2xl overflow-hidden border-2 transition cursor-pointer group bg-gray-100 aspect-4/3 ${
-                activeSlot === 1 ? 'border-[#E12B7B] ring-2 ring-[#E12B7B]/30' : 'border-gray-200 hover:border-gray-300'
-              }`}
-            >
-              <img src={photo1} alt="" className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5">
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setPreviewPhotoIndex(selectedPhotoIndex1);
+              return (
+                <div
+                  key={slot}
+                  onClick={() => {
+                    setActiveSlot(slot);
+                    setIsGalleryOpen(true);
                   }}
-                  className="p-1.5 bg-white text-gray-900 rounded-full hover:bg-[#E12B7B] hover:text-white transition"
-                  title="Grand aperçu HD"
+                  className={`relative aspect-square rounded-xl overflow-hidden border-2 transition cursor-pointer group bg-gray-100 ${
+                    isActive ? 'border-[#E12B7B] ring-2 ring-[#E12B7B]/30' : 'border-gray-200 hover:border-gray-300'
+                  }`}
                 >
-                  <ZoomIn className="w-3.5 h-3.5" />
-                </button>
-              </div>
-              <span className="absolute bottom-1 left-1 right-1 bg-black/75 backdrop-blur-xs text-white text-[9px] font-bold py-0.5 px-1 rounded text-center truncate">
-                2. Photo ({selectedPhotoIndex1 + 1})
-              </span>
-            </div>
-
-            {/* Slot 2 */}
-            <div
-              onClick={() => {
-                setActiveSlot(2);
-                setIsGalleryOpen(true);
-              }}
-              className={`relative rounded-2xl overflow-hidden border-2 transition cursor-pointer group bg-gray-100 aspect-4/3 ${
-                activeSlot === 2 ? 'border-[#E12B7B] ring-2 ring-[#E12B7B]/30' : 'border-gray-200 hover:border-gray-300'
-              }`}
-            >
-              <img src={photo2} alt="" className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5">
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setPreviewPhotoIndex(selectedPhotoIndex2);
-                  }}
-                  className="p-1.5 bg-white text-gray-900 rounded-full hover:bg-[#E12B7B] hover:text-white transition"
-                  title="Grand aperçu HD"
-                >
-                  <ZoomIn className="w-3.5 h-3.5" />
-                </button>
-              </div>
-              <span className="absolute bottom-1 left-1 right-1 bg-black/75 backdrop-blur-xs text-white text-[9px] font-bold py-0.5 px-1 rounded text-center truncate">
-                3. Photo ({selectedPhotoIndex2 + 1})
-              </span>
-            </div>
+                  <img src={url} alt="" className="w-full h-full object-cover" />
+                  <span className="absolute bottom-0 inset-x-0 bg-black/75 text-white text-[8px] font-bold py-0.5 text-center truncate">
+                    #{slot + 1}
+                  </span>
+                </div>
+              );
+            })}
           </div>
 
-          <div className="flex items-center justify-between text-[10px] text-gray-500 bg-[#FCFAF7] p-2.5 rounded-xl border border-[#F3E8EE]">
-            <span>
-              Emplacement actif : <span className="font-bold text-[#E12B7B]">#{activeSlot + 1}</span> ({activeSlot === 0 ? 'Hero principal' : `Photo ${activeSlot + 1}`})
-            </span>
-            <button
-              type="button"
-              onClick={() => setIsGalleryOpen(!isGalleryOpen)}
-              className="text-[#E12B7B] font-bold hover:underline cursor-pointer flex items-center gap-1"
-            >
-              {isGalleryOpen ? 'Replier la galerie' : 'Dérouler la galerie pour choisir'}
-              {isGalleryOpen ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-            </button>
-          </div>
+          <p className="text-[11px] text-gray-500 bg-[#FCFAF7] p-2 rounded-xl border border-[#F3E8EE]">
+            Cliquez sur un emplacement ci-dessus puis sur une photo de la galerie pour l&apos;affecter.
+          </p>
         </div>
 
       </div>
 
-      {/* ========================================================================= */}
-      {/* GALERIE VISUELLE COMPLÈTE DU BIEN (DÉROULABLE AU BESOIN) */}
-      {/* ========================================================================= */}
-      <div className="bg-white rounded-3xl p-5 sm:p-6 border border-[#F3E8EE] shadow-xs print:hidden transition-all">
-        {/* En-tête cliquable accordéon */}
+      {/* Accordion Gallery */}
+      <div className="bg-white rounded-3xl p-5 sm:p-6 border border-[#F3E8EE] shadow-2xs print:hidden transition-all">
         <button
           type="button"
           onClick={() => setIsGalleryOpen(!isGalleryOpen)}
           className="w-full flex items-center justify-between text-left cursor-pointer group"
-          aria-expanded={isGalleryOpen}
         >
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#FDF2F8] text-[#E12B7B] flex items-center justify-center shrink-0 shadow-xs">
-              <ImageIcon className="w-5 h-5" />
+            <div className="w-9 h-9 rounded-xl bg-[#FDF2F8] text-[#E12B7B] flex items-center justify-center shrink-0">
+              <ImageIcon className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="font-serif font-bold text-base text-[#131B26] group-hover:text-[#E12B7B] transition flex items-center gap-2">
-                <span>Galerie Photos du Bien</span>
-                <span className="text-xs font-sans font-semibold px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-700">
+              <h3 className="font-serif font-bold text-sm text-[#131B26] group-hover:text-[#E12B7B] transition flex items-center gap-2">
+                <span>Galerie Complète des Photos du Bien</span>
+                <span className="text-[10px] font-sans font-semibold px-2 py-0.5 rounded-full bg-gray-100 text-gray-700">
                   {availableImages.length} photos
                 </span>
               </h3>
               <p className="text-xs text-gray-500">
-                {isGalleryOpen
-                  ? "Cliquez sur une photo pour l'affecter à l'emplacement sélectionné, ou sur la loupe pour le grand aperçu HD."
-                  : "Dérouler pour changer les photos de l'affiche vitrine parmi toutes les photos du bien."}
+                {isGalleryOpen ? `Affectation en cours sur l'Emplacement #${activeSlot + 1}` : "Dérouler pour changer les photos de l'affiche"}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0">
-            <span className="text-xs font-bold text-[#E12B7B] hidden sm:inline">
-              {isGalleryOpen ? 'Masquer la galerie' : 'Dérouler la galerie'}
-            </span>
-            <div className="p-2 rounded-xl bg-gray-50 group-hover:bg-[#FDF2F8] text-gray-600 group-hover:text-[#E12B7B] transition">
-              {isGalleryOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-            </div>
+          <div className="flex items-center gap-2 text-xs font-bold text-[#E12B7B]">
+            <span>{isGalleryOpen ? 'Masquer' : 'Dérouler la galerie'}</span>
+            {isGalleryOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
           </div>
         </button>
 
-        {/* Contenu déroulé */}
         {isGalleryOpen && (
-          <div className="mt-5 pt-5 border-t border-gray-100 space-y-4 animate-fade-in">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#FCFAF7] p-3 rounded-2xl border border-[#F3E8EE]">
-              <div className="text-xs text-gray-700">
-                Affectation sur : <span className="font-bold text-[#E12B7B]">Emplacement #{activeSlot + 1} ({activeSlot === 0 ? 'Hero' : `Photo ${activeSlot + 1}`})</span>
-              </div>
-              
-              <div className="flex items-center gap-1.5 text-xs">
-                <span className="text-gray-500 font-semibold mr-1">Changer la cible :</span>
-                <button
-                  type="button"
-                  onClick={() => setActiveSlot(0)}
-                  className={`px-3 py-1.5 rounded-xl font-bold transition cursor-pointer ${
-                    activeSlot === 0 ? 'bg-[#E12B7B] text-white shadow-xs' : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
-                  }`}
+          <div className="mt-4 pt-4 border-t border-gray-100 space-y-3 animate-fade-in">
+            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 max-h-[320px] overflow-y-auto pr-1">
+              {availableImages.map((img, idx) => (
+                <div
+                  key={img.id || idx}
+                  onClick={() => assignPhotoToSlot(idx, activeSlot)}
+                  className="relative aspect-4/3 rounded-xl overflow-hidden border-2 border-gray-200 hover:border-[#E12B7B] transition cursor-pointer group bg-gray-100"
                 >
-                  1. Hero
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveSlot(1)}
-                  className={`px-3 py-1.5 rounded-xl font-bold transition cursor-pointer ${
-                    activeSlot === 1 ? 'bg-[#E12B7B] text-white shadow-xs' : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
-                  }`}
-                >
-                  2. Photo
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveSlot(2)}
-                  className={`px-3 py-1.5 rounded-xl font-bold transition cursor-pointer ${
-                    activeSlot === 2 ? 'bg-[#E12B7B] text-white shadow-xs' : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-200'
-                  }`}
-                >
-                  3. Photo
-                </button>
-              </div>
-            </div>
-
-            {/* Visual Thumbnails Grid with Hover Controls & Max Height */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 max-h-[380px] overflow-y-auto pr-1">
-              {availableImages.map((img, idx) => {
-                const isSlot0 = selectedPhotoIndex0 === idx;
-                const isSlot1 = selectedPhotoIndex1 === idx;
-                const isSlot2 = selectedPhotoIndex2 === idx;
-
-                return (
-                  <div
-                    key={img.id || idx}
-                    onClick={() => assignPhotoToSlot(idx, activeSlot)}
-                    className={`relative aspect-4/3 rounded-2xl overflow-hidden border-2 transition-all cursor-pointer group bg-gray-100 shadow-2xs hover:scale-102 ${
-                      isSlot0 || isSlot1 || isSlot2
-                        ? 'border-[#E12B7B] ring-2 ring-[#E12B7B]/20'
-                        : 'border-gray-200 hover:border-gray-400'
-                    }`}
-                  >
-                    <img src={img.image_url} alt="" className="w-full h-full object-cover" />
-
-                    {/* Badges for currently assigned slots */}
-                    <div className="absolute top-1 left-1 flex flex-col gap-1">
-                      {isSlot0 && (
-                        <span className="px-1.5 py-0.5 bg-[#E12B7B] text-white text-[9px] font-black rounded-md shadow-xs">
-                          #1 Hero
-                        </span>
-                      )}
-                      {isSlot1 && (
-                        <span className="px-1.5 py-0.5 bg-[#131B26] text-white text-[9px] font-black rounded-md shadow-xs">
-                          #2
-                        </span>
-                      )}
-                      {isSlot2 && (
-                        <span className="px-1.5 py-0.5 bg-[#131B26] text-white text-[9px] font-black rounded-md shadow-xs">
-                          #3
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Photo number indicator */}
-                    <span className="absolute bottom-1 right-1 bg-black/60 backdrop-blur-xs text-white text-[9px] font-bold px-1.5 py-0.5 rounded">
-                      #{idx + 1}
+                  <img src={img.image_url} alt="" className="w-full h-full object-cover" />
+                  <span className="absolute bottom-1 right-1 bg-black/60 text-white text-[8px] font-bold px-1 rounded">
+                    #{idx + 1}
+                  </span>
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <span className="text-[9px] font-bold text-white bg-[#E12B7B] px-1.5 py-0.5 rounded">
+                      Affecter à #{activeSlot + 1}
                     </span>
-
-                    {/* Hover overlay with Quick Actions & Big Preview Trigger */}
-                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-1.5">
-                      <div className="flex justify-end">
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setPreviewPhotoIndex(idx);
-                          }}
-                          className="p-1.5 bg-white/90 hover:bg-white text-gray-900 rounded-lg shadow-sm transition"
-                          title="Ouvrir le grand aperçu HD"
-                        >
-                          <ZoomIn className="w-3.5 h-3.5 text-[#E12B7B]" />
-                        </button>
-                      </div>
-
-                      <div className="flex justify-center gap-1">
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            assignPhotoToSlot(idx, 0);
-                          }}
-                          className="px-1.5 py-0.5 bg-[#E12B7B] hover:bg-[#c42068] text-white text-[9px] font-bold rounded"
-                          title="Mettre en photo 1 (Hero)"
-                        >
-                          1
-                        </button>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            assignPhotoToSlot(idx, 1);
-                          }}
-                          className="px-1.5 py-0.5 bg-[#131B26] hover:bg-gray-800 text-white text-[9px] font-bold rounded"
-                          title="Mettre en photo 2"
-                        >
-                          2
-                        </button>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            assignPhotoToSlot(idx, 2);
-                          }}
-                          className="px-1.5 py-0.5 bg-[#131B26] hover:bg-gray-800 text-white text-[9px] font-bold rounded"
-                          title="Mettre en photo 3"
-                        >
-                          3
-                        </button>
-                      </div>
-                    </div>
                   </div>
-                );
-              })}
+                </div>
+              ))}
             </div>
           </div>
         )}
       </div>
 
-      {/* ========================================================================= */}
-      {/* MODAL GRAND APERÇU HD POUR INSPECTION DES PHOTOS */}
-      {/* ========================================================================= */}
-      {previewPhotoIndex !== null && (
-        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col justify-between p-4 sm:p-8 animate-fade-in print:hidden">
-          
-          {/* Top Bar Modal */}
-          <div className="flex items-center justify-between text-white border-b border-white/10 pb-4">
-            <div>
-              <h3 className="font-serif font-bold text-lg text-white">
-                Grand Aperçu HD • Photo #{previewPhotoIndex + 1} sur {availableImages.length}
-              </h3>
-              <p className="text-xs text-gray-400">
-                {property.title} — {property.city}
-              </p>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => setPreviewPhotoIndex(null)}
-                className="p-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition cursor-pointer"
-                aria-label="Fermer"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-          </div>
-
-          {/* Center Image Container with Navigation Arrows */}
-          <div className="relative flex-1 flex items-center justify-center my-4 overflow-hidden">
-            <img
-              src={availableImages[previewPhotoIndex]?.image_url}
-              alt=""
-              className="max-h-[70vh] max-w-full object-contain rounded-2xl shadow-2xl transition-transform duration-300"
-            />
-
-            {availableImages.length > 1 && (
-              <>
-                <button
-                  onClick={() => setPreviewPhotoIndex((prev) => (prev! - 1 + availableImages.length) % availableImages.length)}
-                  className="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/20 hover:bg-white text-white hover:text-black flex items-center justify-center backdrop-blur-md transition shadow-2xl cursor-pointer"
-                >
-                  <ChevronLeft className="w-7 h-7" />
-                </button>
-                <button
-                  onClick={() => setPreviewPhotoIndex((prev) => (prev! + 1) % availableImages.length)}
-                  className="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/20 hover:bg-white text-white hover:text-black flex items-center justify-center backdrop-blur-md transition shadow-2xl cursor-pointer"
-                >
-                  <ChevronRight className="w-7 h-7" />
-                </button>
-              </>
-            )}
-          </div>
-
-          {/* Bottom Action Bar in Modal */}
-          <div className="bg-white/10 backdrop-blur-md p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-2 overflow-x-auto max-w-xl py-1">
-              {availableImages.map((img, idx) => (
-                <button
-                  key={img.id || idx}
-                  onClick={() => setPreviewPhotoIndex(idx)}
-                  className={`w-14 h-10 rounded-lg overflow-hidden shrink-0 border-2 transition ${
-                    previewPhotoIndex === idx ? 'border-[#E12B7B] scale-110' : 'border-transparent opacity-60 hover:opacity-100'
-                  }`}
-                >
-                  <img src={img.image_url} alt="" className="w-full h-full object-cover" />
-                </button>
-              ))}
-            </div>
-
-            <div className="flex items-center gap-2 shrink-0">
-              <span className="text-xs text-gray-300 font-semibold hidden sm:inline">Affecter cette photo à :</span>
-              <button
-                onClick={() => {
-                  assignPhotoToSlot(previewPhotoIndex, 0);
-                  setPreviewPhotoIndex(null);
-                }}
-                className="px-4 py-2 bg-[#E12B7B] hover:bg-[#c42068] text-white rounded-xl text-xs font-bold transition shadow-sm"
-              >
-                ✓ Emplacement 1 (Hero)
-              </button>
-              <button
-                onClick={() => {
-                  assignPhotoToSlot(previewPhotoIndex, 1);
-                  setPreviewPhotoIndex(null);
-                }}
-                className="px-3 py-2 bg-white hover:bg-gray-100 text-gray-900 rounded-xl text-xs font-bold transition shadow-sm"
-              >
-                Emplacement 2
-              </button>
-              <button
-                onClick={() => {
-                  assignPhotoToSlot(previewPhotoIndex, 2);
-                  setPreviewPhotoIndex(null);
-                }}
-                className="px-3 py-2 bg-white hover:bg-gray-100 text-gray-900 rounded-xl text-xs font-bold transition shadow-sm"
-              >
-                Emplacement 3
-              </button>
-            </div>
-          </div>
-
-        </div>
-      )}
-
-      {/* ========================================================================= */}
-      {/* FLYER PREVIEW & PRINT CANVAS (TAILORED ADAPTIVE LAYOUTS FOR EACH FORMAT) */}
-      {/* ========================================================================= */}
+      {/* FLYER CANVAS PREVIEW */}
       {property && (
         <div className="flex justify-center">
-          
-          {/* FORMAT 1 : A4 PORTRAIT (Fiche Commerciale Verticale) */}
-          {flyerFormat === 'A4_portrait' && (
-            <div className="print-flyer-target bg-white border-2 border-gray-300 rounded-3xl p-8 sm:p-10 shadow-2xl w-full max-w-[800px] min-h-[1050px] space-y-6 flex flex-col justify-between">
-              
-              {/* Header */}
-              <div className="flex items-center justify-between border-b-2 pb-4" style={{ borderColor: currentTheme.primary }}>
-                <div className="flex items-center gap-3">
-                  <div
-                    className="w-12 h-12 rounded-2xl text-white font-serif font-black text-2xl flex items-center justify-center shadow-sm"
-                    style={{ backgroundColor: currentTheme.primary }}
-                  >
-                    N
-                  </div>
-                  <div>
-                    <span className="text-2xl font-serif font-black text-[#131B26] tracking-tight block">
-                      NELL&apos;IMMO IMMOBILIER
-                    </span>
-                    <span className="block text-[10px] uppercase font-bold tracking-widest text-[#E12B7B]">
-                      Pélissanne & Pays Salonais • 07 55 68 61 09 • www.nellimmo.fr
-                    </span>
-                  </div>
+          <div
+            className={`print-flyer-target rounded-3xl p-8 sm:p-10 shadow-2xl w-full border-2 transition-all flex flex-col justify-between ${
+              currentTheme.bgWrapper
+            } ${currentTheme.textColor} ${
+              flyerFormat === 'A4_portrait'
+                ? 'max-w-[780px] min-h-[1020px]'
+                : flyerFormat === 'social_square'
+                ? 'max-w-[650px] aspect-square'
+                : flyerFormat === 'story_vertical'
+                ? 'max-w-[450px] min-h-[780px]'
+                : 'max-w-5xl aspect-[1.414/1]'
+            }`}
+            style={{ borderColor: currentTheme.primary }}
+          >
+            {/* Header Brand */}
+            <div className="flex items-center justify-between border-b-2 pb-4" style={{ borderColor: currentTheme.primary }}>
+              <div className="flex items-center gap-3">
+                <div
+                  className="w-11 h-11 rounded-2xl text-white font-serif font-black text-2xl flex items-center justify-center shadow-xs"
+                  style={{ backgroundColor: currentTheme.primary }}
+                >
+                  N
                 </div>
-
-                <div className="text-right">
-                  <span className="text-xs font-mono font-bold text-gray-500">Réf. {mandateRef}</span>
-                  <span
-                    className="block text-xs font-black uppercase px-3 py-1 rounded-full text-white mt-1 shadow-xs"
-                    style={{ backgroundColor: currentTheme.primary }}
-                  >
-                    {property.mandate_type === 'exclusif' ? '★ Mandat Exclusif' : 'Vente Privilège'}
+                <div>
+                  <span className="text-xl font-serif font-black tracking-tight block leading-tight">
+                    NELL&apos;IMMO IMMOBILIER
+                  </span>
+                  <span className="text-[10px] uppercase font-bold tracking-widest block" style={{ color: currentTheme.primary }}>
+                    Pélissanne & Pays Salonais • 07 55 68 61 09 • www.nellimmo.fr
                   </span>
                 </div>
               </div>
 
-              {/* Photos Vertical Stack: 1 Hero Photo + 2 Side-by-Side Photos */}
-              <div className="space-y-3">
-                <div className="aspect-16/9 w-full rounded-2xl overflow-hidden bg-gray-100 border border-gray-200 shadow-sm">
-                  <img src={photo0} alt="" className="w-full h-full object-cover" />
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="aspect-16/9 rounded-xl overflow-hidden bg-gray-100 border border-gray-200">
-                    <img src={photo1} alt="" className="w-full h-full object-cover" />
-                  </div>
-                  <div className="aspect-16/9 rounded-xl overflow-hidden bg-gray-100 border border-gray-200">
-                    <img src={photo2} alt="" className="w-full h-full object-cover" />
-                  </div>
-                </div>
+              <div className="text-right">
+                <span className={`text-xs font-mono font-bold ${currentTheme.subText}`}>Réf. {mandateRef}</span>
+                <span
+                  className="block text-xs font-black uppercase px-3 py-1 rounded-full text-white mt-1 shadow-xs"
+                  style={{ backgroundColor: badgePreset === 'custom' ? customBadgeColor : currentTheme.primary }}
+                >
+                  {getBadgeText()}
+                </span>
               </div>
+            </div>
 
-              {/* Title & Location */}
-              <div className="space-y-1">
-                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-500">
-                  <MapPin className="w-3.5 h-3.5 text-[#E12B7B]" />
-                  <span>{property.city} ({property.postal_code})</span>
-                  <span>•</span>
-                  <span>{property.property_type.toUpperCase()}</span>
+            {/* Dynamic Photo Arrangement */}
+            <div className="my-4 flex-1 flex flex-col justify-center">
+              {photoArrangement === 'hero_only' && (
+                <div className="aspect-16/9 w-full rounded-2xl overflow-hidden bg-gray-100 border border-gray-200 shadow-xs">
+                  <img src={getPhotoUrl(0)} alt="" className="w-full h-full object-cover" />
                 </div>
-                <h2 className="text-2xl font-serif font-black text-[#131B26] leading-tight">
-                  {property.title}
+              )}
+
+              {photoArrangement === 'split_2' && (
+                <div className="grid grid-cols-2 gap-3 aspect-16/9 w-full">
+                  <div className="rounded-2xl overflow-hidden bg-gray-100 border border-gray-200 shadow-xs">
+                    <img src={getPhotoUrl(0)} alt="" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="rounded-2xl overflow-hidden bg-gray-100 border border-gray-200 shadow-xs">
+                    <img src={getPhotoUrl(1)} alt="" className="w-full h-full object-cover" />
+                  </div>
+                </div>
+              )}
+
+              {photoArrangement === 'standard_3' && (
+                <div className="grid grid-cols-3 gap-3 aspect-16/9 w-full">
+                  <div className="col-span-2 rounded-2xl overflow-hidden bg-gray-100 border border-gray-200 shadow-xs">
+                    <img src={getPhotoUrl(0)} alt="" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="space-y-3 flex flex-col justify-between">
+                    <div className="aspect-16/10 rounded-xl overflow-hidden bg-gray-100 border border-gray-200">
+                      <img src={getPhotoUrl(1)} alt="" className="w-full h-full object-cover" />
+                    </div>
+                    <div className="aspect-16/10 rounded-xl overflow-hidden bg-gray-100 border border-gray-200">
+                      <img src={getPhotoUrl(2)} alt="" className="w-full h-full object-cover" />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {photoArrangement === 'grid_4' && (
+                <div className="grid grid-cols-2 gap-3 aspect-16/9 w-full">
+                  <div className="rounded-xl overflow-hidden bg-gray-100 border border-gray-200">
+                    <img src={getPhotoUrl(0)} alt="" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="rounded-xl overflow-hidden bg-gray-100 border border-gray-200">
+                    <img src={getPhotoUrl(1)} alt="" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="rounded-xl overflow-hidden bg-gray-100 border border-gray-200">
+                    <img src={getPhotoUrl(2)} alt="" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="rounded-xl overflow-hidden bg-gray-100 border border-gray-200">
+                    <img src={getPhotoUrl(3)} alt="" className="w-full h-full object-cover" />
+                  </div>
+                </div>
+              )}
+
+              {photoArrangement === 'mosaic_5' && (
+                <div className="grid grid-cols-4 gap-2.5 aspect-16/9 w-full">
+                  <div className="col-span-2 row-span-2 rounded-2xl overflow-hidden bg-gray-100 border border-gray-200">
+                    <img src={getPhotoUrl(0)} alt="" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="rounded-xl overflow-hidden bg-gray-100 border border-gray-200">
+                    <img src={getPhotoUrl(1)} alt="" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="rounded-xl overflow-hidden bg-gray-100 border border-gray-200">
+                    <img src={getPhotoUrl(2)} alt="" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="rounded-xl overflow-hidden bg-gray-100 border border-gray-200">
+                    <img src={getPhotoUrl(3)} alt="" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="rounded-xl overflow-hidden bg-gray-100 border border-gray-200">
+                    <img src={getPhotoUrl(4)} alt="" className="w-full h-full object-cover" />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Title & Price Header */}
+            <div className="flex items-end justify-between gap-4 border-b pb-3 border-gray-200/50">
+              <div className="space-y-0.5 max-w-2xl">
+                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider" style={{ color: currentTheme.primary }}>
+                  <MapPin className="w-3.5 h-3.5" />
+                  <span>{displaySubtitle}</span>
+                </div>
+                <h2 className="text-xl sm:text-2xl font-serif font-black leading-tight line-clamp-2">
+                  {displayTitle}
                 </h2>
               </div>
 
-              {/* Price Banner */}
-              <div className="flex items-center justify-between p-4 rounded-2xl bg-gray-50 border border-gray-200">
-                <div>
-                  <span className="text-[10px] text-gray-400 font-bold uppercase block">Prix de Vente FAI</span>
-                  <div className="text-3xl font-serif font-black tracking-tight" style={{ color: currentTheme.primary }}>
-                    {property.price_fai.toLocaleString('fr-FR')} €
-                  </div>
+              <div className="text-right shrink-0">
+                <div className="text-2xl sm:text-3xl font-serif font-black tracking-tight" style={{ color: currentTheme.primary }}>
+                  {property.price_fai.toLocaleString('fr-FR')} € FAI
                 </div>
-                <div className="text-right text-[10px] text-gray-500 font-semibold max-w-[200px]">
-                  Honoraires agence inclus {property.fees_paid_by === 'vendeur' ? 'à la charge du vendeur' : 'à la charge de l\'acquéreur'}
-                </div>
-              </div>
-
-              {/* 3 Pillars Grid (Clean, Balanced & No DPE) */}
-              <div className="grid grid-cols-3 gap-3 text-center">
-                <div className="p-3.5 bg-gray-50 rounded-2xl border border-gray-100">
-                  <span className="text-[10px] font-bold uppercase text-gray-400 block">Surface Habitable</span>
-                  <span className="text-lg font-black text-gray-900">{property.living_area} m²</span>
-                </div>
-                <div className="p-3.5 bg-gray-50 rounded-2xl border border-gray-100">
-                  <span className="text-[10px] font-bold uppercase text-gray-400 block">Pièces / Chambres</span>
-                  <span className="text-lg font-black text-gray-900">{property.rooms_count} Pièces • {property.bedrooms_count} chb</span>
-                </div>
-                <div className="p-3.5 bg-gray-50 rounded-2xl border border-gray-100">
-                  <span className="text-[10px] font-bold uppercase text-gray-400 block">Terrain / Extérieur</span>
-                  <span className="text-lg font-black text-gray-900">{property.land_area && property.land_area > 0 ? `${property.land_area} m²` : 'Jardin / Terrasse'}</span>
-                </div>
-              </div>
-
-              {/* Features Badges */}
-              <div className="flex flex-wrap gap-2">
-                {property.features?.slice(0, 6).map((feat, i) => (
-                  <span key={i} className="px-3 py-1 bg-gray-50 rounded-xl text-xs font-bold text-gray-800 border border-gray-200 flex items-center gap-1.5">
-                    <Check className="w-3.5 h-3.5 text-emerald-600" />
-                    {feat}
-                  </span>
-                ))}
-              </div>
-
-              {/* Footer */}
-              <div className="flex items-center justify-between pt-4 border-t-2 border-gray-100">
-                <div className="space-y-0.5">
-                  <span className="text-xs font-bold text-[#131B26] block">
-                    Votre Conseillère : Nelly FERNANDEZ
-                  </span>
-                  <div className="flex items-center gap-3 text-xs font-semibold text-gray-600">
-                    <span className="flex items-center gap-1"><Phone className="w-3 h-3 text-[#E12B7B]" /> 07 55 68 61 09</span>
-                    <span>•</span>
-                    <span className="flex items-center gap-1"><Mail className="w-3 h-3 text-[#E12B7B]" /> nellimmo.acte@gmail.com</span>
-                  </div>
-                </div>
-
-                {showQrCode && (
-                  <div className="flex items-center gap-2 p-2 bg-[#FAF5F8] border border-[#F3E8EE] rounded-xl">
-                    <img src={qrCodeImageUrl} alt="QR Code" className="w-10 h-10 rounded-md" />
-                    <span className="text-[9px] text-gray-500 font-bold leading-tight">Scannez pour<br />visite complète</span>
-                  </div>
-                )}
-              </div>
-
-            </div>
-          )}
-
-          {/* FORMAT 2 : A4 PAYSAGE (LED Vitrine Horizontale) */}
-          {flyerFormat === 'A4_landscape' && (
-            <div className="print-flyer-target bg-white border-2 border-gray-300 rounded-3xl p-8 sm:p-10 shadow-2xl w-full max-w-5xl aspect-[1.414/1] space-y-6 flex flex-col justify-between">
-              
-              {/* Header */}
-              <div className="flex items-center justify-between border-b-2 pb-4" style={{ borderColor: currentTheme.primary }}>
-                <div className="flex items-center gap-3">
-                  <div
-                    className="w-12 h-12 rounded-2xl text-white font-serif font-black text-2xl flex items-center justify-center shadow-sm"
-                    style={{ backgroundColor: currentTheme.primary }}
-                  >
-                    N
-                  </div>
-                  <div>
-                    <span className="text-2xl font-serif font-black text-[#131B26] tracking-tight block">
-                      NELL&apos;IMMO IMMOBILIER
-                    </span>
-                    <span className="block text-[10px] uppercase font-bold tracking-widest text-[#E12B7B]">
-                      Pélissanne & Pays Salonais • 07 55 68 61 09 • www.nellimmo.fr
-                    </span>
-                  </div>
-                </div>
-
-                <div className="text-right">
-                  <span className="text-xs font-mono font-bold text-gray-500">Réf. {mandateRef}</span>
-                  <span
-                    className="block text-xs font-black uppercase px-3 py-1 rounded-full text-white mt-1 shadow-xs"
-                    style={{ backgroundColor: currentTheme.primary }}
-                  >
-                    {property.mandate_type === 'exclusif' ? '★ Mandat Exclusif' : 'Vente Privilège'}
-                  </span>
-                </div>
-              </div>
-
-              {/* Photos Grid 2 Cols : Large Main + 2 Sub-photos stacked */}
-              <div className="grid grid-cols-3 gap-4">
-                <div className="col-span-2 aspect-16/10 rounded-2xl overflow-hidden bg-gray-100 border border-gray-200 shadow-sm">
-                  <img src={photo0} alt="" className="w-full h-full object-cover" />
-                </div>
-                <div className="space-y-4 flex flex-col justify-between">
-                  <div className="aspect-16/10 rounded-xl overflow-hidden bg-gray-100 border border-gray-200">
-                    <img src={photo1} alt="" className="w-full h-full object-cover" />
-                  </div>
-                  <div className="aspect-16/10 rounded-xl overflow-hidden bg-gray-100 border border-gray-200">
-                    <img src={photo2} alt="" className="w-full h-full object-cover" />
-                  </div>
-                </div>
-              </div>
-
-              {/* Title & Price Line */}
-              <div className="flex items-end justify-between gap-4 border-b pb-4 border-gray-100">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-gray-500">
-                    <MapPin className="w-3.5 h-3.5 text-[#E12B7B]" />
-                    <span>{property.city} ({property.postal_code})</span>
-                    <span>•</span>
-                    <span>{property.property_type.toUpperCase()}</span>
-                  </div>
-                  <h2 className="text-2xl font-serif font-black text-[#131B26] leading-tight">
-                    {property.title}
-                  </h2>
-                </div>
-
-                <div className="text-right shrink-0">
-                  <div className="text-3xl font-serif font-black tracking-tight" style={{ color: currentTheme.primary }}>
-                    {property.price_fai.toLocaleString('fr-FR')} €
-                  </div>
-                  <span className="text-[10px] text-gray-400 font-medium block">
-                    Honoraires inclus charge {property.fees_paid_by}
-                  </span>
-                </div>
-              </div>
-
-              {/* 3 Pillars Grid (Clean, Balanced & No DPE) */}
-              <div className="grid grid-cols-3 gap-4 text-center">
-                <div className="p-3.5 bg-gray-50 rounded-2xl border border-gray-100">
-                  <span className="text-[10px] font-bold uppercase text-gray-400 block">Surface Habitable</span>
-                  <span className="text-lg font-black text-gray-900">{property.living_area} m²</span>
-                </div>
-                <div className="p-3.5 bg-gray-50 rounded-2xl border border-gray-100">
-                  <span className="text-[10px] font-bold uppercase text-gray-400 block">Pièces / Chambres</span>
-                  <span className="text-lg font-black text-gray-900">{property.rooms_count} Pièces • {property.bedrooms_count} chb</span>
-                </div>
-                <div className="p-3.5 bg-gray-50 rounded-2xl border border-gray-100">
-                  <span className="text-[10px] font-bold uppercase text-gray-400 block">Terrain / Extérieur</span>
-                  <span className="text-lg font-black text-gray-900">{property.land_area && property.land_area > 0 ? `${property.land_area} m²` : 'Jardin / Terrasse'}</span>
-                </div>
-              </div>
-
-              {/* Highlights & Footer */}
-              <div className="flex items-center justify-between pt-2 border-t-2 border-gray-100">
-                <div className="space-y-0.5">
-                  <span className="text-xs font-bold text-[#131B26] block">
-                    Votre Conseillère Dédiée : Nelly FERNANDEZ
-                  </span>
-                  <div className="flex items-center gap-4 text-xs font-semibold text-gray-600">
-                    <span className="flex items-center gap-1"><Phone className="w-3.5 h-3.5 text-[#E12B7B]" /> 07 55 68 61 09</span>
-                    <span className="flex items-center gap-1"><Mail className="w-3.5 h-3.5 text-[#E12B7B]" /> nellimmo.acte@gmail.com</span>
-                  </div>
-                </div>
-
-                {showQrCode && (
-                  <div className="flex items-center gap-3 p-2 bg-[#FAF5F8] border border-[#F3E8EE] rounded-2xl">
-                    <img src={qrCodeImageUrl} alt="QR Code" className="w-10 h-10 rounded-md" />
-                    <div className="text-[10px] text-gray-500 font-bold leading-tight">
-                      Scannez pour la visite 360°<br />et la fiche complète
-                    </div>
-                  </div>
-                )}
-              </div>
-
-            </div>
-          )}
-
-          {/* FORMAT 3 : A3 GRAND FORMAT VITRINE (A3 Landscape) */}
-          {flyerFormat === 'A3_landscape' && (
-            <div className="print-flyer-target bg-white border-2 border-gray-300 rounded-3xl p-10 sm:p-14 shadow-2xl w-full max-w-6xl aspect-[1.414/1] space-y-8 flex flex-col justify-between">
-              
-              {/* Header */}
-              <div className="flex items-center justify-between border-b-4 pb-6" style={{ borderColor: currentTheme.primary }}>
-                <div className="flex items-center gap-4">
-                  <div
-                    className="w-16 h-16 rounded-3xl text-white font-serif font-black text-3xl flex items-center justify-center shadow-md"
-                    style={{ backgroundColor: currentTheme.primary }}
-                  >
-                    N
-                  </div>
-                  <div>
-                    <span className="text-3xl font-serif font-black text-[#131B26] tracking-tight block">
-                      NELL&apos;IMMO IMMOBILIER
-                    </span>
-                    <span className="block text-xs uppercase font-bold tracking-widest text-[#E12B7B]">
-                      Pélissanne & Pays Salonais • Agence Immobilière de Référence
-                    </span>
-                  </div>
-                </div>
-
-                <div className="text-right">
-                  <span className="text-sm font-mono font-bold text-gray-500">Réf. {mandateRef}</span>
-                  <span
-                    className="block text-sm font-black uppercase px-4 py-1.5 rounded-full text-white mt-1 shadow-sm"
-                    style={{ backgroundColor: currentTheme.primary }}
-                  >
-                    {property.mandate_type === 'exclusif' ? '★ Mandat Exclusif' : 'Vente Privilège'}
-                  </span>
-                </div>
-              </div>
-
-              {/* Photos Grid Panorama */}
-              <div className="grid grid-cols-3 gap-6">
-                <div className="col-span-2 aspect-16/10 rounded-3xl overflow-hidden bg-gray-100 border border-gray-200 shadow-md">
-                  <img src={photo0} alt="" className="w-full h-full object-cover" />
-                </div>
-                <div className="space-y-6 flex flex-col justify-between">
-                  <div className="aspect-16/10 rounded-2xl overflow-hidden bg-gray-100 border border-gray-200">
-                    <img src={photo1} alt="" className="w-full h-full object-cover" />
-                  </div>
-                  <div className="aspect-16/10 rounded-2xl overflow-hidden bg-gray-100 border border-gray-200">
-                    <img src={photo2} alt="" className="w-full h-full object-cover" />
-                  </div>
-                </div>
-              </div>
-
-              {/* Title & Massive Price Callout */}
-              <div className="flex items-end justify-between gap-6 border-b pb-6 border-gray-100">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-gray-500">
-                    <MapPin className="w-4 h-4 text-[#E12B7B]" />
-                    <span>{property.city} ({property.postal_code})</span>
-                    <span>•</span>
-                    <span>{property.property_type.toUpperCase()}</span>
-                  </div>
-                  <h2 className="text-3xl font-serif font-black text-[#131B26] leading-tight">
-                    {property.title}
-                  </h2>
-                </div>
-
-                <div className="text-right shrink-0">
-                  <div className="text-4xl font-serif font-black tracking-tight" style={{ color: currentTheme.primary }}>
-                    {property.price_fai.toLocaleString('fr-FR')} €
-                  </div>
-                  <span className="text-xs text-gray-400 font-medium block">
-                    Honoraires d&apos;agence inclus
-                  </span>
-                </div>
-              </div>
-
-              {/* 3 Pillars Grid Large (Clean, Balanced & No DPE) */}
-              <div className="grid grid-cols-3 gap-4 text-center">
-                <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                  <span className="text-xs font-bold uppercase text-gray-400 block">Surface Habitable</span>
-                  <span className="text-2xl font-black text-gray-900">{property.living_area} m²</span>
-                </div>
-                <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                  <span className="text-xs font-bold uppercase text-gray-400 block">Pièces / Chambres</span>
-                  <span className="text-2xl font-black text-gray-900">{property.rooms_count} Pièces • {property.bedrooms_count} chb</span>
-                </div>
-                <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                  <span className="text-xs font-bold uppercase text-gray-400 block">Terrain / Extérieur</span>
-                  <span className="text-2xl font-black text-gray-900">{property.land_area && property.land_area > 0 ? `${property.land_area} m²` : 'Jardin / Terrasse'}</span>
-                </div>
-              </div>
-
-              {/* Footer A3 */}
-              <div className="flex items-center justify-between pt-4 border-t-2 border-gray-100">
-                <div className="space-y-1">
-                  <span className="text-sm font-bold text-[#131B26] block">
-                    Votre Conseillère : Nelly FERNANDEZ • 07 55 68 61 09
-                  </span>
-                  <span className="text-xs text-gray-500">26 Avenue des Enjouvènes, 13330 Pélissanne • nellimmo.acte@gmail.com</span>
-                </div>
-
-                {showQrCode && (
-                  <div className="flex items-center gap-3 p-3 bg-[#FAF5F8] border border-[#F3E8EE] rounded-2xl">
-                    <img src={qrCodeImageUrl} alt="QR Code" className="w-14 h-14 rounded-lg" />
-                    <div className="text-xs text-gray-700 font-bold leading-tight">
-                      Scannez pour la visite 360°<br />et la vidéo HD
-                    </div>
-                  </div>
-                )}
-              </div>
-
-            </div>
-          )}
-
-          {/* FORMAT 4 : SOCIAL SQUARE (Instagram / Facebook Post 1:1) */}
-          {flyerFormat === 'social_square' && (
-            <div className="print-flyer-target bg-white border-2 border-gray-300 rounded-3xl p-6 sm:p-8 shadow-2xl w-full max-w-xl aspect-square space-y-4 flex flex-col justify-between">
-              
-              {/* Top Bar with Brand & Exclusive Badge */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div
-                    className="w-8 h-8 rounded-xl text-white font-serif font-black text-base flex items-center justify-center shadow-xs"
-                    style={{ backgroundColor: currentTheme.primary }}
-                  >
-                    N
-                  </div>
-                  <span className="font-serif font-black text-sm text-[#131B26]">NELL&apos;IMMO</span>
-                </div>
-
-                <span
-                  className="px-3 py-1 rounded-full text-white text-[10px] font-black uppercase shadow-xs flex items-center gap-1"
-                  style={{ backgroundColor: currentTheme.primary }}
-                >
-                  <Sparkles className="w-3 h-3 text-amber-200" />
-                  {property.mandate_type === 'exclusif' ? 'Exclusivité' : 'Nouveau Bien'}
+                <span className={`text-[10px] font-medium block ${currentTheme.subText}`}>
+                  Honoraires charge {property.fees_paid_by}
                 </span>
               </div>
-
-              {/* Hero Photo with overlay price badge */}
-              <div className="relative aspect-4/3 w-full rounded-2xl overflow-hidden bg-gray-100 border border-gray-200 shadow-sm">
-                <img src={photo0} alt="" className="w-full h-full object-cover" />
-                
-                {/* Floating Price Pill */}
-                <div
-                  className="absolute bottom-3 left-3 px-4 py-2 rounded-xl text-white font-serif font-black text-xl shadow-lg backdrop-blur-md"
-                  style={{ backgroundColor: currentTheme.primary }}
-                >
-                  {property.price_fai.toLocaleString('fr-FR')} € <span className="text-[10px] font-normal">FAI</span>
-                </div>
-
-                {/* City pill */}
-                <div className="absolute top-3 right-3 px-3 py-1 bg-black/60 backdrop-blur-md text-white rounded-full text-xs font-bold flex items-center gap-1">
-                  <MapPin className="w-3 h-3 text-[#E12B7B]" />
-                  {property.city}
-                </div>
-              </div>
-
-              {/* Title & 2 Sub-photos row */}
-              <div className="grid grid-cols-3 gap-3 items-center">
-                <div className="col-span-2">
-                  <h3 className="font-serif font-bold text-base text-[#131B26] line-clamp-2 leading-snug">
-                    {property.title}
-                  </h3>
-                  <p className="text-xs text-gray-500 font-semibold mt-1">
-                    {property.living_area} m² • {property.bedrooms_count} chambres {property.land_area ? `• ${property.land_area} m² terrain` : ''}
-                  </p>
-                </div>
-                <div className="aspect-4/3 rounded-xl overflow-hidden bg-gray-100 border border-gray-200">
-                  <img src={photo1} alt="" className="w-full h-full object-cover" />
-                </div>
-              </div>
-
-              {/* Social Footer */}
-              <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-                <div className="text-xs">
-                  <span className="font-bold text-gray-900 block">Nelly Fernandez</span>
-                  <span className="text-[11px] text-[#E12B7B] font-bold">07 55 68 61 09 • @nellimmo</span>
-                </div>
-
-                {showQrCode && (
-                  <div className="flex items-center gap-2 p-1.5 bg-[#FAF5F8] border border-[#F3E8EE] rounded-xl">
-                    <img src={qrCodeImageUrl} alt="QR Code" className="w-8 h-8 rounded-md" />
-                    <span className="text-[8px] font-bold text-gray-500 leading-tight">Visite 360°<br />en ligne</span>
-                  </div>
-                )}
-              </div>
-
             </div>
-          )}
 
+            {/* Key Metrics 3 Pillars */}
+            <div className="grid grid-cols-3 gap-3 my-3 text-center">
+              <div className={`p-2.5 rounded-2xl ${currentTheme.cardBg}`}>
+                <span className={`text-[9px] font-bold uppercase block ${currentTheme.subText}`}>Surface Habitable</span>
+                <span className="text-base font-black">{property.living_area} m²</span>
+              </div>
+              <div className={`p-2.5 rounded-2xl ${currentTheme.cardBg}`}>
+                <span className={`text-[9px] font-bold uppercase block ${currentTheme.subText}`}>Pièces / Chambres</span>
+                <span className="text-base font-black">{property.rooms_count}p • {property.bedrooms_count}ch</span>
+              </div>
+              <div className={`p-2.5 rounded-2xl ${currentTheme.cardBg}`}>
+                <span className={`text-[9px] font-bold uppercase block ${currentTheme.subText}`}>Terrain / Extérieur</span>
+                <span className="text-base font-black">{property.land_area ? `${property.land_area} m²` : 'Jardin / Cour'}</span>
+              </div>
+            </div>
+
+            {/* Features Tags */}
+            <div className="flex flex-wrap gap-1.5 mb-2">
+              {property.features?.slice(0, 5).map((feat, i) => (
+                <span
+                  key={i}
+                  className={`px-2.5 py-0.5 rounded-lg text-[10px] font-bold flex items-center gap-1 ${currentTheme.cardBg}`}
+                >
+                  <Check className="w-3 h-3" style={{ color: currentTheme.primary }} />
+                  {feat}
+                </span>
+              ))}
+            </div>
+
+            {/* Footer with QR Code */}
+            <div className="flex items-center justify-between pt-3 border-t-2 border-gray-200/50">
+              <div className="space-y-0.5">
+                <span className="text-xs font-bold block">
+                  Conseillère Dédiée : Nelly FERNANDEZ • SASU Nell&apos;Immo
+                </span>
+                <div className={`flex items-center gap-3 text-[11px] font-semibold ${currentTheme.subText}`}>
+                  <span className="flex items-center gap-1">📞 07 55 68 61 09</span>
+                  <span>•</span>
+                  <span className="flex items-center gap-1">✉️ nellimmo.acte@gmail.com</span>
+                </div>
+              </div>
+
+              {showQrCode && (
+                <div className="flex items-center gap-2 p-1.5 bg-white rounded-xl shadow-2xs border border-gray-200">
+                  <img src={qrCodeImageUrl} alt="QR Code" className="w-9 h-9 rounded" />
+                  <div className="text-[8px] font-bold text-gray-700 leading-tight">
+                    <span>Scannez pour</span><br />
+                    <span style={{ color: currentTheme.primary }}>
+                      {qrDestination === 'whatsapp' ? 'WhatsApp Direct' : qrDestination === 'visite360' ? 'Visite 360°' : qrDestination === 'google_review' ? 'Avis Google' : qrDestination === 'gps' ? 'Itinéraire GPS' : 'Fiche Web HD'}
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* Social Media Studio (Légende & Hashtags) */}
+      {property && (
+        <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#F3E8EE] shadow-xs space-y-4 print:hidden">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-100 pb-4">
+            <div className="flex items-center gap-2">
+              <Share2 className="w-5 h-5 text-[#E12B7B]" />
+              <div>
+                <h3 className="font-serif font-bold text-base text-[#131B26]">
+                  Studio Réseaux Sociaux : Légende Prête à Publier
+                </h3>
+                <span className="text-xs text-gray-500">
+                  Texte optimisé pour Instagram, Facebook & LinkedIn avec émoticônes et hashtags locaux.
+                </span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => {
+                const caption = `✨ [NOUVEAUTÉ EN PROVENCE] ✨\n\n🏡 ${property.title} — ${property.city} (${property.postal_code})\n\n📍 Réf. ${mandateRef} • Mandat ${property.mandate_type.toUpperCase()}\n📐 ${property.living_area} m² habitables • ${property.rooms_count} pièces (${property.bedrooms_count} chambres)\n🌿 Terrain : ${property.land_area ? `${property.land_area} m²` : 'Sans terrain'}\n💶 Prix FAI : ${property.price_fai.toLocaleString('fr-FR')} € (Honoraires charge ${property.fees_paid_by})\n\n${property.description ? property.description.slice(0, 180) + '...' : ''}\n\n📲 Informations & Visites privées auprès de Nelly Fernandez :\n📞 07 55 68 61 09\n📩 nellimmo.acte@gmail.com\n🔗 Fiche complète sur https://nellimmo.fr/biens/${property.id}\n\n#immobilier #pelissanne #payssalonais #provence #villaavendre #maisonprovencale #nellimmo #exclusivite #achatimmobilier`;
+                navigator.clipboard.writeText(caption);
+                setCopiedCaption(true);
+                setTimeout(() => setCopiedCaption(false), 2000);
+              }}
+              className="px-5 py-2.5 bg-[#E12B7B] hover:bg-[#C71B62] text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-xs transition cursor-pointer"
+            >
+              {copiedCaption ? <Check className="w-4 h-4 text-emerald-300" /> : <Copy className="w-4 h-4" />}
+              <span>{copiedCaption ? 'Légende Copiée !' : 'Copier la Légende Instagram'}</span>
+            </button>
+          </div>
+
+          <pre className="p-4 bg-gray-50 rounded-2xl border border-gray-200 text-xs font-mono text-gray-800 whitespace-pre-wrap leading-relaxed">
+            {`✨ [NOUVEAUTÉ EN PROVENCE] ✨\n\n🏡 ${property.title} — ${property.city} (${property.postal_code})\n\n📍 Réf. ${mandateRef} • Mandat ${property.mandate_type.toUpperCase()}\n📐 ${property.living_area} m² habitables • ${property.rooms_count} pièces (${property.bedrooms_count} chambres)\n🌿 Terrain : ${property.land_area ? `${property.land_area} m²` : 'Sans terrain'}\n💶 Prix FAI : ${property.price_fai.toLocaleString('fr-FR')} € (Honoraires charge ${property.fees_paid_by})\n\n${property.description ? property.description.slice(0, 180) + '...' : ''}\n\n📲 Informations & Visites privées auprès de Nelly Fernandez :\n📞 07 55 68 61 09\n📩 nellimmo.acte@gmail.com\n🔗 Fiche complète sur https://nellimmo.fr/biens/${property.id}\n\n#immobilier #pelissanne #payssalonais #provence #villaavendre #maisonprovencale #nellimmo #exclusivite #achatimmobilier`}
+          </pre>
         </div>
       )}
 

@@ -36,6 +36,12 @@ export const metadata: Metadata = {
     shortcut: '/favicon.png',
     apple: '/favicon.png',
   },
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: "Nell'Immo Cockpit",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

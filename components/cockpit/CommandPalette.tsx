@@ -21,7 +21,10 @@ import {
   HelpCircle,
   PlusCircle,
   Clock,
-  Landmark
+  Landmark,
+  Radar,
+  FileCheck2,
+  BrainCircuit
 } from 'lucide-react';
 
 export function CommandPalette() {
@@ -78,6 +81,9 @@ export function CommandPalette() {
     { id: 'nav-vitrine', title: 'Studio Fiches Vitrine LED & Affiches', subtitle: 'Affiches vitrine A4/A3 haute définition', category: 'Outils', href: '/cockpit/fiches-vitrine', icon: Printer },
     { id: 'nav-redacteur', title: 'Rédacteur IA & Réseaux Sociaux', subtitle: 'Générateur d\'annonces et posts Instagram/Meta', category: 'Outils', href: '/cockpit/redacteur', icon: Sparkles },
     { id: 'nav-diffusion', title: 'Hub Multidiffusion (SeLoger, BienIci, LeBonCoin)', subtitle: 'Passerelles et flux d\'export', category: 'Outils', href: '/cockpit/diffusion', icon: Radio },
+    { id: 'nav-pige', title: 'Radar Pige & Prospection PAP / LBC', subtitle: 'Détection vendeurs et sparring-partner d\'objections', category: 'Outils', href: '/cockpit/pige', icon: Radar },
+    { id: 'nav-comptes-rendus', title: 'Comptes-Rendus Vendeurs', subtitle: 'Bilans de commercialisation et transmission WhatsApp', category: 'Outils', href: '/cockpit/comptes-rendus', icon: FileCheck2 },
+    { id: 'nav-lab', title: 'Nell\'IA Infinite Lab (Idéation & Stratégies)', subtitle: 'Incubateur sans limites, négociations et clauses juridiques', category: 'Outils', href: '/cockpit/lab', icon: BrainCircuit },
     { id: 'nav-dgccrf', title: 'Registre Légal DGCCRF & Loi Hoguet', subtitle: 'Audit scellé SHA-256 et export officiel', category: 'Outils', href: '/cockpit/registre-dgccrf', icon: ShieldCheck },
     { id: 'nav-params', title: 'Paramètres & Connexions API', subtitle: 'Mentions légales, Meta API, Google et sauvegarde', category: 'Outils', href: '/cockpit/parametres', icon: Settings },
   ], []);
