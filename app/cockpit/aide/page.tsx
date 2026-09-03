@@ -19,7 +19,6 @@ import {
   Clock,
   Copy,
   Check,
-  Printer,
   Sparkles,
   MapPin,
   MessageSquare,
@@ -166,14 +165,6 @@ function HelpAcademyContent() {
               <Calculator className="w-4 h-4 text-[#C59A45]" />
               <span>Calculateur Délais Légaux</span>
             </button>
-            <button
-              onClick={() => window.print()}
-              className="px-4 py-2.5 bg-[#E12B7B] hover:bg-[#C71B62] text-white rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-md hover:shadow-lg cursor-pointer"
-              title="Imprimer ce guide au format A4"
-            >
-              <Printer className="w-4 h-4" />
-              <span>Fiche Mémo Bureau A4</span>
-            </button>
           </div>
         </div>
 
@@ -221,8 +212,8 @@ function HelpAcademyContent() {
           )}
         </div>
 
-        {/* Category Pills */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-xs">
+        {/* Category Pills (flex-wrap pour tout voir directement sans coupure) */}
+        <div className="flex flex-wrap items-center gap-2 text-xs pt-1">
           {HELP_CATEGORIES.map((cat) => {
             const isSelected = selectedCategory === cat.id;
             const count =
@@ -234,7 +225,7 @@ function HelpAcademyContent() {
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`px-3 py-1.5 rounded-xl font-medium whitespace-nowrap transition flex items-center gap-1.5 cursor-pointer ${
+                className={`px-3 py-2 rounded-xl font-medium whitespace-nowrap transition flex items-center gap-1.5 cursor-pointer ${
                   isSelected
                     ? 'bg-[#E12B7B] text-white shadow-xs font-bold'
                     : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
@@ -242,7 +233,7 @@ function HelpAcademyContent() {
               >
                 <span>{cat.label}</span>
                 <span
-                  className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                  className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
                     isSelected ? 'bg-white/20 text-white' : 'bg-gray-200 text-gray-600'
                   }`}
                 >
