@@ -1,8 +1,6 @@
 'use client';
 
-import React from 'react';
-import Link from 'next/link';
-import { Award, ShieldCheck, Sparkles, CheckCircle2, Phone, MapPin, ArrowRight, Camera, Clock } from 'lucide-react';
+import { CheckCircle2, Phone, MapPin, Clock } from 'lucide-react';
 
 export default function AgencyPage() {
   return (
@@ -93,52 +91,66 @@ export default function AgencyPage() {
         </div>
       </div>
 
-      {/* Barème Officiel d'Honoraires Loi ALUR */}
+      {/* Prestations & Accompagnement Sur-Mesure */}
       <div className="bg-white rounded-3xl p-8 sm:p-12 border border-[#F3E8EE] shadow-xs space-y-8">
         <div className="text-center max-w-2xl mx-auto space-y-2">
           <span className="text-xs uppercase font-bold tracking-widest text-[#E12B7B]">
-            Transparence Tarifaire (Loi ALUR & Arrêté du 10 janvier 2017)
+            Nos Prestations & Engagements
           </span>
           <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#131B26]">
-            Barème d&apos;Honoraires de l&apos;Agence Nell&apos;Immo
+            Un Accompagnement Immobilier Complet & Sur-Mesure
           </h2>
           <p className="text-xs text-gray-500">
-            Honoraires TTC (Taux de TVA en vigueur 20%) à la charge de l&apos;acquéreur ou du vendeur selon mandat.
+            Chaque projet est unique : bénéficiez d&apos;un suivi rigoureux et personnalisé de l&apos;estimation initiale jusqu&apos;à la signature chez le notaire.
           </p>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs border-collapse">
-            <thead>
-              <tr className="bg-[#FCFAF7] border-y border-[#F3E8EE] text-gray-700 font-bold uppercase text-[11px]">
-                <th className="p-4">Tranche de Prix de Vente</th>
-                <th className="p-4">Taux d&apos;Honoraires TTC Maximum</th>
-                <th className="p-4">Type de Mandat & Prestations Incluses</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              <tr>
-                <td className="p-4 font-bold">Jusqu&apos;à 150 000 €</td>
-                <td className="p-4 font-bold text-[#E12B7B]">Forfait 7 500 € TTC</td>
-                <td className="p-4 text-gray-600">Estimation, reportage photo, diffusion multi-portails</td>
-              </tr>
-              <tr>
-                <td className="p-4 font-bold">De 150 001 € à 300 000 €</td>
-                <td className="p-4 font-bold text-[#E12B7B]">5.00 % TTC</td>
-                <td className="p-4 text-gray-600">Visites qualifiées, compte-rendu sous 24h, négociation</td>
-              </tr>
-              <tr>
-                <td className="p-4 font-bold">De 300 001 € à 600 000 €</td>
-                <td className="p-4 font-bold text-[#E12B7B]">4.50 % TTC</td>
-                <td className="p-4 text-gray-600">Vidéo prestige, rapprochement CRM, accompagnement notaire</td>
-              </tr>
-              <tr>
-                <td className="p-4 font-bold">Au-delà de 600 001 €</td>
-                <td className="p-4 font-bold text-[#E12B7B]">4.00 % TTC</td>
-                <td className="p-4 text-gray-600">Stratégie confidentielle sur-mesure & diffusion prioritaire</td>
-              </tr>
-            </tbody>
-          </table>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="p-6 bg-[#FCFAF7] rounded-2xl border border-[#F3E8EE] space-y-3">
+            <div className="w-10 h-10 rounded-xl bg-pink-50 text-[#E12B7B] flex items-center justify-center font-bold text-sm">
+              01
+            </div>
+            <h3 className="font-bold text-sm text-[#131B26]">Estimation & Mise en Valeur</h3>
+            <p className="text-xs text-gray-600 leading-relaxed">
+              Étude comparative de marché approfondie, reportage photographique soigné et valorisation de votre bien.
+            </p>
+          </div>
+
+          <div className="p-6 bg-[#FCFAF7] rounded-2xl border border-[#F3E8EE] space-y-3">
+            <div className="w-10 h-10 rounded-xl bg-pink-50 text-[#E12B7B] flex items-center justify-center font-bold text-sm">
+              02
+            </div>
+            <h3 className="font-bold text-sm text-[#131B26]">Multidiffusion Ciblée</h3>
+            <p className="text-xs text-gray-600 leading-relaxed">
+              Présence sur les plus grands portails immobiliers et diffusion auprès de notre fichier d&apos;acquéreurs qualifiés.
+            </p>
+          </div>
+
+          <div className="p-6 bg-[#FCFAF7] rounded-2xl border border-[#F3E8EE] space-y-3">
+            <div className="w-10 h-10 rounded-xl bg-pink-50 text-[#E12B7B] flex items-center justify-center font-bold text-sm">
+              03
+            </div>
+            <h3 className="font-bold text-sm text-[#131B26]">Visites & Négociation</h3>
+            <p className="text-xs text-gray-600 leading-relaxed">
+              Sélection rigoureuse des candidats, vérification de solvabilité et comptes-rendus systématiques après chaque visite.
+            </p>
+          </div>
+
+          <div className="p-6 bg-[#FCFAF7] rounded-2xl border border-[#F3E8EE] space-y-3">
+            <div className="w-10 h-10 rounded-xl bg-pink-50 text-[#E12B7B] flex items-center justify-center font-bold text-sm">
+              04
+            </div>
+            <h3 className="font-bold text-sm text-[#131B26]">Suivi Notarial Sécurisé</h3>
+            <p className="text-xs text-gray-600 leading-relaxed">
+              Constitution complète du dossier Loi ALUR, interface directe avec l&apos;étude notariale et accompagnement jusqu&apos;à l&apos;acte authentique.
+            </p>
+          </div>
+        </div>
+
+        <div className="text-center pt-2">
+          <p className="text-xs text-gray-500">
+            Honoraires adaptés et compétitifs définis lors du mandat • Barème complet disponible sur simple demande et à l&apos;agence.
+          </p>
         </div>
       </div>
 
