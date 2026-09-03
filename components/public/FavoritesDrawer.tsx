@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useSyncExternalStore } from 'react';
+import React, { useState, useEffect, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { useNellimoStore } from '@/lib/store';
@@ -21,6 +21,7 @@ export function FavoritesDrawer({ isOpen, onClose }: FavoritesDrawerProps) {
   );
   const { properties } = useNellimoStore();
   const { favorites, toggleFavorite, clearFavorites } = useFavorites();
+  const [confirmClear, setConfirmClear] = useState(false);
 
   // Lock body scroll while drawer is open
   useEffect(() => {
@@ -227,14 +228,20 @@ export function FavoritesDrawer({ isOpen, onClose }: FavoritesDrawerProps) {
               <button
                 type="button"
                 onClick={() => {
-                  if (confirm('Voulez-vous vider tous vos favoris ?')) {
+                  if (confirmClear) {
                     clearFavorites();
+                    setConfirmClear(false);
+                  } else {
+                    setConfirmClear(true);
+                    setTimeout(() => setConfirmClear(false), 3000);
                   }
                 }}
-                className="text-xs text-gray-400 hover:text-rose-600 font-semibold transition flex items-center gap-1.5 cursor-pointer py-1"
+                className={`text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer py-1 ${
+                  confirmClear ? 'text-rose-600 font-bold' : 'text-gray-400 hover:text-rose-600'
+                }`}
               >
                 <Trash2 className="w-3.5 h-3.5" />
-                <span>Tout effacer</span>
+                <span>{confirmClear ? 'Confirmer la suppression ?' : 'Tout effacer'}</span>
               </button>
 
               <Link

@@ -7,6 +7,7 @@ import { useNellimoStore } from '@/lib/store';
 import { calculateFinancials, getDpeLetterFromValue, getGesLetterFromValue, formatMandateRef } from '@/lib/hoguet';
 import { Property, MandateType, FeesPaidBy, PropertyStatus, PropertyImage } from '@/lib/types';
 import { ArrowLeft, Save } from 'lucide-react';
+import { useToast } from '@/components/ui/Toast';
 
 interface EditFormProps {
   property: Property;
@@ -361,6 +362,7 @@ export default function EditMandatePage({ params }: { params: Promise<{ id: stri
   const resolvedParams = use(params);
   const router = useRouter();
   const { properties, updateProperty } = useNellimoStore();
+  const { showToast } = useToast();
 
   const property = properties.find((p) => p.id === resolvedParams.id);
 
@@ -371,10 +373,11 @@ export default function EditMandatePage({ params }: { params: Promise<{ id: stri
   const handleSave = async (updates: Partial<Property>) => {
     try {
       await updateProperty(property.id, updates);
+      showToast('Mandat mis à jour avec succès', 'success');
       router.push(`/cockpit/mandats/${property.id}`);
     } catch (err) {
       console.error(err);
-      alert('Erreur lors de la mise à jour');
+      showToast('Erreur lors de la mise à jour du mandat', 'error');
     }
   };
 

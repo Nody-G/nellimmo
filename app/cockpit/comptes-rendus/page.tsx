@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useNellimoStore } from '@/lib/store';
 import { formatMandateRef } from '@/lib/hoguet';
@@ -27,10 +28,17 @@ import {
   ExternalLink
 } from 'lucide-react';
 
-export default function VendorReportsPage() {
+function VendorReportsContent() {
+  const searchParams = useSearchParams();
+  const initialPropertyId = searchParams.get('propertyId');
   const { properties, vendorReports, createVendorReport, updateVendorReport } = useNellimoStore();
 
-  const [selectedPropertyId, setSelectedPropertyId] = useState<string>(properties[0]?.id || '');
+  const [selectedPropertyId, setSelectedPropertyId] = useState<string>(() => {
+    if (initialPropertyId && properties.some((p) => p.id === initialPropertyId)) {
+      return initialPropertyId;
+    }
+    return properties[0]?.id || '';
+  });
   const [reportPeriod, setReportPeriod] = useState<'hebdomadaire' | 'mensuel' | 'bilan_30_jours'>('hebdomadaire');
   const [isGenerating, setIsGenerating] = useState(false);
   const [copiedWhatsapp, setCopiedWhatsapp] = useState(false);
@@ -424,5 +432,13 @@ Nelly FERNANDEZ — SASU Nell'Immo (07 55 68 61 09)`;
       )}
 
     </div>
+  );
+}
+
+export default function VendorReportsPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-xs text-gray-500 font-semibold">Chargement des comptes-rendus...</div>}>
+      <VendorReportsContent />
+    </Suspense>
   );
 }

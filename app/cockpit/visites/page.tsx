@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useNellimoStore } from '@/lib/store';
 import { formatMandateRef } from '@/lib/hoguet';
@@ -21,11 +22,18 @@ import { CalendarSyncModal } from '@/components/cockpit/visites/CalendarSyncModa
 import { VisitRegisterTable } from '@/components/cockpit/visites/VisitRegisterTable';
 import { useToast } from '@/components/ui/Toast';
 
-export default function VisitSheetsPage() {
+function VisitSheetsContent() {
+  const searchParams = useSearchParams();
+  const initialPropertyId = searchParams.get('propertyId');
   const { properties, buyers, visits, createVisitSheet } = useNellimoStore();
   const { showToast } = useToast();
 
-  const [selectedPropertyId, setSelectedPropertyId] = useState(properties[0]?.id || '');
+  const [selectedPropertyId, setSelectedPropertyId] = useState(() => {
+    if (initialPropertyId && properties.some((p) => p.id === initialPropertyId)) {
+      return initialPropertyId;
+    }
+    return properties[0]?.id || '';
+  });
   const [selectedBuyerId, setSelectedBuyerId] = useState(buyers[0]?.id || '');
   const [notes, setNotes] = useState('');
   const [isSigned, setIsSigned] = useState(false);
@@ -160,7 +168,7 @@ export default function VisitSheetsPage() {
       });
     } catch (err) {
       console.error(err);
-      alert('Erreur lors de l\'archivage du bon de visite');
+      showToast('Erreur lors de l\'archivage du bon de visite', 'error');
     }
   };
 
@@ -465,5 +473,13 @@ export default function VisitSheetsPage() {
         visitData={selectedVisitToPrint}
       />
     </div>
+  );
+}
+
+export default function VisitSheetsPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-xs text-gray-500 font-semibold">Chargement des bons de visite...</div>}>
+      <VisitSheetsContent />
+    </Suspense>
   );
 }

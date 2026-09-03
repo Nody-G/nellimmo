@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useNellimoStore } from '@/lib/store';
 import { formatMandateRef } from '@/lib/hoguet';
 import {
@@ -15,15 +16,12 @@ import {
   Mail,
   MapPin,
   ChevronRight,
-  ZoomIn,
   X,
-  ChevronLeft,
   ChevronDown,
   ChevronUp,
   Tag,
   Share2,
   Sliders,
-  Compass,
   Copy
 } from 'lucide-react';
 
@@ -33,9 +31,16 @@ type PhotoArrangement = 'standard_3' | 'hero_only' | 'split_2' | 'grid_4' | 'mos
 type BadgePreset = 'auto' | 'exclusif' | 'coup_de_coeur' | 'baisse_prix' | 'sous_compromis' | 'offre_en_cours' | 'vendu' | 'dpe_a' | 'custom';
 type QrDestination = 'web' | 'whatsapp' | 'visite360' | 'google_review' | 'gps';
 
-export default function WindowFlyersPage() {
+function WindowFlyersContent() {
+  const searchParams = useSearchParams();
+  const initialPropertyId = searchParams.get('propertyId');
   const { properties, settings } = useNellimoStore();
-  const [selectedPropertyId, setSelectedPropertyId] = useState(properties[0]?.id || '');
+  const [selectedPropertyId, setSelectedPropertyId] = useState(() => {
+    if (initialPropertyId && properties.some((p) => p.id === initialPropertyId)) {
+      return initialPropertyId;
+    }
+    return properties[0]?.id || '';
+  });
   const [flyerFormat, setFlyerFormat] = useState<LayoutFormat>('A4_landscape');
   const [colorTheme, setColorTheme] = useState<ColorTheme>('nellimo');
   const [photoArrangement, setPhotoArrangement] = useState<PhotoArrangement>('standard_3');
@@ -1018,5 +1023,13 @@ export default function WindowFlyersPage() {
       )}
 
     </div>
+  );
+}
+
+export default function WindowFlyersPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-xs text-gray-500 font-semibold">Chargement du studio vitrine...</div>}>
+      <WindowFlyersContent />
+    </Suspense>
   );
 }

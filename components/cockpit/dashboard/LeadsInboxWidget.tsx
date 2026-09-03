@@ -1,11 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { ContactLead, EstimationLead } from '@/lib/types';
 import {
   Mail,
   MessageCircle,
-  Trash2
+  Trash2,
+  Sparkles
 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 
@@ -188,6 +190,14 @@ export const LeadsInboxWidget: React.FC<LeadsInboxWidgetProps> = ({
                   </div>
 
                   <div className="flex items-center gap-2 shrink-0">
+                    <Link
+                      href={`/cockpit/avis-de-valeur?city=${encodeURIComponent(lead.city)}&surface=${lead.living_area}&owner=${encodeURIComponent(`${lead.first_name} ${lead.last_name}`)}&address=${encodeURIComponent(lead.address)}`}
+                      className="px-2.5 py-1.5 bg-[#C59A45] hover:bg-[#B38734] text-white rounded-lg text-[11px] font-bold transition flex items-center gap-1 shadow-xs"
+                      title="Ouvrir le module Avis de Valeur DVF pré-rempli"
+                    >
+                      <Sparkles className="w-3 h-3" />
+                      <span>Calculer Avis</span>
+                    </Link>
                     <button
                       type="button"
                       onClick={() =>

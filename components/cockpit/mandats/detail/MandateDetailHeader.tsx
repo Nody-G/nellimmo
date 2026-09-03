@@ -10,8 +10,10 @@ import {
   Edit,
   Printer,
   FileSignature,
-  FileCheck2,
-  TrendingDown
+  TrendingDown,
+  LayoutTemplate,
+  FileBarChart,
+  PenTool
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 
@@ -121,6 +123,33 @@ export const MandateDetailHeader: React.FC<MandateDetailHeaderProps> = ({
         >
           Avenant Prix
         </Button>
+
+        <Link
+          href={`/cockpit/fiches-vitrine?propertyId=${property.id}`}
+          className="p-2 bg-pink-50 border border-pink-200 hover:bg-pink-100 text-[#E12B7B] rounded-xl text-xs font-bold flex items-center gap-1.5 transition"
+          title="Créer l'affiche vitrine ou réseaux sociaux pour ce bien"
+        >
+          <LayoutTemplate className="w-3.5 h-3.5" />
+          <span>Affiche Vitrine</span>
+        </Link>
+
+        <Link
+          href={`/cockpit/comptes-rendus?propertyId=${property.id}`}
+          className="p-2 bg-purple-50 border border-purple-200 hover:bg-purple-100 text-purple-700 rounded-xl text-xs font-bold flex items-center gap-1.5 transition"
+          title="Générer le rapport d'activité vendeur"
+        >
+          <FileBarChart className="w-3.5 h-3.5" />
+          <span>Compte-Rendu</span>
+        </Link>
+
+        <Link
+          href={`/cockpit/visites?propertyId=${property.id}`}
+          className="p-2 bg-blue-50 border border-blue-200 hover:bg-blue-100 text-blue-700 rounded-xl text-xs font-bold flex items-center gap-1.5 transition"
+          title="Préparer ou signer un bon de visite"
+        >
+          <PenTool className="w-3.5 h-3.5" />
+          <span>Bon de Visite</span>
+        </Link>
 
         <Link
           href={`/cockpit/mandats/${property.id}/edit`}

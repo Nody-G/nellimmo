@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useNellimoStore } from '@/lib/store';
 import { Property } from '@/lib/types';
 import { formatMandateRef } from '@/lib/hoguet';
+import { useToast } from '@/components/ui/Toast';
 import {
   CopywritingStyle,
   STYLE_TEMPLATES,
@@ -39,6 +40,7 @@ import {
 
 export default function RedacteurPage() {
   const { properties, updateProperty, settings, updateSettings } = useNellimoStore();
+  const { showToast } = useToast();
 
   const [selectedPropertyId, setSelectedPropertyId] = useState<string>(properties[0]?.id || '');
   const [selectedStyle, setSelectedStyle] = useState<CopywritingStyle>('signature_nelly');
@@ -95,12 +97,12 @@ export default function RedacteurPage() {
       const hasToken = !!settings.facebook_page_access_token;
       await new Promise((r) => setTimeout(r, 1200));
       if (hasToken) {
-        alert("🎉 Publication réussie sur Instagram & Facebook via Meta Graph API !");
+        showToast("Publication réussie sur Instagram & Facebook via Meta Graph API !", 'success');
       } else {
-        alert("✅ Simulation réussie ! Votre annonce et visuels sont prêts pour Meta. Pour automatiser la publication en 1 clic sans quitter Cockpit, entrez votre token Meta dans Paramètres.");
+        showToast("Simulation réussie ! Vos visuels sont prêts pour Meta. Pour automatiser la publication en 1 clic sans quitter Cockpit, entrez votre token Meta dans Paramètres.", 'info');
       }
     } catch {
-      alert("Erreur lors de la publication sur les réseaux.");
+      showToast("Erreur lors de la publication sur les réseaux.", 'error');
     } finally {
       setIsPublishingSocial(false);
     }

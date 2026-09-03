@@ -1,28 +1,23 @@
 'use client';
 
 import React, { useState } from 'react';
-import Link from 'next/link';
 import { useNellimoStore } from '@/lib/store';
 import { TransactionDeal, TransactionStatus } from '@/lib/types';
+import { useToast } from '@/components/ui/Toast';
 import {
   Landmark,
   FileSignature,
   Clock,
-  AlertTriangle,
   CheckCircle2,
   Phone,
   Mail,
-  FileText,
   Euro,
   Calendar,
   Printer,
   Star,
   Send,
   Plus,
-  ArrowRight,
-  ShieldAlert,
   Search,
-  ExternalLink,
   ChevronRight,
   Check
 } from 'lucide-react';
@@ -37,6 +32,7 @@ const STATUS_COLUMNS: { id: TransactionStatus; label: string; color: string; bad
 
 export default function TransactionsPipelinePage() {
   const { transactions, properties, settings, updateTransaction, createTransaction } = useNellimoStore();
+  const { showToast } = useToast();
   const [selectedDeal, setSelectedDeal] = useState<TransactionDeal | null>(null);
   const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
   const [invoiceDocumentType, setInvoiceDocumentType] = useState<'facture' | 'sequestre'>('facture');
@@ -65,6 +61,56 @@ export default function TransactionsPipelinePage() {
     const now = new Date();
     const diffTime = target.getTime() - now.getTime();
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  };
+
+  // Dynamic nearest critical deadline
+  let urgentAlert: { deal: TransactionDeal; label: string; days: number; type: 'warning' | 'urgent' } | null = null;
+  const now = new Date().getTime();
+
+  for (const deal of activeDeals) {
+    const sruDate = deal.sru_expiry_date;
+    if (sruDate && deal.status !== 'acte_signe') {
+      const sruTime = new Date(sruDate).getTime();
+      const diffDays = Math.ceil((sruTime - now) / (1000 * 60 * 60 * 24));
+      if (diffDays >= 0 && (!urgentAlert || diffDays < urgentAlert.days)) {
+        urgentAlert = {
+          deal,
+          label: `Fin délai SRU (10j) sous ${diffDays}j`,
+          days: diffDays,
+          type: diffDays <= 3 ? 'urgent' : 'warning'
+        };
+      }
+    }
+    if (deal.loan_approval_deadline && deal.status !== 'acte_signe') {
+      const loanTime = new Date(deal.loan_approval_deadline).getTime();
+      const diffDays = Math.ceil((loanTime - now) / (1000 * 60 * 60 * 24));
+      if (diffDays >= 0 && (!urgentAlert || diffDays < urgentAlert.days)) {
+        urgentAlert = {
+          deal,
+          label: `Accord de prêt sous ${diffDays}j`,
+          days: diffDays,
+          type: diffDays <= 15 ? 'urgent' : 'warning'
+        };
+      }
+    }
+    if (deal.final_deed_target_date && deal.status !== 'acte_signe') {
+      const deedTime = new Date(deal.final_deed_target_date).getTime();
+      const diffDays = Math.ceil((deedTime - now) / (1000 * 60 * 60 * 24));
+      if (diffDays >= 0 && (!urgentAlert || diffDays < urgentAlert.days)) {
+        urgentAlert = {
+          deal,
+          label: `Acte notarié sous ${diffDays}j`,
+          days: diffDays,
+          type: diffDays <= 7 ? 'urgent' : 'warning'
+        };
+      }
+    }
+  }
+
+  const handleQuickAdvance = async (e: React.MouseEvent, deal: TransactionDeal, nextStatus: TransactionStatus, stageLabel: string) => {
+    e.stopPropagation();
+    await updateTransaction(deal.id, { status: nextStatus });
+    showToast(`Dossier ${deal.buyer_name} : ${stageLabel}`, 'success');
   };
 
   // WhatsApp reminder generator
@@ -170,14 +216,31 @@ export default function TransactionsPipelinePage() {
             <span className="text-[11px] font-bold uppercase text-gray-400 block tracking-wider">
               Échéances Clés & Alertes
             </span>
-            <span className="text-sm font-bold text-gray-800 mt-1 block">
-              Prêt Maison Viougues
-            </span>
-            <span className="text-xs font-semibold text-amber-600 mt-0.5 block">
-              Accord de prêt attendu sous 12 jours
-            </span>
+            {urgentAlert ? (
+              <>
+                <span className="text-sm font-bold text-gray-800 mt-1 block line-clamp-1">
+                  {properties.find(p => p.id === urgentAlert.deal.property_id)?.title || urgentAlert.deal.buyer_name}
+                </span>
+                <span className={`text-xs font-semibold mt-0.5 block ${
+                  urgentAlert.type === 'urgent' ? 'text-rose-600 font-bold' : 'text-amber-600'
+                }`}>
+                  {urgentAlert.label}
+                </span>
+              </>
+            ) : (
+              <>
+                <span className="text-sm font-bold text-gray-800 mt-1 block">
+                  Aucune échéance critique
+                </span>
+                <span className="text-xs text-emerald-600 font-semibold mt-0.5 block">
+                  Tous les délais sont sous contrôle
+                </span>
+              </>
+            )}
           </div>
-          <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
+          <div className={`w-12 h-12 rounded-xl flex items-center justify-center font-bold ${
+            urgentAlert?.type === 'urgent' ? 'bg-rose-50 text-rose-600' : 'bg-amber-50 text-amber-600'
+          }`}>
             <Clock className="w-6 h-6" />
           </div>
         </div>
@@ -265,6 +328,34 @@ export default function TransactionsPipelinePage() {
                             {deal.google_review_requested && (
                               <span className="text-[9px] text-amber-600 font-black">★ Avis demandé</span>
                             )}
+                          </div>
+                        )}
+
+                        {/* Quick Advance Button */}
+                        {col.id !== 'acte_signe' && (
+                          <div className="pt-1 border-t border-gray-100">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                if (col.id === 'offre_acceptee') {
+                                  handleQuickAdvance(e, deal, 'compromis_signe', 'Compromis & SRU');
+                                } else if (col.id === 'compromis_signe') {
+                                  handleQuickAdvance(e, deal, 'attente_pret', 'Attente accord prêt');
+                                } else if (col.id === 'attente_pret') {
+                                  handleQuickAdvance(e, deal, 'acte_planifie', 'Acte notarié planifié');
+                                } else if (col.id === 'acte_planifie') {
+                                  handleQuickAdvance(e, deal, 'acte_signe', 'Acte authentique signé');
+                                }
+                              }}
+                              className="w-full py-1 px-2 bg-gray-50 hover:bg-pink-50 hover:text-[#E12B7B] border border-gray-200 hover:border-pink-300 rounded-lg text-[10px] font-bold text-gray-600 flex items-center justify-center gap-1 transition cursor-pointer"
+                            >
+                              <span>
+                                {col.id === 'offre_acceptee' && '→ Passer au compromis'}
+                                {col.id === 'compromis_signe' && '→ Valider SRU & prêt'}
+                                {col.id === 'attente_pret' && '→ Prêt OK, fixer acte'}
+                                {col.id === 'acte_planifie' && '★ Clôturer vente'}
+                              </span>
+                            </button>
                           </div>
                         )}
 

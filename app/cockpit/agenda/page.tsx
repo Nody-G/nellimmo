@@ -8,7 +8,6 @@ import {
   Calendar as CalendarIcon,
   Clock,
   MapPin,
-  Phone,
   MessageCircle,
   ChevronLeft,
   ChevronRight,
@@ -20,13 +19,9 @@ import {
   TrendingUp,
   KeyRound,
   ExternalLink,
-  CheckCircle2,
-  AlertTriangle,
-  Send,
   X,
   Navigation
 } from 'lucide-react';
-import { Card } from '@/components/ui/Card';
 import { useToast } from '@/components/ui/Toast';
 
 export type EventCategory = 'visite' | 'notaire' | 'estimation' | 'panneau_cle' | 'autre';
@@ -78,6 +73,15 @@ export default function AgendaPage() {
   const [newEventContactPhone, setNewEventContactPhone] = useState('06 ');
   const [newEventNotes, setNewEventNotes] = useState('');
   const [customEvents, setCustomEvents] = useState<AgendaEvent[]>([]);
+
+  const currentTime = React.useSyncExternalStore(
+    (onStoreChange) => {
+      const timer = setInterval(onStoreChange, 60000);
+      return () => clearInterval(timer);
+    },
+    () => Date.now(),
+    () => 0
+  );
 
   // 1. Consolidated Events from Store
   const allEvents: AgendaEvent[] = useMemo(() => {
@@ -336,7 +340,7 @@ export default function AgendaPage() {
 
   // Export iCal (.ics) RFC 5545 generator
   const exportICalendar = () => {
-    let icsContent = [
+    const icsContent = [
       'BEGIN:VCALENDAR',
       'VERSION:2.0',
       'PRODID:-//SASU NellImmo//Cockpit Agenda//FR',
@@ -787,7 +791,7 @@ export default function AgendaPage() {
             {filteredEvents.map((ev) => {
               const badge = getCategoryBadge(ev.category);
               const eventDate = new Date(`${ev.date}T${ev.time}:00`);
-              const isPast = eventDate.getTime() < Date.now();
+              const isPast = currentTime !== null && eventDate.getTime() < currentTime;
 
               return (
                 <div

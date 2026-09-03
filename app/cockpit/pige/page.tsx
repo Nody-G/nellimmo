@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useNellimoStore } from '@/lib/store';
 import { ProspectingLead, ProspectingSource, ProspectingStatus } from '@/lib/types';
+import { useToast } from '@/components/ui/Toast';
 import {
   Radar,
   Phone,
@@ -68,6 +69,7 @@ function computeDefaultMandateDates(durationDays = 90) {
 export default function ProspectingPage() {
   const router = useRouter();
   const { prospectingLeads, createProspectingLead, updateProspectingLead, createProperty } = useNellimoStore();
+  const { showToast } = useToast();
 
   const [selectedSourceFilter, setSelectedSourceFilter] = useState<string>('all');
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>('all');
@@ -132,47 +134,50 @@ export default function ProspectingPage() {
   };
 
   const handleConvertToMandate = async (lead: ProspectingLead) => {
-    if (!confirm(`Transformer le prospect ${lead.seller_name} (${lead.title}) en mandat officiel ?`)) return;
+    try {
+      // Create property in portfolio
+      const { start: mandateDate, end: mandateEndDate } = computeDefaultMandateDates(90);
+      const newProperty = await createProperty({
+        mandate_type: 'exclusif',
+        mandate_date: mandateDate,
+        mandate_end_date: mandateEndDate,
+        status: 'brouillon',
+        seller_name: lead.seller_name,
+        seller_phone: lead.seller_phone,
+        seller_email: 'contact@vendeur.fr',
+        seller_address: `Quartier ${lead.city}`,
+        title: lead.title,
+        property_type: 'maison',
+        address: `Quartier ${lead.city}`,
+        postal_code: lead.postal_code || '13330',
+        city: lead.city,
+        display_exact_address: false,
+        price_fai: lead.price_asked,
+        price_net_seller: Math.round(lead.price_asked * 0.95),
+        agency_fees_amount: Math.round(lead.price_asked * 0.05),
+        agency_fees_percentage: 5,
+        fees_paid_by: 'vendeur',
+        living_area: lead.living_area,
+        rooms_count: lead.rooms_count || 5,
+        bedrooms_count: 3,
+        description: `Bien issu de la prospection directe. ${lead.notes || ''}`,
+        features: ['Jardin', 'Calme'],
+        images: [],
+        publish_website: true,
+        publish_seloger: false,
+        publish_leboncoin: false,
+        publish_bienici: false,
+      });
 
-    // Create property in portfolio
-    const { start: mandateDate, end: mandateEndDate } = computeDefaultMandateDates(90);
-    const newProperty = await createProperty({
-      mandate_type: 'exclusif',
-      mandate_date: mandateDate,
-      mandate_end_date: mandateEndDate,
-      status: 'brouillon',
-      seller_name: lead.seller_name,
-      seller_phone: lead.seller_phone,
-      seller_email: 'contact@vendeur.fr',
-      seller_address: `Quartier ${lead.city}`,
-      title: lead.title,
-      property_type: 'maison',
-      address: `Quartier ${lead.city}`,
-      postal_code: lead.postal_code || '13330',
-      city: lead.city,
-      display_exact_address: false,
-      price_fai: lead.price_asked,
-      price_net_seller: Math.round(lead.price_asked * 0.95),
-      agency_fees_amount: Math.round(lead.price_asked * 0.05),
-      agency_fees_percentage: 5,
-      fees_paid_by: 'vendeur',
-      living_area: lead.living_area,
-      rooms_count: lead.rooms_count || 5,
-      bedrooms_count: 3,
-      description: `Bien issu de la prospection directe. ${lead.notes || ''}`,
-      features: ['Jardin', 'Calme'],
-      images: [],
-      publish_website: true,
-      publish_seloger: false,
-      publish_leboncoin: false,
-      publish_bienici: false,
-    });
+      // Update lead status
+      updateProspectingLead(lead.id, { status: 'mandat_obtenu' });
 
-    // Update lead status
-    updateProspectingLead(lead.id, { status: 'mandat_obtenu' });
-
-    alert(`🎉 Mandat N°${newProperty.mandate_number} créé avec succès en mode brouillon ! Redirection...`);
-    router.push(`/cockpit/mandats/${newProperty.id}`);
+      showToast(`Mandat N°${newProperty.mandate_number} créé avec succès en mode brouillon ! Redirection...`, 'success');
+      router.push(`/cockpit/mandats/${newProperty.id}`);
+    } catch (err) {
+      console.error(err);
+      showToast('Erreur lors de la création du mandat depuis la pige.', 'error');
+    }
   };
 
   const copyPitchText = (text: string) => {

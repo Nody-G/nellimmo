@@ -16,10 +16,12 @@ import { StepFeatures } from '@/components/cockpit/mandats/wizard/StepFeatures';
 import { StepDpe } from '@/components/cockpit/mandats/wizard/StepDpe';
 import { StepMediaPublishing } from '@/components/cockpit/mandats/wizard/StepMediaPublishing';
 import { FastFillModal } from '@/components/cockpit/mandats/wizard/FastFillModal';
+import { useToast } from '@/components/ui/Toast';
 
 export default function NewMandatePage() {
   const router = useRouter();
   const { createProperty, properties } = useNellimoStore();
+  const { showToast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Fast-Fill & AI Helper
@@ -391,10 +393,11 @@ export default function NewMandatePage() {
         images: images
       });
 
+      showToast(`Mandat N°${created.mandate_number} créé avec succès !`, 'success');
       router.push(`/cockpit/mandats/${created.id}`);
     } catch (err) {
       console.error('Erreur lors de la création du mandat :', err);
-      alert('Erreur lors de la création du mandat');
+      showToast('Erreur lors de la création du mandat', 'error');
     } finally {
       setIsSubmitting(false);
     }

@@ -20,7 +20,8 @@ import {
   Info,
   Calendar,
   X,
-  FileWarning
+  FileWarning,
+  MessageCircle
 } from 'lucide-react';
 
 interface AlurGedManagerProps {
@@ -137,6 +138,14 @@ const CHECKLIST_DEFINITIONS: ChecklistItemDef[] = [
     validityDurationMonths: 36,
     condition: (p) => p.property_type === 'maison'
   },
+  {
+    key: 'carrez',
+    name: 'Attestation de Superficie Loi Carrez',
+    category: 'diagnostics',
+    description: 'Obligatoire pour tout lot de copropriété (valable sans limitation sauf travaux)',
+    mandatory: true,
+    condition: (p) => p.property_type === 'appartement'
+  },
 
   // 3. Copropriété (Loi ALUR)
   {
@@ -168,6 +177,22 @@ const CHECKLIST_DEFINITIONS: ChecklistItemDef[] = [
     name: 'Fiche Synthétique de la Copropriété',
     category: 'copropriete',
     description: 'Fiche éditée par le syndic issue du registre national d\'immatriculation',
+    mandatory: false,
+    condition: (p) => p.property_type === 'appartement'
+  },
+  {
+    key: 'carnet_entretien',
+    name: 'Carnet d\'Entretien de l\'Immeuble',
+    category: 'copropriete',
+    description: 'Tenue obligatoire par le syndic (Loi ALUR art. L. 721-2 CCH)',
+    mandatory: true,
+    condition: (p) => p.property_type === 'appartement'
+  },
+  {
+    key: 'pppt',
+    name: 'Projet de Plan Pluriannuel de Travaux (PPPT / DTG)',
+    category: 'copropriete',
+    description: 'Obligatoire en copropriété de plus de 15 ans (Loi Climat & Résilience 2024-2025)',
     mandatory: false,
     condition: (p) => p.property_type === 'appartement'
   },
@@ -296,6 +321,31 @@ export function AlurGedManager({ property, onUpdateProperty }: AlurGedManagerPro
     await onUpdateProperty(property.id, { documents: updatedDocuments });
   };
 
+  // Missing items calculation for automated reminders
+  const missingMandatoryItems = applicableChecklist.filter((item) => {
+    const attachedDoc = currentDocuments.find(
+      (d) => d.name.toLowerCase().includes(item.name.toLowerCase().slice(0, 15)) || (d.category === item.category && d.name.includes(item.key))
+    );
+    const isExpired = attachedDoc?.expires_at && new Date(attachedDoc.expires_at) < new Date();
+    const status: AlurDocumentStatus = attachedDoc ? (isExpired ? 'a_renouveler' : attachedDoc.status) : 'manquant';
+    return item.mandatory && status !== 'valide';
+  });
+
+  const generateWhatsappReminder = (singleItemName?: string) => {
+    const seller = property.seller_name || 'Monsieur/Madame';
+    let message = '';
+    if (singleItemName) {
+      message = `Bonjour ${seller}, pour finaliser la constitution du dossier notaire conforme Loi ALUR pour votre bien "${property.title}", pourriez-vous nous transmettre le document suivant : *${singleItemName}* ?\nMerci d'avance !\nNelly Fernandez - Nell'Immo Pélissanne (07 55 68 61 09)`;
+    } else {
+      const itemsList = missingMandatoryItems.map((m) => `• ${m.name}`).join('\n');
+      message = `Bonjour ${seller},\n\nAfin de sécuriser le dossier de vente notaire (Loi ALUR) de votre bien "${property.title}", merci de nous faire parvenir les pièces suivantes :\n${itemsList}\n\nBien cordialement,\nNelly Fernandez - Nell'Immo (07 55 68 61 09)`;
+    }
+    const cleanPhone = (property.seller_phone || '').replace(/\D/g, '');
+    const phoneWithPrefix = cleanPhone.startsWith('0') ? '33' + cleanPhone.slice(1) : cleanPhone;
+    const url = `https://wa.me/${phoneWithPrefix}?text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank');
+  };
+
   return (
     <div className="space-y-6">
       
@@ -359,18 +409,30 @@ export function AlurGedManager({ property, onUpdateProperty }: AlurGedManagerPro
             <div className="flex flex-col gap-2">
               <button
                 onClick={() => setShowNotarySlip(true)}
-                className="px-4 py-2.5 bg-[#131B26] hover:bg-gray-800 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-xs transition cursor-pointer"
+                className="px-4 py-2 bg-[#131B26] hover:bg-gray-800 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-xs transition cursor-pointer"
               >
                 <FileCheck2 className="w-4 h-4 text-[#C59A45]" />
                 Bordereau Notaire
               </button>
+
+              {missingMandatoryItems.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => generateWhatsappReminder()}
+                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-xs transition cursor-pointer"
+                  title="Envoyer un rappel WhatsApp au vendeur avec la liste des pièces manquantes"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  Relancer Vendeur ({missingMandatoryItems.length})
+                </button>
+              )}
 
               <button
                 onClick={() => {
                   setSelectedDocKey('');
                   setIsUploadModalOpen(true);
                 }}
-                className="px-4 py-2.5 bg-[#E12B7B] hover:bg-[#C71B62] text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-xs transition cursor-pointer"
+                className="px-4 py-2 bg-[#E12B7B] hover:bg-[#C71B62] text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-xs transition cursor-pointer"
               >
                 <PlusCircle className="w-4 h-4" />
                 Ajouter une Pièce
@@ -535,6 +597,16 @@ export function AlurGedManager({ property, onUpdateProperty }: AlurGedManagerPro
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
+                        {status === 'a_renouveler' && (
+                          <button
+                            type="button"
+                            onClick={() => generateWhatsappReminder(item.name)}
+                            className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition"
+                            title="Demander le renouvellement au vendeur par WhatsApp"
+                          >
+                            <MessageCircle className="w-3.5 h-3.5" />
+                          </button>
+                        )}
                       </div>
 
                       <a
@@ -547,16 +619,26 @@ export function AlurGedManager({ property, onUpdateProperty }: AlurGedManagerPro
                       </a>
                     </>
                   ) : (
-                    <button
-                      onClick={() => {
-                        setSelectedDocKey(item.key);
-                        setIsUploadModalOpen(true);
-                      }}
-                      className="w-full py-1.5 bg-gray-50 hover:bg-[#E12B7B] hover:text-white text-gray-700 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
-                    >
-                      <Upload className="w-3.5 h-3.5" />
-                      Uploader le document
-                    </button>
+                    <div className="flex items-center gap-2 w-full">
+                      <button
+                        onClick={() => {
+                          setSelectedDocKey(item.key);
+                          setIsUploadModalOpen(true);
+                        }}
+                        className="flex-1 py-1.5 bg-gray-50 hover:bg-[#E12B7B] hover:text-white text-gray-700 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
+                      >
+                        <Upload className="w-3.5 h-3.5" />
+                        Uploader
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => generateWhatsappReminder(item.name)}
+                        className="p-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl text-xs font-bold transition flex items-center justify-center shrink-0 cursor-pointer"
+                        title="Relancer le vendeur par WhatsApp pour cette pièce"
+                      >
+                        <MessageCircle className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   )}
                 </div>
               </div>

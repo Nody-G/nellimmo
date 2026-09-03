@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useNellimoStore } from '@/lib/store';
+import { useToast } from '@/components/ui/Toast';
 import {
   Settings,
   Save,
@@ -27,9 +28,11 @@ import {
 
 export default function AgencySettingsPage() {
   const { settings, updateSettings, resetToDemoData } = useNellimoStore();
+  const { showToast } = useToast();
   const [formData, setFormData] = useState(settings);
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [copiedLink, setCopiedLink] = useState<string | null>(null);
+  const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,12 +47,13 @@ export default function AgencySettingsPage() {
     setTimeout(() => setCopiedLink(null), 2000);
   };
 
-  const handleResetDemo = () => {
-    if (confirm('Voulez-vous réinitialiser toutes les données vers le jeu de démonstration Provence (Pélissanne, Salon, Lambesc) ?')) {
-      resetToDemoData();
-      alert('Données réinitialisées avec succès !');
+  const confirmResetDemo = () => {
+    resetToDemoData();
+    setIsResetConfirmOpen(false);
+    showToast('Données réinitialisées vers le jeu Provence avec succès !', 'success');
+    setTimeout(() => {
       window.location.reload();
-    }
+    }, 600);
   };
 
   return (
@@ -71,7 +75,8 @@ export default function AgencySettingsPage() {
         </div>
 
         <button
-          onClick={handleResetDemo}
+          type="button"
+          onClick={() => setIsResetConfirmOpen(true)}
           className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition cursor-pointer"
         >
           <RotateCcw className="w-3.5 h-3.5" />
@@ -602,13 +607,13 @@ export default function AgencySettingsPage() {
                         if (json.data.settings) localStorage.setItem('nellimo_settings_v4', JSON.stringify(json.data.settings));
                         if (json.data.contactLeads) localStorage.setItem('nellimo_contact_leads_v4', JSON.stringify(json.data.contactLeads));
                         if (json.data.estimationLeads) localStorage.setItem('nellimo_estimation_leads_v4', JSON.stringify(json.data.estimationLeads));
-                        alert('Sauvegarde restaurée avec succès ! La page va se recharger.');
-                        window.location.reload();
+                        showToast('Sauvegarde restaurée avec succès ! Rechargement...', 'success');
+                        setTimeout(() => window.location.reload(), 600);
                       } else {
-                        alert('Format de sauvegarde invalide.');
+                        showToast('Format de fichier de sauvegarde invalide.', 'error');
                       }
-                    } catch (err) {
-                      alert('Erreur lors de la lecture du fichier JSON.');
+                    } catch {
+                      showToast('Erreur lors de la lecture du fichier JSON.', 'error');
                     }
                   };
                   reader.readAsText(file);
@@ -639,6 +644,48 @@ export default function AgencySettingsPage() {
         </div>
 
       </form>
+
+      {/* Confirmation Modal for Demo Data Reset */}
+      {isResetConfirmOpen && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 space-y-5 shadow-2xl border border-gray-100">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
+                <RotateCcw className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-[#131B26]">
+                  Réinitialiser la Démo Provence ?
+                </h3>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  Action irréversible sur les données locales.
+                </p>
+              </div>
+            </div>
+
+            <p className="text-xs text-gray-600 leading-relaxed">
+              Voulez-vous réinitialiser toutes les données vers le jeu de démonstration complet Provence (Pélissanne, Salon-de-Provence, Lambesc) ? Vos modifications locales seront remplacées.
+            </p>
+
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setIsResetConfirmOpen(false)}
+                className="px-4 py-2 text-xs font-bold text-gray-600 hover:bg-gray-100 rounded-xl transition cursor-pointer"
+              >
+                Annuler
+              </button>
+              <button
+                type="button"
+                onClick={confirmResetDemo}
+                className="px-4 py-2 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl shadow-xs transition cursor-pointer"
+              >
+                Oui, Réinitialiser
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

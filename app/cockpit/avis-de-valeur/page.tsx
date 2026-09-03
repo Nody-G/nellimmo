@@ -29,8 +29,11 @@ function ValuationDvfContent() {
   const initialCity = searchParams.get('city') || 'Pélissanne';
   const initialSurface = Number(searchParams.get('surface')) || 148;
   const initialOwner = searchParams.get('owner') || 'M. et Mme Dupont';
+  const initialAddress = searchParams.get('address');
 
-  const [addressSearch, setAddressSearch] = useState(`145 Chemin des Oliviers, 13330 ${initialCity}`);
+  const [addressSearch, setAddressSearch] = useState(
+    initialAddress ? `${initialAddress}, ${initialCity}` : `145 Chemin des Oliviers, 13330 ${initialCity}`
+  );
   const [propertyType, setPropertyType] = useState('Maison');
   const [surfaceInput, setSurfaceInput] = useState<number>(initialSurface);
   const [landInput, setLandInput] = useState<number>(1100);
