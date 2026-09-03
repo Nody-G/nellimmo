@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { useNellimoStore } from '@/lib/store';
+import { useNellimoStore } from '@/lib/public-store';
 import { TrendingUp, ShieldCheck, CheckCircle2, ArrowRight } from 'lucide-react';
 import { PropertyType } from '@/lib/types';
 
@@ -44,7 +44,7 @@ export default function PublicEstimationPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
-      
+
       {/* Header */}
       <div className="text-center max-w-3xl mx-auto space-y-3">
         <span className="px-3.5 py-1.5 rounded-full bg-[#FDF2F8] text-[#E12B7B] text-xs font-bold uppercase tracking-wider inline-flex items-center gap-2">
@@ -61,7 +61,7 @@ export default function PublicEstimationPage() {
 
       {/* Main Container */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-        
+
         {/* Form Card */}
         <div className="lg:col-span-2 bg-white rounded-3xl p-6 sm:p-10 border border-[#F3E8EE] shadow-xl space-y-6">
           {isSubmitted ? (
@@ -89,7 +89,7 @@ export default function PublicEstimationPage() {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
-              
+
               {/* Stepper indicator */}
               <div className="flex items-center justify-between border-b border-[#FAF5F8] pb-4 text-xs font-bold">
                 <span className={step === 1 ? 'text-[#E12B7B]' : 'text-gray-400'}>

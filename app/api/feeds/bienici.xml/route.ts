@@ -1,14 +1,15 @@
 import { NextResponse } from 'next/server';
 import { INITIAL_PROPERTIES, DEFAULT_AGENCY_SETTINGS } from '@/lib/mock-data';
 import { generateBienIciXmlFeed } from '@/lib/poliris';
+import { getBieniciFeedToken, isValidFeedToken } from '@/lib/feed-tokens';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const token = searchParams.get('token');
 
-  // Sécurité token agence
-  if (token && token !== DEFAULT_AGENCY_SETTINGS.bienici_feed_token) {
-    return new NextResponse('Accès non autorisé', { status: 403 });
+  // Sécurité token agence : le token est OBLIGATOIRE (fail-closed en production).
+  if (!isValidFeedToken(token, getBieniciFeedToken())) {
+    return new NextResponse('Accès non autorisé', { status: 401 });
   }
 
   const xmlContent = generateBienIciXmlFeed(INITIAL_PROPERTIES, DEFAULT_AGENCY_SETTINGS);

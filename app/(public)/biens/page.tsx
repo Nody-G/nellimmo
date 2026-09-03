@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { useNellimoStore } from '@/lib/store';
+import { useNellimoStore } from '@/lib/public-store';
 import { PropertyCard } from '@/components/public/PropertyCard';
 import { Search, RotateCcw, Home, SlidersHorizontal } from 'lucide-react';
 
@@ -69,7 +69,7 @@ function PropertiesCatalogueContent() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
-      
+
       {/* Header */}
       <div className="border-b border-[#F3E8EE] pb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>

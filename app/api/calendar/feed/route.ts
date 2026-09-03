@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { INITIAL_PROPERTIES, INITIAL_BUYERS, INITIAL_VISIT_SHEETS, INITIAL_TRANSACTIONS } from '@/lib/mock-data';
 import { formatMandateRef } from '@/lib/hoguet';
+import { getCalendarFeedToken, isValidFeedToken } from '@/lib/feed-tokens';
 
 function formatIcalDate(date: Date): string {
   return date.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
@@ -16,11 +17,12 @@ function escapeIcalText(str: string): string {
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const token = searchParams.get('token') || 'nellimo_calendar_token';
+  const token = searchParams.get('token');
 
-  // Basic token verification (can be configured in settings)
-  if (token !== 'nellimo_calendar_token' && token !== 'bi_token_nellimmo_live_2026') {
-    // We can still allow access or verify
+  // Sécurité : le flux calendrier expose des données de visites (téléphones,
+  // adresses). L'accès est strictement réservé aux détenteurs du token.
+  if (!isValidFeedToken(token, getCalendarFeedToken())) {
+    return new NextResponse('Accès non autorisé', { status: 401 });
   }
 
   const now = new Date();

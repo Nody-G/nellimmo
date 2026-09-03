@@ -2,7 +2,7 @@
 
 import React, { use, useState } from 'react';
 import Link from 'next/link';
-import { useNellimoStore } from '@/lib/store';
+import { useNellimoStore } from '@/lib/public-store';
 import { formatMandateRef } from '@/lib/hoguet';
 import {
   ShieldCheck,
@@ -32,11 +32,10 @@ export default function SellerSpacePage({ params }: { params: Promise<{ token: s
   const token = resolvedParams.token;
   const { properties, visits, vendorReports, settings } = useNellimoStore();
 
-  // Find property by token (supports token-prop-XXX, prop-XXX, or exact seller_token)
-  const cleanId = token.replace(/^token-/, '');
-  const property = properties.find(
-    (p) => p.id === cleanId || p.seller_token === token || p.id === token
-  ) || properties[0];
+  // Sécurité : l'accès à l'Espace Vendeur n'est autorisé qu'avec le token
+  // d'accès unique généré pour le bien (seller_token). Aucun repli sur un
+  // autre bien, aucune acceptation d'ID public.
+  const property = properties.find((p) => p.seller_token === token);
 
   const [copiedLink, setCopiedLink] = useState(false);
 
@@ -96,7 +95,7 @@ export default function SellerSpacePage({ params }: { params: Promise<{ token: s
 
   return (
     <div className="min-h-screen bg-[#FCFAF7] text-[#131B26] pb-24">
-      
+
       {/* Top Banner Agence */}
       <header className="bg-[#131B26] text-white py-4 border-b border-gray-800 sticky top-0 z-30 shadow-md">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between">
@@ -140,18 +139,17 @@ export default function SellerSpacePage({ params }: { params: Promise<{ token: s
       {/* Hero Mandat & Bien */}
       <section className="bg-white border-b border-[#F3E8EE] pt-8 pb-10">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-6">
-          
+
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="space-y-1.5">
               <div className="flex items-center gap-2">
                 <span className="px-2.5 py-0.5 rounded-full text-[11px] font-mono font-bold bg-[#FDF2F8] text-[#E12B7B] border border-[#F3E8EE]">
                   {mandateRef}
                 </span>
-                <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase ${
-                  property.mandate_type === 'exclusif'
-                    ? 'bg-[#FCFAF7] text-[#C59A45] border border-[#C59A45]/30'
-                    : 'bg-gray-100 text-gray-700'
-                }`}>
+                <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase ${property.mandate_type === 'exclusif'
+                  ? 'bg-[#FCFAF7] text-[#C59A45] border border-[#C59A45]/30'
+                  : 'bg-gray-100 text-gray-700'
+                  }`}>
                   ★ Mandat {property.mandate_type}
                 </span>
                 <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800">
@@ -226,7 +224,7 @@ export default function SellerSpacePage({ params }: { params: Promise<{ token: s
 
       {/* Main Content Grid */}
       <main className="max-w-6xl mx-auto px-4 sm:px-6 pt-10 space-y-10">
-        
+
         {/* 1. KPIs d'Audience et Multidiffusion */}
         <section className="space-y-4">
           <div className="flex items-center justify-between">

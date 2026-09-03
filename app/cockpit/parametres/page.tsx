@@ -13,6 +13,7 @@ import {
   Cpu,
   Users,
   Shield,
+  ShieldCheck,
   PlusCircle,
   Share2,
   Calendar,
@@ -301,7 +302,7 @@ export default function AgencySettingsPage() {
           <div>
             <label className="block text-xs font-bold uppercase text-gray-700 mb-1 flex items-center justify-between">
               <span>Jeton d&apos;accès Meta Graph API (Page Access Token)</span>
-              <span className="text-[11px] text-gray-400 font-normal">Chiffré & stocké en toute sécurité</span>
+              <span className="text-[11px] text-gray-400 font-normal">Chiffré localement (AES-256) et déchiffré à la connexion — chiffrement serveur à venir avec Supabase</span>
             </label>
             <input
               type="password"
@@ -465,13 +466,12 @@ export default function AgencySettingsPage() {
               <label className="block text-xs font-bold uppercase text-gray-700 mb-1">
                 Clé API DeepSeek
               </label>
-              <input
-                type="password"
-                placeholder="sk-..."
-                value={formData.deepseek_api_key || ''}
-                onChange={(e) => setFormData({ ...formData, deepseek_api_key: e.target.value })}
-                className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-mono focus:outline-[#E12B7B]"
-              />
+              <div className="flex items-start gap-2 text-xs text-gray-600">
+                <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                <span>
+                  La clé est configurée c&ocirc;té serveur via la variable d'environnement <code className="font-mono bg-gray-100 px-1.5 py-0.5 rounded">DEEPSEEK_API_KEY</code> et n'est jamais stockée ni exposée dans le navigateur. Le Studio de Rédaction bascule automatiquement sur le moteur local si elle est absente.
+                </span>
+              </div>
               <span className="text-[11px] text-gray-400 mt-1 block">
                 Utilisée par le Studio de Rédaction pour générer instantanément vos textes d&apos;annonces au style signature de Nelly (ou fallback local élégant sans frais).
               </span>
@@ -520,12 +520,12 @@ export default function AgencySettingsPage() {
 
           <div>
             <label className="block text-xs font-bold uppercase text-gray-700 mb-1">Jeton d&apos;API Flux XML Bien&apos;ici</label>
-            <input
-              type="text"
-              value={formData.bienici_feed_token}
-              onChange={(e) => setFormData({ ...formData, bienici_feed_token: e.target.value })}
-              className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-mono focus:outline-[#E12B7B]"
-            />
+            <div className="flex items-start gap-2 text-xs text-gray-600">
+              <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+              <span>
+                Le jeton du flux XML est configuré côté serveur via la variable d'environnement <code className="font-mono bg-gray-100 px-1.5 py-0.5 rounded">BIENICI_FEED_TOKEN</code>. Il n'est plus stocké dans les paramètres du navigateur.
+              </span>
+            </div>
           </div>
         </div>
 

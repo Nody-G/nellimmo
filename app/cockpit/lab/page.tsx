@@ -75,25 +75,24 @@ export default function InfiniteLabPage() {
     setGeneratedOutput('');
 
     try {
-      // If DeepSeek API key configured, query cloud
-      if (settings.deepseek_api_key) {
-        const res = await fetch('/api/ai/generate-copy', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            property: currentProperty,
-            style: 'mode_libre',
-            customNotes: `LAB NELL'IMMO - Mode: ${activeMode}. Consigne: ${userPrompt}`,
-            apiKey: settings.deepseek_api_key,
-          }),
-        });
+      // La clé DeepSeek est gérée côté serveur (env DEEPSEEK_API_KEY).
+      // On tente toujours l'appel cloud ; le serveur bascule sur le moteur
+      // local s'il n'a pas de clé configurée.
+      const res = await fetch('/api/ai/generate-copy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          property: currentProperty,
+          style: 'mode_libre',
+          customNotes: `LAB NELL'IMMO - Mode: ${activeMode}. Consigne: ${userPrompt}`,
+        }),
+      });
 
-        const data = await res.json();
-        if (data.success && data.text) {
-          setGeneratedOutput(data.text);
-          setIsProcessing(false);
-          return;
-        }
+      const data = await res.json();
+      if (data.success && data.text) {
+        setGeneratedOutput(data.text);
+        setIsProcessing(false);
+        return;
       }
 
       // Local heuristic simulation engine if API key not set
@@ -175,7 +174,7 @@ CHECKLIST DU JOUR J :
 
   return (
     <div className="space-y-8 animate-fade-in pb-16">
-      
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#F3E8EE] pb-4">
         <div>
@@ -207,11 +206,10 @@ CHECKLIST DU JOUR J :
             setActiveMode('ideation');
             setUserPrompt(LAB_PRESETS[0].prompt);
           }}
-          className={`p-4 rounded-3xl border text-left transition space-y-1.5 cursor-pointer ${
-            activeMode === 'ideation'
+          className={`p-4 rounded-3xl border text-left transition space-y-1.5 cursor-pointer ${activeMode === 'ideation'
               ? 'bg-[#131B26] text-white border-[#131B26] shadow-md ring-2 ring-[#E12B7B]'
               : 'bg-white text-gray-800 border-gray-200 hover:bg-gray-50'
-          }`}
+            }`}
         >
           <Lightbulb className="w-5 h-5 text-[#C59A45]" />
           <h3 className="font-serif font-bold text-sm">1. Idéation & Brainstorming</h3>
@@ -224,11 +222,10 @@ CHECKLIST DU JOUR J :
             setActiveMode('negotiation');
             setUserPrompt(LAB_PRESETS[2].prompt);
           }}
-          className={`p-4 rounded-3xl border text-left transition space-y-1.5 cursor-pointer ${
-            activeMode === 'negotiation'
+          className={`p-4 rounded-3xl border text-left transition space-y-1.5 cursor-pointer ${activeMode === 'negotiation'
               ? 'bg-[#131B26] text-white border-[#131B26] shadow-md ring-2 ring-[#E12B7B]'
               : 'bg-white text-gray-800 border-gray-200 hover:bg-gray-50'
-          }`}
+            }`}
         >
           <Bot className="w-5 h-5 text-[#E12B7B]" />
           <h3 className="font-serif font-bold text-sm">2. Sparring Négociation</h3>
@@ -241,11 +238,10 @@ CHECKLIST DU JOUR J :
             setActiveMode('legal_clauses');
             setUserPrompt(LAB_PRESETS[3].prompt);
           }}
-          className={`p-4 rounded-3xl border text-left transition space-y-1.5 cursor-pointer ${
-            activeMode === 'legal_clauses'
+          className={`p-4 rounded-3xl border text-left transition space-y-1.5 cursor-pointer ${activeMode === 'legal_clauses'
               ? 'bg-[#131B26] text-white border-[#131B26] shadow-md ring-2 ring-[#E12B7B]'
               : 'bg-white text-gray-800 border-gray-200 hover:bg-gray-50'
-          }`}
+            }`}
         >
           <FileSignature className="w-5 h-5 text-[#C59A45]" />
           <h3 className="font-serif font-bold text-sm">3. Clauses & Juridique</h3>
@@ -258,11 +254,10 @@ CHECKLIST DU JOUR J :
             setActiveMode('vip_events');
             setUserPrompt(LAB_PRESETS[4].prompt);
           }}
-          className={`p-4 rounded-3xl border text-left transition space-y-1.5 cursor-pointer ${
-            activeMode === 'vip_events'
+          className={`p-4 rounded-3xl border text-left transition space-y-1.5 cursor-pointer ${activeMode === 'vip_events'
               ? 'bg-[#131B26] text-white border-[#131B26] shadow-md ring-2 ring-[#E12B7B]'
               : 'bg-white text-gray-800 border-gray-200 hover:bg-gray-50'
-          }`}
+            }`}
         >
           <PartyPopper className="w-5 h-5 text-[#E12B7B]" />
           <h3 className="font-serif font-bold text-sm">4. Événements & Ventes VIP</h3>
@@ -291,7 +286,7 @@ CHECKLIST DU JOUR J :
 
       {/* Main Studio Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        
+
         {/* Left Form (5 cols) */}
         <div className="lg:col-span-5 bg-white rounded-3xl p-6 border border-[#F3E8EE] shadow-2xs space-y-5">
           <div>

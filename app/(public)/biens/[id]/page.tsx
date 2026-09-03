@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, use } from 'react';
 import Link from 'next/link';
-import { useNellimoStore } from '@/lib/store';
+import { useNellimoStore } from '@/lib/public-store';
 import { useFavorites } from '@/lib/useFavorites';
 import { useToast } from '@/components/ui/Toast';
 import { ShareModal } from '@/components/public/ShareModal';
@@ -39,7 +39,7 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
   const { properties, addContactLead } = useNellimoStore();
   const { isFavorite, toggleFavorite } = useFavorites();
   const { showToast } = useToast();
-  
+
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
@@ -55,13 +55,13 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
   const images = property?.images && property.images.length > 0
     ? property.images
     : [{
-        id: '1',
-        property_id: property?.id || '',
-        image_url: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=80',
-        display_order: 1,
-        is_cover: true,
-        created_at: ''
-      }];
+      id: '1',
+      property_id: property?.id || '',
+      image_url: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=80',
+      display_order: 1,
+      is_cover: true,
+      created_at: ''
+    }];
 
   const currentPhoto = images[selectedPhotoIndex]?.image_url || images[0].image_url;
   const mandateRef = property ? formatMandateRef(property.mandate_number) : '';
@@ -117,7 +117,7 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10 pb-32">
-      
+
       {/* 1. BREADCRUMB & TOP CONTROLS */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-gray-500 border-b border-gray-100 pb-3">
         <div className="flex items-center gap-2">
@@ -132,7 +132,7 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
           <span className="text-[11px] font-mono bg-[#FCFAF7] text-gray-700 px-3 py-1 rounded-full border border-[#F3E8EE] font-bold">
             Réf. {mandateRef}
           </span>
-          
+
           <button
             onClick={() => {
               if (property) {
@@ -144,11 +144,10 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
                 }
               }
             }}
-            className={`p-2 rounded-full border transition flex items-center gap-1.5 cursor-pointer ${
-              isFav
+            className={`p-2 rounded-full border transition flex items-center gap-1.5 cursor-pointer ${isFav
                 ? 'bg-[#FDF2F8] border-[#E12B7B] text-[#E12B7B]'
                 : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
-            }`}
+              }`}
             title={isFav ? "Retirer des favoris" : "Ajouter aux favoris"}
           >
             <Heart className={`w-3.5 h-3.5 ${isFav ? 'fill-[#E12B7B]' : ''}`} />
@@ -272,11 +271,10 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
               <button
                 key={img.id || idx}
                 onClick={() => setSelectedPhotoIndex(idx)}
-                className={`relative w-24 sm:w-28 h-16 sm:h-20 rounded-2xl overflow-hidden shrink-0 border-2 transition-all ${
-                  selectedPhotoIndex === idx
+                className={`relative w-24 sm:w-28 h-16 sm:h-20 rounded-2xl overflow-hidden shrink-0 border-2 transition-all ${selectedPhotoIndex === idx
                     ? 'border-[#E12B7B] ring-2 ring-[#E12B7B]/30 scale-102 shadow-md'
                     : 'border-transparent opacity-70 hover:opacity-100'
-                }`}
+                  }`}
               >
                 <img src={img.image_url} alt="" className="w-full h-full object-cover" />
               </button>
@@ -287,10 +285,10 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
 
       {/* 4. TWO COLUMN MAIN GRID */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 items-start">
-        
+
         {/* LEFT COLUMN (2 Cols) : SPECS, DESCRIPTION, FEATURES, DPE, LOAN */}
         <div className="lg:col-span-2 space-y-10">
-          
+
           {/* Key Specs Card */}
           <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#F3E8EE] shadow-sm grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
             <div className="space-y-1 border-r border-gray-100 last:border-0">
@@ -487,7 +485,7 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
         {/* RIGHT COLUMN (1 Col) : STICKY AGENT & VISIT REQUEST */}
         <div className="lg:col-span-1">
           <div className="sticky top-28 bg-white rounded-3xl p-6 sm:p-8 border border-[#F3E8EE] shadow-xl space-y-6">
-            
+
             {/* Price Header */}
             <div className="border-b border-[#FAF5F8] pb-4">
               <span className="text-xs uppercase font-bold text-gray-400">Prix de vente FAI</span>
@@ -711,11 +709,10 @@ export default function PropertyDetailPage({ params }: { params: Promise<{ id: s
               <button
                 key={img.id || idx}
                 onClick={() => setSelectedPhotoIndex(idx)}
-                className={`w-16 h-12 rounded-xl overflow-hidden shrink-0 border-2 transition ${
-                  selectedPhotoIndex === idx
+                className={`w-16 h-12 rounded-xl overflow-hidden shrink-0 border-2 transition ${selectedPhotoIndex === idx
                     ? 'border-[#E12B7B] scale-110'
                     : 'border-transparent opacity-50 hover:opacity-100'
-                }`}
+                  }`}
               >
                 <img src={img.image_url} alt="" className="w-full h-full object-cover" />
               </button>

@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useNellimoStore } from '@/lib/store';
+import { useNellimoStore } from '@/lib/public-store';
 import { PropertyCard } from '@/components/public/PropertyCard';
 import { Search, MapPin, Home, Euro, Sparkles, TrendingUp, ArrowRight, Phone } from 'lucide-react';
 

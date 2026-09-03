@@ -13,9 +13,12 @@ interface CalendarSyncModalProps {
 export const CalendarSyncModal: React.FC<CalendarSyncModalProps> = ({ isOpen, onClose }) => {
   const [copied, setCopied] = useState(false);
 
+  // Le token doit correspondre à CALENDAR_FEED_TOKEN côté serveur.
+  const feedToken = process.env.NEXT_PUBLIC_CALENDAR_FEED_TOKEN || 'nellimo_calendar_token';
+
   const feedUrl =
     typeof window !== 'undefined'
-      ? `${window.location.origin}/api/calendar/feed?token=nellimo_calendar_token`
+      ? `${window.location.origin}/api/calendar/feed?token=${feedToken}`
       : '/api/calendar/feed';
 
   const handleCopy = () => {
@@ -63,7 +66,7 @@ export const CalendarSyncModal: React.FC<CalendarSyncModalProps> = ({ isOpen, on
           <a
             href={
               typeof window !== 'undefined'
-                ? `webcal://${window.location.host}/api/calendar/feed?token=nellimo_calendar_token`
+                ? `webcal://${window.location.host}/api/calendar/feed?token=${feedToken}`
                 : '#'
             }
             className="p-3 bg-[#131B26] hover:bg-gray-800 text-white rounded-xl text-xs font-bold text-center flex items-center justify-center gap-2 transition"
@@ -75,8 +78,8 @@ export const CalendarSyncModal: React.FC<CalendarSyncModalProps> = ({ isOpen, on
             href={
               typeof window !== 'undefined'
                 ? `https://calendar.google.com/calendar/r?cid=${encodeURIComponent(
-                    `${window.location.origin}/api/calendar/feed?token=nellimo_calendar_token`
-                  )}`
+                  `${window.location.origin}/api/calendar/feed?token=${feedToken}`
+                )}`
                 : '#'
             }
             target="_blank"

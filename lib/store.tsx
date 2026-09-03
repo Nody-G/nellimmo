@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback, useRef } from 'react';
 import {
   Property,
   Buyer,
@@ -35,8 +35,14 @@ import {
   INITIAL_MANDATE_AVENANTS,
   INITIAL_PROPOSALS
 } from './mock-data';
-import { computeSHA256 } from './hoguet';
+import { computeSHA256, generateSellerToken } from './hoguet';
 import { getSupabaseClient, isSupabaseConfigured } from './supabase';
+import {
+  splitSensitiveSettings,
+  saveSecretsToVault,
+  loadSecretsFromVault,
+  clearVault,
+} from './vault';
 
 const STORAGE_KEYS = {
   PROPERTIES: 'nellimo_properties_v5',
@@ -100,6 +106,7 @@ interface NellimoContextType {
   deleteBuyer: (id: string) => Promise<void>;
   createVisitSheet: (visitData: Omit<VisitSheet, 'id' | 'created_at'>) => Promise<VisitSheet>;
   updateSettings: (newSettings: AgencySettings) => Promise<void>;
+  hydrateSettingsSecrets: () => Promise<void>;
   addContactLead: (leadData: Omit<ContactLead, 'id' | 'created_at' | 'status'>) => Promise<ContactLead>;
   updateContactLeadStatus: (id: string, status: ContactLead['status']) => Promise<void>;
   deleteContactLead: (id: string) => Promise<void>;
@@ -136,6 +143,8 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
   const [visits, setVisits] = useState<VisitSheet[]>(() => loadFromStorage(STORAGE_KEYS.VISITS, INITIAL_VISIT_SHEETS));
   const [auditLogs, setAuditLogs] = useState<MandateAuditLog[]>(() => loadFromStorage(STORAGE_KEYS.AUDIT, INITIAL_AUDIT_LOGS));
   const [settings, setSettings] = useState<AgencySettings>(() => loadFromStorage(STORAGE_KEYS.SETTINGS, DEFAULT_AGENCY_SETTINGS));
+  const settingsRef = useRef(settings);
+  settingsRef.current = settings;
   const [contactLeads, setContactLeads] = useState<ContactLead[]>(() => loadFromStorage(STORAGE_KEYS.CONTACT_LEADS, INITIAL_CONTACT_LEADS));
   const [estimationLeads, setEstimationLeads] = useState<EstimationLead[]>(() => loadFromStorage(STORAGE_KEYS.ESTIMATION_LEADS, INITIAL_ESTIMATION_LEADS));
   const [transactions, setTransactions] = useState<TransactionDeal[]>(() => loadFromStorage(STORAGE_KEYS.TRANSACTIONS, INITIAL_TRANSACTIONS));
@@ -147,6 +156,18 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
   const [proposals, setProposals] = useState<ProposalHistory[]>(() => loadFromStorage(STORAGE_KEYS.PROPOSALS, INITIAL_PROPOSALS));
   const [isLoaded, setIsLoaded] = useState(true);
   const [isSupabaseActive] = useState(() => isSupabaseConfigured());
+
+  // Backfill : garantit que chaque bien dispose d'un token d'accès Espace Vendeur
+  // unique et non devinable (sécurité). S'exécute une seule fois au montage.
+  useEffect(() => {
+    const missing = properties.filter((p) => !p.seller_token);
+    if (missing.length === 0) return;
+    const enriched = properties.map((p) =>
+      p.seller_token ? p : { ...p, seller_token: generateSellerToken() }
+    );
+    updateProperties(enriched);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const updateProperties = useCallback((newProps: Property[]) => {
     setProperties(newProps);
@@ -292,6 +313,7 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
       ...propertyData,
       id: newId,
       mandate_number: nextMandateNumber,
+      seller_token: propertyData.seller_token || generateSellerToken(),
       created_at: now,
       updated_at: now,
       images: propertyData.images || [],
@@ -536,7 +558,13 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
   // --- ACTIONS PARAMÈTRES ---
 
   const updateSettingsAction = async (newSettings: AgencySettings) => {
-    updateSettingsHandler(newSettings);
+    // Conserve l'intégralité des paramètres en mémoire (l'UI lit settings.*).
+    setSettings(newSettings);
+
+    // Au repos : on sépare les champs sensibles et on les chiffre dans le coffre.
+    const { publicSettings, secrets } = splitSensitiveSettings(newSettings);
+    saveToStorage(STORAGE_KEYS.SETTINGS, publicSettings);
+    await saveSecretsToVault(secrets);
 
     if (isSupabaseConfigured()) {
       const supabase = getSupabaseClient();
@@ -549,6 +577,30 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
       }
     }
   };
+
+  // Après déverrouillage du coffre (connexion), recharge les secrets chiffrés
+  // et les fusionne dans l'état des paramètres pour que l'UI les retrouve.
+  // Migre également les éventuels secrets encore en clair dans la clé principale
+  // (données héritées) vers le coffre chiffré, puis nettoie la clé principale.
+  const hydrateSettingsSecrets = useCallback(async () => {
+    const current = settingsRef.current;
+    const vaultSecrets = await loadSecretsFromVault();
+
+    // Détecte les secrets encore stockés en clair dans les paramètres courants.
+    const { publicSettings, secrets: inlineSecrets } = splitSensitiveSettings(current);
+
+    // Fusionne : priorité aux secrets du coffre (les plus récents), sinon inline.
+    const mergedSecrets: Partial<AgencySettings> = { ...inlineSecrets, ...vaultSecrets };
+
+    if (Object.keys(inlineSecrets).length > 0) {
+      // Nettoyage : la clé principale ne doit plus contenir de secret en clair.
+      saveToStorage(STORAGE_KEYS.SETTINGS, publicSettings);
+      await saveSecretsToVault(inlineSecrets);
+    }
+
+    if (Object.keys(mergedSecrets).length === 0) return;
+    setSettings((prev) => ({ ...prev, ...mergedSecrets }));
+  }, []);
 
   // --- ACTIONS LEADS DE CONTACT ---
 
@@ -937,6 +989,7 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
     updateVisits(INITIAL_VISIT_SHEETS);
     updateAudit(INITIAL_AUDIT_LOGS);
     updateSettingsHandler(DEFAULT_AGENCY_SETTINGS);
+    clearVault();
     updateContactLeads(INITIAL_CONTACT_LEADS);
     updateEstimationLeads(INITIAL_ESTIMATION_LEADS);
     updateTransactions(INITIAL_TRANSACTIONS);
@@ -973,6 +1026,7 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
     deleteBuyer,
     createVisitSheet,
     updateSettings: updateSettingsAction,
+    hydrateSettingsSecrets,
     addContactLead,
     updateContactLeadStatus,
     deleteContactLead,
@@ -1026,38 +1080,39 @@ export function useNellimoStore(): NellimoContextType {
       isSupabaseActive: false,
       createProperty: async (p) => ({ ...p, id: 'prop-temp', mandate_number: 999, created_at: '', updated_at: '' }),
       updateProperty: async () => null,
-      deleteProperty: async () => {},
+      deleteProperty: async () => { },
       createBuyer: async (b) => ({ ...b, id: 'buyer-temp', created_at: '' }),
-      updateBuyer: async () => {},
-      deleteBuyer: async () => {},
+      updateBuyer: async () => { },
+      deleteBuyer: async () => { },
       createVisitSheet: async (v) => ({ ...v, id: 'visit-temp', created_at: '' }),
-      updateSettings: async () => {},
+      updateSettings: async () => { },
+      hydrateSettingsSecrets: async () => { },
       addContactLead: async (l) => ({ ...l, id: 'lead-temp', status: 'nouveau', created_at: '' }),
-      updateContactLeadStatus: async () => {},
-      deleteContactLead: async () => {},
+      updateContactLeadStatus: async () => { },
+      deleteContactLead: async () => { },
       addEstimationLead: async (e) => ({ ...e, id: 'est-temp', status: 'nouveau', created_at: '' }),
-      updateEstimationLeadStatus: async () => {},
-      deleteEstimationLead: async () => {},
+      updateEstimationLeadStatus: async () => { },
+      deleteEstimationLead: async () => { },
       createTransaction: async (t) => ({ ...t, id: 'trans-temp', created_at: '', updated_at: '' }),
       updateTransaction: async () => null,
-      deleteTransaction: async () => {},
+      deleteTransaction: async () => { },
       createProspectingLead: async (l) => ({ ...l, id: 'pige-temp', created_at: '' }),
-      updateProspectingLead: async () => {},
-      deleteProspectingLead: async () => {},
+      updateProspectingLead: async () => { },
+      deleteProspectingLead: async () => { },
       createVendorReport: async (r) => ({ ...r, id: 'rep-temp', created_at: '' }),
-      updateVendorReport: async () => {},
+      updateVendorReport: async () => { },
       createKey: async (k) => ({ ...k, id: 'key-temp', created_at: '' }),
       updateKey: async () => null,
-      deleteKey: async () => {},
-      borrowKey: async () => {},
-      returnKey: async () => {},
+      deleteKey: async () => { },
+      borrowKey: async () => { },
+      returnKey: async () => { },
       createSignboard: async (s) => ({ ...s, id: 'sign-temp', created_at: '' }),
-      updateSignboard: async () => {},
-      deleteSignboard: async () => {},
+      updateSignboard: async () => { },
+      deleteSignboard: async () => { },
       createMandateAvenant: async (a) => ({ ...a, id: 'av-temp', created_at: '' }),
       createProposal: async (p) => ({ ...p, id: 'prop-temp' }),
-      updateProposalStatus: async () => {},
-      resetToDemoData: () => {},
+      updateProposalStatus: async () => { },
+      resetToDemoData: () => { },
     };
   }
   return context;

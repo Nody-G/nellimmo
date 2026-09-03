@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
-import { useNellimoStore } from '@/lib/store';
+import { useNellimoStore } from '@/lib/public-store';
 import { useFavorites } from '@/lib/useFavorites';
 import { X, Heart, Trash2, ArrowRight, Home, MessageCircle, Eye } from 'lucide-react';
 import { formatMandateRef } from '@/lib/hoguet';
@@ -15,7 +15,7 @@ interface FavoritesDrawerProps {
 
 export function FavoritesDrawer({ isOpen, onClose }: FavoritesDrawerProps) {
   const mounted = useSyncExternalStore(
-    () => () => {},
+    () => () => { },
     () => true,
     () => false
   );
@@ -74,7 +74,7 @@ export function FavoritesDrawer({ isOpen, onClose }: FavoritesDrawerProps) {
 
       {/* Sliding Drawer Panel */}
       <div className="relative w-full max-w-md h-full bg-white shadow-2xl flex flex-col z-10 animate-slide-drawer border-l border-[#F3E8EE]">
-        
+
         {/* Header */}
         <div className="p-5 sm:p-6 border-b border-[#F3E8EE] flex items-center justify-between bg-[#FCFAF7] shrink-0">
           <div className="flex items-center gap-3">
@@ -236,9 +236,8 @@ export function FavoritesDrawer({ isOpen, onClose }: FavoritesDrawerProps) {
                     setTimeout(() => setConfirmClear(false), 3000);
                   }
                 }}
-                className={`text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer py-1 ${
-                  confirmClear ? 'text-rose-600 font-bold' : 'text-gray-400 hover:text-rose-600'
-                }`}
+                className={`text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer py-1 ${confirmClear ? 'text-rose-600 font-bold' : 'text-gray-400 hover:text-rose-600'
+                  }`}
               >
                 <Trash2 className="w-3.5 h-3.5" />
                 <span>{confirmClear ? 'Confirmer la suppression ?' : 'Tout effacer'}</span>

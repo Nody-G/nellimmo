@@ -3,9 +3,28 @@ import { Property, DpeLetter, GesLetter, FeesPaidBy } from './types';
 /**
  * Calcul de l'empreinte cryptographique SHA-256 pour sceller l'audit log
  */
+/**
+ * Génère un token d'accès unique et non devinable pour l'Espace Vendeur.
+ * Utilise crypto.getRandomValues (cryptographiquement sûr) si disponible.
+ */
+export function generateSellerToken(): string {
+  const bytes = new Uint8Array(18);
+  if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+    crypto.getRandomValues(bytes);
+  } else {
+    for (let i = 0; i < bytes.length; i++) {
+      bytes[i] = Math.floor(Math.random() * 256);
+    }
+  }
+  const hex = Array.from(bytes)
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
+  return `token-${hex}`;
+}
+
 export async function computeSHA256(data: unknown): Promise<string> {
   const jsonString = JSON.stringify(data);
-  
+
   // Utilisation de Web Crypto API compatible Edge, Node et Browser
   if (typeof crypto !== 'undefined' && crypto.subtle) {
     const encoder = new TextEncoder();
@@ -14,7 +33,7 @@ export async function computeSHA256(data: unknown): Promise<string> {
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
   }
-  
+
   // Fallback simple pour les environnements de test
   let hash = 0;
   for (let i = 0; i < jsonString.length; i++) {

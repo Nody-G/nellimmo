@@ -16,15 +16,15 @@ export async function POST(req: NextRequest) {
       property,
       style = 'signature_nelly',
       customNotes = '',
-      apiKey = '',
     }: {
       property: Partial<Property>;
       style: CopywritingStyle;
       customNotes?: string;
-      apiKey?: string;
     } = body;
 
-    const effectiveApiKey = apiKey || process.env.DEEPSEEK_API_KEY || '';
+    // Sécurité : la clé DeepSeek est exclusivement gérée côté serveur.
+    // Elle n'est jamais acceptée depuis le client (évite l'abus de crédits).
+    const effectiveApiKey = process.env.DEEPSEEK_API_KEY || '';
 
     // Si aucune clé DeepSeek n'est disponible, bascule automatique sur le moteur local haute fidélité
     if (!effectiveApiKey) {

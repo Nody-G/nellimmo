@@ -2,6 +2,7 @@ import React from 'react';
 import { PublicNavbar } from '@/components/public/Navbar';
 import { PublicFooter } from '@/components/public/Footer';
 import { ScrollToTop } from '@/components/public/ScrollToTop';
+import { PublicNellimoProvider } from '@/lib/public-store';
 
 export const metadata = {
   title: "Nell'Immo | Agence Immobilière de Référence à Pélissanne & Provence",
@@ -11,13 +12,15 @@ export const metadata = {
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen flex flex-col bg-[#FCFAF7]">
-      <PublicNavbar />
-      <main className="flex-1">
-        {children}
-      </main>
-      <PublicFooter />
-      <ScrollToTop />
-    </div>
+    <PublicNellimoProvider>
+      <div className="min-h-screen flex flex-col bg-[#FCFAF7]">
+        <PublicNavbar />
+        <main className="flex-1">
+          {children}
+        </main>
+        <PublicFooter />
+        <ScrollToTop />
+      </div>
+    </PublicNellimoProvider>
   );
 }

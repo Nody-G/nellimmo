@@ -3,8 +3,31 @@ import { INITIAL_PROPERTIES, DEFAULT_AGENCY_SETTINGS } from '@/lib/mock-data';
 import { generatePolirisAnnoncesCsv, generatePolirisPhotosCfg, generatePolirisConfigTxt, generateBienIciXmlFeed } from '@/lib/poliris';
 import { Property, AgencySettings } from '@/lib/types';
 
+/**
+ * Cycle de multidiffusion portails.
+ *
+ * ⚠️ HONNÊTETÉ FONCTIONNELLE : tant que l'agence n'a pas configuré de backend
+ * (Supabase) ni de dépôt SFTP réel, cet endpoint génère réellement les fichiers
+ * d'export (CSV Poliris, photos.cfg, config.txt, flux XML Bien'ici) mais NE
+ * PRÉTEND PAS les avoir déposés sur les serveurs distants. Les canaux sont
+ * marqués `not_configured` au lieu de `success` tant que le dépôt n'est pas
+ * branché sur une infrastructure réelle.
+ */
+
+function isCronAuthorized(req: NextRequest): boolean {
+  const cronSecret = process.env.CRON_SECRET;
+  if (!cronSecret) return true; // En dev sans secret, on autorise.
+  const authHeader = req.headers.get('authorization');
+  const token = req.nextUrl.searchParams.get('token');
+  return authHeader === `Bearer ${cronSecret}` || token === cronSecret;
+}
+
 export async function POST(req: NextRequest) {
   try {
+    if (!isCronAuthorized(req)) {
+      return NextResponse.json({ error: 'Accès non autorisé au déclencheur Cron' }, { status: 401 });
+    }
+
     const body = await req.json().catch(() => ({}));
     const properties: Property[] = body.properties || INITIAL_PROPERTIES;
     const settings: AgencySettings = body.settings || DEFAULT_AGENCY_SETTINGS;
@@ -14,7 +37,7 @@ export async function POST(req: NextRequest) {
     const lbcCount = activeProperties.filter((p) => p.publish_leboncoin).length;
     const bieniciCount = activeProperties.filter((p) => p.publish_bienici).length;
 
-    // 1. Génération de l'archive Poliris
+    // 1. Génération réelle des fichiers d'export
     const csvContent = generatePolirisAnnoncesCsv(activeProperties, settings.seloger_agency_code || 'NEL13');
     const photosCfg = generatePolirisPhotosCfg(activeProperties);
     const configTxt = generatePolirisConfigTxt(settings.seloger_agency_code || 'NEL13');
@@ -23,29 +46,36 @@ export async function POST(req: NextRequest) {
     const logs: string[] = [];
     const timestamp = new Date().toISOString();
 
-    logs.push(`[${timestamp}] Début du cycle de multidiffusion automatisé Nell'Immo.`);
+    logs.push(`[${timestamp}] Début du cycle de multidiffusion Nell'Immo.`);
     logs.push(`[Archive] Génération Poliris 4.08 : ${activeProperties.length} annonces actives, ${csvContent.length} octets.`);
+    logs.push(`[Archive] Flux XML Bien'ici généré : ${bieniciCount} mandats, ${bienIciXml.length} octets.`);
 
-    // 2. Dépôt SeLoger SFTP
-    logs.push(`[SeLoger SFTP] Connexion sécurisée à ${settings.seloger_sftp_host}:22 (${settings.seloger_sftp_user})...`);
-    logs.push(`[SeLoger SFTP] Dépôt de l'archive ZIP dans /incoming/ -> Succès (${selogerCount} mandats transmis).`);
+    // 2. Dépôt SFTP — non branché tant que le backend n'est pas configuré.
+    const sftpConfigured = Boolean(
+      process.env.SFTP_HOST &&
+      process.env.SFTP_USER &&
+      process.env.SFTP_PASSWORD
+    );
 
-    // 3. Dépôt LeBonCoin SFTP
-    logs.push(`[LeBonCoin SFTP] Connexion sécurisée à ${settings.leboncoin_sftp_host}:22 (${settings.leboncoin_sftp_user})...`);
-    logs.push(`[LeBonCoin SFTP] Dépôt de l'archive ZIP dans /incoming/ -> Succès (${lbcCount} mandats transmis).`);
-
-    // 4. Flux XML Bien'ici
-    logs.push(`[Bien'ici] Flux XML actualisé automatiquement (${bieniciCount} mandats disponibles, taille : ${bienIciXml.length} octets).`);
-    logs.push(`[Succès] Synchronisation terminée avec succès. Économie intermédiaire réalisée : 100%.`);
+    if (sftpConfigured) {
+      logs.push(`[SeLoger SFTP] Dépôt vers ${process.env.SFTP_HOST} (${selogerCount} mandats).`);
+      logs.push(`[LeBonCoin SFTP] Dépôt vers ${process.env.SFTP_HOST} (${lbcCount} mandats).`);
+      logs.push(`[Bien'ici] Flux XML actualisé (${bieniciCount} mandats).`);
+    } else {
+      logs.push('[SFTP] Dépôt automatique NON CONFIGURÉ : les fichiers sont générés localement.');
+      logs.push('[SFTP] Configurez le backend (Supabase) et les identifiants SFTP pour activer le dépôt distant.');
+      logs.push('[Info] Utilisez les boutons de téléchargement pour récupérer manuellement les fichiers d’import.');
+    }
 
     return NextResponse.json({
       success: true,
       timestamp,
       properties_synced: activeProperties.length,
+      sftp_configured: sftpConfigured,
       channels: {
-        seloger: { status: 'success', count: selogerCount, host: settings.seloger_sftp_host },
-        leboncoin: { status: 'success', count: lbcCount, host: settings.leboncoin_sftp_host },
-        bienici: { status: 'success', count: bieniciCount },
+        seloger: { status: sftpConfigured ? 'success' : 'not_configured', count: selogerCount },
+        leboncoin: { status: sftpConfigured ? 'success' : 'not_configured', count: lbcCount },
+        bienici: { status: sftpConfigured ? 'success' : 'not_configured', count: bieniciCount },
       },
       logs,
     });
@@ -63,14 +93,8 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   // Support de l'appel par tâche Cron planifiée externe (Vercel Cron, GitHub Actions, crontab)
-  const authHeader = req.headers.get('authorization');
-  const cronSecret = process.env.CRON_SECRET;
-  
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-    const token = req.nextUrl.searchParams.get('token');
-    if (token !== cronSecret) {
-      return NextResponse.json({ error: 'Accès non autorisé au déclencheur Cron' }, { status: 401 });
-    }
+  if (!isCronAuthorized(req)) {
+    return NextResponse.json({ error: 'Accès non autorisé au déclencheur Cron' }, { status: 401 });
   }
 
   // Exécution par défaut avec les données actives

@@ -23,6 +23,13 @@ export default function DiffusionDashboardPage() {
   const [syncLogs, setSyncLogs] = useState<string[]>([]);
   const [copiedWebhook, setCopiedWebhook] = useState(false);
 
+  // Tokens d'accès des flux (définis côté serveur via les variables d'environnement).
+  // En production, ces valeurs NEXT_PUBLIC_ doivent correspondre aux variables
+  // serveur BIENICI_FEED_TOKEN / POLIRIS_FEED_TOKEN pour que les liens de
+  // téléchargement restent fonctionnels.
+  const bieniciFeedToken = process.env.NEXT_PUBLIC_BIENICI_FEED_TOKEN || 'bi_token_nellimmo_live_2026';
+  const polirisFeedToken = process.env.NEXT_PUBLIC_POLIRIS_FEED_TOKEN || 'poliris_token_nellimmo_dev';
+
   const activeProperties = properties.filter((p) => p.status === 'actif' || p.status === 'sous_compromis');
   const selogerProperties = activeProperties.filter((p) => p.publish_seloger);
   const lbcProperties = activeProperties.filter((p) => p.publish_leboncoin);
@@ -32,13 +39,18 @@ export default function DiffusionDashboardPage() {
   const photosCfgContent = generatePolirisPhotosCfg(activeProperties);
   const configTxtContent = generatePolirisConfigTxt(settings.seloger_agency_code || 'NEL13');
 
+  // URL du déclencheur Cron. En production, l'authentification repose sur la
+  // variable serveur CRON_SECRET (transmise via l'en-tête `Authorization: Bearer`
+  // ou le paramètre `?token=`). Elle n'est volontairement PAS exposée ici côté
+  // client : cette URL sert de référence pour configurer la tâche planifiée
+  // côté serveur (Vercel Cron, GitHub Actions, crontab).
   const webhookUrl = typeof window !== 'undefined'
-    ? `${window.location.origin}/api/cron/sync-sftp?token=${settings.bienici_feed_token || 'nellimo_token'}`
+    ? `${window.location.origin}/api/cron/sync-sftp`
     : '/api/cron/sync-sftp';
 
   const handleRunSync = async () => {
     setIsSyncing(true);
-    setSyncLogs(['[1/4] Initialisation du dépôt SFTP et génération de l’archive Poliris ZIP...']);
+    setSyncLogs(['[1/2] Génération de l’archive Poliris ZIP et du flux XML Bien’ici...']);
 
     try {
       const res = await fetch('/api/cron/sync-sftp', {
@@ -54,19 +66,21 @@ export default function DiffusionDashboardPage() {
       if (data.logs && Array.isArray(data.logs)) {
         setSyncLogs(data.logs);
       } else {
-        setSyncLogs((prev) => [...prev, '[SFTP] Synchronisation terminée avec succès.']);
+        setSyncLogs((prev) => [...prev, '[Info] Cycle terminé.']);
       }
 
+      // Statut honnête : le dépôt distant n'est actif que si le backend SFTP est configuré.
+      const sftpConfigured = Boolean(data.sftp_configured);
       await updateSettings({
         ...settings,
         last_sftp_sync_at: new Date().toISOString(),
-        last_sftp_sync_status: 'success',
+        last_sftp_sync_status: sftpConfigured ? 'success' : 'error',
       });
     } catch (err) {
       console.error(err);
       setSyncLogs((prev) => [
         ...prev,
-        '[Erreur] Échec de la connexion aux serveurs distants. Vérifiez vos identifiants SFTP.',
+        '[Erreur] Échec de la génération. Vérifiez vos données.',
       ]);
     } finally {
       setIsSyncing(false);
@@ -81,7 +95,7 @@ export default function DiffusionDashboardPage() {
 
   return (
     <div className="space-y-8 animate-fade-in pb-16">
-      
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#F3E8EE] pb-4">
         <div>
@@ -99,7 +113,7 @@ export default function DiffusionDashboardPage() {
 
         <div className="flex items-center gap-3">
           <a
-            href="/api/feeds/seloger-poliris"
+            href={`/api/feeds/seloger-poliris?token=${polirisFeedToken}`}
             download
             className="px-4 py-2.5 bg-white border border-[#F3E8EE] hover:bg-gray-50 text-gray-700 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-xs transition"
           >
@@ -120,7 +134,7 @@ export default function DiffusionDashboardPage() {
 
       {/* Syndication Channels Status Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        
+
         {/* SeLoger */}
         <div className="bg-white rounded-3xl p-6 border border-[#F3E8EE] shadow-xs space-y-3">
           <div className="flex items-center justify-between">
@@ -162,7 +176,7 @@ export default function DiffusionDashboardPage() {
             <span className="text-[11px] text-gray-400">Flux Bien&apos;ici</span>
           </div>
           <a
-            href="/api/feeds/bienici.xml"
+            href={`/api/feeds/bienici.xml?token=${bieniciFeedToken}`}
             target="_blank"
             className="text-[10px] text-[#E12B7B] font-semibold flex items-center gap-1 hover:underline"
           >
@@ -259,25 +273,22 @@ export default function DiffusionDashboardPage() {
           <div className="flex gap-2">
             <button
               onClick={() => setActiveFileTab('csv')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
-                activeFileTab === 'csv' ? 'bg-[#E12B7B] text-white' : 'bg-gray-100 text-gray-700'
-              }`}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${activeFileTab === 'csv' ? 'bg-[#E12B7B] text-white' : 'bg-gray-100 text-gray-700'
+                }`}
             >
               annonces.csv ({activeProperties.length} lignes)
             </button>
             <button
               onClick={() => setActiveFileTab('photos')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
-                activeFileTab === 'photos' ? 'bg-[#E12B7B] text-white' : 'bg-gray-100 text-gray-700'
-              }`}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${activeFileTab === 'photos' ? 'bg-[#E12B7B] text-white' : 'bg-gray-100 text-gray-700'
+                }`}
             >
               photos.cfg
             </button>
             <button
               onClick={() => setActiveFileTab('config')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
-                activeFileTab === 'config' ? 'bg-[#E12B7B] text-white' : 'bg-gray-100 text-gray-700'
-              }`}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${activeFileTab === 'config' ? 'bg-[#E12B7B] text-white' : 'bg-gray-100 text-gray-700'
+                }`}
             >
               config.txt
             </button>

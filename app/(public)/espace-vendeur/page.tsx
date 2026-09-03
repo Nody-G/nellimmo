@@ -2,24 +2,22 @@
 
 import React, { useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useNellimoStore } from '@/lib/store';
 
 function EspaceVendeurRedirect() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { properties } = useNellimoStore();
 
   useEffect(() => {
     const token = searchParams.get('token');
     if (token) {
       router.replace(`/espace-vendeur/${token}`);
-    } else if (properties.length > 0) {
-      // Default to first active property
-      router.replace(`/espace-vendeur/${properties[0].id}`);
     } else {
+      // Aucun token fourni : l'Espace Vendeur est strictement réservé aux
+      // propriétaires disposant du lien sécurisé généré depuis le cockpit.
+      // On ne redirige jamais vers un bien arbitraire (un id n'est pas un token).
       router.replace('/');
     }
-  }, [router, searchParams, properties]);
+  }, [router, searchParams]);
 
   return (
     <div className="min-h-screen bg-[#FCFAF7] flex items-center justify-center">

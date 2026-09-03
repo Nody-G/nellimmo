@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter, Playfair_Display } from 'next/font/google';
 import './globals.css';
-import { NellimoProvider } from '@/lib/store';
 import { ToastProvider } from '@/components/ui/Toast';
 
 const inter = Inter({
@@ -48,11 +47,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="fr" className={`${inter.variable} ${playfair.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col font-sans bg-[#FCFAF7] text-gray-900 selection:bg-[#E12B7B] selection:text-white">
-        <NellimoProvider>
-          <ToastProvider>
-            {children}
-          </ToastProvider>
-        </NellimoProvider>
+        <ToastProvider>
+          {children}
+        </ToastProvider>
       </body>
     </html>
   );

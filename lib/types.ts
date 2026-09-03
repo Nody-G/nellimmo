@@ -164,7 +164,7 @@ export interface VisitSheet {
   ip_address?: string;
   notes?: string;
   created_at: string;
-  
+
   // Relations for display
   property?: Property;
   buyer?: Buyer;
@@ -242,7 +242,7 @@ export interface TransactionDeal {
   property_id: string;
   buyer_id?: string;
   status: TransactionStatus;
-  
+
   // Financials
   offer_price_fai: number;
   offer_price_net: number;
@@ -250,7 +250,7 @@ export interface TransactionDeal {
   deposit_amount: number;
   deposit_percentage?: number;
   deposit_holder: string; // 'Notaire Vendeur', 'Notaire Acquéreur'
-  
+
   // Parties & Notaires
   seller_name: string;
   seller_phone: string;
@@ -258,17 +258,17 @@ export interface TransactionDeal {
   buyer_name: string;
   buyer_phone: string;
   buyer_email?: string;
-  
+
   seller_notary_name: string;
   seller_notary_email: string;
   seller_notary_phone: string;
   seller_notary_office: string;
-  
+
   buyer_notary_name?: string;
   buyer_notary_email?: string;
   buyer_notary_phone?: string;
   buyer_notary_office?: string;
-  
+
   // Deadlines & Dates
   offer_date: string;
   compromis_date?: string;
@@ -278,14 +278,14 @@ export interface TransactionDeal {
   loan_approval_deadline?: string; // J+45 ou J+60
   final_deed_target_date?: string;
   actual_closing_date?: string;
-  
+
   // Financing
   loan_amount_requested?: number;
   loan_interest_rate_max?: number;
   loan_duration_years?: number;
   loan_bank_name?: string;
   broker_name?: string;
-  
+
   // ALUR Checklist
   checklist_documents: {
     titre_propriete: boolean;
@@ -300,20 +300,20 @@ export interface TransactionDeal {
     simulation_pret: boolean;
     offre_achat_signee: boolean;
   };
-  
+
   // Facturation & Honoraires
   invoice_number?: string;
   invoice_date?: string;
   invoice_sent_to_notary: boolean;
   fees_received: boolean;
-  
+
   // Google Review
   google_review_requested?: boolean;
-  
+
   notes?: string;
   created_at: string;
   updated_at: string;
-  
+
   // Relations
   property?: Property;
   buyer?: Buyer;
@@ -356,10 +356,6 @@ export interface AgencySettings {
   sftp_sync_interval_hours?: number;
   last_sftp_sync_at?: string;
   last_sftp_sync_status?: 'success' | 'error' | 'idle';
-  bienici_feed_token: string;
-
-  // Intelligence Artificielle
-  deepseek_api_key?: string;
 
   // Réseaux Sociaux (Meta & LinkedIn)
   meta_app_id?: string;

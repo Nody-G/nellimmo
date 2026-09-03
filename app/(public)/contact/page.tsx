@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useNellimoStore } from '@/lib/store';
+import { useNellimoStore } from '@/lib/public-store';
 import { Phone, Mail, MapPin, Clock, Send, CheckCircle2 } from 'lucide-react';
 
 export default function ContactPage() {
@@ -29,7 +29,7 @@ export default function ContactPage() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12 animate-fade-in">
-      
+
       {/* Header */}
       <div className="text-center max-w-3xl mx-auto space-y-4">
         <span className="text-xs uppercase font-bold tracking-widest text-[#E12B7B]">
@@ -44,7 +44,7 @@ export default function ContactPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
+
         {/* Contact Info Cards */}
         <div className="space-y-4">
           <div className="p-6 bg-white rounded-3xl border border-[#F3E8EE] shadow-xs space-y-3">

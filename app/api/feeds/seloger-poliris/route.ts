@@ -1,8 +1,17 @@
 import { NextResponse } from 'next/server';
 import { INITIAL_PROPERTIES } from '@/lib/mock-data';
 import { generatePolirisAnnoncesCsv, generatePolirisPhotosCfg, generatePolirisConfigTxt } from '@/lib/poliris';
+import { getPolirisFeedToken, isValidFeedToken } from '@/lib/feed-tokens';
 
-export async function GET() {
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const token = searchParams.get('token');
+
+  // Sécurité token agence : le token est OBLIGATOIRE (fail-closed en production).
+  if (!isValidFeedToken(token, getPolirisFeedToken())) {
+    return new NextResponse('Accès non autorisé', { status: 401 });
+  }
+
   const csv = generatePolirisAnnoncesCsv(INITIAL_PROPERTIES, 'NEL13');
   const photos = generatePolirisPhotosCfg(INITIAL_PROPERTIES);
   const config = generatePolirisConfigTxt('NEL13');
@@ -17,10 +26,10 @@ export async function GET() {
   const archive: any = ZipArchiveClass
     ? new ZipArchiveClass({ zlib: { level: 9 } })
     : typeof mod === 'function'
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ? (mod as any)('zip', { zlib: { level: 9 } })
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    : new (mod as any).ZipArchive({ zlib: { level: 9 } });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ? (mod as any)('zip', { zlib: { level: 9 } })
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      : new (mod as any).ZipArchive({ zlib: { level: 9 } });
 
   const chunks: Buffer[] = [];
 

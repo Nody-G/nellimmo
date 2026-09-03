@@ -25,7 +25,13 @@ L'application intègre désormais une architecture **hybride et réactive** :
 1. Dans votre tableau de bord Supabase, ouvrez l'onglet **SQL Editor** dans le menu de gauche.
 2. Ouvrez le fichier local [`supabase/migrations/20260902_init_nellimo.sql`](file:///c:/Users/Niels/Documents/Projects%20Antigravity/Cockpit%20Nellimo/supabase/migrations/20260902_init_nellimo.sql), copiez son contenu complet et collez-le dans le SQL Editor.
 3. Cliquez sur **Run** (Création des tables, des index, des politiques RLS et de la publication Realtime).
-4. *(Optionnel)* Ouvrez le fichier [`supabase/seed.sql`](file:///c:/Users/Niels/Documents/Projects%20Antigravity/Cockpit%20Nellimo/supabase/seed.sql), collez-le et cliquez sur **Run** pour injecter le jeu de données initial certifié de Nelly Fernandez.
+4. Ouvrez ensuite [`supabase/migrations/20260903_solo_agent_os.sql`](file:///c:/Users/Niels/Documents/Projects%20Antigravity/Cockpit%20Nellimo/supabase/migrations/20260903_solo_agent_os.sql), collez-le et cliquez sur **Run** (Pipeline transactionnel notaire + enrichissement paramètres).
+5. Ouvrez ensuite [`supabase/migrations/20260903_rls_owner_scoped_public_split.sql`](file:///c:/Users/Niels/Documents/Projects%20Antigravity/Cockpit%20Nellimo/supabase/migrations/20260903_rls_owner_scoped_public_split.sql), collez-le et cliquez sur **Run**.
+   - Ajoute `owner_id` (scoped per-owner) sur toutes les tables cockpit.
+   - Crée les vues publiques **`public_properties`** et **`public_agency_settings`** qui n'exposent **aucune PII vendeur ni secret**.
+   - Remplace les politiques RLS permissives `USING (true)` par des politiques filtrées par propriétaire (avec repli admin pour l'agent unique).
+   - **Le site public doit désormais lire les biens via la vue `public_properties`** (et non la table `properties`), et les paramètres via `public_agency_settings`.
+6. *(Optionnel)* Ouvrez le fichier [`supabase/seed.sql`](file:///c:/Users/Niels/Documents/Projects%20Antigravity/Cockpit%20Nellimo/supabase/seed.sql), collez-le et cliquez sur **Run** pour injecter le jeu de données initial certifié de Nelly Fernandez.
 
 ---
 

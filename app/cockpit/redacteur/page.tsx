@@ -27,7 +27,6 @@ import {
   BookOpen,
   Key,
   RefreshCw,
-  Cpu,
   Share2,
   Download,
   Lightbulb,
@@ -39,21 +38,19 @@ import {
 } from 'lucide-react';
 
 export default function RedacteurPage() {
-  const { properties, updateProperty, settings, updateSettings } = useNellimoStore();
+  const { properties, updateProperty, settings } = useNellimoStore();
   const { showToast } = useToast();
 
   const [selectedPropertyId, setSelectedPropertyId] = useState<string>(properties[0]?.id || '');
   const [selectedStyle, setSelectedStyle] = useState<CopywritingStyle>('signature_nelly');
   const [activeCategory, setActiveCategory] = useState<'all' | 'portails' | 'reseaux' | 'direct' | 'strategique'>('all');
   const [customNotes, setCustomNotes] = useState<string>('Impasse au calme absolu, cuisine refaite avec îlot central, aperçu collines.');
-  
+
   // Custom training examples
   const [trainingExamples, setTrainingExamples] = useState<TrainingExample[]>(DEFAULT_TRAINING_EXAMPLES);
   const [newExampleTitle, setNewExampleTitle] = useState('');
   const [newExampleText, setNewExampleText] = useState('');
   const [showTrainingSection, setShowTrainingSection] = useState(false);
-  const [showApiKeyModal, setShowApiKeyModal] = useState(false);
-  const [apiKeyInput, setApiKeyInput] = useState(settings.deepseek_api_key || '');
 
   // Brainstorming drawers
   const [showAnglesDrawer, setShowAnglesDrawer] = useState(false);
@@ -122,7 +119,6 @@ export default function RedacteurPage() {
           property: currentProperty,
           style: selectedStyle,
           customNotes,
-          apiKey: settings.deepseek_api_key || apiKeyInput,
         }),
       });
 
@@ -146,15 +142,6 @@ export default function RedacteurPage() {
     } finally {
       setIsGenerating(false);
     }
-  };
-
-  const handleSaveApiKey = async (e: React.FormEvent) => {
-    e.preventDefault();
-    await updateSettings({
-      ...settings,
-      deepseek_api_key: apiKeyInput.trim(),
-    });
-    setShowApiKeyModal(false);
   };
 
   const handleCopy = () => {
@@ -219,7 +206,7 @@ export default function RedacteurPage() {
 
   return (
     <div className="space-y-8 animate-fade-in pb-16">
-      
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#F3E8EE] pb-4">
         <div>
@@ -238,9 +225,8 @@ export default function RedacteurPage() {
         <div className="flex items-center gap-2.5 flex-wrap">
           <button
             onClick={() => setShowAnglesDrawer(!showAnglesDrawer)}
-            className={`px-3.5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition border cursor-pointer ${
-              showAnglesDrawer ? 'bg-[#C59A45] text-white border-[#C59A45]' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
-            }`}
+            className={`px-3.5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition border cursor-pointer ${showAnglesDrawer ? 'bg-[#C59A45] text-white border-[#C59A45]' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+              }`}
           >
             <Lightbulb className="w-4 h-4" />
             <span>Pépites & Angles ({propertyAngles.length})</span>
@@ -248,66 +234,33 @@ export default function RedacteurPage() {
 
           <button
             onClick={() => setShowTitlesDrawer(!showTitlesDrawer)}
-            className={`px-3.5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition border cursor-pointer ${
-              showTitlesDrawer ? 'bg-[#131B26] text-white border-[#131B26]' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
-            }`}
+            className={`px-3.5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition border cursor-pointer ${showTitlesDrawer ? 'bg-[#131B26] text-white border-[#131B26]' : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+              }`}
           >
             <Heading className="w-4 h-4" />
             <span>Titres Accrocheurs</span>
           </button>
 
-          <button
-            onClick={() => setShowApiKeyModal(!showApiKeyModal)}
-            className="px-3 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition border bg-white text-gray-700 border-gray-200 hover:bg-gray-50 shadow-2xs cursor-pointer"
+          <span
+            title="La clé IA est configurée côté serveur (variable DEEPSEEK_API_KEY)."
+            className="px-3 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 border bg-white text-gray-700 border-gray-200 shadow-2xs"
           >
             <Key className="w-4 h-4 text-[#C59A45]" />
-            <span>Clé IA {settings.deepseek_api_key ? '✓' : ''}</span>
-          </button>
+            <span>Clé IA (serveur)</span>
+          </span>
 
           <button
             onClick={() => setShowTrainingSection(!showTrainingSection)}
-            className={`px-3.5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition border cursor-pointer ${
-              showTrainingSection
-                ? 'bg-[#131B26] text-white border-[#131B26]'
-                : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
-            }`}
+            className={`px-3.5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition border cursor-pointer ${showTrainingSection
+              ? 'bg-[#131B26] text-white border-[#131B26]'
+              : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+              }`}
           >
             <BookOpen className="w-4 h-4 text-[#C59A45]" />
             <span>Mémoire ({trainingExamples.length})</span>
           </button>
         </div>
       </div>
-
-      {/* API Key Modal */}
-      {showApiKeyModal && (
-        <div className="bg-[#131B26] text-white rounded-3xl p-6 border border-gray-800 shadow-xl space-y-4 animate-fade-in">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5 text-[#C59A45] font-bold text-sm">
-              <Cpu className="w-5 h-5" />
-              <span>Configuration du Moteur IA (DeepSeek / Cloud)</span>
-            </div>
-            <button onClick={() => setShowApiKeyModal(false)} className="text-gray-400 hover:text-white text-xs">✕ Fermer</button>
-          </div>
-          <p className="text-xs text-gray-300">
-            Renseignez votre clé API pour la génération en direct par intelligence artificielle. Si absente, le moteur heuristique de style Nelly prend automatiquement le relais.
-          </p>
-          <form onSubmit={handleSaveApiKey} className="flex flex-col sm:flex-row gap-3">
-            <input
-              type="password"
-              placeholder="sk-..."
-              value={apiKeyInput}
-              onChange={(e) => setApiKeyInput(e.target.value)}
-              className="flex-1 p-3 bg-gray-900 border border-gray-700 rounded-xl text-xs font-mono text-white focus:outline-[#E12B7B]"
-            />
-            <button
-              type="submit"
-              className="px-5 py-3 bg-[#E12B7B] hover:bg-[#C71B62] text-white rounded-xl text-xs font-bold uppercase tracking-wider transition cursor-pointer"
-            >
-              Enregistrer la clé
-            </button>
-          </form>
-        </div>
-      )}
 
       {/* Angles Drawer (Brainstormer) */}
       {showAnglesDrawer && (
@@ -469,10 +422,10 @@ export default function RedacteurPage() {
 
       {/* Main Studio Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        
+
         {/* Left Column : Configuration & Property Selection (5 cols) */}
         <div className="lg:col-span-5 space-y-6">
-          
+
           {/* Property Selector */}
           <div className="bg-white rounded-3xl p-6 border border-[#F3E8EE] shadow-2xs space-y-4">
             <h3 className="font-serif font-bold text-base text-[#131B26] flex items-center gap-2">
@@ -554,45 +507,40 @@ export default function RedacteurPage() {
               <button
                 type="button"
                 onClick={() => setActiveCategory('all')}
-                className={`px-2.5 py-1.5 rounded-lg transition cursor-pointer shrink-0 ${
-                  activeCategory === 'all' ? 'bg-[#131B26] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
+                className={`px-2.5 py-1.5 rounded-lg transition cursor-pointer shrink-0 ${activeCategory === 'all' ? 'bg-[#131B26] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
               >
                 Tous
               </button>
               <button
                 type="button"
                 onClick={() => setActiveCategory('portails')}
-                className={`px-2.5 py-1.5 rounded-lg transition cursor-pointer shrink-0 ${
-                  activeCategory === 'portails' ? 'bg-[#131B26] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
+                className={`px-2.5 py-1.5 rounded-lg transition cursor-pointer shrink-0 ${activeCategory === 'portails' ? 'bg-[#131B26] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
               >
                 Portails
               </button>
               <button
                 type="button"
                 onClick={() => setActiveCategory('reseaux')}
-                className={`px-2.5 py-1.5 rounded-lg transition cursor-pointer shrink-0 ${
-                  activeCategory === 'reseaux' ? 'bg-[#131B26] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
+                className={`px-2.5 py-1.5 rounded-lg transition cursor-pointer shrink-0 ${activeCategory === 'reseaux' ? 'bg-[#131B26] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
               >
                 Réseaux & Vidéo
               </button>
               <button
                 type="button"
                 onClick={() => setActiveCategory('direct')}
-                className={`px-2.5 py-1.5 rounded-lg transition cursor-pointer shrink-0 ${
-                  activeCategory === 'direct' ? 'bg-[#131B26] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
+                className={`px-2.5 py-1.5 rounded-lg transition cursor-pointer shrink-0 ${activeCategory === 'direct' ? 'bg-[#131B26] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
               >
                 WhatsApp
               </button>
               <button
                 type="button"
                 onClick={() => setActiveCategory('strategique')}
-                className={`px-2.5 py-1.5 rounded-lg transition cursor-pointer shrink-0 ${
-                  activeCategory === 'strategique' ? 'bg-[#131B26] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
+                className={`px-2.5 py-1.5 rounded-lg transition cursor-pointer shrink-0 ${activeCategory === 'strategique' ? 'bg-[#131B26] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
               >
                 Stratégique
               </button>
@@ -607,11 +555,10 @@ export default function RedacteurPage() {
                     key={tmpl.id}
                     type="button"
                     onClick={() => setSelectedStyle(tmpl.id)}
-                    className={`w-full text-left p-3 rounded-2xl border transition flex items-start justify-between gap-3 cursor-pointer ${
-                      isSelected
-                        ? 'bg-[#FDF2F8] border-[#E12B7B] shadow-2xs ring-1 ring-[#E12B7B]'
-                        : 'bg-gray-50 border-gray-200 hover:bg-gray-100/70'
-                    }`}
+                    className={`w-full text-left p-3 rounded-2xl border transition flex items-start justify-between gap-3 cursor-pointer ${isSelected
+                      ? 'bg-[#FDF2F8] border-[#E12B7B] shadow-2xs ring-1 ring-[#E12B7B]'
+                      : 'bg-gray-50 border-gray-200 hover:bg-gray-100/70'
+                      }`}
                   >
                     <div className="space-y-1">
                       <div className="flex items-center gap-2 flex-wrap">
@@ -627,9 +574,8 @@ export default function RedacteurPage() {
                       </p>
                     </div>
 
-                    <div className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 mt-0.5 ${
-                      isSelected ? 'border-[#E12B7B] bg-[#E12B7B]' : 'border-gray-300'
-                    }`}>
+                    <div className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 mt-0.5 ${isSelected ? 'border-[#E12B7B] bg-[#E12B7B]' : 'border-gray-300'
+                      }`}>
                       {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
                     </div>
                   </button>
@@ -642,18 +588,17 @@ export default function RedacteurPage() {
 
         {/* Right Column : Live Generated Preview (7 cols) */}
         <div className="lg:col-span-7 bg-white rounded-3xl p-6 sm:p-8 border border-[#F3E8EE] shadow-xl space-y-6 sticky top-24">
-          
+
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#FAF5F8] pb-4">
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-[10px] font-bold uppercase tracking-widest text-[#E12B7B]">
                   Studio Actif
                 </span>
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                  generationSource === 'deepseek'
-                    ? 'bg-emerald-100 text-emerald-800'
-                    : 'bg-gray-100 text-gray-700'
-                }`}>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${generationSource === 'deepseek'
+                  ? 'bg-emerald-100 text-emerald-800'
+                  : 'bg-gray-100 text-gray-700'
+                  }`}>
                   {generationSource === 'deepseek' ? 'IA Active' : 'Moteur Local Certifié'}
                 </span>
               </div>
@@ -747,9 +692,8 @@ export default function RedacteurPage() {
               </div>
 
               {/* Visual Frame */}
-              <div className={`relative mx-auto rounded-xl overflow-hidden bg-gray-900 border border-white/10 shadow-lg ${
-                selectedStyle === 'script_video_reel' ? 'aspect-9/16 max-w-[200px]' : 'aspect-square max-w-[260px]'
-              }`}>
+              <div className={`relative mx-auto rounded-xl overflow-hidden bg-gray-900 border border-white/10 shadow-lg ${selectedStyle === 'script_video_reel' ? 'aspect-9/16 max-w-[200px]' : 'aspect-square max-w-[260px]'
+                }`}>
                 <img
                   src={currentProperty.images?.[0]?.image_url || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80'}
                   alt={currentProperty.title}
