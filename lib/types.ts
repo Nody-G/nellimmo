@@ -86,6 +86,12 @@ export interface Property {
   publish_facebook?: boolean;
   url?: string;
 
+  // Cadastre & Références Foncières Officielles
+  cadastral_section?: string;
+  cadastral_number?: string;
+  cadastral_surface?: number;
+  cadastral_id?: string;
+
   // Meta
   created_by?: string;
   created_at: string;

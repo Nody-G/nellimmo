@@ -3,20 +3,41 @@
 import React from 'react';
 import Image from 'next/image';
 import { Property } from '@/lib/types';
+import { useNellimoStore } from '@/lib/store';
 import { CheckCircle2, FileText } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { DpeBadge } from '@/components/ui/DpeBadge';
 import { MandateFinancialCards } from './MandateFinancialCards';
+import { MandateCadastreCard } from './MandateCadastreCard';
 
 interface MandateOverviewTabProps {
   property: Property;
 }
 
 export const MandateOverviewTab: React.FC<MandateOverviewTabProps> = ({ property }) => {
+  const { updateProperty } = useNellimoStore();
+
+  const handleSaveCadastre = async (
+    section: string,
+    numero: string,
+    surface: number,
+    idu: string
+  ) => {
+    await updateProperty(property.id, {
+      cadastral_section: section,
+      cadastral_number: numero,
+      cadastral_surface: surface,
+      cadastral_id: idu,
+    });
+  };
+
   return (
     <div className="space-y-6">
       {/* Financials & Specs Cards */}
       <MandateFinancialCards property={property} />
+
+      {/* Cadastre & IGN Geoportail Parcel Card */}
+      <MandateCadastreCard property={property} onSaveCadastre={handleSaveCadastre} />
 
       {/* DPE & Diagnostic preview */}
       <Card className="p-5">

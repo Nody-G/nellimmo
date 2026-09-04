@@ -6,7 +6,7 @@ import { useNellimoStore } from '@/lib/store';
 import { formatMandateRef } from '@/lib/hoguet';
 import { X, Printer, ShieldCheck } from 'lucide-react';
 import { useToast } from '@/components/ui/Toast';
-import { MandateContractArticles, MandateContractSignatures } from './contract';
+import { MandateContractArticles, MandateContractSignatures, MandateHamonWithdrawalSlip } from './contract';
 
 interface MandateLegalContractModalProps {
   property: Property;
@@ -136,6 +136,14 @@ export const MandateLegalContractModal: React.FC<MandateLegalContractModalProps>
             />
 
             <MandateContractSignatures
+              property={property}
+              settings={settings}
+              mandateRef={mandateRef}
+              startDateFormatted={startDateFormatted}
+            />
+
+            {/* Bordereau de Rétractation 14 Jours Loi Hamon */}
+            <MandateHamonWithdrawalSlip
               property={property}
               settings={settings}
               mandateRef={mandateRef}
