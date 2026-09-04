@@ -73,6 +73,17 @@ Guide d'exécution : `supabase/MIGRATION_GUIDE.md`. Le site public devra lire vi
 - **Rapprochement Acquéreurs Prestige A4 + Email VIP** : Dossier de sélection imprimable A4 haut de gamme avec en-tête d'agence SASU Nell'Immo (carte T, GALIAN, RCS), scores de matching %, liens vers les fiches web publiques et bouton d'envoi immédiat par Email en complément de WhatsApp (`BuyerSelectionModal.tsx`).
 - **Pige Intelligente & Écart DVF Instantané** : Parseur de texte collé amélioré (détection fine des codes postaux, prix 'k€' et surfaces décimales) + calcul en temps réel de l'écart au m² et argument d'objection dans la modale d'ajout rapide (`pige-import.ts` & `NewLeadModal.tsx`).
 - **Mobilité Terrain GPS 1 Clic** : Bouton d'accès direct Waze / Google Maps sur le bon de visite (`VisitHeader.tsx`) pour guidage immédiat sur le terrain.
+- **Multidiffusion Portails Pro (Supériorité Hektor / Ubiflow)** :
+  - 6 portails majeurs gérés : SeLoger/Logic-Immo (Poliris 4.08), LeBonCoin SFTP, Bien’ici XML, Figaro & Belles Demeures, Green-Acres Europe/Expat, Facebook Marketplace & Instagram Shop (Meta XML `/api/feeds/facebook-catalog.xml`).
+  - Toggles 1-clic direct dans le tableau (`PropertiesDiffusionTable.tsx` & `DiffusionTableRow.tsx`) avec persistance instantanée.
+  - Gestion des quotas et forfaits portails (`PortalQuotasCard.tsx`) avec jauges en direct et économie nette (~2 160 € / an vs Ubiflow).
+  - Moteur d'audit de conformité pré-vol ALUR & portails (`lib/compliance.ts`) avec modale d'inspection (`ComplianceAuditModal.tsx`) détectant DPE manquant, photos < 3 et coordonnées interdites dans le texte.
+- **Studio Réseaux Sociaux & Social Planner Dédié (`/cockpit/reseaux-sociaux`)** :
+  - Générateur visuel multi-formats (`SocialVisualGenerator.tsx`) : 1:1 Carré, 9:16 Story/Reel/TikTok, 16:9 Paysage LinkedIn, Carrousel 5 diapos.
+  - 6 badges marketing personnalisables (Exclusivité, Nouveauté, Baisse de prix, Sous compromis, Vendu, Coup de cœur) et thèmes visuels.
+  - Export HD direct en PNG (1080x1080 / 1080x1920) via `html2canvas` côté client.
+  - Rédacteur social multicanal (`SocialCopywriterTabs.tsx`) avec Web Share API native, partages 1-clic Facebook, LinkedIn, X, WhatsApp.
+  - Social Planner avec calendrier des posts (`SocialPlannerView.tsx`) et simulation de grille Instagram 3x3 (`InstagramGridPreview.tsx`).
 
 ## Règle d'architecture : PAS de god components (IMPORTANTE)
 

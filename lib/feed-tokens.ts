@@ -34,6 +34,12 @@ export function getPolirisFeedToken(): string {
     return 'poliris_token_nellimmo_dev';
 }
 
+export function getFacebookFeedToken(): string {
+    const t = process.env.FACEBOOK_FEED_TOKEN;
+    if (t) return t;
+    return 'fb_catalog_token_nellimmo_2026';
+}
+
 /** Vérifie un token fourni contre la valeur attendue. */
 export function isValidFeedToken(provided: string | null, expected: string): boolean {
     if (!provided) return false;

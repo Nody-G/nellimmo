@@ -10,6 +10,7 @@ import {
 import {
   DiffusionHeader,
   ChannelsStatusGrid,
+  PortalQuotasCard,
   AutomatedSyncBox,
   PolirisInspector,
   PropertiesDiffusionTable,
@@ -83,6 +84,9 @@ export default function DiffusionDashboardPage() {
 
       {/* Syndication Channels Status Grid */}
       <ChannelsStatusGrid activeProperties={activeProperties} settings={settings} />
+
+      {/* Quotas & Packs Monitoring (Anti-Overbilling vs Ubiflow) */}
+      <PortalQuotasCard activeProperties={activeProperties} settings={settings} />
 
       {/* Automated Scheduled Sync Box */}
       <AutomatedSyncBox

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import {
   Calculator,
@@ -8,10 +8,7 @@ import {
   TrendingUp,
   Scale,
   Building,
-  PiggyBank,
-  FileCheck2,
   Sparkles,
-  Info,
 } from 'lucide-react';
 import { LoanCreditSimulator } from '@/components/cockpit/simulateurs/LoanCreditSimulator';
 import { RentalYieldSimulator } from '@/components/cockpit/simulateurs/RentalYieldSimulator';
@@ -68,22 +65,14 @@ function SimulateursContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const tabParam = searchParams.get('tab') as SimulatorTab | null;
+  const [userTab, setUserTab] = useState<SimulatorTab | null>(null);
 
-  const [activeTab, setActiveTab] = useState<SimulatorTab>(() => {
-    if (tabParam && TABS.some((t) => t.id === tabParam)) {
-      return tabParam;
-    }
-    return 'credit';
-  });
-
-  useEffect(() => {
-    if (tabParam && TABS.some((t) => t.id === tabParam) && tabParam !== activeTab) {
-      setActiveTab(tabParam);
-    }
-  }, [tabParam, activeTab]);
+  const activeTab: SimulatorTab = (tabParam && TABS.some((t) => t.id === tabParam))
+    ? tabParam
+    : (userTab ?? 'credit');
 
   const handleTabChange = (tab: SimulatorTab) => {
-    setActiveTab(tab);
+    setUserTab(tab);
     router.replace(`/cockpit/simulateurs?tab=${tab}`, { scroll: false });
   };
 

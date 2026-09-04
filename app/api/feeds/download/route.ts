@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getBieniciFeedToken, getPolirisFeedToken } from '@/lib/feed-tokens';
+import { getBieniciFeedToken, getPolirisFeedToken, getFacebookFeedToken } from '@/lib/feed-tokens';
 
 /**
  * Passerelle de téléchargement sécurisée des flux portails.
@@ -51,5 +51,23 @@ export async function GET(request: NextRequest) {
         });
     }
 
-    return new NextResponse('Paramètre `feed` invalide (attendu : poliris | bienici)', { status: 400 });
+    if (feed === 'facebook') {
+        const token = getFacebookFeedToken();
+        const upstream = new URL('/api/feeds/facebook-catalog.xml', request.nextUrl.origin);
+        upstream.searchParams.set('token', token);
+        const res = await fetch(upstream.toString());
+        if (!res.ok) {
+            return new NextResponse('Échec de la génération du flux Facebook Marketplace', { status: res.status });
+        }
+        const text = await res.text();
+        return new NextResponse(text, {
+            headers: {
+                'Content-Type': 'application/xml; charset=utf-8',
+                'Content-Disposition': 'attachment; filename="meta_catalog_nellimo.xml"',
+                'Cache-Control': 's-maxage=3600, stale-while-revalidate',
+            },
+        });
+    }
+
+    return new NextResponse('Paramètre `feed` invalide (attendu : poliris | bienici | facebook)', { status: 400 });
 }

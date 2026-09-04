@@ -70,6 +70,16 @@ export function SocialVisualCard({ property, settings, style }: SocialVisualCard
           </span>
         </div>
       </div>
+
+      <div className="pt-2 text-center">
+        <a
+          href={`/cockpit/reseaux-sociaux?mandate=${property.id}`}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/10 hover:bg-white/20 text-[#C59A45] rounded-xl text-[11px] font-bold transition"
+        >
+          <span>Ouvrir dans le Studio Réseaux Sociaux HD</span>
+          <span>→</span>
+        </a>
+      </div>
     </div>
   );
 }

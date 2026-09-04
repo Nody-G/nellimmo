@@ -22,6 +22,7 @@ import {
   BookOpen,
   BellRing,
   Calculator,
+  Share2,
 } from 'lucide-react';
 
 export interface NavItem {
@@ -78,6 +79,7 @@ export function getNavSections(pendingRelancesCount: number): NavSection[] {
       title: 'Marketing & IA',
       items: [
         { name: 'Studio Rédaction IA', href: '/cockpit/redacteur', icon: Sparkles },
+        { name: 'Studio Réseaux Sociaux', href: '/cockpit/reseaux-sociaux', icon: Share2 },
         { name: 'Fiches Vitrine LED', href: '/cockpit/fiches-vitrine', icon: Printer },
         { name: 'Multidiffusion Portails', href: '/cockpit/diffusion', icon: Radio },
         { name: "Nell'IA Infinite Lab", href: '/cockpit/lab', icon: BrainCircuit, highlight: true },

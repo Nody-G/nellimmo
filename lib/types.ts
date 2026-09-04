@@ -76,11 +76,14 @@ export interface Property {
   video_url?: string; // YouTube, Vimeo, MP4 direct
   virtual_tour_url?: string; // Matterport, Nodalview, etc.
 
-  // Channels
+  // Channels (Multidiffusion Portails)
   publish_website: boolean;
   publish_seloger: boolean;
   publish_leboncoin: boolean;
   publish_bienici: boolean;
+  publish_figaro?: boolean;
+  publish_greenacres?: boolean;
+  publish_facebook?: boolean;
   url?: string;
 
   // Meta
@@ -357,6 +360,9 @@ export interface AgencySettings {
   last_sftp_sync_at?: string;
   last_sftp_sync_status?: 'success' | 'error' | 'idle';
 
+  // Quotas Portails (Multi-diffusion)
+  portal_quotas?: PortalQuotaConfig;
+
   // Réseaux Sociaux (Meta & LinkedIn)
   meta_app_id?: string;
   meta_app_secret?: string;
@@ -596,3 +602,32 @@ export interface DelegationAgreement {
   special_clauses?: string;
 }
 
+/** Configuration des quotas de publication par portail (pack annonces). */
+export interface PortalQuotaConfig {
+  seloger: number;
+  leboncoin: number;
+  bienici: number;
+  figaro: number;
+  greenacres: number;
+  facebook: number;
+}
+
+export type SocialChannel = 'instagram' | 'facebook' | 'linkedin' | 'tiktok';
+export type SocialFormat = 'square' | 'story' | 'landscape' | 'carousel';
+export type SocialBadge = 'exclusivite' | 'nouveau' | 'baisse_prix' | 'sous_compromis' | 'vendu' | 'coup_de_coeur';
+
+/** Publication réseaux sociaux (Studio & Planner). */
+export interface SocialPost {
+  id: string;
+  property_id: string;
+  property_title: string;
+  channel: SocialChannel;
+  format: SocialFormat;
+  badge: SocialBadge;
+  content: string;
+  image_url?: string;
+  slide_images?: string[];
+  scheduled_at?: string;
+  status: 'brouillon' | 'planifie' | 'publie';
+  created_at: string;
+}

@@ -10,7 +10,6 @@ import {
   CheckCircle2,
   Copy,
   Check,
-  AlertCircle,
 } from 'lucide-react';
 
 export function RentalYieldSimulator() {

@@ -37,6 +37,16 @@ export const INITIAL_AGENCY_SETTINGS: AgencySettings = {
   last_sftp_sync_at: new Date(Date.now() - 3600000 * 2).toISOString(),
   last_sftp_sync_status: "success",
 
+  // Quotas Portails (Multi-diffusion active)
+  portal_quotas: {
+    seloger: 15,
+    leboncoin: 10,
+    bienici: 20,
+    figaro: 10,
+    greenacres: 10,
+    facebook: 25,
+  },
+
   // Réseaux Sociaux (Meta & LinkedIn)
   meta_app_id: "948271039847120",
   facebook_page_id: "nellimmo.immobilier",
