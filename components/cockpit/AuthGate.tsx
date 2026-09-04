@@ -23,6 +23,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
   const {
     authed,
     mode,
+    setMode,
     email,
     setEmail,
     password,
@@ -109,9 +110,38 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
               {isSetup
                 ? 'Créer le compte et activer'
                 : mode === 'legacy'
-                  ? 'Vérifier et continuer'
+                  ? 'Déverrouiller le Cockpit'
                   : 'Se connecter'}
             </button>
+
+            {/* Bascule vers le mode code d'accès simple */}
+            <div className="pt-2 text-center">
+              {isSetup ? (
+                <button
+                  type="button"
+                  onClick={() => setMode('legacy')}
+                  className="text-xs font-bold text-[#E12B7B] hover:underline cursor-pointer"
+                >
+                  J’ai déjà un code d’accès / mot de passe → Connexion directe
+                </button>
+              ) : mode === 'legacy' ? (
+                <button
+                  type="button"
+                  onClick={() => setMode('setup')}
+                  className="text-xs font-medium text-gray-500 hover:text-gray-700 hover:underline cursor-pointer"
+                >
+                  Configurer un compte administrateur complet →
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setMode('legacy')}
+                  className="text-xs font-bold text-[#E12B7B] hover:underline cursor-pointer"
+                >
+                  Connexion rapide par code d’accès seul →
+                </button>
+              )}
+            </div>
           </form>
 
           <p className="text-[10px] text-gray-400 text-center leading-relaxed">

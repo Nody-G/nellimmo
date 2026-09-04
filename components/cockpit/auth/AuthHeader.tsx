@@ -16,13 +16,13 @@ export function AuthHeader({ mode }: AuthHeaderProps) {
     ? 'Créez votre compte administrateur'
     : isLogin
       ? 'Espace sécurisé'
-      : 'Migration vers les comptes';
+      : 'Connexion Cockpit';
 
   const subtitle = isSetup
-    ? 'Configurez le premier compte admin et la clé d’agence qui protège vos données.'
+    ? 'Configurez le premier compte admin ou connectez-vous directement avec votre code.'
     : isLogin
       ? 'Connectez-vous avec votre email et mot de passe pour accéder au cockpit.'
-      : 'Votre cockpit utilise encore un mot de passe unique. Créez votre compte admin pour activer les comptes utilisateurs.';
+      : 'Saisissez votre code d’accès pour déverrouiller immédiatement le cockpit.';
 
   return (
     <div className="flex flex-col items-center text-center space-y-3">

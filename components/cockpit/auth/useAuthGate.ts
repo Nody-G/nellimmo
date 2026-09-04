@@ -3,6 +3,8 @@
 import { useState, useEffect, useSyncExternalStore } from 'react';
 import {
   hasPassword,
+  setupPassword,
+  createSession,
   setupFirstAdmin,
   loginUser,
   verifyPassword,
@@ -79,15 +81,19 @@ export function useAuthGate() {
           setBusy(false);
           return;
         }
-        if (agencyKey.length < 6) {
-          setError('La clé d’agence doit contenir au moins 6 caractères.');
-          setBusy(false);
-          return;
-        }
-        if (agencyKey !== agencyKeyConfirm) {
-          setError('Les deux clés d’agence ne correspondent pas.');
-          setBusy(false);
-          return;
+        // Clé d'agence : si non renseignée, utiliser automatiquement le mot de passe !
+        const effectiveAgencyKey = agencyKey.trim() || password;
+        if (agencyKey.trim()) {
+          if (agencyKey.length < 6) {
+            setError('La clé d’agence doit contenir au moins 6 caractères.');
+            setBusy(false);
+            return;
+          }
+          if (agencyKey !== agencyKeyConfirm) {
+            setError('Les deux clés d’agence ne correspondent pas.');
+            setBusy(false);
+            return;
+          }
         }
         await setupFirstAdmin(
           {
@@ -96,31 +102,49 @@ export function useAuthGate() {
             last_name: lastName.trim(),
             password,
           },
-          agencyKey
+          effectiveAgencyKey
         );
-        await unlockVaultWithAgencyKey(unlockVault);
-        await hydrateSettingsSecrets();
+        try {
+          await setupPassword(password);
+        } catch {
+          // Ignorer
+        }
+        await unlockVaultWithAgencyKey(unlockVault).catch(() => {});
+        await hydrateSettingsSecrets().catch(() => {});
         notifyAuthChanged();
       } else if (mode === 'legacy') {
         const ok = await verifyPassword(password);
         if (!ok) {
-          setError('Mot de passe incorrect.');
+          setError('Code d’accès ou mot de passe incorrect.');
           setBusy(false);
           return;
         }
-        setMode('setup');
-        setPassword('');
-        setConfirm('');
-        setBusy(false);
+        // Connexion immédiate en mode code d'accès !
+        createSession();
+        await unlockVaultWithAgencyKey(unlockVault).catch(() => {});
+        await hydrateSettingsSecrets().catch(() => {});
+        notifyAuthChanged();
       } else {
-        const user = await loginUser(email.trim(), password);
+        let user = null;
+        if (email.trim()) {
+          user = await loginUser(email.trim(), password);
+        }
         if (!user) {
-          setError('Identifiants incorrects ou compte inactif.');
+          // Repli : vérifier si le mot de passe correspond au code d'accès legacy
+          const ok = await verifyPassword(password);
+          if (ok) {
+            createSession();
+            await unlockVaultWithAgencyKey(unlockVault).catch(() => {});
+            await hydrateSettingsSecrets().catch(() => {});
+            notifyAuthChanged();
+            return;
+          }
+          setError('Identifiants ou code d’accès incorrect.');
           setBusy(false);
           return;
         }
-        await unlockVaultWithAgencyKey(unlockVault);
-        await hydrateSettingsSecrets();
+        await unlockVaultWithAgencyKey(unlockVault).catch(() => {});
+        await hydrateSettingsSecrets().catch(() => {});
         notifyAuthChanged();
       }
     } catch (err) {
@@ -132,6 +156,7 @@ export function useAuthGate() {
   return {
     authed,
     mode,
+    setMode,
     email,
     setEmail,
     password,

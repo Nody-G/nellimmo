@@ -123,16 +123,19 @@ export function AuthSetupFields({
       </div>
 
       <div className="bg-[#FAF5F8] border border-[#F3E8EE] rounded-2xl p-4 space-y-3">
-        <div className="flex items-center gap-2 text-[#131B26]">
-          <Building2 className="w-4 h-4 text-[#E12B7B]" />
-          <span className="text-xs font-bold uppercase tracking-wider">
-            Clé d’agence
+        <div className="flex items-center justify-between text-[#131B26]">
+          <div className="flex items-center gap-2">
+            <Building2 className="w-4 h-4 text-[#E12B7B]" />
+            <span className="text-xs font-bold uppercase tracking-wider">
+              Clé d’agence
+            </span>
+          </div>
+          <span className="text-[10px] text-gray-500 font-semibold bg-white border border-gray-200 px-2 py-0.5 rounded-full">
+            Optionnel
           </span>
         </div>
         <p className="text-[11px] text-gray-500 leading-relaxed">
-          Cette clé (indépendante des mots de passe) déverrouille le
-          coffre-fort partagé pour tous les utilisateurs authentifiés.
-          Conservez-la précieusement.
+          Laissez vide pour utiliser automatiquement votre mot de passe comme clé de coffre-fort.
         </p>
         <div>
           <input
@@ -140,18 +143,20 @@ export function AuthSetupFields({
             value={agencyKey}
             onChange={(e) => setAgencyKey(e.target.value)}
             className="w-full p-2.5 bg-white border border-gray-200 rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#E12B7B]/30"
-            placeholder="Clé d’agence"
+            placeholder="Identique au mot de passe (laisser vide)"
           />
         </div>
-        <div>
-          <input
-            type={show ? 'text' : 'password'}
-            value={agencyKeyConfirm}
-            onChange={(e) => setAgencyKeyConfirm(e.target.value)}
-            className="w-full p-2.5 bg-white border border-gray-200 rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#E12B7B]/30"
-            placeholder="Confirmer la clé d’agence"
-          />
-        </div>
+        {agencyKey.trim().length > 0 && (
+          <div>
+            <input
+              type={show ? 'text' : 'password'}
+              value={agencyKeyConfirm}
+              onChange={(e) => setAgencyKeyConfirm(e.target.value)}
+              className="w-full p-2.5 bg-white border border-gray-200 rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#E12B7B]/30"
+              placeholder="Confirmer la clé d’agence"
+            />
+          </div>
+        )}
       </div>
     </>
   );
