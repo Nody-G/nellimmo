@@ -133,7 +133,7 @@ export default function TransactionsPipelinePage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8 animate-fade-in pb-20">
+    <div className="w-full space-y-8 animate-fade-in pb-20">
       <TransactionsHeader
         activeDealsCount={activeDeals.length}
         closedDealsCount={closedDeals.length}

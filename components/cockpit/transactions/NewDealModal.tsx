@@ -18,7 +18,7 @@ interface NewDealModalProps {
 export function NewDealModal({ properties, onCreate, onClose }: NewDealModalProps) {
     return (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
-            <div className="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 space-y-4 shadow-2xl border border-gray-100">
+            <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 space-y-4 shadow-2xl border border-gray-100">
                 <div className="flex items-center justify-between border-b border-gray-100 pb-3">
                     <h3 className="text-lg font-serif font-bold text-[#131B26]">
                         Créer un Nouveau Dossier de Vente

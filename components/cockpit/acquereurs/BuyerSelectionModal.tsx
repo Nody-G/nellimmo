@@ -92,8 +92,8 @@ Nelly Fernandez — SASU Nell'Immo
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 animate-fade-in overflow-y-auto">
-      <div className="bg-white rounded-3xl max-w-4xl w-full shadow-2xl border border-gray-100 flex flex-col max-h-[92vh] overflow-hidden">
+    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 md:p-6 animate-fade-in overflow-y-auto">
+      <div className="bg-white rounded-3xl max-w-6xl w-full shadow-2xl border border-gray-100 flex flex-col max-h-[92vh] overflow-hidden">
         {/* Header */}
         <div className="p-5 border-b border-gray-100 flex items-center justify-between shrink-0 bg-[#FCFAF7]">
           <div>

@@ -4,11 +4,9 @@ import React, { useState, useMemo, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useNellimoStore } from '@/lib/store';
 import type { Buyer } from '@/lib/types';
-import { NotaryFinanceCalculator } from '@/components/cockpit/NotaryFinanceCalculator';
 import {
   filterBuyers,
   AcquereursHeader,
-  LoanSimulator,
   AcquereursFilterBar,
   BuyersGrid,
   NewBuyerModal,
@@ -28,8 +26,6 @@ function BuyersCrmContent() {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [isLoanSimulatorOpen, setIsLoanSimulatorOpen] = useState(false);
-  const [isNotaryCalcOpen, setIsNotaryCalcOpen] = useState(false);
   const [isBroadcastModalOpen, setIsBroadcastModalOpen] = useState(false);
   const [selectedBuyerForSelection, setSelectedBuyerForSelection] = useState<Buyer | null>(null);
   const [broadcastPropertyId, setBroadcastPropertyId] = useState<string>(properties[0]?.id || '');
@@ -53,39 +49,13 @@ function BuyersCrmContent() {
     [buyers, searchQuery, statusFilter]
   );
 
-  const toggleNotaryCalc = () => {
-    setIsNotaryCalcOpen((open) => {
-      if (!open) setIsLoanSimulatorOpen(false);
-      return !open;
-    });
-  };
-
-  const toggleLoanSimulator = () => {
-    setIsLoanSimulatorOpen((open) => {
-      if (!open) setIsNotaryCalcOpen(false);
-      return !open;
-    });
-  };
-
   return (
     <div className="space-y-6 animate-fade-in pb-20">
       <AcquereursHeader
         buyerCount={buyers.length}
-        isNotaryCalcOpen={isNotaryCalcOpen}
-        isLoanSimulatorOpen={isLoanSimulatorOpen}
-        onToggleNotaryCalc={toggleNotaryCalc}
-        onToggleLoanSimulator={toggleLoanSimulator}
         onOpenBroadcast={() => setIsBroadcastModalOpen(true)}
         onOpenNewBuyer={() => setIsNewModalOpen(true)}
       />
-
-      {isLoanSimulatorOpen && <LoanSimulator isOpen onClose={() => setIsLoanSimulatorOpen(false)} />}
-
-      {isNotaryCalcOpen && (
-        <div className="animate-fade-in">
-          <NotaryFinanceCalculator />
-        </div>
-      )}
 
       <AcquereursFilterBar
         searchQuery={searchQuery}

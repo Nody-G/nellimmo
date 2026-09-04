@@ -20,7 +20,8 @@ import {
   KeyRound,
   Calendar,
   BookOpen,
-  BellRing
+  BellRing,
+  Calculator,
 } from 'lucide-react';
 
 export interface NavItem {
@@ -70,6 +71,7 @@ export function getNavSections(pendingRelancesCount: number): NavSection[] {
       items: [
         { name: 'Pige & Prospection PAP', href: '/cockpit/pige', icon: Radar },
         { name: 'Avis de Valeur DVF', href: '/cockpit/avis-de-valeur', icon: TrendingUp },
+        { name: 'Simulateurs Financiers', href: '/cockpit/simulateurs', icon: Calculator },
       ],
     },
     {

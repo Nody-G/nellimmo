@@ -12,7 +12,11 @@ import {
   type CapitalGainsInputs,
 } from './notary-finance/notary-finance-types';
 
-export function NotaryFinanceCalculator() {
+interface NotaryFinanceCalculatorProps {
+  initialTab?: NotaryTabType;
+}
+
+export function NotaryFinanceCalculator({ initialTab = 'notary' }: NotaryFinanceCalculatorProps = {}) {
   const purchasePriceId = useId();
   const furnitureValueId = useId();
   const propertyStateId = useId();
@@ -23,7 +27,7 @@ export function NotaryFinanceCalculator() {
   const holdingYearsId = useId();
   const worksOptionId = useId();
 
-  const [activeTab, setActiveTab] = useState<NotaryTabType>('notary');
+  const [activeTab, setActiveTab] = useState<NotaryTabType>(initialTab);
 
   // Notary fees inputs
   const [notaryInputs, setNotaryInputs] = useState<NotaryInputs>({

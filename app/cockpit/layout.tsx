@@ -122,7 +122,7 @@ export default function CockpitLayout({ children }: { children: React.ReactNode 
             </header>
 
             {/* Page Content View */}
-            <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto print:p-0 print:max-w-none">
+            <main className="flex-1 p-4 sm:p-6 lg:p-8 2xl:px-10 w-full max-w-[1920px] mx-auto print:p-0 print:max-w-none">
               {children}
             </main>
           </div>

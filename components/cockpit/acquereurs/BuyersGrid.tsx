@@ -13,7 +13,7 @@ interface BuyersGridProps {
 /** Responsive grid of buyer cards with live matching against active mandates. */
 export function BuyersGrid({ buyers, activeProperties, onOpenSelection }: BuyersGridProps) {
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6">
             {buyers.map((b) => {
                 const matchingProperties = getMatchingProperties(activeProperties, b);
                 return (

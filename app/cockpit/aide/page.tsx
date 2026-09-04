@@ -71,7 +71,7 @@ function HelpAcademyContent() {
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
+    <div className="space-y-6 w-full pb-16 animate-fade-in">
       <AideHeader onOpenCalculator={() => setIsCalculatorOpen(true)} />
 
       <AideSearchBar

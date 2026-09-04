@@ -34,8 +34,8 @@ export const MandateLegalContractModal: React.FC<MandateLegalContractModalProps>
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 animate-fade-in overflow-y-auto">
-      <div className="bg-white rounded-3xl max-w-4xl w-full shadow-2xl border border-gray-200 flex flex-col max-h-[94vh] overflow-hidden">
+    <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 md:p-6 animate-fade-in overflow-y-auto">
+      <div className="bg-white rounded-3xl max-w-5xl w-full shadow-2xl border border-gray-200 flex flex-col max-h-[94vh] overflow-hidden">
         {/* Modal Top Bar */}
         <div className="p-4 sm:p-5 border-b border-gray-100 flex items-center justify-between shrink-0 bg-[#FCFAF7]">
           <div className="flex items-center gap-3">

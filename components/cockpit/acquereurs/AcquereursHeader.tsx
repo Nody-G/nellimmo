@@ -1,24 +1,17 @@
 'use client';
 
-import { Calculator, Coins, PlusCircle, Send, Users } from 'lucide-react';
+import Link from 'next/link';
+import { Calculator, Coins, PlusCircle, Send, Users, ArrowUpRight } from 'lucide-react';
 
 interface AcquereursHeaderProps {
     buyerCount: number;
-    isNotaryCalcOpen: boolean;
-    isLoanSimulatorOpen: boolean;
-    onToggleNotaryCalc: () => void;
-    onToggleLoanSimulator: () => void;
     onOpenBroadcast: () => void;
     onOpenNewBuyer: () => void;
 }
 
-/** Page header with title and the main action buttons. */
+/** Page header with title and main action buttons. */
 export function AcquereursHeader({
     buyerCount,
-    isNotaryCalcOpen,
-    isLoanSimulatorOpen,
-    onToggleNotaryCalc,
-    onToggleLoanSimulator,
     onOpenBroadcast,
     onOpenNewBuyer,
 }: AcquereursHeaderProps) {
@@ -38,27 +31,25 @@ export function AcquereursHeader({
             </div>
 
             <div className="flex items-center gap-2 flex-wrap">
-                <button
-                    onClick={onToggleNotaryCalc}
-                    className={`px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition cursor-pointer shadow-xs ${isNotaryCalcOpen
-                            ? 'bg-[#131B26] text-white'
-                            : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
-                        }`}
+                <Link
+                    href="/cockpit/simulateurs?tab=notary"
+                    className="px-3.5 py-2.5 bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition cursor-pointer shadow-2xs group"
+                    title="Ouvrir le simulateur de frais de notaire & plus-value"
                 >
                     <Coins className="w-4 h-4 text-[#C59A45]" />
-                    <span>Frais de Notaire & Plus-Value</span>
-                </button>
+                    <span>Frais de Notaire</span>
+                    <ArrowUpRight className="w-3.5 h-3.5 text-gray-400 group-hover:text-gray-700 transition" />
+                </Link>
 
-                <button
-                    onClick={onToggleLoanSimulator}
-                    className={`px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition cursor-pointer shadow-xs ${isLoanSimulatorOpen
-                            ? 'bg-[#131B26] text-white'
-                            : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
-                        }`}
+                <Link
+                    href="/cockpit/simulateurs?tab=credit"
+                    className="px-3.5 py-2.5 bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition cursor-pointer shadow-2xs group"
+                    title="Ouvrir le simulateur de crédit & règle HCSF 35%"
                 >
                     <Calculator className="w-4 h-4 text-[#C59A45]" />
                     <span>Simulateur Crédit & HCSF</span>
-                </button>
+                    <ArrowUpRight className="w-3.5 h-3.5 text-gray-400 group-hover:text-gray-700 transition" />
+                </Link>
 
                 <button
                     onClick={onOpenBroadcast}
