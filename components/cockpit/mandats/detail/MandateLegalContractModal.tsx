@@ -7,15 +7,7 @@ import { formatMandateRef } from '@/lib/hoguet';
 import {
   X,
   Printer,
-  ShieldCheck,
-  CheckCircle2,
-  FileText,
-  FileSignature,
-  Building,
-  Scale,
-  Calendar,
-  Lock,
-  Download
+  ShieldCheck
 } from 'lucide-react';
 import { useToast } from '@/components/ui/Toast';
 
@@ -57,7 +49,7 @@ export const MandateLegalContractModal: React.FC<MandateLegalContractModalProps>
   return (
     <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 animate-fade-in overflow-y-auto">
       <div className="bg-white rounded-3xl max-w-4xl w-full shadow-2xl border border-gray-200 flex flex-col max-h-[94vh] overflow-hidden">
-        
+
         {/* Modal Top Bar */}
         <div className="p-4 sm:p-5 border-b border-gray-100 flex items-center justify-between shrink-0 bg-[#FCFAF7]">
           <div className="flex items-center gap-3">
@@ -104,21 +96,19 @@ export const MandateLegalContractModal: React.FC<MandateLegalContractModalProps>
             <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-gray-200">
               <button
                 onClick={() => setMandateType('exclusif')}
-                className={`px-3 py-1 rounded-lg font-bold transition cursor-pointer ${
-                  mandateType === 'exclusif'
+                className={`px-3 py-1 rounded-lg font-bold transition cursor-pointer ${mandateType === 'exclusif'
                     ? 'bg-[#E12B7B] text-white shadow-2xs'
                     : 'text-gray-600 hover:text-gray-900'
-                }`}
+                  }`}
               >
                 Mandat Exclusif
               </button>
               <button
                 onClick={() => setMandateType('simple')}
-                className={`px-3 py-1 rounded-lg font-bold transition cursor-pointer ${
-                  mandateType === 'simple'
+                className={`px-3 py-1 rounded-lg font-bold transition cursor-pointer ${mandateType === 'simple'
                     ? 'bg-[#131B26] text-white shadow-2xs'
                     : 'text-gray-600 hover:text-gray-900'
-                }`}
+                  }`}
               >
                 Mandat Simple
               </button>
@@ -134,7 +124,7 @@ export const MandateLegalContractModal: React.FC<MandateLegalContractModalProps>
         {/* Scrollable Printable A4 Contract Document */}
         <div className="flex-1 overflow-y-auto p-6 sm:p-10 bg-gray-100 flex justify-center">
           <div className="bg-white max-w-[780px] w-full p-8 sm:p-12 shadow-lg border border-gray-300 font-sans text-gray-900 text-xs leading-relaxed space-y-6 print:shadow-none print:border-none print:p-0 print:m-0">
-            
+
             {/* Header / Titre Officiel */}
             <div className="text-center border-b-2 border-gray-900 pb-4 space-y-1">
               <span className="text-[10px] font-bold uppercase tracking-widest text-[#C59A45] block">
@@ -205,7 +195,7 @@ export const MandateLegalContractModal: React.FC<MandateLegalContractModalProps>
               <h3 className="font-bold text-xs uppercase tracking-wider text-[#131B26]">
                 4. CONDITIONS FINANCIÈRES & HONORAIRES DE NÉGOCIATION (LOI ALUR)
               </h3>
-              
+
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center">
                 <div className="p-2.5 bg-white rounded-lg border border-gray-300">
                   <span className="text-[10px] uppercase font-bold text-gray-500 block">Prix Net Vendeur</span>

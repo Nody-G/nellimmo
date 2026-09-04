@@ -4,16 +4,13 @@ import React from 'react';
 import Image from 'next/image';
 import { Property } from '@/lib/types';
 import {
-  Euro,
-  Home,
-  User,
   Phone,
   Mail,
   MapPin,
   CheckCircle2,
   FileText
 } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
+import { Card } from '@/components/ui/Card';
 import { DpeBadge } from '@/components/ui/DpeBadge';
 
 interface MandateOverviewTabProps {

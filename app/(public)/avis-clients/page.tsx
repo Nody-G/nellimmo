@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { ShieldCheck, CheckCircle2, ArrowRight, Phone, Star, PlusCircle, X, Sparkles, Send } from 'lucide-react';
+import { ShieldCheck, CheckCircle2, ArrowRight, Phone, Star, X, Sparkles, Send } from 'lucide-react';
 
 export default function AvisClientsPage() {
   const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);

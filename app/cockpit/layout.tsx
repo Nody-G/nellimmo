@@ -7,6 +7,8 @@ import { CommandPalette } from '@/components/cockpit/CommandPalette';
 import { CockpitMobileNav } from '@/components/cockpit/CockpitMobileNav';
 import { ContextualHelpDrawer } from '@/components/cockpit/ContextualHelpDrawer';
 import { AuthGate } from '@/components/cockpit/AuthGate';
+import { PwaRegister } from '@/components/cockpit/pwa/PwaRegister';
+import { InstallAppButton } from '@/components/cockpit/pwa/InstallAppButton';
 import { NellimoProvider } from '@/lib/store';
 import { logout } from '@/lib/auth';
 import { lockVault } from '@/lib/vault';
@@ -27,15 +29,16 @@ export default function CockpitLayout({ children }: { children: React.ReactNode 
   return (
     <NellimoProvider>
       <AuthGate>
-        <div className="min-h-screen bg-[#FAF5F8] flex flex-col md:flex-row text-gray-900 font-sans antialiased pb-16 md:pb-0">
+        <PwaRegister />
+        <div className="min-h-screen bg-[#FAF5F8] flex flex-col md:flex-row text-gray-900 font-sans antialiased pb-16 md:pb-0 print:pb-0 print:bg-white">
 
           {/* Desktop Sidebar */}
-          <div className="hidden md:block">
+          <div className="hidden md:block print:hidden">
             <CockpitSidebar />
           </div>
 
           {/* Mobile Header Bar */}
-          <div className="md:hidden bg-[#131B26] text-white p-4 flex items-center justify-between sticky top-0 z-40 shadow-md">
+          <div className="md:hidden bg-[#131B26] text-white p-4 flex items-center justify-between sticky top-0 z-40 shadow-md print:hidden">
             <div className="flex items-center gap-2.5">
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -54,6 +57,7 @@ export default function CockpitLayout({ children }: { children: React.ReactNode 
             <div className="flex items-center gap-2">
               <ContextualHelpDrawer />
               <CommandPalette />
+              <InstallAppButton />
               <Link
                 href="/cockpit/mandats/nouveau"
                 className="p-2 bg-[#E12B7B] text-white rounded-lg text-xs font-bold flex items-center gap-1 shadow-sm"
@@ -78,7 +82,7 @@ export default function CockpitLayout({ children }: { children: React.ReactNode 
           <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
 
             {/* Top Header Bar for Desktop */}
-            <header className="bg-white border-b border-[#F3E8EE] px-6 py-3.5 hidden md:flex items-center justify-between sticky top-0 z-30 shadow-2xs">
+            <header className="bg-white border-b border-[#F3E8EE] px-6 py-3.5 hidden md:flex items-center justify-between sticky top-0 z-30 shadow-2xs print:hidden">
               <div className="flex items-center gap-3 text-xs text-gray-700 font-medium">
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-emerald-500" />
@@ -91,6 +95,7 @@ export default function CockpitLayout({ children }: { children: React.ReactNode 
               <div className="flex items-center gap-3">
                 <ContextualHelpDrawer />
                 <CommandPalette />
+                <InstallAppButton />
                 <button
                   onClick={handleLogout}
                   title="Se déconnecter"
@@ -117,13 +122,15 @@ export default function CockpitLayout({ children }: { children: React.ReactNode 
             </header>
 
             {/* Page Content View */}
-            <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto">
+            <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto print:p-0 print:max-w-none">
               {children}
             </main>
           </div>
 
           {/* Mobile Bottom Navigation */}
-          <CockpitMobileNav />
+          <div className="print:hidden">
+            <CockpitMobileNav />
+          </div>
         </div>
       </AuthGate>
     </NellimoProvider>

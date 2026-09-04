@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useNellimoStore } from '@/lib/public-store';
 import { useFavorites } from '@/lib/useFavorites';
 import { X, Heart, Trash2, ArrowRight, Home, MessageCircle, Eye } from 'lucide-react';
@@ -142,10 +143,12 @@ export function FavoritesDrawer({ isOpen, onClose }: FavoritesDrawerProps) {
                     onClick={onClose}
                     className="w-20 h-20 sm:w-22 sm:h-22 rounded-xl overflow-hidden shrink-0 relative bg-gray-100 block"
                   >
-                    <img
+                    <Image
                       src={coverImage}
                       alt={prop.title}
-                      className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-300"
+                      fill
+                      sizes="80px"
+                      className="object-cover group-hover:scale-108 transition-transform duration-300"
                     />
                   </Link>
 

@@ -8,9 +8,7 @@ import {
   FileText,
   Users,
   PenTool,
-  PlusCircle,
-  TrendingUp,
-  Settings
+  PlusCircle
 } from 'lucide-react';
 
 export function CockpitMobileNav() {
@@ -50,9 +48,8 @@ export function CockpitMobileNav() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition ${
-                isActive ? 'text-[#E12B7B] font-bold' : 'text-gray-500 hover:text-gray-900'
-              }`}
+              className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition ${isActive ? 'text-[#E12B7B] font-bold' : 'text-gray-500 hover:text-gray-900'
+                }`}
             >
               <Icon className={`w-5 h-5 ${isActive ? 'text-[#E12B7B]' : 'text-gray-400'}`} />
               <span className="text-[10px] tracking-tight">{item.label}</span>

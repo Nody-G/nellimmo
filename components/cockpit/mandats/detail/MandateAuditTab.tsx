@@ -10,7 +10,7 @@ interface MandateAuditTabProps {
   logs: MandateAuditLog[];
 }
 
-export const MandateAuditTab: React.FC<MandateAuditTabProps> = ({ property, logs }) => {
+export const MandateAuditTab: React.FC<MandateAuditTabProps> = ({ logs }) => {
   return (
     <div className="space-y-6">
       {/* Compliance Banner */}

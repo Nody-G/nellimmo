@@ -1,4 +1,4 @@
-import { Property, Buyer, VisitSheet, MandateAuditLog, AgencySettings, DVFTransaction, ContactLead, EstimationLead, TransactionDeal, ProspectingLead, VendorReport, AgencyKey, AgencySignboard, MandateAvenant, ProposalHistory } from './types';
+import { Property, VisitSheet, AgencySettings, VendorReport } from './types';
 
 export const INITIAL_AGENCY_SETTINGS: AgencySettings = {
   agency_name: "SASU Nell'Immo",
@@ -64,6 +64,7 @@ export const INITIAL_PROPERTIES: Property[] = [
     "mandate_date": "2025-10-05",
     "mandate_end_date": "2026-10-05",
     "status": "actif",
+    "seller_token": "prop-227-sec-2026",
     "seller_civility": "M_Mme",
     "seller_name": "Propriétaire Mandant",
     "seller_email": "contact@nellimmo.fr",

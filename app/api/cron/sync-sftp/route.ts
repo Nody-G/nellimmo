@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { INITIAL_PROPERTIES, DEFAULT_AGENCY_SETTINGS } from '@/lib/mock-data';
-import { generatePolirisAnnoncesCsv, generatePolirisPhotosCfg, generatePolirisConfigTxt, generateBienIciXmlFeed } from '@/lib/poliris';
+import { generatePolirisAnnoncesCsv, generateBienIciXmlFeed } from '@/lib/poliris';
 import { Property, AgencySettings } from '@/lib/types';
 
 /**
@@ -39,8 +39,6 @@ export async function POST(req: NextRequest) {
 
     // 1. Génération réelle des fichiers d'export
     const csvContent = generatePolirisAnnoncesCsv(activeProperties, settings.seloger_agency_code || 'NEL13');
-    const photosCfg = generatePolirisPhotosCfg(activeProperties);
-    const configTxt = generatePolirisConfigTxt(settings.seloger_agency_code || 'NEL13');
     const bienIciXml = generateBienIciXmlFeed(activeProperties, settings);
 
     const logs: string[] = [];

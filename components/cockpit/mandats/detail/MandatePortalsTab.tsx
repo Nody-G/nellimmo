@@ -5,15 +5,12 @@ import Link from 'next/link';
 import { Property, AgencySettings } from '@/lib/types';
 import { generatePolirisAnnoncesCsv } from '@/lib/poliris';
 import {
-  Radio,
   ExternalLink,
   Copy,
   Check,
-  Globe,
-  FileCode2,
-  ShieldCheck
+  Globe
 } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
+import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 
 interface MandatePortalsTabProps {
@@ -59,9 +56,8 @@ export const MandatePortalsTab: React.FC<MandatePortalsTabProps> = ({ property, 
                 <p className="text-[11px] text-gray-500">Norme Passerelle Poliris 4.08</p>
               </div>
             </div>
-            <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${
-              property.publish_seloger ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-600'
-            }`}>
+            <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${property.publish_seloger ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-600'
+              }`}>
               {property.publish_seloger ? 'Diffusé' : 'Désactivé'}
             </span>
           </div>
@@ -100,9 +96,8 @@ export const MandatePortalsTab: React.FC<MandatePortalsTabProps> = ({ property, 
                 <p className="text-[11px] text-gray-500">Passerelle API / SFTP Vendeur Pro</p>
               </div>
             </div>
-            <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${
-              property.publish_leboncoin ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-600'
-            }`}>
+            <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase ${property.publish_leboncoin ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-600'
+              }`}>
               {property.publish_leboncoin ? 'Diffusé' : 'Désactivé'}
             </span>
           </div>

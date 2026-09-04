@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useNellimoStore } from '@/lib/public-store';
 import { PropertyCard } from '@/components/public/PropertyCard';
@@ -35,10 +36,13 @@ export default function HomePage() {
 
         {/* Background Image with warm Provence glow */}
         <div className="absolute inset-0 z-0">
-          <img
+          <Image
             src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=2000&q=80"
             alt="Maison en Provence - Pélissanne"
-            className="w-full h-full object-cover opacity-35 filter brightness-90"
+            fill
+            sizes="100vw"
+            className="object-cover opacity-35 filter brightness-90"
+            priority
           />
           <div className="absolute inset-0 bg-gradient-to-t from-[#131B26] via-[#131B26]/60 to-transparent" />
         </div>
@@ -240,10 +244,12 @@ export default function HomePage() {
           </div>
 
           <div className="relative aspect-4/3 rounded-3xl overflow-hidden shadow-2xl border border-[#F3E8EE]">
-            <img
+            <Image
               src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1200&q=80"
               alt="Nelly Fernandez Nell'Immo Pélissanne"
-              className="w-full h-full object-cover"
+              fill
+              sizes="(max-width: 768px) 100vw, 50vw"
+              className="object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex items-end p-8">
               <div className="text-white space-y-0.5">

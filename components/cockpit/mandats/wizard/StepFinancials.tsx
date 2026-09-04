@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { FeesPaidBy } from '@/lib/types';
-import { Euro, AlertTriangle } from 'lucide-react';
+import { Euro } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 
 interface StepFinancialsProps {
@@ -130,11 +130,10 @@ export const StepFinancials: React.FC<StepFinancialsProps> = ({
                 type="button"
                 key={f.id}
                 onClick={() => onFeesPaidByChange(f.id as FeesPaidBy)}
-                className={`p-3 rounded-xl border text-left transition cursor-pointer ${
-                  feesPaidBy === f.id
+                className={`p-3 rounded-xl border text-left transition cursor-pointer ${feesPaidBy === f.id
                     ? 'border-[#E12B7B] bg-[#FDF2F8]/60 ring-2 ring-[#E12B7B]/20'
                     : 'border-gray-200 bg-white hover:bg-gray-50'
-                }`}
+                  }`}
               >
                 <span className="text-xs font-bold text-gray-900 block">{f.label}</span>
                 <span className="text-[10px] text-gray-500 block mt-0.5">{f.desc}</span>

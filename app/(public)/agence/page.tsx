@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { CheckCircle2, Phone, MapPin, Clock } from 'lucide-react';
 
 export default function AgencyPage() {
@@ -22,10 +23,12 @@ export default function AgencyPage() {
       {/* Story & Values Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
         <div className="relative aspect-4/3 rounded-3xl overflow-hidden shadow-2xl border border-[#F3E8EE] bg-gray-100">
-          <img
+          <Image
             src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1200&q=80"
             alt="L'agence Nell'Immo à Pélissanne"
-            className="w-full h-full object-cover"
+            fill
+            sizes="(max-width: 768px) 100vw, 50vw"
+            className="object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-transparent flex items-end p-8">
             <div className="text-white space-y-1">

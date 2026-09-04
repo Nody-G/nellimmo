@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Property, Buyer, VisitSheet } from '@/lib/types';
 import { formatMandateRef } from '@/lib/hoguet';
 import { Printer } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
+import { Card } from '@/components/ui/Card';
 import { PrintableVisitData } from './PrintableVisitModal';
 
 interface VisitRegisterTableProps {

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
+import Image from 'next/image';
 import { X, Copy, Check, MessageCircle, Mail, QrCode, Share2 } from 'lucide-react';
 import { useToast } from '@/components/ui/Toast';
 
@@ -17,7 +18,7 @@ interface ShareModalProps {
 
 export function ShareModal({ isOpen, onClose, title, url, price, city, mandateRef }: ShareModalProps) {
   const mounted = useSyncExternalStore(
-    () => () => {},
+    () => () => { },
     () => true,
     () => false
   );
@@ -89,7 +90,7 @@ export function ShareModal({ isOpen, onClose, title, url, price, city, mandateRe
 
       {/* Modal Dialog */}
       <div className="relative bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-[#F3E8EE] space-y-5 z-10 animate-fade-in my-8">
-        
+
         {/* Header */}
         <div className="flex items-center justify-between border-b border-gray-100 pb-3">
           <div className="flex items-center gap-2">
@@ -121,9 +122,11 @@ export function ShareModal({ isOpen, onClose, title, url, price, city, mandateRe
         {showQr ? (
           <div className="text-center space-y-3 py-2 animate-fade-in">
             <div className="bg-white p-3 inline-block rounded-2xl border border-gray-200 shadow-xs">
-              <img
+              <Image
                 src={qrCodeImageUrl}
                 alt="QR Code du bien"
+                width={240}
+                height={240}
                 className="w-44 h-44 mx-auto rounded-lg"
               />
             </div>

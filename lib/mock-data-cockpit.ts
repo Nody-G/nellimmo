@@ -1,4 +1,4 @@
-import { Property, Buyer, VisitSheet, MandateAuditLog, AgencySettings, DVFTransaction, ContactLead, EstimationLead, TransactionDeal, ProspectingLead, VendorReport, AgencyKey, AgencySignboard, MandateAvenant, ProposalHistory } from './types';
+import { Buyer, MandateAuditLog, DVFTransaction, ContactLead, EstimationLead, TransactionDeal, ProspectingLead, AgencyKey, AgencySignboard, MandateAvenant, ProposalHistory, PartnerAgency, DelegationAgreement } from './types';
 
 export const INITIAL_BUYERS: Buyer[] = [
   {
@@ -133,15 +133,21 @@ export const INITIAL_AUDIT_LOGS: MandateAuditLog[] = [
   }
 ];
 
+/**
+ * Jeu de données DVF de démonstration (source : simulation locale).
+ * Ces actes notariés sont fictifs mais réalistes pour Pélissanne / Salon-de-Provence / Lambesc.
+ * Couture : à terme, ces données seront remplacées par l'API DGFiP / data.gouv (voir lib/dvf.ts).
+ */
 export const MOCK_DVF_TRANSACTIONS: DVFTransaction[] = [
+  // --- Pélissanne (13330) — maisons ---
   {
     id: 'dvf-1',
     date_mutation: '2024-01-12',
     valeur_fonciere: 750000,
     adresse_numero: '12',
     adresse_nom_voie: 'Chemin des Viougues',
-    code_postal: '13300',
-    nom_commune: 'Salon-de-Provence',
+    code_postal: '13330',
+    nom_commune: 'Pélissanne',
     type_local: 'Maison',
     surface_reelle_bati: 165,
     nombre_pieces_principales: 6,
@@ -165,7 +171,82 @@ export const MOCK_DVF_TRANSACTIONS: DVFTransaction[] = [
     distance_metres: 350
   },
   {
-    id: 'dvf-3',
+    id: 'dvf-4',
+    date_mutation: '2024-02-18',
+    valeur_fonciere: 615000,
+    adresse_numero: '27',
+    adresse_nom_voie: 'Chemin des Grands Prés',
+    code_postal: '13330',
+    nom_commune: 'Pélissanne',
+    type_local: 'Maison',
+    surface_reelle_bati: 178,
+    nombre_pieces_principales: 5,
+    surface_terrain: 900,
+    prix_m2: 3455,
+    distance_metres: 210
+  },
+  {
+    id: 'dvf-5',
+    date_mutation: '2023-09-14',
+    valeur_fonciere: 468000,
+    adresse_numero: '5',
+    adresse_nom_voie: 'Impasse des Lavandes',
+    code_postal: '13330',
+    nom_commune: 'Pélissanne',
+    type_local: 'Maison',
+    surface_reelle_bati: 142,
+    nombre_pieces_principales: 4,
+    surface_terrain: 620,
+    prix_m2: 3296,
+    distance_metres: 480
+  },
+  {
+    id: 'dvf-6',
+    date_mutation: '2024-03-02',
+    valeur_fonciere: 820000,
+    adresse_numero: '3',
+    adresse_nom_voie: 'Chemin de la Crau',
+    code_postal: '13330',
+    nom_commune: 'Pélissanne',
+    type_local: 'Maison',
+    surface_reelle_bati: 210,
+    nombre_pieces_principales: 7,
+    surface_terrain: 1500,
+    prix_m2: 3905,
+    distance_metres: 560
+  },
+  // --- Pélissanne (13330) — appartements ---
+  {
+    id: 'dvf-7',
+    date_mutation: '2023-12-05',
+    valeur_fonciere: 198000,
+    adresse_numero: '14',
+    adresse_nom_voie: 'Avenue de la République',
+    code_postal: '13330',
+    nom_commune: 'Pélissanne',
+    type_local: 'Appartement',
+    surface_reelle_bati: 68,
+    nombre_pieces_principales: 3,
+    prix_m2: 2912,
+    distance_metres: 300
+  },
+  {
+    id: 'dvf-8',
+    date_mutation: '2024-01-28',
+    valeur_fonciere: 245000,
+    adresse_numero: '22',
+    adresse_nom_voie: 'Rue Jean Jaurès',
+    code_postal: '13330',
+    nom_commune: 'Pélissanne',
+    type_local: 'Appartement',
+    surface_reelle_bati: 82,
+    nombre_pieces_principales: 4,
+    prix_m2: 2988,
+    distance_metres: 640
+  },
+  // --- Salon-de-Provence (13300) ---
+  {
+    id: 'dvf-9',
     date_mutation: '2023-10-05',
     valeur_fonciere: 150000,
     adresse_numero: '45',
@@ -177,6 +258,81 @@ export const MOCK_DVF_TRANSACTIONS: DVFTransaction[] = [
     nombre_pieces_principales: 2,
     prix_m2: 2727,
     distance_metres: 600
+  },
+  {
+    id: 'dvf-10',
+    date_mutation: '2024-02-09',
+    valeur_fonciere: 385000,
+    adresse_numero: '18',
+    adresse_nom_voie: 'Avenue Aristide Briand',
+    code_postal: '13300',
+    nom_commune: 'Salon-de-Provence',
+    type_local: 'Maison',
+    surface_reelle_bati: 128,
+    nombre_pieces_principales: 4,
+    surface_terrain: 380,
+    prix_m2: 3008,
+    distance_metres: 720
+  },
+  {
+    id: 'dvf-11',
+    date_mutation: '2023-11-30',
+    valeur_fonciere: 690000,
+    adresse_numero: '9',
+    adresse_nom_voie: 'Chemin du Vallon',
+    code_postal: '13300',
+    nom_commune: 'Salon-de-Provence',
+    type_local: 'Maison',
+    surface_reelle_bati: 190,
+    nombre_pieces_principales: 6,
+    surface_terrain: 1100,
+    prix_m2: 3632,
+    distance_metres: 850
+  },
+  {
+    id: 'dvf-12',
+    date_mutation: '2024-03-15',
+    valeur_fonciere: 172000,
+    adresse_numero: '31',
+    adresse_nom_voie: 'Rue du Maréchal Joffre',
+    code_postal: '13300',
+    nom_commune: 'Salon-de-Provence',
+    type_local: 'Appartement',
+    surface_reelle_bati: 61,
+    nombre_pieces_principales: 3,
+    prix_m2: 2820,
+    distance_metres: 940
+  },
+  // --- Lambesc (13410) ---
+  {
+    id: 'dvf-13',
+    date_mutation: '2023-12-18',
+    valeur_fonciere: 720000,
+    adresse_numero: '6',
+    adresse_nom_voie: 'Chemin des Oliviers',
+    code_postal: '13410',
+    nom_commune: 'Lambesc',
+    type_local: 'Maison',
+    surface_reelle_bati: 205,
+    nombre_pieces_principales: 6,
+    surface_terrain: 1800,
+    prix_m2: 3512,
+    distance_metres: 150
+  },
+  {
+    id: 'dvf-14',
+    date_mutation: '2024-01-22',
+    valeur_fonciere: 540000,
+    adresse_numero: '11',
+    adresse_nom_voie: 'Route de Rognes',
+    code_postal: '13410',
+    nom_commune: 'Lambesc',
+    type_local: 'Maison',
+    surface_reelle_bati: 158,
+    nombre_pieces_principales: 5,
+    surface_terrain: 950,
+    prix_m2: 3418,
+    distance_metres: 420
   }
 ];
 
@@ -691,5 +847,52 @@ export const INITIAL_PROPOSALS: ProposalHistory[] = [
     channel: 'email',
     status: 'refuse',
     feedback: 'Recherche une parcelle plus vaste (> 1 000 m²) pour chevaux.'
+  }
+];
+
+export const INITIAL_PARTNERS: PartnerAgency[] = [
+  {
+    id: 'part-1',
+    agency_name: 'Agence Provençale de Salon',
+    director_name: 'Jean-Marc Bertrand',
+    cpi_number: 'CPI 1310 2021 000 012 345',
+    city: 'Salon-de-Provence',
+    phone: '04 90 56 12 34',
+    email: 'contact@agenceprovencale-salon.fr',
+    financial_guarantee: 'Galian (140 000 €)'
+  },
+  {
+    id: 'part-2',
+    agency_name: 'Immobilier du Pays d\'Aix & Luberon',
+    director_name: 'Stéphanie Martin',
+    cpi_number: 'CPI 1310 2018 000 034 567',
+    city: 'Aix-en-Provence',
+    phone: '04 42 20 55 66',
+    email: 'direction@immo-paysdaix.com',
+    financial_guarantee: 'SNPI (120 000 €)'
+  },
+  {
+    id: 'part-3',
+    agency_name: 'Lambesc Prestige & Propriétés',
+    director_name: 'Laurent Mercier',
+    cpi_number: 'CPI 1310 2020 000 023 890',
+    city: 'Lambesc',
+    phone: '04 42 92 88 10',
+    email: 'contact@lambesc-prestige.fr',
+    financial_guarantee: 'QBE Europe (120 000 €)'
+  }
+];
+
+export const INITIAL_DELEGATIONS: DelegationAgreement[] = [
+  {
+    id: 'del-101',
+    property_id: 'prop-227',
+    partner_id: 'part-1',
+    fee_share_ratio: '50_50',
+    delegation_type: 'co_exclusivite',
+    start_date: '2026-02-01',
+    end_date: '2026-05-01',
+    status: 'active',
+    special_clauses: 'Visites accompagnées obligatoires par Nell\'Immo lors des 2 premières semaines.'
   }
 ];

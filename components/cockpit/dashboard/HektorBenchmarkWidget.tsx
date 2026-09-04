@@ -1,18 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
-import Link from 'next/link';
 import {
-  TrendingUp,
-  ShieldCheck,
   Zap,
   PiggyBank,
-  CheckCircle2,
   ExternalLink,
   Sparkles,
-  Layers,
   ArrowUpRight,
-  Database,
   Lock
 } from 'lucide-react';
 import { Card } from '@/components/ui/Card';

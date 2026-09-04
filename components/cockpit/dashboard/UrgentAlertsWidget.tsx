@@ -1,9 +1,11 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import Link from 'next/link';
 import { Property, TransactionDeal, AgencyKey, AgencySignboard } from '@/lib/types';
-import { isAuditEnergetiqueObligatoire, formatMandateRef } from '@/lib/hoguet';
+import { isAuditEnergetiqueObligatoire } from '@/lib/hoguet';
+import { useNellimoStore, useRelances } from '@/lib/store';
+import { computeRelances } from '@/lib/relances';
 import {
   AlertTriangle,
   Zap,
@@ -12,7 +14,8 @@ import {
   Building,
   Landmark,
   ShieldCheck,
-  ChevronRight
+  ChevronRight,
+  BellRing
 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 
@@ -49,13 +52,29 @@ export const UrgentAlertsWidget: React.FC<UrgentAlertsWidgetProps> = ({
     (t) => t.status === 'compromis_signe' || t.status === 'delai_sru_en_cours'
   );
 
+  const { visits, buyers, settings } = useNellimoStore();
+  const { relanceStatuses } = useRelances();
+
+  const pendingRelances = useMemo(() => {
+    try {
+      const actions = computeRelances({ properties, visits, transactions, buyers, settings });
+      return actions.filter((a) => {
+        const status = relanceStatuses[a.id];
+        return status !== 'faite' && status !== 'ignoree';
+      });
+    } catch {
+      return [];
+    }
+  }, [properties, visits, transactions, buyers, settings, relanceStatuses]);
+
   const totalUrgentAlerts =
     energyAuditProperties.length +
     expiringProperties.length +
     borrowedKeysList.length +
     signboardsToRemove.length +
     loanPendingDeals.length +
-    sruPendingDeals.length;
+    sruPendingDeals.length +
+    pendingRelances.length;
 
   return (
     <Card className="border-amber-200/80 bg-amber-50/20">
@@ -73,6 +92,34 @@ export const UrgentAlertsWidget: React.FC<UrgentAlertsWidgetProps> = ({
         </div>
       </CardHeader>
       <CardContent className="p-4 space-y-2.5">
+        {/* Alerte Relances Prioritaires du Jour */}
+        {pendingRelances.length > 0 && (
+          <div className="p-3.5 bg-gradient-to-r from-[#FDF2F8] to-[#FFF1F2] rounded-2xl border border-[#F472B6]/40 text-xs flex items-start gap-3 shadow-xs mb-3">
+            <div className="w-8 h-8 rounded-xl bg-[#E12B7B] text-white flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
+              <BellRing className="w-4 h-4" />
+            </div>
+            <div className="space-y-1 flex-1">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-[#9F1239]">
+                  {pendingRelances.length} Relance(s) Prioritaire(s) Aujourd&apos;hui
+                </span>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#E12B7B] text-white font-mono">
+                  Action Requise
+                </span>
+              </div>
+              <p className="text-[11px] text-[#881337]">
+                Rappels de visites J-1, debriefs acquéreurs J+1 et suivi des conditions suspensives de prêt en cours.
+              </p>
+              <Link
+                href="/cockpit/relances"
+                className="text-[11px] font-bold text-[#E12B7B] hover:text-[#9F1239] flex items-center gap-1 pt-0.5"
+              >
+                Ouvrir le centre de relances WhatsApp ({pendingRelances.length}) <ChevronRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {/* Alerte 1 : Audit DPE F/G */}
           {energyAuditProperties.length > 0 && (

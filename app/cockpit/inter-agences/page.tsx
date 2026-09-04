@@ -1,126 +1,40 @@
 'use client';
 
 import React, { useState } from 'react';
-import Link from 'next/link';
-import { useNellimoStore } from '@/lib/store';
+import { useNellimoStore, useInterAgency } from '@/lib/store';
 import { formatMandateRef } from '@/lib/hoguet';
 import {
-  Users2,
   FileSignature,
   Printer,
-  ShieldCheck,
   Building2,
   Handshake,
-  Percent,
-  Calendar,
-  CheckCircle2,
   PlusCircle,
-  FileText,
-  Clock,
-  MapPin,
-  ExternalLink,
-  Search,
-  Phone,
-  Mail,
-  AlertTriangle,
   X
 } from 'lucide-react';
 
-interface PartnerAgency {
-  id: string;
-  agency_name: string;
-  director_name: string;
-  cpi_number: string;
-  city: string;
-  phone: string;
-  email: string;
-  financial_guarantee: string;
-}
-
-interface DelegationAgreement {
-  id: string;
-  property_id: string;
-  partner_id: string;
-  fee_share_ratio: '50_50' | '60_40' | '70_30';
-  delegation_type: 'co_exclusivite' | 'simple_delegation';
-  start_date: string;
-  end_date: string;
-  status: 'active' | 'en_attente_signature' | 'terminee' | 'vendu_partage';
-  special_clauses?: string;
-}
-
-const INITIAL_PARTNERS: PartnerAgency[] = [
-  {
-    id: 'part-1',
-    agency_name: 'Agence Provençale de Salon',
-    director_name: 'Jean-Marc Bertrand',
-    cpi_number: 'CPI 1310 2021 000 012 345',
-    city: 'Salon-de-Provence',
-    phone: '04 90 56 12 34',
-    email: 'contact@agenceprovencale-salon.fr',
-    financial_guarantee: 'Galian (140 000 €)'
-  },
-  {
-    id: 'part-2',
-    agency_name: 'Immobilier du Pays d\'Aix & Luberon',
-    director_name: 'Stéphanie Martin',
-    cpi_number: 'CPI 1310 2018 000 034 567',
-    city: 'Aix-en-Provence',
-    phone: '04 42 20 55 66',
-    email: 'direction@immo-paysdaix.com',
-    financial_guarantee: 'SNPI (120 000 €)'
-  },
-  {
-    id: 'part-3',
-    agency_name: 'Lambesc Prestige & Propriétés',
-    director_name: 'Laurent Mercier',
-    cpi_number: 'CPI 1310 2020 000 023 890',
-    city: 'Lambesc',
-    phone: '04 42 92 88 10',
-    email: 'contact@lambesc-prestige.fr',
-    financial_guarantee: 'QBE Europe (120 000 €)'
-  }
-];
-
-const INITIAL_DELEGATIONS: DelegationAgreement[] = [
-  {
-    id: 'del-101',
-    property_id: 'prop-227',
-    partner_id: 'part-1',
-    fee_share_ratio: '50_50',
-    delegation_type: 'co_exclusivite',
-    start_date: '2026-02-01',
-    end_date: '2026-05-01',
-    status: 'active',
-    special_clauses: 'Visites accompagnées obligatoires par Nell\'Immo lors des 2 premières semaines.'
-  }
-];
-
 export default function InterAgencesPage() {
   const { properties } = useNellimoStore();
-  const [partners, setPartners] = useState<PartnerAgency[]>(INITIAL_PARTNERS);
-  const [delegations, setDelegations] = useState<DelegationAgreement[]>(INITIAL_DELEGATIONS);
+  const { partners, delegations, createDelegation } = useInterAgency();
 
   const [isContractModalOpen, setIsContractModalOpen] = useState(false);
-  const [selectedDelegation, setSelectedDelegation] = useState<DelegationAgreement | null>(null);
+  const [selectedDelegation, setSelectedDelegation] = useState<(typeof delegations)[number] | null>(null);
 
   // New Delegation Form State
   const [isNewDelegationModalOpen, setIsNewDelegationModalOpen] = useState(false);
   const [formPropertyId, setFormPropertyId] = useState(properties[0]?.id || '');
-  const [formPartnerId, setFormPartnerId] = useState(INITIAL_PARTNERS[0].id);
+  const [formPartnerId, setFormPartnerId] = useState(partners[0]?.id || '');
   const [formShareRatio, setFormShareRatio] = useState<'50_50' | '60_40' | '70_30'>('50_50');
-  const [formDelegationType, setFormDelegationType] = useState<'co_exclusivite' | 'simple_delegation'>('co_exclusivite');
+  const formDelegationType: 'co_exclusivite' | 'simple_delegation' = 'co_exclusivite';
   const [formDurationDays, setFormDurationDays] = useState(90);
 
   const activeProperties = properties.filter((p) => p.status === 'actif');
 
-  const handleCreateDelegation = (e: React.FormEvent) => {
+  const handleCreateDelegation = async (e: React.FormEvent) => {
     e.preventDefault();
     const now = new Date();
     const endDate = new Date(now.getTime() + formDurationDays * 24 * 3600 * 1000);
 
-    const newDelegation: DelegationAgreement = {
-      id: `del-${Date.now()}`,
+    const newDelegation = await createDelegation({
       property_id: formPropertyId,
       partner_id: formPartnerId,
       fee_share_ratio: formShareRatio,
@@ -129,9 +43,8 @@ export default function InterAgencesPage() {
       end_date: endDate.toISOString().split('T')[0],
       status: 'active',
       special_clauses: 'Partage d\'honoraires à 50/50 sous condition de communication du bon de visite dans les 24h.'
-    };
+    });
 
-    setDelegations([newDelegation, ...delegations]);
     setIsNewDelegationModalOpen(false);
     setSelectedDelegation(newDelegation);
     setIsContractModalOpen(true);
@@ -142,7 +55,7 @@ export default function InterAgencesPage() {
 
   return (
     <div className="space-y-8 animate-fade-in pb-20">
-      
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#F3E8EE] pb-4">
         <div>

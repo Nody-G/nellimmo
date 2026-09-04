@@ -8,19 +8,12 @@ import {
   Sparkles,
   Bot,
   BrainCircuit,
-  MessageSquare,
   FileSignature,
   PartyPopper,
-  ShieldAlert,
   Copy,
   Check,
-  Send,
   RefreshCw,
-  Zap,
-  Sliders,
-  Flame,
-  Key,
-  BookOpen
+  Flame
 } from 'lucide-react';
 
 type LabMode = 'ideation' | 'negotiation' | 'legal_clauses' | 'vip_events';
@@ -54,7 +47,7 @@ const LAB_PRESETS = [
 ];
 
 export default function InfiniteLabPage() {
-  const { properties, settings } = useNellimoStore();
+  const { properties } = useNellimoStore();
 
   const [activeMode, setActiveMode] = useState<LabMode>('ideation');
   const [selectedPropertyId, setSelectedPropertyId] = useState<string>(properties[0]?.id || '');
@@ -207,8 +200,8 @@ CHECKLIST DU JOUR J :
             setUserPrompt(LAB_PRESETS[0].prompt);
           }}
           className={`p-4 rounded-3xl border text-left transition space-y-1.5 cursor-pointer ${activeMode === 'ideation'
-              ? 'bg-[#131B26] text-white border-[#131B26] shadow-md ring-2 ring-[#E12B7B]'
-              : 'bg-white text-gray-800 border-gray-200 hover:bg-gray-50'
+            ? 'bg-[#131B26] text-white border-[#131B26] shadow-md ring-2 ring-[#E12B7B]'
+            : 'bg-white text-gray-800 border-gray-200 hover:bg-gray-50'
             }`}
         >
           <Lightbulb className="w-5 h-5 text-[#C59A45]" />
@@ -223,8 +216,8 @@ CHECKLIST DU JOUR J :
             setUserPrompt(LAB_PRESETS[2].prompt);
           }}
           className={`p-4 rounded-3xl border text-left transition space-y-1.5 cursor-pointer ${activeMode === 'negotiation'
-              ? 'bg-[#131B26] text-white border-[#131B26] shadow-md ring-2 ring-[#E12B7B]'
-              : 'bg-white text-gray-800 border-gray-200 hover:bg-gray-50'
+            ? 'bg-[#131B26] text-white border-[#131B26] shadow-md ring-2 ring-[#E12B7B]'
+            : 'bg-white text-gray-800 border-gray-200 hover:bg-gray-50'
             }`}
         >
           <Bot className="w-5 h-5 text-[#E12B7B]" />
@@ -239,8 +232,8 @@ CHECKLIST DU JOUR J :
             setUserPrompt(LAB_PRESETS[3].prompt);
           }}
           className={`p-4 rounded-3xl border text-left transition space-y-1.5 cursor-pointer ${activeMode === 'legal_clauses'
-              ? 'bg-[#131B26] text-white border-[#131B26] shadow-md ring-2 ring-[#E12B7B]'
-              : 'bg-white text-gray-800 border-gray-200 hover:bg-gray-50'
+            ? 'bg-[#131B26] text-white border-[#131B26] shadow-md ring-2 ring-[#E12B7B]'
+            : 'bg-white text-gray-800 border-gray-200 hover:bg-gray-50'
             }`}
         >
           <FileSignature className="w-5 h-5 text-[#C59A45]" />
@@ -255,8 +248,8 @@ CHECKLIST DU JOUR J :
             setUserPrompt(LAB_PRESETS[4].prompt);
           }}
           className={`p-4 rounded-3xl border text-left transition space-y-1.5 cursor-pointer ${activeMode === 'vip_events'
-              ? 'bg-[#131B26] text-white border-[#131B26] shadow-md ring-2 ring-[#E12B7B]'
-              : 'bg-white text-gray-800 border-gray-200 hover:bg-gray-50'
+            ? 'bg-[#131B26] text-white border-[#131B26] shadow-md ring-2 ring-[#E12B7B]'
+            : 'bg-white text-gray-800 border-gray-200 hover:bg-gray-50'
             }`}
         >
           <PartyPopper className="w-5 h-5 text-[#E12B7B]" />

@@ -3,7 +3,7 @@
 import React, { useState, use } from 'react';
 import Link from 'next/link';
 import { useNellimoStore } from '@/lib/store';
-import { PropertyStatus, ProposalStatus } from '@/lib/types';
+import { PropertyStatus } from '@/lib/types';
 import { calculateMatchingScore } from '@/lib/hoguet';
 import {
   FileText,
@@ -33,7 +33,6 @@ export default function MandateDetailPage({ params }: { params: Promise<{ id: st
     auditLogs,
     settings,
     updateProperty,
-    avenants,
     proposals,
     createProposal,
     updateProposalStatus
@@ -121,11 +120,10 @@ export default function MandateDetailPage({ params }: { params: Promise<{ id: st
             type="button"
             key={t.id}
             onClick={() => setActiveTab(t.id as typeof activeTab)}
-            className={`px-4 py-3 text-xs font-bold uppercase tracking-wider flex items-center gap-2 border-b-2 transition whitespace-nowrap cursor-pointer ${
-              activeTab === t.id
+            className={`px-4 py-3 text-xs font-bold uppercase tracking-wider flex items-center gap-2 border-b-2 transition whitespace-nowrap cursor-pointer ${activeTab === t.id
                 ? 'border-[#E12B7B] text-[#E12B7B]'
                 : 'border-transparent text-gray-500 hover:text-gray-900'
-            }`}
+              }`}
           >
             {t.icon}
             <span>{t.label}</span>

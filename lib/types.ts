@@ -409,7 +409,7 @@ export interface EstimationLead {
   created_at: string;
 }
 
-export type ProspectingSource = 'leboncoin' | 'pap' | 'paruvendu' | 'boitage' | 'recommandation';
+export type ProspectingSource = 'leboncoin' | 'pap' | 'paruvendu' | 'boitage' | 'porte_a_porte' | 'recommandation';
 export type ProspectingStatus = 'nouveau' | 'a_rappeler' | 'rdv_pris' | 'refus_agent' | 'deja_vendu' | 'mandat_obtenu';
 
 export interface ProspectingLead {
@@ -420,6 +420,7 @@ export interface ProspectingLead {
   property_type: PropertyType;
   city: string;
   postal_code: string;
+  neighborhood?: string; // Quartier de prospection (ex: 'Enjouvènes', 'Les Viougues', 'Les Costes')
   price_asked: number;
   initial_price?: number;
   price_drops_count: number;
@@ -460,6 +461,8 @@ export interface VendorReport {
   executive_summary: string;
   price_recommendation_text: string;
   suggested_price_adjustment: number;
+  /** Verbatim anonymisés des visiteurs (retours libres, sans identité). */
+  anonymized_verbatims?: string[];
   shared_via_whatsapp: boolean;
   shared_via_email: boolean;
   viewed_by_seller_at?: string;
@@ -562,5 +565,34 @@ export interface ProposalHistory {
   channel: ProposalChannel;
   status: ProposalStatus;
   feedback?: string;
+}
+
+/** Agence confrère partenaire du réseau inter-agences (bourse / délégations). */
+export interface PartnerAgency {
+  id: string;
+  agency_name: string;
+  director_name: string;
+  cpi_number: string;
+  city: string;
+  phone: string;
+  email: string;
+  financial_guarantee: string;
+}
+
+export type FeeShareRatio = '50_50' | '60_40' | '70_30';
+export type DelegationType = 'co_exclusivite' | 'simple_delegation';
+export type DelegationStatus = 'active' | 'en_attente_signature' | 'terminee' | 'vendu_partage';
+
+/** Convention de délégation de mandat entre Nell'Immo et une agence confrère. */
+export interface DelegationAgreement {
+  id: string;
+  property_id: string;
+  partner_id: string;
+  fee_share_ratio: FeeShareRatio;
+  delegation_type: DelegationType;
+  start_date: string;
+  end_date: string;
+  status: DelegationStatus;
+  special_clauses?: string;
 }
 

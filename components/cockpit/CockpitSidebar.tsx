@@ -1,10 +1,14 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { getSessionUser } from '@/lib/auth';
+import { useNellimoStore, useRelances } from '@/lib/store';
+import { computeRelances } from '@/lib/relances';
 import {
   LayoutDashboard,
+  BarChart3,
   FileText,
   TrendingUp,
   Users,
@@ -24,17 +28,41 @@ import {
   Handshake,
   KeyRound,
   Calendar,
-  BookOpen
+  BookOpen,
+  BellRing
 } from 'lucide-react';
 
 export function CockpitSidebar() {
   const pathname = usePathname();
+  const currentUser = getSessionUser();
+  const { properties, visits, transactions, buyers, settings } = useNellimoStore();
+  const { relanceStatuses } = useRelances();
+
+  const pendingRelancesCount = useMemo(() => {
+    try {
+      const actions = computeRelances({ properties, visits, transactions, buyers, settings });
+      return actions.filter((a) => {
+        const status = relanceStatuses[a.id];
+        return status !== 'faite' && status !== 'ignoree';
+      }).length;
+    } catch {
+      return 0;
+    }
+  }, [properties, visits, transactions, buyers, settings, relanceStatuses]);
 
   const navigation = [
     { name: 'Tableau de Bord', href: '/cockpit', icon: LayoutDashboard },
+    { name: 'Tableau de Bord Analytique', href: '/cockpit/analytics', icon: BarChart3 },
     { name: 'Guides & Tutoriels', href: '/cockpit/aide', icon: BookOpen, badge: 'Academy' },
     { name: 'Mandats & Biens', href: '/cockpit/mandats', icon: FileText },
     { name: 'Planning & Agenda', href: '/cockpit/agenda', icon: Calendar },
+    {
+      name: 'Relances & Notifications',
+      href: '/cockpit/relances',
+      icon: BellRing,
+      badge: pendingRelancesCount > 0 ? String(pendingRelancesCount) : undefined,
+      badgeUrgent: pendingRelancesCount > 0,
+    },
     { name: 'Pipeline Notaire & Ventes', href: '/cockpit/transactions', icon: Landmark },
     { name: 'Bourse Inter-Agences', href: '/cockpit/inter-agences', icon: Handshake },
     { name: 'Clés & Panneaux', href: '/cockpit/cles-panneaux', icon: KeyRound },
@@ -54,7 +82,7 @@ export function CockpitSidebar() {
 
   return (
     <aside className="w-64 bg-[#131B26] text-white flex flex-col justify-between shrink-0 border-r border-gray-800 min-h-screen">
-      
+
       {/* Brand & Agency Header */}
       <div className="p-5 border-b border-gray-800 space-y-4">
         <div className="flex items-center justify-between">
@@ -98,22 +126,20 @@ export function CockpitSidebar() {
             <Link
               key={item.name}
               href={item.href}
-              className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                isActive
-                  ? 'bg-[#E12B7B] text-white shadow-md'
-                  : item.highlight
+              className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${isActive
+                ? 'bg-[#E12B7B] text-white shadow-md'
+                : item.highlight
                   ? 'bg-white/10 text-white hover:bg-white/15 border border-[#C59A45]/30'
                   : 'text-gray-300 hover:text-white hover:bg-white/5'
-              }`}
+                }`}
             >
               <div className="flex items-center gap-2.5">
-                <Icon className={`w-4 h-4 ${
-                  isActive
-                    ? 'text-white'
-                    : item.highlight
+                <Icon className={`w-4 h-4 ${isActive
+                  ? 'text-white'
+                  : item.highlight
                     ? 'text-[#C59A45]'
                     : 'text-gray-400'
-                }`} />
+                  }`} />
                 <span>{item.name}</span>
               </div>
 
@@ -123,7 +149,17 @@ export function CockpitSidebar() {
                 </span>
               )}
               {item.badge && !isActive && (
-                <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#E12B7B]/20 text-[#F44293]">
+                <span className={`text-[10px] font-bold tracking-wider px-2 py-0.5 rounded-full flex items-center gap-1 ${
+                  item.badgeUrgent
+                    ? 'bg-[#E12B7B] text-white shadow-xs font-mono'
+                    : 'bg-[#E12B7B]/20 text-[#F44293]'
+                }`}>
+                  {item.badgeUrgent && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />}
+                  {item.badge}
+                </span>
+              )}
+              {item.badge && isActive && (
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/25 text-white font-mono">
                   {item.badge}
                 </span>
               )}
@@ -136,11 +172,23 @@ export function CockpitSidebar() {
       <div className="p-4 border-t border-gray-800 space-y-3 bg-[#0E141D]">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-[#E12B7B] flex items-center justify-center text-white font-bold text-xs">
-            NF
+            {currentUser
+              ? `${currentUser.first_name.charAt(0).toUpperCase()}${currentUser.last_name.charAt(0).toUpperCase()}`
+              : 'N'}
           </div>
           <div className="overflow-hidden">
-            <span className="text-xs font-bold text-white block truncate">Nelly Fernandez</span>
-            <span className="text-[10px] text-[#C59A45] block truncate">CPI 1310 2019 000 042 974</span>
+            <span className="text-xs font-bold text-white block truncate">
+              {currentUser
+                ? `${currentUser.first_name} ${currentUser.last_name}`
+                : 'Nelly Fernandez'}
+            </span>
+            <span className="text-[10px] text-[#C59A45] block truncate">
+              {currentUser
+                ? currentUser.role === 'admin'
+                  ? 'Administrateur'
+                  : 'Agent'
+                : 'CPI 1310 2019 000 042 974'}
+            </span>
           </div>
         </div>
 

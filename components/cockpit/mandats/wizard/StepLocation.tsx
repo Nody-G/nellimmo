@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { PropertyType } from '@/lib/types';
-import { Home, MapPin } from 'lucide-react';
+import { MapPin } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 
 interface StepLocationProps {
@@ -84,11 +84,10 @@ export const StepLocation: React.FC<StepLocationProps> = ({
                 type="button"
                 key={pt.id}
                 onClick={() => onPropertyTypeChange(pt.id as PropertyType)}
-                className={`py-2 px-3 rounded-xl border text-xs font-bold transition cursor-pointer text-center ${
-                  propertyType === pt.id
+                className={`py-2 px-3 rounded-xl border text-xs font-bold transition cursor-pointer text-center ${propertyType === pt.id
                     ? 'border-[#E12B7B] bg-[#E12B7B] text-white shadow-xs'
                     : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
-                }`}
+                  }`}
               >
                 {pt.label}
               </button>
@@ -110,11 +109,10 @@ export const StepLocation: React.FC<StepLocationProps> = ({
                   onCityChange(c.name);
                   onPostalCodeChange(c.cp);
                 }}
-                className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold border transition cursor-pointer ${
-                  city === c.name
+                className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold border transition cursor-pointer ${city === c.name
                     ? 'bg-[#131B26] text-white border-[#131B26]'
                     : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'
-                }`}
+                  }`}
               >
                 {c.name}
               </button>

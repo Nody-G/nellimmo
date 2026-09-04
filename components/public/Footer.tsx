@@ -2,16 +2,17 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Phone, Mail, MapPin, ShieldCheck, Clock } from 'lucide-react';
 
 export function PublicFooter() {
   return (
     <footer className="bg-[#131B26] text-white border-t border-gray-800">
-      
+
       {/* Upper Footer with Value Props */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 border-b border-gray-800">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          
+
           <div className="space-y-2">
             <span className="text-[#C59A45] font-serif font-bold text-base block">20 Ans d&apos;Expertise</span>
             <p className="text-xs text-gray-400">
@@ -46,13 +47,15 @@ export function PublicFooter() {
       {/* Main Footer Links */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
-          
+
           {/* Col 1 : Agency presentation */}
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center gap-3">
-              <img
+              <Image
                 src="/logo.png"
                 alt="Nell'Immo"
+                width={665}
+                height={182}
                 className="h-10 w-auto object-contain brightness-0 invert"
               />
               <div className="flex flex-col">

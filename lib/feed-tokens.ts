@@ -15,8 +15,6 @@
  * Il ne doit jamais être importé depuis du code client.
  */
 
-const isProd = process.env.NODE_ENV === 'production';
-
 export function getCalendarFeedToken(): string {
     const t = process.env.CALENDAR_FEED_TOKEN;
     if (t) return t;

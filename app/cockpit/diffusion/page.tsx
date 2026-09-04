@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useNellimoStore } from '@/lib/store';
 import { generatePolirisAnnoncesCsv, generatePolirisPhotosCfg, generatePolirisConfigTxt } from '@/lib/poliris';
 import {
@@ -10,8 +11,6 @@ import {
   ExternalLink,
   RefreshCw,
   Clock,
-  CheckCircle2,
-  AlertCircle,
   Copy,
   Check,
 } from 'lucide-react';
@@ -23,12 +22,10 @@ export default function DiffusionDashboardPage() {
   const [syncLogs, setSyncLogs] = useState<string[]>([]);
   const [copiedWebhook, setCopiedWebhook] = useState(false);
 
-  // Tokens d'accès des flux (définis côté serveur via les variables d'environnement).
-  // En production, ces valeurs NEXT_PUBLIC_ doivent correspondre aux variables
-  // serveur BIENICI_FEED_TOKEN / POLIRIS_FEED_TOKEN pour que les liens de
-  // téléchargement restent fonctionnels.
-  const bieniciFeedToken = process.env.NEXT_PUBLIC_BIENICI_FEED_TOKEN || 'bi_token_nellimmo_live_2026';
-  const polirisFeedToken = process.env.NEXT_PUBLIC_POLIRIS_FEED_TOKEN || 'poliris_token_nellimmo_dev';
+  // Les jetons d'accès des flux (BIENICI_FEED_TOKEN / POLIRIS_FEED_TOKEN) sont des
+  // secrets configurés côté serveur. Ils ne sont JAMAIS exposés au navigateur :
+  // les liens de téléchargement passent par la passerelle sécurisée
+  // `/api/feeds/download` qui injecte le jeton côté serveur.
 
   const activeProperties = properties.filter((p) => p.status === 'actif' || p.status === 'sous_compromis');
   const selogerProperties = activeProperties.filter((p) => p.publish_seloger);
@@ -113,7 +110,7 @@ export default function DiffusionDashboardPage() {
 
         <div className="flex items-center gap-3">
           <a
-            href={`/api/feeds/seloger-poliris?token=${polirisFeedToken}`}
+            href="/api/feeds/download?feed=poliris"
             download
             className="px-4 py-2.5 bg-white border border-[#F3E8EE] hover:bg-gray-50 text-gray-700 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-xs transition"
           >
@@ -176,7 +173,7 @@ export default function DiffusionDashboardPage() {
             <span className="text-[11px] text-gray-400">Flux Bien&apos;ici</span>
           </div>
           <a
-            href={`/api/feeds/bienici.xml?token=${bieniciFeedToken}`}
+            href="/api/feeds/download?feed=bienici"
             target="_blank"
             className="text-[10px] text-[#E12B7B] font-semibold flex items-center gap-1 hover:underline"
           >
@@ -345,11 +342,15 @@ export default function DiffusionDashboardPage() {
                       href={`/cockpit/mandats/${p.id}`}
                       className="flex items-center gap-3 block"
                     >
-                      <img
-                        src={p.images?.[0]?.image_url || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=120&q=80'}
-                        alt=""
-                        className="w-11 h-8 rounded-lg object-cover bg-gray-100 shrink-0"
-                      />
+                      <div className="relative w-11 h-8 rounded-lg overflow-hidden bg-gray-100 shrink-0">
+                        <Image
+                          src={p.images?.[0]?.image_url || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=120&q=80'}
+                          alt=""
+                          fill
+                          sizes="44px"
+                          className="object-cover"
+                        />
+                      </div>
                       <div className="overflow-hidden">
                         <span className="font-bold text-gray-900 group-hover:text-[#E12B7B] transition truncate block max-w-[240px]">
                           {p.title}

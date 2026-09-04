@@ -5,13 +5,10 @@ import { Property, Buyer, ProposalHistory, ProposalStatus } from '@/lib/types';
 import {
   Users,
   CheckCircle2,
-  Phone,
   Mail,
-  Send,
   MessageCircle
 } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
 
 interface MandateMatchingTabProps {
   property: Property;
@@ -73,13 +70,12 @@ export const MandateMatchingTab: React.FC<MandateMatchingTabProps> = ({
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
                     <div
-                      className={`w-11 h-11 rounded-xl flex items-center justify-center font-bold text-xs ${
-                        score >= 80
+                      className={`w-11 h-11 rounded-xl flex items-center justify-center font-bold text-xs ${score >= 80
                           ? 'bg-emerald-500 text-white'
                           : score >= 50
-                          ? 'bg-amber-500 text-white'
-                          : 'bg-gray-200 text-gray-700'
-                      }`}
+                            ? 'bg-amber-500 text-white'
+                            : 'bg-gray-200 text-gray-700'
+                        }`}
                     >
                       {score}%
                     </div>

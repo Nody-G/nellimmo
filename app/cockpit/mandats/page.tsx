@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useNellimoStore } from '@/lib/store';
 import { useToast } from '@/components/ui/Toast';
 import { formatMandateRef } from '@/lib/hoguet';
@@ -12,9 +13,7 @@ import {
   Download,
   Eye,
   Edit,
-  FileSpreadsheet,
-  AlertTriangle,
-  Clock
+  FileSpreadsheet
 } from 'lucide-react';
 
 export default function MandatesListPage() {
@@ -69,7 +68,7 @@ export default function MandatesListPage() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      
+
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -113,7 +112,7 @@ export default function MandatesListPage() {
 
       {/* Filter & Search Bar */}
       <div className="bg-white rounded-2xl p-4 border border-[#F3E8EE] shadow-xs flex flex-col md:flex-row gap-3 items-center justify-between">
-        
+
         {/* Search input */}
         <div className="relative w-full md:w-96">
           <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -174,10 +173,10 @@ export default function MandatesListPage() {
             <tbody className="divide-y divide-gray-100">
               {filteredProperties.map((property) => {
                 const mandateRef = formatMandateRef(property.mandate_number);
-                
+
                 return (
                   <tr key={property.id} className="hover:bg-gray-50/80 transition-colors">
-                    
+
                     {/* Mandate Number */}
                     <td className="p-4 font-mono font-black text-sm">
                       <Link
@@ -195,11 +194,15 @@ export default function MandatesListPage() {
                         href={`/cockpit/mandats/${property.id}`}
                         className="flex items-center gap-3 group"
                       >
-                        <img
-                          src={property.images?.[0]?.image_url || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=200&q=80'}
-                          alt=""
-                          className="w-12 h-9 rounded-lg object-cover bg-gray-100 shrink-0 group-hover:scale-105 transition-transform"
-                        />
+                        <div className="relative w-12 h-9 rounded-lg overflow-hidden bg-gray-100 shrink-0 group-hover:scale-105 transition-transform">
+                          <Image
+                            src={property.images?.[0]?.image_url || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=200&q=80'}
+                            alt=""
+                            fill
+                            sizes="48px"
+                            className="object-cover"
+                          />
+                        </div>
                         <div className="overflow-hidden">
                           <span className="font-bold text-gray-900 group-hover:text-[#E12B7B] transition truncate block max-w-[220px]">
                             {property.title}
@@ -229,11 +232,10 @@ export default function MandatesListPage() {
 
                     {/* Type & Dates */}
                     <td className="p-4">
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase inline-block mb-1 ${
-                        property.mandate_type === 'exclusif'
-                          ? 'bg-[#FDF2F8] text-[#E12B7B]'
-                          : 'bg-gray-100 text-gray-700'
-                      }`}>
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase inline-block mb-1 ${property.mandate_type === 'exclusif'
+                        ? 'bg-[#FDF2F8] text-[#E12B7B]'
+                        : 'bg-gray-100 text-gray-700'
+                        }`}>
                         {property.mandate_type}
                       </span>
                       <span className="text-[10px] text-gray-400 block">
@@ -270,15 +272,14 @@ export default function MandatesListPage() {
 
                     {/* Status */}
                     <td className="p-4">
-                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold capitalize ${
-                        property.status === 'actif'
-                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                          : property.status === 'sous_compromis'
+                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold capitalize ${property.status === 'actif'
+                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                        : property.status === 'sous_compromis'
                           ? 'bg-amber-50 text-amber-700 border border-amber-200'
                           : property.status === 'vendu'
-                          ? 'bg-purple-50 text-purple-700 border border-purple-200'
-                          : 'bg-gray-100 text-gray-600'
-                      }`}>
+                            ? 'bg-purple-50 text-purple-700 border border-purple-200'
+                            : 'bg-gray-100 text-gray-600'
+                        }`}>
                         {property.status.replace('_', ' ')}
                       </span>
                     </td>

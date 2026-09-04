@@ -4,15 +4,36 @@
  * Authentification locale (solution transitoire).
  *
  * Tant que l'agence n'a pas créé son compte Supabase, le cockpit est protégé
- * par un simple mot de passe stocké sous forme de hash salé (SHA-256) dans le
- * localStorage, avec une session en sessionStorage.
+ * par une authentification multi-utilisateurs locale (rôles admin / agent) :
+ * chaque utilisateur possède son propre identifiant (email) et mot de passe,
+ * stockés sous forme de hash salé (SHA-256) dans le localStorage, avec une
+ * session en sessionStorage.
  *
  * ⚠️ Ceci n'est PAS une sécurité serveur : il s'agit d'un verrou de confort
  * destiné à empêcher l'accès public au cockpit en attendant Supabase Auth.
  * L'interface est volontairement simple pour être remplacée sans casse par
  * l'authentification Supabase (mêmes fonctions : isAuthenticated / login /
  * logout / setupPassword).
+ *
+ * Les fonctions "mot de passe unique" (setupPassword / verifyPassword /
+ * hasPassword / changePassword) sont conservées comme chemin de migration
+ * pour les installations antérieures au multi-utilisateurs : tant qu'aucun
+ * compte utilisateur n'existe, le verrou historique reste utilisable.
  */
+
+import {
+    authenticateUser,
+    createUser,
+    countUsers,
+    getCurrentUser,
+    setCurrentUser,
+    clearCurrentUser,
+    hasAgencyKey,
+    setAgencyKey,
+    getAgencyKey,
+    type CockpitUser,
+    type NewCockpitUser,
+} from './users';
 
 const PASSWORD_KEY = 'nellimo_auth_password_v1';
 const SESSION_KEY = 'nellimo_auth_session_v1';
@@ -113,10 +134,11 @@ export function isAuthenticated(): boolean {
     }
 }
 
-/** Déconnecte l'utilisateur. */
+/** Déconnecte l'utilisateur (session + utilisateur courant). */
 export function logout(): void {
     if (!isBrowser()) return;
     sessionStorage.removeItem(SESSION_KEY);
+    clearCurrentUser();
 }
 
 /** Change le mot de passe (doit être authentifié). */
@@ -124,4 +146,87 @@ export async function changePassword(current: string, next: string): Promise<voi
     const ok = await verifyPassword(current);
     if (!ok) throw new Error('Mot de passe actuel incorrect.');
     await setupPassword(next);
+}
+
+// --- Authentification multi-utilisateurs (rôles admin / agent) ---
+
+/** Des comptes utilisateurs existent-ils ? (sinon, mode migration mot de passe unique). */
+export function hasUsers(): boolean {
+    return countUsers() > 0;
+}
+
+/**
+ * Crée le premier compte administrateur (premier accès), définit la clé
+ * d'agence (déverrouillage du coffre-fort partagé) puis ouvre la session.
+ * @param data les informations du compte admin.
+ * @param agencyKey la clé d'agence (indépendante des mots de passe) qui
+ *   déverrouille le coffre-fort pour tout utilisateur authentifié.
+ * @returns l'utilisateur admin créé.
+ */
+export async function setupFirstAdmin(
+    data: NewCockpitUser,
+    agencyKey: string
+): Promise<CockpitUser> {
+    if (countUsers() > 0) {
+        throw new Error('Un compte administrateur existe déjà.');
+    }
+    if (hasAgencyKey()) {
+        throw new Error('Une clé d\u2019agence existe déjà.');
+    }
+    const admin = await createUser({ ...data, role: 'admin' });
+    setAgencyKey(agencyKey);
+    createSession();
+    setCurrentUser(admin);
+    return admin;
+}
+
+/**
+ * Connecte un utilisateur par email + mot de passe.
+ * @returns l'utilisateur connecté, ou null si identifiants invalides / compte inactif.
+ */
+export async function loginUser(email: string, password: string): Promise<CockpitUser | null> {
+    const user = await authenticateUser(email, password);
+    if (!user) return null;
+    createSession();
+    setCurrentUser(user);
+    return user;
+}
+
+/** L'utilisateur courant est-il connecté avec une session valide ? */
+export function getSessionUser(): CockpitUser | null {
+    if (!isAuthenticated()) return null;
+    return getCurrentUser();
+}
+
+/** L'utilisateur courant est-il administrateur ? */
+export function isAdmin(): boolean {
+    return getSessionUser()?.role === 'admin';
+}
+
+// --- Coffre-fort partagé (clé d'agence) ---
+
+/**
+ * Une clé d'agence a-t-elle été définie (coffre-fort partagé disponible) ?
+ * Ré-exportée depuis lib/users pour centraliser l'accès via lib/auth.
+ */
+export function hasAgencyKeyConfigured(): boolean {
+    return hasAgencyKey();
+}
+
+/**
+ * Déverrouille le coffre-fort partagé avec la clé d'agence stockée.
+ * À appeler après authentification (login ou setup) pour hydrater les secrets.
+ * @param unlock la fonction de déverrouillage du coffre (lib/vault.unlockVault).
+ */
+export async function unlockVaultWithAgencyKey(
+    unlock: (passphrase: string) => Promise<void>
+): Promise<boolean> {
+    const key = getAgencyKey();
+    if (!key) return false;
+    try {
+        await unlock(key);
+        return true;
+    } catch {
+        return false;
+    }
 }

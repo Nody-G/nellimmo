@@ -3,21 +3,13 @@
 import React from 'react';
 import Link from 'next/link';
 import { TransactionDeal, Property } from '@/lib/types';
-import { Landmark, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Landmark, ArrowRight } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 
 interface RecentTransactionsWidgetProps {
   transactions: TransactionDeal[];
   properties: Property[];
 }
-
-const STAGES = [
-  { id: 'offre_acceptee', label: 'Offre' },
-  { id: 'compromis_signe', label: 'Compromis' },
-  { id: 'delai_sru_en_cours', label: 'SRU J+10' },
-  { id: 'attente_pret', label: 'Financement' },
-  { id: 'acte_planifie', label: 'Acte Signé' }
-];
 
 export const RecentTransactionsWidget: React.FC<RecentTransactionsWidgetProps> = ({
   transactions,

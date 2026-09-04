@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Property } from '@/lib/types';
 import { MapPin, BedDouble, Maximize, Sparkles, ArrowRight, Heart } from 'lucide-react';
 import { useFavorites } from '@/lib/useFavorites';
@@ -16,8 +17,8 @@ export function PropertyCard({ property }: PropertyCardProps) {
   const { showToast } = useToast();
   const isFav = isFavorite(property.id);
 
-  const coverImage = property.images?.find(img => img.is_cover)?.image_url 
-    || property.images?.[0]?.image_url 
+  const coverImage = property.images?.find(img => img.is_cover)?.image_url
+    || property.images?.[0]?.image_url
     || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80';
 
   const isExclusive = property.mandate_type === 'exclusif';
@@ -41,11 +42,12 @@ export function PropertyCard({ property }: PropertyCardProps) {
     >
       {/* Clean Photo Container without clutter */}
       <div className="relative aspect-4/3 w-full overflow-hidden bg-gray-100">
-        <img
+        <Image
           src={coverImage}
           alt={property.title}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
-          loading="lazy"
+          fill
+          sizes="(max-width: 768px) 100vw, 33vw"
+          className="object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
         />
 
         {/* Heart Favorite Button */}
@@ -53,11 +55,10 @@ export function PropertyCard({ property }: PropertyCardProps) {
           type="button"
           onClick={handleFavoriteClick}
           aria-label={isFav ? "Retirer des favoris" : "Ajouter aux favoris"}
-          className={`absolute top-3 right-3 z-20 p-2.5 rounded-full transition-all duration-200 backdrop-blur-md shadow-md cursor-pointer ${
-            isFav
+          className={`absolute top-3 right-3 z-20 p-2.5 rounded-full transition-all duration-200 backdrop-blur-md shadow-md cursor-pointer ${isFav
               ? 'bg-white text-[#E12B7B] scale-110'
               : 'bg-black/30 hover:bg-white text-white hover:text-[#E12B7B]'
-          }`}
+            }`}
         >
           <Heart className={`w-4 h-4 transition-transform ${isFav ? 'fill-[#E12B7B]' : ''}`} />
         </button>

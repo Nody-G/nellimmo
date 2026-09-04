@@ -1,16 +1,10 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useSyncExternalStore } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Mic,
   MicOff,
   Sparkles,
-  CheckCircle2,
-  AlertCircle,
-  RotateCcw,
-  MessageCircle,
-  ThumbsUp,
-  ThumbsDown,
   Volume2
 } from 'lucide-react';
 
@@ -44,22 +38,13 @@ interface VoiceVisitRecorderProps {
     weaknesses: string[];
     priceFeedback: string;
   }) => void;
-  sellerName?: string;
-  propertyTitle?: string;
 }
 
 export function VoiceVisitRecorder({
-  onTranscriptComplete,
-  sellerName = 'M. Propriétaire',
-  propertyTitle = 'la propriété'
+  onTranscriptComplete
 }: VoiceVisitRecorderProps) {
   const [isRecording, setIsRecording] = useState(false);
   const [transcript, setTranscript] = useState('');
-  const isSupported = useSyncExternalStore(
-    () => () => {},
-    () => typeof window !== 'undefined' && ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window),
-    () => true
-  );
   const [analysisResult, setAnalysisResult] = useState<{
     sentiment: 'coup_de_coeur' | 'interesse' | 'neutre' | 'refus';
     strengths: string[];
@@ -214,11 +199,10 @@ export function VoiceVisitRecorder({
         <button
           type="button"
           onClick={toggleRecording}
-          className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition cursor-pointer shadow-md ${
-            isRecording
+          className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition cursor-pointer shadow-md ${isRecording
               ? 'bg-rose-600 text-white animate-pulse'
               : 'bg-[#E12B7B] hover:bg-[#C71B62] text-white'
-          }`}
+            }`}
         >
           {isRecording ? (
             <>

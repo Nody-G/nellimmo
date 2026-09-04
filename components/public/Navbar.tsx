@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { Compass, Home, Award, Calculator, Mail, Menu, X, Star, Heart } from 'lucide-react';
 import { useFavorites } from '@/lib/useFavorites';
@@ -29,13 +30,16 @@ export function PublicNavbar() {
       {/* Main Navbar */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
-          
+
           {/* Brand Logo Nell'Immo */}
           <Link href="/" className="flex items-center gap-3 group">
-            <img
+            <Image
               src="/logo.png"
               alt="Nell'Immo Agence Immobilière Pélissanne"
+              width={665}
+              height={182}
               className="h-12 w-auto object-contain"
+              priority
             />
             <div className="flex flex-col">
               <span className="text-2xl font-serif font-black tracking-tight text-[#131B26] group-hover:text-[#E12B7B] transition-colors">
@@ -70,11 +74,10 @@ export function PublicNavbar() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors flex items-center gap-1.5 ${
-                    isActive
+                  className={`px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors flex items-center gap-1.5 ${isActive
                       ? 'text-[#E12B7B] bg-[#FDF2F8]'
                       : 'text-gray-700 hover:text-[#E12B7B] hover:bg-gray-50'
-                  }`}
+                    }`}
                 >
                   <Icon className="w-3.5 h-3.5 opacity-70" />
                   {link.label}
@@ -137,13 +140,12 @@ export function PublicNavbar() {
                 key={link.href}
                 href={link.href}
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-between ${
-                  link.highlight
+                className={`px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-between ${link.highlight
                     ? 'bg-[#E12B7B] text-white font-bold'
                     : isActive
-                    ? 'bg-[#FDF2F8] text-[#E12B7B]'
-                    : 'text-gray-700 hover:bg-gray-50'
-                }`}
+                      ? 'bg-[#FDF2F8] text-[#E12B7B]'
+                      : 'text-gray-700 hover:bg-gray-50'
+                  }`}
               >
                 <div className="flex items-center gap-2">
                   <Icon className="w-4 h-4" />

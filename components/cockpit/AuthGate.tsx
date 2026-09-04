@@ -1,50 +1,109 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import {
     isAuthenticated,
     hasPassword,
-    setupPassword,
+    hasUsers,
+    setupFirstAdmin,
+    loginUser,
     verifyPassword,
-    createSession,
+    unlockVaultWithAgencyKey,
 } from '@/lib/auth';
-import { Lock, KeyRound, ShieldCheck, Eye, EyeOff, Loader2 } from 'lucide-react';
-import { unlockVault, lockVault } from '@/lib/vault';
+import {
+    Lock,
+    ShieldCheck,
+    Eye,
+    EyeOff,
+    Loader2,
+    UserPlus,
+    Mail,
+    Building2,
+} from 'lucide-react';
+import { unlockVault } from '@/lib/vault';
 import { useNellimoStore } from '@/lib/store';
 
+// --- Mini store externe d'authentification (sessionStorage / localStorage) ---
+// L'état d'authentification est lu pendant le rendu via useSyncExternalStore au
+// lieu d'un setState synchrone dans un effet (règle react-hooks/set-state-in-effect).
+const authListeners = new Set<() => void>();
+function subscribeAuth(cb: () => void): () => void {
+    authListeners.add(cb);
+    return () => {
+        authListeners.delete(cb);
+    };
+}
+function getAuthSnapshot(): boolean {
+    return isAuthenticated();
+}
+function getAuthServerSnapshot(): boolean {
+    return false;
+}
+function getHasUsersSnapshot(): boolean {
+    return hasUsers();
+}
+function getHasUsersServerSnapshot(): boolean {
+    return false;
+}
+function notifyAuthChanged(): void {
+    authListeners.forEach((cb) => cb());
+}
+
+type AuthMode = 'setup' | 'legacy' | 'login';
+
 /**
- * Garde d'authentification locale du cockpit.
- * - Premier accès : création d'un mot de passe.
- * - Accès suivants : saisie du mot de passe.
- * Tant que l'utilisateur n'est pas authentifié, le contenu du cockpit est masqué.
+ * Garde d'authentification locale du cockpit (multi-utilisateurs).
+ *
+ * Modes :
+ * - setup  : aucun compte ni mot de passe historique → création du 1er admin
+ *            (nom, email, mot de passe) + définition de la clé d'agence.
+ * - legacy : aucun compte mais un mot de passe historique existe (installation
+ *            antérieure au multi-utilisateurs) → vérification du mot de passe
+ *            puis migration vers un compte admin + clé d'agence.
+ * - login  : des comptes existent → connexion par email + mot de passe, puis
+ *            déverrouillage automatique du coffre-fort avec la clé d'agence.
  */
 export function AuthGate({ children }: { children: React.ReactNode }) {
-    const router = useRouter();
     const pathname = usePathname();
 
-    const [authed, setAuthed] = useState<boolean>(false);
-    const [checking, setChecking] = useState<boolean>(true);
-    const [mode, setMode] = useState<'setup' | 'login'>('login');
+    // Session valide ? (rechargement) — lu pendant le rendu, sans effet.
+    const authed = React.useSyncExternalStore(subscribeAuth, getAuthSnapshot, getAuthServerSnapshot);
+    // Des comptes utilisateurs existent-ils ?
+    const hasUsersFlag = React.useSyncExternalStore(
+        subscribeAuth,
+        getHasUsersSnapshot,
+        getHasUsersServerSnapshot
+    );
+
+    // Détermine le mode d'affichage initial.
+    const [mode, setMode] = useState<AuthMode>(() => {
+        if (hasUsersFlag) return 'login';
+        if (hasPassword()) return 'legacy';
+        return 'setup';
+    });
+
+    // Champs communs.
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirm, setConfirm] = useState('');
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [agencyKey, setAgencyKey] = useState('');
+    const [agencyKeyConfirm, setAgencyKeyConfirm] = useState('');
     const [show, setShow] = useState(false);
     const [error, setError] = useState('');
     const [busy, setBusy] = useState(false);
     const { hydrateSettingsSecrets } = useNellimoStore();
 
+    // Une fois authentifié (session restaurée au rechargement), on recharge les
+    // secrets chiffrés du coffre pour que l'UI les retrouve.
     useEffect(() => {
-        if (isAuthenticated()) {
-            // Session encore valide (rechargement) : on restaure la clé du coffre
-            // depuis le sessionStorage puis on recharge les secrets chiffrés.
-            setAuthed(true);
+        if (authed) {
             hydrateSettingsSecrets().catch(() => { });
-        } else {
-            setMode(hasPassword() ? 'login' : 'setup');
         }
-        setChecking(false);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [authed]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -52,6 +111,17 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
         setBusy(true);
         try {
             if (mode === 'setup') {
+                // Création du premier compte admin + clé d'agence.
+                if (!firstName.trim() || !lastName.trim()) {
+                    setError('Veuillez renseigner votre nom et prénom.');
+                    setBusy(false);
+                    return;
+                }
+                if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+                    setError('Veuillez saisir une adresse email valide.');
+                    setBusy(false);
+                    return;
+                }
                 if (password.length < 6) {
                     setError('Le mot de passe doit contenir au moins 6 caractères.');
                     setBusy(false);
@@ -62,22 +132,52 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
                     setBusy(false);
                     return;
                 }
-                await setupPassword(password);
-                createSession();
-                await unlockVault(password);
+                if (agencyKey.length < 6) {
+                    setError('La clé d\u2019agence doit contenir au moins 6 caractères.');
+                    setBusy(false);
+                    return;
+                }
+                if (agencyKey !== agencyKeyConfirm) {
+                    setError('Les deux clés d\u2019agence ne correspondent pas.');
+                    setBusy(false);
+                    return;
+                }
+                await setupFirstAdmin(
+                    {
+                        email: email.trim(),
+                        first_name: firstName.trim(),
+                        last_name: lastName.trim(),
+                        password,
+                    },
+                    agencyKey
+                );
+                await unlockVaultWithAgencyKey(unlockVault);
                 await hydrateSettingsSecrets();
-                setAuthed(true);
-            } else {
+                notifyAuthChanged();
+            } else if (mode === 'legacy') {
+                // Vérifie le mot de passe historique avant de migrer.
                 const ok = await verifyPassword(password);
                 if (!ok) {
                     setError('Mot de passe incorrect.');
                     setBusy(false);
                     return;
                 }
-                createSession();
-                await unlockVault(password);
+                // Passe à l'étape de création du compte admin (migration).
+                setMode('setup');
+                setPassword('');
+                setConfirm('');
+                setBusy(false);
+            } else {
+                // Connexion par email + mot de passe.
+                const user = await loginUser(email.trim(), password);
+                if (!user) {
+                    setError('Identifiants incorrects ou compte inactif.');
+                    setBusy(false);
+                    return;
+                }
+                await unlockVaultWithAgencyKey(unlockVault);
                 await hydrateSettingsSecrets();
-                setAuthed(true);
+                notifyAuthChanged();
             }
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Une erreur est survenue.');
@@ -85,17 +185,22 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
         }
     };
 
-    if (checking) {
-        return (
-            <div className="min-h-screen bg-[#FAF5F8] flex items-center justify-center">
-                <Loader2 className="w-8 h-8 text-[#E12B7B] animate-spin" />
-            </div>
-        );
-    }
-
     if (authed) {
         return <>{children}</>;
     }
+
+    const isSetup = mode === 'setup';
+    const isLogin = mode === 'login';
+    const title = isSetup
+        ? 'Créez votre compte administrateur'
+        : isLogin
+            ? 'Espace sécurisé'
+            : 'Migration vers les comptes';
+    const subtitle = isSetup
+        ? 'Configurez le premier compte admin et la clé d\u2019agence qui protège vos données.'
+        : isLogin
+            ? 'Connectez-vous avec votre email et mot de passe pour accéder au cockpit.'
+            : 'Votre cockpit utilise encore un mot de passe unique. Créez votre compte admin pour activer les comptes utilisateurs.';
 
     return (
         <div className="min-h-screen bg-[#FAF5F8] flex items-center justify-center p-4">
@@ -103,21 +208,81 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
                 <div className="bg-white rounded-3xl border border-[#F3E8EE] shadow-xl p-8 space-y-6">
                     <div className="flex flex-col items-center text-center space-y-3">
                         <div className="w-14 h-14 rounded-2xl bg-[#E12B7B] flex items-center justify-center text-white">
-                            {mode === 'setup' ? <KeyRound className="w-7 h-7" /> : <Lock className="w-7 h-7" />}
+                            {isSetup ? <UserPlus className="w-7 h-7" /> : <Lock className="w-7 h-7" />}
                         </div>
                         <div>
-                            <h1 className="text-xl font-serif font-bold text-[#131B26]">
-                                {mode === 'setup' ? 'Sécurisez votre Cockpit' : 'Espace sécurisé'}
-                            </h1>
-                            <p className="text-xs text-gray-500 mt-1">
-                                {mode === 'setup'
-                                    ? 'Créez un mot de passe pour protéger l’accès à vos données professionnelles.'
-                                    : 'Saisissez votre mot de passe pour accéder au cockpit Nell’Immo.'}
-                            </p>
+                            <h1 className="text-xl font-serif font-bold text-[#131B26]">{title}</h1>
+                            <p className="text-xs text-gray-500 mt-1">{subtitle}</p>
                         </div>
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-4">
+                        {isSetup && (
+                            <>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label className="block text-xs font-bold uppercase text-gray-700 mb-1">
+                                            Prénom
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={firstName}
+                                            onChange={(e) => setFirstName(e.target.value)}
+                                            autoFocus
+                                            className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#E12B7B]/30"
+                                            placeholder="Marie"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-bold uppercase text-gray-700 mb-1">
+                                            Nom
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={lastName}
+                                            onChange={(e) => setLastName(e.target.value)}
+                                            className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#E12B7B]/30"
+                                            placeholder="Dupont"
+                                        />
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-bold uppercase text-gray-700 mb-1">
+                                        Email
+                                    </label>
+                                    <div className="relative">
+                                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                        <input
+                                            type="email"
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
+                                            className="w-full p-2.5 pl-9 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#E12B7B]/30"
+                                            placeholder="marie@agence.fr"
+                                        />
+                                    </div>
+                                </div>
+                            </>
+                        )}
+
+                        {isLogin && (
+                            <div>
+                                <label className="block text-xs font-bold uppercase text-gray-700 mb-1">
+                                    Email
+                                </label>
+                                <div className="relative">
+                                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                    <input
+                                        type="email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        autoFocus
+                                        className="w-full p-2.5 pl-9 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#E12B7B]/30"
+                                        placeholder="marie@agence.fr"
+                                    />
+                                </div>
+                            </div>
+                        )}
+
                         <div>
                             <label className="block text-xs font-bold uppercase text-gray-700 mb-1">
                                 Mot de passe
@@ -127,7 +292,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
                                     type={show ? 'text' : 'password'}
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    autoFocus
+                                    autoFocus={!isSetup}
                                     className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#E12B7B]/30 pr-10"
                                     placeholder="••••••••"
                                 />
@@ -142,19 +307,53 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
                             </div>
                         </div>
 
-                        {mode === 'setup' && (
-                            <div>
-                                <label className="block text-xs font-bold uppercase text-gray-700 mb-1">
-                                    Confirmer le mot de passe
-                                </label>
-                                <input
-                                    type={show ? 'text' : 'password'}
-                                    value={confirm}
-                                    onChange={(e) => setConfirm(e.target.value)}
-                                    className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#E12B7B]/30"
-                                    placeholder="••••••••"
-                                />
-                            </div>
+                        {isSetup && (
+                            <>
+                                <div>
+                                    <label className="block text-xs font-bold uppercase text-gray-700 mb-1">
+                                        Confirmer le mot de passe
+                                    </label>
+                                    <input
+                                        type={show ? 'text' : 'password'}
+                                        value={confirm}
+                                        onChange={(e) => setConfirm(e.target.value)}
+                                        className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#E12B7B]/30"
+                                        placeholder="••••••••"
+                                    />
+                                </div>
+
+                                <div className="bg-[#FAF5F8] border border-[#F3E8EE] rounded-2xl p-4 space-y-3">
+                                    <div className="flex items-center gap-2 text-[#131B26]">
+                                        <Building2 className="w-4 h-4 text-[#E12B7B]" />
+                                        <span className="text-xs font-bold uppercase tracking-wider">
+                                            Clé {"d\u2019"}agence
+                                        </span>
+                                    </div>
+                                    <p className="text-[11px] text-gray-500 leading-relaxed">
+                                        Cette clé (indépendante des mots de passe) déverrouille le
+                                        coffre-fort partagé pour tous les utilisateurs authentifiés.
+                                        Conservez-la précieusement.
+                                    </p>
+                                    <div>
+                                        <input
+                                            type={show ? 'text' : 'password'}
+                                            value={agencyKey}
+                                            onChange={(e) => setAgencyKey(e.target.value)}
+                                            className="w-full p-2.5 bg-white border border-gray-200 rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#E12B7B]/30"
+                                            placeholder={'Clé d\u2019agence'}
+                                        />
+                                    </div>
+                                    <div>
+                                        <input
+                                            type={show ? 'text' : 'password'}
+                                            value={agencyKeyConfirm}
+                                            onChange={(e) => setAgencyKeyConfirm(e.target.value)}
+                                            className="w-full p-2.5 bg-white border border-gray-200 rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#E12B7B]/30"
+                                            placeholder={'Confirmer la clé d\u2019agence'}
+                                        />
+                                    </div>
+                                </div>
+                            </>
                         )}
 
                         {error && (
@@ -170,12 +369,16 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
                         >
                             {busy ? (
                                 <Loader2 className="w-4 h-4 animate-spin" />
-                            ) : mode === 'setup' ? (
+                            ) : isSetup ? (
                                 <ShieldCheck className="w-4 h-4" />
                             ) : (
                                 <Lock className="w-4 h-4" />
                             )}
-                            {mode === 'setup' ? 'Activer la protection' : 'Se connecter'}
+                            {isSetup
+                                ? 'Créer le compte et activer'
+                                : mode === 'legacy'
+                                    ? 'Vérifier et continuer'
+                                    : 'Se connecter'}
                         </button>
                     </form>
 

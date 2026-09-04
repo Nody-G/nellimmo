@@ -3,7 +3,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { Property, Buyer } from '@/lib/types';
-import { ShieldCheck, Printer, X } from 'lucide-react';
+import { ShieldCheck, Printer } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 

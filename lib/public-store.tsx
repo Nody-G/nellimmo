@@ -113,15 +113,9 @@ export function PublicNellimoProvider({ children }: { children: ReactNode }) {
     const [properties, setProperties] = useState<Property[]>(() =>
         loadFromStorage(PUBLIC_STORAGE_KEYS.PROPERTIES, INITIAL_PROPERTIES)
     );
-    const [settings, setSettings] = useState<AgencySettings>(() =>
-        loadFromStorage(PUBLIC_STORAGE_KEYS.SETTINGS, DEFAULT_AGENCY_SETTINGS)
-    );
-    const [visits, setVisits] = useState<VisitSheet[]>(() =>
-        sanitizeVisits(loadFromStorage<VisitSheet[]>(PUBLIC_STORAGE_KEYS.VISITS, INITIAL_VISIT_SHEETS))
-    );
-    const [vendorReports, setVendorReports] = useState<VendorReport[]>(() =>
-        loadFromStorage(PUBLIC_STORAGE_KEYS.VENDOR_REPORTS, INITIAL_VENDOR_REPORTS)
-    );
+    const settings = loadFromStorage(PUBLIC_STORAGE_KEYS.SETTINGS, DEFAULT_AGENCY_SETTINGS);
+    const visits = sanitizeVisits(loadFromStorage<VisitSheet[]>(PUBLIC_STORAGE_KEYS.VISITS, INITIAL_VISIT_SHEETS));
+    const vendorReports = loadFromStorage(PUBLIC_STORAGE_KEYS.VENDOR_REPORTS, INITIAL_VENDOR_REPORTS);
     const [contactLeads, setContactLeads] = useState<ContactLead[]>(() =>
         loadFromStorage<ContactLead[]>(PUBLIC_STORAGE_KEYS.CONTACT_LEADS, [])
     );

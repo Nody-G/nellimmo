@@ -14,6 +14,7 @@ import { HektorBenchmarkWidget } from '@/components/cockpit/dashboard/HektorBenc
 import { RecentTransactionsWidget } from '@/components/cockpit/dashboard/RecentTransactionsWidget';
 import { QuickActionsGrid } from '@/components/cockpit/dashboard/QuickActionsGrid';
 import { LeadsInboxWidget } from '@/components/cockpit/dashboard/LeadsInboxWidget';
+import { AssistantPanel } from '@/components/cockpit/assistant/AssistantPanel';
 import { useToast } from '@/components/ui/Toast';
 
 export default function CockpitDashboard() {
@@ -128,6 +129,9 @@ export default function CockpitDashboard() {
           showToast('Demande d\'estimation supprimée.', 'info');
         }}
       />
+
+      {/* Assistant IA — Qualification des leads entrants */}
+      <AssistantPanel />
     </div>
   );
 }

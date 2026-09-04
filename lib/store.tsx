@@ -17,8 +17,11 @@ import {
   MandateAvenant,
   ProposalHistory,
   KeyLoanRecord,
-  ProposalStatus
+  ProposalStatus,
+  PartnerAgency,
+  DelegationAgreement
 } from './types';
+import type { RelanceStatusMap } from './relances';
 import {
   INITIAL_PROPERTIES,
   INITIAL_BUYERS,
@@ -33,7 +36,9 @@ import {
   INITIAL_AGENCY_KEYS,
   INITIAL_AGENCY_SIGNBOARDS,
   INITIAL_MANDATE_AVENANTS,
-  INITIAL_PROPOSALS
+  INITIAL_PROPOSALS,
+  INITIAL_PARTNERS,
+  INITIAL_DELEGATIONS
 } from './mock-data';
 import { computeSHA256, generateSellerToken } from './hoguet';
 import { getSupabaseClient, isSupabaseConfigured } from './supabase';
@@ -59,6 +64,9 @@ const STORAGE_KEYS = {
   SIGNBOARDS: 'nellimo_agency_signboards_v1',
   AVENANTS: 'nellimo_mandate_avenants_v1',
   PROPOSALS: 'nellimo_buyer_proposals_v1',
+  PARTNERS: 'nellimo_interagency_partners_v1',
+  DELEGATIONS: 'nellimo_interagency_delegations_v1',
+  RELANCES: 'nellimo_relances_v1',
 };
 
 function loadFromStorage<T>(key: string, defaultValue: T): T {
@@ -96,6 +104,9 @@ interface NellimoContextType {
   signboards: AgencySignboard[];
   avenants: MandateAvenant[];
   proposals: ProposalHistory[];
+  partners: PartnerAgency[];
+  delegations: DelegationAgreement[];
+  relanceStatuses: RelanceStatusMap;
   isLoaded: boolean;
   isSupabaseActive: boolean;
   createProperty: (propertyData: Omit<Property, 'id' | 'mandate_number' | 'created_at' | 'updated_at'>) => Promise<Property>;
@@ -132,19 +143,42 @@ interface NellimoContextType {
   createMandateAvenant: (data: Omit<MandateAvenant, 'id' | 'created_at'>) => Promise<MandateAvenant>;
   createProposal: (data: Omit<ProposalHistory, 'id'>) => Promise<ProposalHistory>;
   updateProposalStatus: (id: string, status: ProposalStatus, feedback?: string) => Promise<void>;
+  createDelegation: (data: Omit<DelegationAgreement, 'id'>) => Promise<DelegationAgreement>;
+  updateDelegation: (id: string, updates: Partial<DelegationAgreement>) => Promise<void>;
+  deleteDelegation: (id: string) => Promise<void>;
+  addPartner: (data: Omit<PartnerAgency, 'id'>) => Promise<PartnerAgency>;
+  updatePartner: (id: string, updates: Partial<PartnerAgency>) => Promise<void>;
+  deletePartner: (id: string) => Promise<void>;
+  setRelanceStatus: (actionId: string, status: RelanceStatusMap[string]) => void;
+  resetRelanceStatuses: () => void;
   resetToDemoData: () => void;
 }
 
 const NellimoContext = createContext<NellimoContextType | null>(null);
 
 export function NellimoProvider({ children }: { children: ReactNode }) {
-  const [properties, setProperties] = useState<Property[]>(() => loadFromStorage(STORAGE_KEYS.PROPERTIES, INITIAL_PROPERTIES));
+  // Backfill au chargement : garantit que chaque bien dispose d'un token d'accès
+  // Espace Vendeur unique et non devinable (sécurité). Fait une seule fois à
+  // l'initialisation pour éviter tout setState synchrone dans un effet.
+  const [properties, setProperties] = useState<Property[]>(() => {
+    const loaded = loadFromStorage<Property[]>(STORAGE_KEYS.PROPERTIES, INITIAL_PROPERTIES);
+    const missing = loaded.filter((p) => !p.seller_token);
+    if (missing.length === 0) return loaded;
+    const enriched = loaded.map((p) =>
+      p.seller_token ? p : { ...p, seller_token: generateSellerToken() }
+    );
+    saveToStorage(STORAGE_KEYS.PROPERTIES, enriched);
+    return enriched;
+  });
   const [buyers, setBuyers] = useState<Buyer[]>(() => loadFromStorage(STORAGE_KEYS.BUYERS, INITIAL_BUYERS));
   const [visits, setVisits] = useState<VisitSheet[]>(() => loadFromStorage(STORAGE_KEYS.VISITS, INITIAL_VISIT_SHEETS));
   const [auditLogs, setAuditLogs] = useState<MandateAuditLog[]>(() => loadFromStorage(STORAGE_KEYS.AUDIT, INITIAL_AUDIT_LOGS));
   const [settings, setSettings] = useState<AgencySettings>(() => loadFromStorage(STORAGE_KEYS.SETTINGS, DEFAULT_AGENCY_SETTINGS));
   const settingsRef = useRef(settings);
-  settingsRef.current = settings;
+  // Synchronise le ref après chaque rendu (interdit de muter un ref pendant le rendu).
+  useEffect(() => {
+    settingsRef.current = settings;
+  }, [settings]);
   const [contactLeads, setContactLeads] = useState<ContactLead[]>(() => loadFromStorage(STORAGE_KEYS.CONTACT_LEADS, INITIAL_CONTACT_LEADS));
   const [estimationLeads, setEstimationLeads] = useState<EstimationLead[]>(() => loadFromStorage(STORAGE_KEYS.ESTIMATION_LEADS, INITIAL_ESTIMATION_LEADS));
   const [transactions, setTransactions] = useState<TransactionDeal[]>(() => loadFromStorage(STORAGE_KEYS.TRANSACTIONS, INITIAL_TRANSACTIONS));
@@ -154,20 +188,11 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
   const [signboards, setSignboards] = useState<AgencySignboard[]>(() => loadFromStorage(STORAGE_KEYS.SIGNBOARDS, INITIAL_AGENCY_SIGNBOARDS));
   const [avenants, setAvenants] = useState<MandateAvenant[]>(() => loadFromStorage(STORAGE_KEYS.AVENANTS, INITIAL_MANDATE_AVENANTS));
   const [proposals, setProposals] = useState<ProposalHistory[]>(() => loadFromStorage(STORAGE_KEYS.PROPOSALS, INITIAL_PROPOSALS));
+  const [partners, setPartners] = useState<PartnerAgency[]>(() => loadFromStorage(STORAGE_KEYS.PARTNERS, INITIAL_PARTNERS));
+  const [delegations, setDelegations] = useState<DelegationAgreement[]>(() => loadFromStorage(STORAGE_KEYS.DELEGATIONS, INITIAL_DELEGATIONS));
+  const [relanceStatuses, setRelanceStatuses] = useState<RelanceStatusMap>(() => loadFromStorage<RelanceStatusMap>(STORAGE_KEYS.RELANCES, {}));
   const [isLoaded, setIsLoaded] = useState(true);
   const [isSupabaseActive] = useState(() => isSupabaseConfigured());
-
-  // Backfill : garantit que chaque bien dispose d'un token d'accès Espace Vendeur
-  // unique et non devinable (sécurité). S'exécute une seule fois au montage.
-  useEffect(() => {
-    const missing = properties.filter((p) => !p.seller_token);
-    if (missing.length === 0) return;
-    const enriched = properties.map((p) =>
-      p.seller_token ? p : { ...p, seller_token: generateSellerToken() }
-    );
-    updateProperties(enriched);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const updateProperties = useCallback((newProps: Property[]) => {
     setProperties(newProps);
@@ -228,6 +253,33 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
     setProposals(newProposals);
     saveToStorage(STORAGE_KEYS.PROPOSALS, newProposals);
   }, []);
+
+  const updatePartners = useCallback((newPartners: PartnerAgency[]) => {
+    setPartners(newPartners);
+    saveToStorage(STORAGE_KEYS.PARTNERS, newPartners);
+  }, []);
+
+  const updateDelegations = useCallback((newDelegations: DelegationAgreement[]) => {
+    setDelegations(newDelegations);
+    saveToStorage(STORAGE_KEYS.DELEGATIONS, newDelegations);
+  }, []);
+
+  const updateRelanceStatuses = useCallback((newStatuses: RelanceStatusMap) => {
+    setRelanceStatuses(newStatuses);
+    saveToStorage(STORAGE_KEYS.RELANCES, newStatuses);
+  }, []);
+
+  const setRelanceStatus = useCallback((actionId: string, status: RelanceStatusMap[string]) => {
+    setRelanceStatuses((prev) => {
+      const next = { ...prev, [actionId]: status };
+      saveToStorage(STORAGE_KEYS.RELANCES, next);
+      return next;
+    });
+  }, []);
+
+  const resetRelanceStatuses = useCallback(() => {
+    updateRelanceStatuses({});
+  }, [updateRelanceStatuses]);
 
   // --- SUPABASE REALTIME & INITIAL FETCH SYNC ---
   useEffect(() => {
@@ -981,6 +1033,48 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
     updateProposals(updated);
   };
 
+  // --- INTER-AGENCES : PARTENAIRES CONFRÈRES & DÉLÉGATIONS DE MANDATS ---
+
+  const createDelegation = async (data: Omit<DelegationAgreement, 'id'>): Promise<DelegationAgreement> => {
+    const newDelegation: DelegationAgreement = {
+      ...data,
+      id: `del-${Date.now()}`,
+    };
+    const updated = [newDelegation, ...delegations];
+    updateDelegations(updated);
+    return newDelegation;
+  };
+
+  const updateDelegation = async (id: string, updates: Partial<DelegationAgreement>): Promise<void> => {
+    const updated = delegations.map((d) => (d.id === id ? { ...d, ...updates } : d));
+    updateDelegations(updated);
+  };
+
+  const deleteDelegation = async (id: string): Promise<void> => {
+    const updated = delegations.filter((d) => d.id !== id);
+    updateDelegations(updated);
+  };
+
+  const addPartner = async (data: Omit<PartnerAgency, 'id'>): Promise<PartnerAgency> => {
+    const newPartner: PartnerAgency = {
+      ...data,
+      id: `part-${Date.now()}`,
+    };
+    const updated = [newPartner, ...partners];
+    updatePartners(updated);
+    return newPartner;
+  };
+
+  const updatePartner = async (id: string, updates: Partial<PartnerAgency>): Promise<void> => {
+    const updated = partners.map((p) => (p.id === id ? { ...p, ...updates } : p));
+    updatePartners(updated);
+  };
+
+  const deletePartner = async (id: string): Promise<void> => {
+    const updated = partners.filter((p) => p.id !== id);
+    updatePartners(updated);
+  };
+
   // --- RESET DEMO PROVENCE ---
 
   const resetToDemoData = () => {
@@ -999,6 +1093,9 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
     updateSignboards(INITIAL_AGENCY_SIGNBOARDS);
     updateAvenants(INITIAL_MANDATE_AVENANTS);
     updateProposals(INITIAL_PROPOSALS);
+    updatePartners(INITIAL_PARTNERS);
+    updateDelegations(INITIAL_DELEGATIONS);
+    resetRelanceStatuses();
   };
 
   const value: NellimoContextType = {
@@ -1016,6 +1113,9 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
     signboards,
     avenants,
     proposals,
+    partners,
+    delegations,
+    relanceStatuses,
     isLoaded,
     isSupabaseActive,
     createProperty,
@@ -1052,6 +1152,14 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
     createMandateAvenant,
     createProposal,
     updateProposalStatus,
+    createDelegation,
+    updateDelegation,
+    deleteDelegation,
+    addPartner,
+    updatePartner,
+    deletePartner,
+    setRelanceStatus,
+    resetRelanceStatuses,
     resetToDemoData,
   };
 
@@ -1076,6 +1184,9 @@ export function useNellimoStore(): NellimoContextType {
       signboards: INITIAL_AGENCY_SIGNBOARDS,
       avenants: INITIAL_MANDATE_AVENANTS,
       proposals: INITIAL_PROPOSALS,
+      partners: INITIAL_PARTNERS,
+      delegations: INITIAL_DELEGATIONS,
+      relanceStatuses: {},
       isLoaded: true,
       isSupabaseActive: false,
       createProperty: async (p) => ({ ...p, id: 'prop-temp', mandate_number: 999, created_at: '', updated_at: '' }),
@@ -1112,6 +1223,14 @@ export function useNellimoStore(): NellimoContextType {
       createMandateAvenant: async (a) => ({ ...a, id: 'av-temp', created_at: '' }),
       createProposal: async (p) => ({ ...p, id: 'prop-temp' }),
       updateProposalStatus: async () => { },
+      createDelegation: async (d) => ({ ...d, id: 'del-temp' }),
+      updateDelegation: async () => { },
+      deleteDelegation: async () => { },
+      addPartner: async (p) => ({ ...p, id: 'part-temp' }),
+      updatePartner: async () => { },
+      deletePartner: async () => { },
+      setRelanceStatus: () => { },
+      resetRelanceStatuses: () => { },
       resetToDemoData: () => { },
     };
   }
@@ -1211,3 +1330,25 @@ export function useLeads() {
   };
 }
 
+export function useInterAgency() {
+  const store = useNellimoStore();
+  return {
+    partners: store.partners,
+    delegations: store.delegations,
+    createDelegation: store.createDelegation,
+    updateDelegation: store.updateDelegation,
+    deleteDelegation: store.deleteDelegation,
+    addPartner: store.addPartner,
+    updatePartner: store.updatePartner,
+    deletePartner: store.deletePartner
+  };
+}
+
+export function useRelances() {
+  const store = useNellimoStore();
+  return {
+    relanceStatuses: store.relanceStatuses,
+    setRelanceStatus: store.setRelanceStatus,
+    resetRelanceStatuses: store.resetRelanceStatuses
+  };
+}

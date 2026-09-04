@@ -8,7 +8,7 @@ import {
   STYLE_TEMPLATES
 } from '@/lib/copywriting';
 import { Sparkles, Copy, Check, Wand2 } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
+import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 
 interface MandateCopywritingTabProps {
@@ -60,11 +60,10 @@ export const MandateCopywritingTab: React.FC<MandateCopywritingTabProps> = ({
             type="button"
             key={template.id}
             onClick={() => setSelectedStyle(template.id)}
-            className={`p-3 rounded-xl border text-left transition cursor-pointer ${
-              selectedStyle === template.id
+            className={`p-3 rounded-xl border text-left transition cursor-pointer ${selectedStyle === template.id
                 ? 'border-[#E12B7B] bg-[#FDF2F8] text-[#E12B7B] ring-2 ring-[#E12B7B]/20 font-bold'
                 : 'border-gray-200 bg-white hover:bg-gray-50 text-gray-700 text-xs font-semibold'
-            }`}
+              }`}
           >
             <span className="block text-xs">{template.label}</span>
             <span className="block text-[10px] text-gray-500 font-normal mt-0.5 line-clamp-1">
