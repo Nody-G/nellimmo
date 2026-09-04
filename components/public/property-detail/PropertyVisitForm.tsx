@@ -28,9 +28,28 @@ export function PropertyVisitForm({ property, mandateRef, addContactLead }: Prop
     const [visitorPhone, setVisitorPhone] = useState('');
     const [visitorEmail, setVisitorEmail] = useState('');
     const [visitorMessage, setVisitorMessage] = useState('');
+    const [selectedSlots, setSelectedSlots] = useState<string[]>([]);
+
+    const availableSlots = [
+        'Semaine (matin)',
+        'Semaine (après-midi)',
+        'Fin de journée (> 18h)',
+        'Le samedi',
+    ];
+
+    const toggleSlot = (slot: string) => {
+        setSelectedSlots((prev) =>
+            prev.includes(slot) ? prev.filter((s) => s !== slot) : [...prev, slot]
+        );
+    };
 
     const handleContactSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        const baseMsg = visitorMessage || `Bonjour Nelly, je souhaiterais organiser une visite pour cette ${property.property_type} à ${property.city} (Réf. ${mandateRef}).`;
+        const slotsSuffix = selectedSlots.length > 0
+            ? `\n\n[Créneaux préférés : ${selectedSlots.join(', ')}]`
+            : '';
+
         addContactLead({
             name: visitorName,
             phone: visitorPhone,
@@ -38,7 +57,7 @@ export function PropertyVisitForm({ property, mandateRef, addContactLead }: Prop
             subject: 'visite',
             property_id: property.id,
             property_title: `${property.title} (${property.city})`,
-            message: visitorMessage || `Bonjour Nelly, je souhaiterais organiser une visite pour cette ${property.property_type} à ${property.city} (Réf. ${mandateRef}).`,
+            message: `${baseMsg}${slotsSuffix}`,
         });
         setContactSent(true);
     };
@@ -91,6 +110,31 @@ export function PropertyVisitForm({ property, mandateRef, addContactLead }: Prop
                             placeholder="Votre E-mail"
                             className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-900 focus:outline-[#E12B7B]"
                         />
+                    </div>
+
+                    <div className="space-y-1.5 pt-1">
+                        <label className="text-[11px] font-bold text-gray-600 block">
+                            Vos disponibilités idéales pour visiter :
+                        </label>
+                        <div className="flex flex-wrap gap-1.5">
+                            {availableSlots.map((slot) => {
+                                const isSelected = selectedSlots.includes(slot);
+                                return (
+                                    <button
+                                        key={slot}
+                                        type="button"
+                                        onClick={() => toggleSlot(slot)}
+                                        className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition cursor-pointer ${
+                                            isSelected
+                                                ? 'bg-[#E12B7B] text-white shadow-xs font-semibold'
+                                                : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                                        }`}
+                                    >
+                                        {isSelected ? '✓ ' : '+ '}{slot}
+                                    </button>
+                                );
+                            })}
+                        </div>
                     </div>
                     <div>
                         <textarea

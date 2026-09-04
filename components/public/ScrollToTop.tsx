@@ -31,7 +31,7 @@ export function ScrollToTop() {
     <button
       onClick={scrollToTop}
       aria-label="Retour en haut de page"
-      className="fixed bottom-6 right-6 z-40 p-3 bg-white/95 hover:bg-white text-gray-800 hover:text-[#E12B7B] rounded-full shadow-lg border border-[#F3E8EE] backdrop-blur-md transition-all duration-300 hover:scale-110 group cursor-pointer"
+      className="fixed bottom-22 right-6 z-40 p-3 bg-white/95 hover:bg-white text-gray-800 hover:text-[#E12B7B] rounded-full shadow-lg border border-[#F3E8EE] backdrop-blur-md transition-all duration-300 hover:scale-110 group cursor-pointer"
     >
       {/* Circular Progress Ring */}
       <svg className="w-9 h-9 -rotate-90 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">

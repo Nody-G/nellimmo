@@ -1,4 +1,5 @@
 export { PropertyPhotoGallery } from './PropertyPhotoGallery';
+export { PropertyPhotoLightbox } from './PropertyPhotoLightbox';
 export { PropertyVisitForm } from './PropertyVisitForm';
 export { PropertySidebar } from './PropertySidebar';
 export { PropertyTopBar } from './PropertyTopBar';

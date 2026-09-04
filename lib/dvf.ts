@@ -1,5 +1,5 @@
 import type { DVFTransaction } from './types';
-import { MOCK_DVF_TRANSACTIONS } from './mock-data-cockpit';
+import { MOCK_DVF_TRANSACTIONS } from './mock-data-dvf';
 
 /**
  * Couture vers l'API DVF (DGFiP / data.gouv.fr / Notaires).

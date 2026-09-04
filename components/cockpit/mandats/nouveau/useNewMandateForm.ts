@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useNellimoStore } from '@/lib/store';
 import { calculateFinancials, getDpeLetterFromValue, getGesLetterFromValue } from '@/lib/hoguet';
 import { MandateType, PropertyType, SellerCivility, FeesPaidBy, PropertyImage } from '@/lib/types';
@@ -42,21 +42,20 @@ const DEFAULT_IMAGES: PropertyImage[] = [
     }
 ];
 
-/**
- * Hook d'orchestration du formulaire « Nouveau Mandat ».
- * Encapsule tout l'état du formulaire (vendeur, bien, specs, diagnostics,
- * financier, description, canaux, médias), les valeurs dérivées (calculs
- * financiers, lettres DPE/GES, prochain n° de mandat) et les handlers
- * (Remplissage Express, génération IA, gestion d'images, soumission).
- *
- * La page reste une « coquille » qui compose les sous-composants du wizard
- * en leur passant les valeurs/setters exposés ici.
- */
 export function useNewMandateForm() {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const { createProperty, properties } = useNellimoStore();
     const { showToast } = useToast();
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const prefillSellerName = searchParams.get('sellerName') || '';
+    const prefillSellerEmail = searchParams.get('sellerEmail') || '';
+    const prefillSellerPhone = searchParams.get('sellerPhone') || '';
+    const prefillCity = searchParams.get('city') || 'Pélissanne';
+    const prefillAddress = searchParams.get('address') || '';
+    const prefillLivingArea = Number(searchParams.get('livingArea')) || 120;
+    const prefillPropertyType = (searchParams.get('propertyType') as PropertyType) || 'maison';
 
     // Fast-Fill & AI Helper
     const [showAutoFillModal, setShowAutoFillModal] = useState(false);
@@ -78,21 +77,25 @@ export function useNewMandateForm() {
 
     // Seller
     const [sellerCivility, setSellerCivility] = useState<SellerCivility>('M_Mme');
-    const [sellerName, setSellerName] = useState('');
-    const [sellerEmail, setSellerEmail] = useState('');
-    const [sellerPhone, setSellerPhone] = useState('');
-    const [sellerAddress, setSellerAddress] = useState('');
+    const [sellerName, setSellerName] = useState(prefillSellerName);
+    const [sellerEmail, setSellerEmail] = useState(prefillSellerEmail);
+    const [sellerPhone, setSellerPhone] = useState(prefillSellerPhone);
+    const [sellerAddress, setSellerAddress] = useState(prefillAddress);
 
     // Property
-    const [title, setTitle] = useState('');
-    const [propertyType, setPropertyType] = useState<PropertyType>('maison');
-    const [address, setAddress] = useState('');
-    const [postalCode, setPostalCode] = useState('13330');
-    const [city, setCity] = useState('Pélissanne');
+    const [title, setTitle] = useState(() =>
+        prefillSellerName
+            ? `${prefillPropertyType === 'appartement' ? 'Appartement' : 'Maison'} à ${prefillCity}`
+            : ''
+    );
+    const [propertyType, setPropertyType] = useState<PropertyType>(prefillPropertyType);
+    const [address, setAddress] = useState(prefillAddress);
+    const [postalCode, setPostalCode] = useState(prefillCity === 'Salon-de-Provence' ? '13300' : prefillCity === 'Lambesc' ? '13410' : '13330');
+    const [city, setCity] = useState(prefillCity);
     const [displayExactAddress] = useState(false);
 
     // Specs
-    const [livingArea, setLivingArea] = useState<number>(120);
+    const [livingArea, setLivingArea] = useState<number>(prefillLivingArea);
     const [carrezArea, setCarrezArea] = useState<number>(120);
     const [landArea, setLandArea] = useState<number>(650);
     const [roomsCount, setRoomsCount] = useState<number>(5);

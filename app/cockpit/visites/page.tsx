@@ -4,24 +4,23 @@ import React, { useState, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useNellimoStore } from '@/lib/store';
 import { VoiceVisitRecorder } from '@/components/cockpit/VoiceVisitRecorder';
-import { InstantOfferModal } from '@/components/cockpit/visites/InstantOfferModal';
-import { PrintableVisitModal, PrintableVisitData } from '@/components/cockpit/visites/PrintableVisitModal';
-import { CalendarSyncModal } from '@/components/cockpit/visites/CalendarSyncModal';
-import { VisitRegisterTable } from '@/components/cockpit/visites/VisitRegisterTable';
-import { VisitHeader } from '@/components/cockpit/visites/VisitHeader';
-import { VisitSelectors } from '@/components/cockpit/visites/VisitSelectors';
-import { MicroBilan } from '@/components/cockpit/visites/MicroBilan';
-import { LegalClause } from '@/components/cockpit/visites/LegalClause';
-import { SignatureCanvas } from '@/components/cockpit/visites/SignatureCanvas';
-import { VisitNotes } from '@/components/cockpit/visites/VisitNotes';
-import { VisitActionBar } from '@/components/cockpit/visites/VisitActionBar';
 import {
+  VisitHeader,
+  VisitSelectors,
+  MicroBilan,
+  LegalClause,
+  SignatureCanvas,
+  VisitNotes,
+  VisitActionBar,
+  VisitRegisterTable,
+  VisitModals,
+  PrintableVisitData,
   VisitorSentiment,
   compileVisitNotes,
   generateVisitHash,
   captureCanvasSignature,
-  toggleInList
-} from '@/components/cockpit/visites/visites-types';
+  toggleInList,
+} from '@/components/cockpit/visites';
 import { useToast } from '@/components/ui/Toast';
 
 function VisitSheetsContent() {
@@ -48,7 +47,7 @@ function VisitSheetsContent() {
   const [visitorSentiment, setVisitorSentiment] = useState<VisitorSentiment>('coup_de_coeur');
   const [selectedStrengths, setSelectedStrengths] = useState<string[]>([
     'Luminosité',
-    'Jardin / Extérieur'
+    'Jardin / Extérieur',
   ]);
   const [selectedWeaknesses, setSelectedWeaknesses] = useState<string[]>([]);
   const [priceFeedback, setPriceFeedback] = useState<string>('Au prix du marché');
@@ -77,7 +76,7 @@ function VisitSheetsContent() {
       strengths: selectedStrengths,
       weaknesses: selectedWeaknesses,
       priceFeedback,
-      notes
+      notes,
     });
 
     try {
@@ -86,7 +85,7 @@ function VisitSheetsContent() {
         buyer_id: selectedBuyer?.id || '',
         visit_date: new Date().toISOString(),
         notes: compiledNotes,
-        signature_data_url: signatureUrl
+        signature_data_url: signatureUrl,
       });
 
       setIsSigned(true);
@@ -98,11 +97,11 @@ function VisitSheetsContent() {
         visit_date: new Date().toISOString(),
         signature_data_url: signatureUrl,
         notes: compiledNotes,
-        hash: generateVisitHash()
+        hash: generateVisitHash(),
       });
     } catch (err) {
       console.error(err);
-      showToast('Erreur lors de l\'archivage du bon de visite', 'error');
+      showToast("Erreur lors de l'archivage du bon de visite", 'error');
     }
   };
 
@@ -179,25 +178,16 @@ function VisitSheetsContent() {
         />
       </div>
 
-      {/* Modal Formuler une Offre d'Achat Express */}
-      <InstantOfferModal
-        isOpen={isOfferModalOpen}
-        onClose={() => setIsOfferModalOpen(false)}
-        property={selectedProperty}
-        buyer={selectedBuyer}
-      />
-
-      {/* Modal Calendrier iCal */}
-      <CalendarSyncModal
-        isOpen={isCalendarModalOpen}
-        onClose={() => setIsCalendarModalOpen(false)}
-      />
-
-      {/* Modal Bon de Visite Officiel Imprimable */}
-      <PrintableVisitModal
-        isOpen={isLegalPrintModalOpen}
-        onClose={() => setIsLegalPrintModalOpen(false)}
-        visitData={selectedVisitToPrint}
+      <VisitModals
+        isOfferModalOpen={isOfferModalOpen}
+        onCloseOfferModal={() => setIsOfferModalOpen(false)}
+        selectedProperty={selectedProperty}
+        selectedBuyer={selectedBuyer}
+        isCalendarModalOpen={isCalendarModalOpen}
+        onCloseCalendarModal={() => setIsCalendarModalOpen(false)}
+        isLegalPrintModalOpen={isLegalPrintModalOpen}
+        onCloseLegalPrintModal={() => setIsLegalPrintModalOpen(false)}
+        selectedVisitToPrint={selectedVisitToPrint}
       />
     </div>
   );

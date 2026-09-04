@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import Link from 'next/link';
 import { Property, TransactionDeal, AgencyKey, AgencySignboard } from '@/lib/types';
 import { isAuditEnergetiqueObligatoire } from '@/lib/hoguet';
 import { useNellimoStore, useRelances } from '@/lib/store';
@@ -13,11 +12,10 @@ import {
   KeyRound,
   Building,
   Landmark,
-  ShieldCheck,
-  ChevronRight,
-  BellRing
+  ShieldCheck
 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
+import { AlertCard, RelancePriorityBanner } from './alerts';
 
 interface UrgentAlertsWidgetProps {
   properties: Property[];
@@ -92,159 +90,85 @@ export const UrgentAlertsWidget: React.FC<UrgentAlertsWidgetProps> = ({
         </div>
       </CardHeader>
       <CardContent className="p-4 space-y-2.5">
-        {/* Alerte Relances Prioritaires du Jour */}
-        {pendingRelances.length > 0 && (
-          <div className="p-3.5 bg-gradient-to-r from-[#FDF2F8] to-[#FFF1F2] rounded-2xl border border-[#F472B6]/40 text-xs flex items-start gap-3 shadow-xs mb-3">
-            <div className="w-8 h-8 rounded-xl bg-[#E12B7B] text-white flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
-              <BellRing className="w-4 h-4" />
-            </div>
-            <div className="space-y-1 flex-1">
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-[#9F1239]">
-                  {pendingRelances.length} Relance(s) Prioritaire(s) Aujourd&apos;hui
-                </span>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#E12B7B] text-white font-mono">
-                  Action Requise
-                </span>
-              </div>
-              <p className="text-[11px] text-[#881337]">
-                Rappels de visites J-1, debriefs acquéreurs J+1 et suivi des conditions suspensives de prêt en cours.
-              </p>
-              <Link
-                href="/cockpit/relances"
-                className="text-[11px] font-bold text-[#E12B7B] hover:text-[#9F1239] flex items-center gap-1 pt-0.5"
-              >
-                Ouvrir le centre de relances WhatsApp ({pendingRelances.length}) <ChevronRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-          </div>
-        )}
+        <RelancePriorityBanner pendingCount={pendingRelances.length} />
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-          {/* Alerte 1 : Audit DPE F/G */}
           {energyAuditProperties.length > 0 && (
-            <div className="p-3 bg-white rounded-xl border border-rose-200 text-xs flex items-start gap-2.5 shadow-xs">
-              <Zap className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
-              <div className="space-y-1">
-                <span className="font-bold text-rose-900 block">
-                  {energyAuditProperties.length} Mandat(s) Passoire Énergétique
-                </span>
-                <p className="text-[11px] text-gray-600">
-                  Classe F ou G : Audit énergétique obligatoire avant signature du compromis.
-                </p>
-                <Link
-                  href="/cockpit/mandats"
-                  className="text-[10px] font-bold text-[#E12B7B] hover:underline flex items-center gap-0.5 pt-0.5"
-                >
-                  Voir les mandats concernés <ChevronRight className="w-3 h-3" />
-                </Link>
-              </div>
-            </div>
+            <AlertCard
+              icon={<Zap className="w-4 h-4 text-rose-600" />}
+              title={`${energyAuditProperties.length} Mandat(s) Passoire Énergétique`}
+              description="Classe F ou G : Audit énergétique obligatoire avant signature du compromis."
+              actionHref="/cockpit/mandats"
+              actionText="Voir les mandats concernés"
+              borderColor="border-rose-200"
+              titleColor="text-rose-900"
+              actionColor="text-[#E12B7B]"
+            />
           )}
 
-          {/* Alerte 2 : Expiration Mandat */}
           {expiringProperties.length > 0 && (
-            <div className="p-3 bg-white rounded-xl border border-amber-200 text-xs flex items-start gap-2.5 shadow-xs">
-              <Clock className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-              <div className="space-y-1">
-                <span className="font-bold text-amber-900 block">
-                  {expiringProperties.length} Mandat(s) Expirant sous 60 jours
-                </span>
-                <p className="text-[11px] text-gray-600">
-                  Prévoir un compte-rendu d&apos;activité vendeur et un avenant de prorogation.
-                </p>
-                <Link
-                  href="/cockpit/mandats"
-                  className="text-[10px] font-bold text-[#E12B7B] hover:underline flex items-center gap-0.5 pt-0.5"
-                >
-                  Gérer les renouvellements <ChevronRight className="w-3 h-3" />
-                </Link>
-              </div>
-            </div>
+            <AlertCard
+              icon={<Clock className="w-4 h-4 text-amber-600" />}
+              title={`${expiringProperties.length} Mandat(s) Expirant sous 60 jours`}
+              description="Prévoir un compte-rendu d'activité vendeur et un avenant de prorogation."
+              actionHref="/cockpit/mandats"
+              actionText="Gérer les renouvellements"
+              borderColor="border-amber-200"
+              titleColor="text-amber-900"
+              actionColor="text-[#E12B7B]"
+            />
           )}
 
-          {/* Alerte 3 : Clés Sorties */}
           {borrowedKeysList.length > 0 && (
-            <div className="p-3 bg-white rounded-xl border border-amber-200 text-xs flex items-start gap-2.5 shadow-xs">
-              <KeyRound className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-              <div className="space-y-1">
-                <span className="font-bold text-amber-900 block">
-                  {borrowedKeysList.length} Trousseau(x) actuellement sorti(s)
-                </span>
-                <p className="text-[11px] text-gray-600">
-                  Artisans ou diagnostiqueurs avec engagement de restitution sous décharge.
-                </p>
-                <Link
-                  href="/cockpit/cles-panneaux"
-                  className="text-[10px] font-bold text-[#E12B7B] hover:underline flex items-center gap-0.5 pt-0.5"
-                >
-                  Consulter l&apos;armoire à clés <ChevronRight className="w-3 h-3" />
-                </Link>
-              </div>
-            </div>
+            <AlertCard
+              icon={<KeyRound className="w-4 h-4 text-amber-600" />}
+              title={`${borrowedKeysList.length} Trousseau(x) actuellement sorti(s)`}
+              description="Artisans ou diagnostiqueurs avec engagement de restitution sous décharge."
+              actionHref="/cockpit/cles-panneaux"
+              actionText="Consulter l'armoire à clés"
+              borderColor="border-amber-200"
+              titleColor="text-amber-900"
+              actionColor="text-[#E12B7B]"
+            />
           )}
 
-          {/* Alerte 4 : Déposes Panneaux Loi Grenelle */}
           {signboardsToRemove.length > 0 && (
-            <div className="p-3 bg-white rounded-xl border border-rose-200 text-xs flex items-start gap-2.5 shadow-xs">
-              <Building className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
-              <div className="space-y-1">
-                <span className="font-bold text-rose-900 block">
-                  {signboardsToRemove.length} Panneau(x) à Déposer d&apos;Urgence
-                </span>
-                <p className="text-[11px] text-gray-600">
-                  Loi Grenelle II : Délai maximal de 3 mois dépassé pour panneau &quot;Vendu&quot;.
-                </p>
-                <Link
-                  href="/cockpit/cles-panneaux"
-                  className="text-[10px] font-bold text-[#E12B7B] hover:underline flex items-center gap-0.5 pt-0.5"
-                >
-                  Planifier la dépose <ChevronRight className="w-3 h-3" />
-                </Link>
-              </div>
-            </div>
+            <AlertCard
+              icon={<Building className="w-4 h-4 text-rose-600" />}
+              title={`${signboardsToRemove.length} Panneau(x) à Déposer d'Urgence`}
+              description='Loi Grenelle II : Délai maximal de 3 mois dépassé pour panneau "Vendu".'
+              actionHref="/cockpit/cles-panneaux"
+              actionText="Planifier la dépose"
+              borderColor="border-rose-200"
+              titleColor="text-rose-900"
+              actionColor="text-[#E12B7B]"
+            />
           )}
 
-          {/* Alerte 5 : Délai SRU */}
           {sruPendingDeals.length > 0 && (
-            <div className="p-3 bg-white rounded-xl border border-blue-200 text-xs flex items-start gap-2.5 shadow-xs">
-              <ShieldCheck className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
-              <div className="space-y-1">
-                <span className="font-bold text-blue-900 block">
-                  {sruPendingDeals.length} Vente(s) sous Délai de Rétractation SRU
-                </span>
-                <p className="text-[11px] text-gray-600">
-                  Suivi de la notification recommandée AR (J+10 jours légaux).
-                </p>
-                <Link
-                  href="/cockpit/transactions"
-                  className="text-[10px] font-bold text-blue-700 hover:underline flex items-center gap-0.5 pt-0.5"
-                >
-                  Suivre les délais SRU <ChevronRight className="w-3 h-3" />
-                </Link>
-              </div>
-            </div>
+            <AlertCard
+              icon={<ShieldCheck className="w-4 h-4 text-blue-600" />}
+              title={`${sruPendingDeals.length} Vente(s) sous Délai de Rétractation SRU`}
+              description="Suivi de la notification recommandée AR (J+10 jours légaux)."
+              actionHref="/cockpit/transactions"
+              actionText="Suivre les délais SRU"
+              borderColor="border-blue-200"
+              titleColor="text-blue-900"
+              actionColor="text-blue-700"
+            />
           )}
 
-          {/* Alerte 6 : Accords de prêt */}
           {loanPendingDeals.length > 0 && (
-            <div className="p-3 bg-white rounded-xl border border-purple-200 text-xs flex items-start gap-2.5 shadow-xs">
-              <Landmark className="w-4 h-4 text-purple-600 shrink-0 mt-0.5" />
-              <div className="space-y-1">
-                <span className="font-bold text-purple-900 block">
-                  {loanPendingDeals.length} Financement(s) en Attente d&apos;Accord
-                </span>
-                <p className="text-[11px] text-gray-600">
-                  Condition suspensive de prêt : relancer courtiers et banques partenaires.
-                </p>
-                <Link
-                  href="/cockpit/transactions"
-                  className="text-[10px] font-bold text-purple-700 hover:underline flex items-center gap-0.5 pt-0.5"
-                >
-                  Ouvrir le pipeline notaire <ChevronRight className="w-3 h-3" />
-                </Link>
-              </div>
-            </div>
+            <AlertCard
+              icon={<Landmark className="w-4 h-4 text-purple-600" />}
+              title={`${loanPendingDeals.length} Financement(s) en Attente d'Accord`}
+              description="Condition suspensive de prêt : relancer courtiers et banques partenaires."
+              actionHref="/cockpit/transactions"
+              actionText="Ouvrir le pipeline notaire"
+              borderColor="border-purple-200"
+              titleColor="text-purple-900"
+              actionColor="text-purple-700"
+            />
           )}
         </div>
       </CardContent>

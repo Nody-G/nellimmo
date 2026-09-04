@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useNellimoStore } from '@/lib/store';
 import { useToast } from '@/components/ui/Toast';
 import {
@@ -10,7 +11,7 @@ import {
   openWhatsAppConfirmation,
   downloadICalendar,
 } from '@/components/cockpit/agenda/agenda-types';
-import type { AgendaEvent, EventCategory } from '@/components/cockpit/agenda/agenda-types';
+import type { AgendaEvent } from '@/components/cockpit/agenda/agenda-types';
 import { AgendaHeader } from '@/components/cockpit/agenda/AgendaHeader';
 import { AgendaControlBar } from '@/components/cockpit/agenda/AgendaControlBar';
 import type { AgendaViewMode } from '@/components/cockpit/agenda/AgendaControlBar';
@@ -18,8 +19,15 @@ import { WeekView } from '@/components/cockpit/agenda/WeekView';
 import { DayView } from '@/components/cockpit/agenda/DayView';
 import { ListView } from '@/components/cockpit/agenda/ListView';
 import { NewEventModal } from '@/components/cockpit/agenda/NewEventModal';
+import { useAgendaNewEvent } from '@/components/cockpit/agenda/useAgendaNewEvent';
 
-export default function AgendaPage() {
+function AgendaContent() {
+  const searchParams = useSearchParams();
+  const prefillNewVisit = searchParams.get('newVisit') === 'true';
+  const prefillName = searchParams.get('contactName') || '';
+  const prefillPhone = searchParams.get('contactPhone') || '06 ';
+  const prefillNotes = searchParams.get('notes') || '';
+
   const {
     properties,
     buyers,
@@ -28,7 +36,6 @@ export default function AgendaPage() {
     keys,
     signboards,
     estimationLeads,
-    settings,
   } = useNellimoStore();
 
   const { showToast } = useToast();
@@ -36,18 +43,34 @@ export default function AgendaPage() {
   const [viewMode, setViewMode] = useState<AgendaViewMode>('week');
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
-  const [isNewEventModalOpen, setIsNewEventModalOpen] = useState(false);
 
-  // New Event Form State
-  const [newEventTitle, setNewEventTitle] = useState('');
-  const [newEventCategory, setNewEventCategory] = useState<EventCategory>('visite');
-  const [newEventDate, setNewEventDate] = useState<string>(new Date().toISOString().slice(0, 10));
-  const [newEventTime, setNewEventTime] = useState<string>('14:30');
-  const [newEventLocation, setNewEventLocation] = useState('Pélissanne');
-  const [newEventContactName, setNewEventContactName] = useState('');
-  const [newEventContactPhone, setNewEventContactPhone] = useState('06 ');
-  const [newEventNotes, setNewEventNotes] = useState('');
-  const [customEvents, setCustomEvents] = useState<AgendaEvent[]>([]);
+  const {
+    customEvents,
+    isNewEventModalOpen,
+    setIsNewEventModalOpen,
+    newEventTitle,
+    setNewEventTitle,
+    newEventCategory,
+    setNewEventCategory,
+    newEventDate,
+    setNewEventDate,
+    newEventTime,
+    setNewEventTime,
+    newEventLocation,
+    setNewEventLocation,
+    newEventContactName,
+    setNewEventContactName,
+    newEventContactPhone,
+    setNewEventContactPhone,
+    newEventNotes,
+    setNewEventNotes,
+    handleCreateCustomEvent,
+  } = useAgendaNewEvent({
+    prefillNewVisit,
+    prefillName,
+    prefillPhone,
+    prefillNotes,
+  });
 
   const currentTime = React.useSyncExternalStore(
     (onStoreChange) => {
@@ -79,14 +102,14 @@ export default function AgendaPage() {
     [allEvents, categoryFilter]
   );
 
-  // 3. Week calculation
+  // 3. Week Days Calculation
   const currentWeekDays = useMemo(() => computeWeekDays(selectedDate), [selectedDate]);
 
-  // 4. Navigation helpers
+  // Navigation handlers
   const handlePrevWeek = () => {
-    const prev = new Date(selectedDate);
-    prev.setDate(prev.getDate() - 7);
-    setSelectedDate(prev);
+    const next = new Date(selectedDate);
+    next.setDate(next.getDate() - 7);
+    setSelectedDate(next);
   };
 
   const handleNextWeek = () => {
@@ -99,53 +122,30 @@ export default function AgendaPage() {
     setSelectedDate(new Date());
   };
 
-  // 5. WhatsApp Quick Confirmation
   const handleWhatsApp = (event: AgendaEvent) => {
+    if (!event.contactPhone || event.contactPhone.trim() === '' || event.contactPhone === '06 ') {
+      showToast('Numéro de téléphone manquant pour ce contact', 'error');
+      return;
+    }
     openWhatsAppConfirmation(event);
   };
 
-  // 6. Export iCal
-  const handleExportICal = () => {
+  const handleDownloadICal = () => {
     downloadICalendar(allEvents);
-    showToast('Fichier .ics téléchargé ! Synchronisable avec Apple Calendar, Google & Outlook.', 'success');
-  };
-
-  // 7. Add custom event
-  const handleCreateCustomEvent = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newEventTitle) return;
-
-    const newEv: AgendaEvent = {
-      id: `custom-${Date.now()}`,
-      title: newEventTitle,
-      category: newEventCategory,
-      date: newEventDate,
-      time: newEventTime,
-      durationMinutes: 60,
-      location: newEventLocation,
-      contactName: newEventContactName || 'Nelly Fernandez',
-      contactPhone: newEventContactPhone || settings.phone,
-      notes: newEventNotes,
-    };
-
-    setCustomEvents((prev) => [newEv, ...prev]);
-    setIsNewEventModalOpen(false);
-    showToast('Rendez-vous ajouté au planning avec succès !', 'success');
-
-    // Reset
-    setNewEventTitle('');
-    setNewEventNotes('');
-    setNewEventContactName('');
+    showToast('Fichier iCalendar exporté pour votre smartphone !', 'success');
   };
 
   return (
-    <div className="space-y-6 animate-fade-in pb-16">
-      <AgendaHeader onExportICal={handleExportICal} onNewEvent={() => setIsNewEventModalOpen(true)} />
+    <div className="space-y-6 animate-fade-in pb-20">
+      <AgendaHeader
+        onNewEvent={() => setIsNewEventModalOpen(true)}
+        onExportICal={handleDownloadICal}
+      />
 
       <AgendaControlBar
         viewMode={viewMode}
-        onViewModeChange={setViewMode}
         categoryFilter={categoryFilter}
+        onViewModeChange={setViewMode}
         onCategoryFilterChange={setCategoryFilter}
         weekDays={currentWeekDays}
         allEventsCount={allEvents.length}
@@ -189,5 +189,13 @@ export default function AgendaPage() {
         onClose={() => setIsNewEventModalOpen(false)}
       />
     </div>
+  );
+}
+
+export default function AgendaPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-xs text-gray-500">Chargement de l&apos;agenda...</div>}>
+      <AgendaContent />
+    </Suspense>
   );
 }

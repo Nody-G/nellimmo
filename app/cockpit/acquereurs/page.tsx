@@ -1,72 +1,57 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useNellimoStore } from '@/lib/store';
-import type { Buyer, FinancingStatus } from '@/lib/types';
+import type { Buyer } from '@/lib/types';
 import { NotaryFinanceCalculator } from '@/components/cockpit/NotaryFinanceCalculator';
-import { filterBuyers } from '@/components/cockpit/acquereurs/acquereurs-types';
-import { AcquereursHeader } from '@/components/cockpit/acquereurs/AcquereursHeader';
-import { LoanSimulator } from '@/components/cockpit/acquereurs/LoanSimulator';
-import { AcquereursFilterBar } from '@/components/cockpit/acquereurs/AcquereursFilterBar';
-import { BuyersGrid } from '@/components/cockpit/acquereurs/BuyersGrid';
-import { NewBuyerModal } from '@/components/cockpit/acquereurs/NewBuyerModal';
-import { BroadcastCampaignModal } from '@/components/cockpit/acquereurs/BroadcastCampaignModal';
-import { BuyerSelectionModal } from '@/components/cockpit/acquereurs/BuyerSelectionModal';
+import {
+  filterBuyers,
+  AcquereursHeader,
+  LoanSimulator,
+  AcquereursFilterBar,
+  BuyersGrid,
+  NewBuyerModal,
+  BroadcastCampaignModal,
+  BuyerSelectionModal,
+  useNewBuyerForm,
+} from '@/components/cockpit/acquereurs';
 
-interface NewBuyerFormState {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  budgetMax: number;
-  minSurface: number;
-  minRooms: number;
-  minBedrooms: number;
-  targetCities: string;
-  mustHaveGarden: boolean;
-  mustHaveGarage: boolean;
-  financingStatus: FinancingStatus;
-  notes: string;
-}
+function BuyersCrmContent() {
+  const searchParams = useSearchParams();
+  const prefillName = searchParams.get('prefillName') || '';
+  const prefillEmail = searchParams.get('prefillEmail') || '';
+  const prefillPhone = searchParams.get('prefillPhone') || '';
+  const prefillNotes = searchParams.get('prefillNotes') || '';
 
-const INITIAL_FORM: NewBuyerFormState = {
-  firstName: '',
-  lastName: '',
-  email: '',
-  phone: '',
-  budgetMax: 550000,
-  minSurface: 120,
-  minRooms: 4,
-  minBedrooms: 3,
-  targetCities: 'Pélissanne, Lambesc',
-  mustHaveGarden: true,
-  mustHaveGarage: false,
-  financingStatus: 'accord_bancaire_valide',
-  notes: '',
-};
-
-export default function BuyersCrmPage() {
-  const { buyers, properties, createBuyer } = useNellimoStore();
+  const { buyers, properties } = useNellimoStore();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [isNewModalOpen, setIsNewModalOpen] = useState(false);
   const [isLoanSimulatorOpen, setIsLoanSimulatorOpen] = useState(false);
   const [isNotaryCalcOpen, setIsNotaryCalcOpen] = useState(false);
   const [isBroadcastModalOpen, setIsBroadcastModalOpen] = useState(false);
   const [selectedBuyerForSelection, setSelectedBuyerForSelection] = useState<Buyer | null>(null);
-  const [form, setForm] = useState<NewBuyerFormState>(INITIAL_FORM);
   const [broadcastPropertyId, setBroadcastPropertyId] = useState<string>(properties[0]?.id || '');
 
-  const activeProperties = properties.filter((p) => p.status === 'actif');
-  const filteredBuyers = filterBuyers(buyers, searchQuery, statusFilter);
+  const {
+    isNewModalOpen,
+    setIsNewModalOpen,
+    form,
+    handleFieldChange,
+    handleCreateBuyer,
+  } = useNewBuyerForm({
+    prefillName,
+    prefillEmail,
+    prefillPhone,
+    prefillNotes,
+  });
 
-  const handleFieldChange = <K extends keyof NewBuyerFormState>(
-    field: K,
-    value: NewBuyerFormState[K]
-  ) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
-  };
+  const activeProperties = properties.filter((p) => p.status === 'actif');
+  const filteredBuyers = useMemo(
+    () => filterBuyers(buyers, searchQuery, statusFilter),
+    [buyers, searchQuery, statusFilter]
+  );
 
   const toggleNotaryCalc = () => {
     setIsNotaryCalcOpen((open) => {
@@ -82,37 +67,8 @@ export default function BuyersCrmPage() {
     });
   };
 
-  const handleCreateBuyer = (e: React.FormEvent) => {
-    e.preventDefault();
-    const citiesList = form.targetCities
-      .split(',')
-      .map((c) => c.trim())
-      .filter(Boolean);
-
-    createBuyer({
-      first_name: form.firstName,
-      last_name: form.lastName,
-      email: form.email,
-      phone: form.phone,
-      status: 'actif',
-      budget_max: form.budgetMax,
-      min_surface: form.minSurface,
-      min_rooms: form.minRooms,
-      min_bedrooms: form.minBedrooms,
-      target_property_types: ['maison'],
-      target_cities: citiesList,
-      must_have_garden: form.mustHaveGarden,
-      must_have_garage: form.mustHaveGarage,
-      financing_status: form.financingStatus,
-      notes: form.notes,
-    });
-
-    setIsNewModalOpen(false);
-    setForm(INITIAL_FORM);
-  };
-
   return (
-    <div className="space-y-8 animate-fade-in pb-16">
+    <div className="space-y-6 animate-fade-in pb-20">
       <AcquereursHeader
         buyerCount={buyers.length}
         isNotaryCalcOpen={isNotaryCalcOpen}
@@ -170,5 +126,13 @@ export default function BuyersCrmPage() {
         />
       )}
     </div>
+  );
+}
+
+export default function BuyersCrmPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-xs text-gray-500">Chargement de la base acquéreurs...</div>}>
+      <BuyersCrmContent />
+    </Suspense>
   );
 }

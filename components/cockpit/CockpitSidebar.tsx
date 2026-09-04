@@ -1,36 +1,16 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { getSessionUser } from '@/lib/auth';
 import { useNellimoStore, useRelances } from '@/lib/store';
 import { computeRelances } from '@/lib/relances';
 import {
-  LayoutDashboard,
-  BarChart3,
-  FileText,
-  TrendingUp,
-  Users,
-  PenTool,
-  Printer,
-  Radio,
-  ShieldCheck,
-  Sparkles,
-  FileSpreadsheet,
-  Settings,
-  ExternalLink,
-  PlusCircle,
-  Landmark,
-  Radar,
-  FileCheck2,
-  BrainCircuit,
-  Handshake,
-  KeyRound,
-  Calendar,
-  BookOpen,
-  BellRing
-} from 'lucide-react';
+  getNavSections,
+  SidebarHeader,
+  SidebarNavItem,
+  SidebarFooter
+} from './sidebar';
 
 export function CockpitSidebar() {
   const pathname = usePathname();
@@ -50,158 +30,47 @@ export function CockpitSidebar() {
     }
   }, [properties, visits, transactions, buyers, settings, relanceStatuses]);
 
-  const navigation = [
-    { name: 'Tableau de Bord', href: '/cockpit', icon: LayoutDashboard },
-    { name: 'Tableau de Bord Analytique', href: '/cockpit/analytics', icon: BarChart3 },
-    { name: 'Guides & Tutoriels', href: '/cockpit/aide', icon: BookOpen, badge: 'Academy' },
-    { name: 'Mandats & Biens', href: '/cockpit/mandats', icon: FileText },
-    { name: 'Planning & Agenda', href: '/cockpit/agenda', icon: Calendar },
-    {
-      name: 'Relances & Notifications',
-      href: '/cockpit/relances',
-      icon: BellRing,
-      badge: pendingRelancesCount > 0 ? String(pendingRelancesCount) : undefined,
-      badgeUrgent: pendingRelancesCount > 0,
-    },
-    { name: 'Pipeline Notaire & Ventes', href: '/cockpit/transactions', icon: Landmark },
-    { name: 'Bourse Inter-Agences', href: '/cockpit/inter-agences', icon: Handshake },
-    { name: 'Clés & Panneaux', href: '/cockpit/cles-panneaux', icon: KeyRound },
-    { name: 'Studio Rédaction & Pitchs', href: '/cockpit/redacteur', icon: Sparkles },
-    { name: 'Fiches Vitrine & Affiches', href: '/cockpit/fiches-vitrine', icon: Printer },
-    { name: 'Avis de Valeur DVF', href: '/cockpit/avis-de-valeur', icon: TrendingUp },
-    { name: 'Acquéreurs & Matching', href: '/cockpit/acquereurs', icon: Users },
-    { name: 'Bons de Visite & Sentiment', href: '/cockpit/visites', icon: PenTool },
-    { name: 'Comptes-Rendus Vendeurs', href: '/cockpit/comptes-rendus', icon: FileCheck2 },
-    { name: 'Pige & Prospection PAP', href: '/cockpit/pige', icon: Radar },
-    { name: 'Nell\'IA Infinite Lab', href: '/cockpit/lab', icon: BrainCircuit, highlight: true },
-    { name: 'Multidiffusion Portails', href: '/cockpit/diffusion', icon: Radio },
-    { name: 'Registre des Mandats', href: '/cockpit/registre-dgccrf', icon: ShieldCheck },
-    { name: 'Import Hektor', href: '/cockpit/import-hektor', icon: FileSpreadsheet },
-    { name: 'Paramètres & Connexions', href: '/cockpit/parametres', icon: Settings },
-  ];
+  const navSections = useMemo(
+    () => getNavSections(pendingRelancesCount),
+    [pendingRelancesCount]
+  );
 
   return (
     <aside className="w-64 bg-[#131B26] text-white flex flex-col justify-between shrink-0 border-r border-gray-800 min-h-screen">
+      <SidebarHeader />
 
-      {/* Brand & Agency Header */}
-      <div className="p-5 border-b border-gray-800 space-y-4">
-        <div className="flex items-center justify-between">
-          <Link href="/cockpit" className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#E12B7B] to-[#9F1239] flex items-center justify-center text-white font-serif font-black text-xl shadow-md">
-              N
-            </div>
-            <div>
-              <span className="font-serif font-bold text-lg text-white tracking-tight block leading-none">
-                COCKPIT
+      <nav className="p-3 space-y-4 flex-1 overflow-y-auto custom-scrollbar">
+        {navSections.map((section, sIdx) => (
+          <div key={section.title} className="space-y-1">
+            <div className="px-3 pt-1 pb-1 flex items-center justify-between">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+                {section.title}
               </span>
-              <span className="text-[10px] uppercase font-bold tracking-widest text-[#C59A45]">
-                Nell&apos;Immo
-              </span>
+              {sIdx === 0 && (
+                <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-300 font-semibold border border-emerald-800/40">
+                  Live
+                </span>
+              )}
             </div>
-          </Link>
-          <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" title="Système en ligne" />
-        </div>
 
-        {/* Quick CTA New Mandate */}
-        <Link
-          href="/cockpit/mandats/nouveau"
-          className="w-full py-2.5 px-3 bg-[#E12B7B] hover:bg-[#C71B62] text-white rounded-xl text-xs font-bold uppercase tracking-wider shadow-md hover:shadow-lg transition flex items-center justify-center gap-2 cursor-pointer"
-        >
-          <PlusCircle className="w-4 h-4" />
-          Nouveau Mandat
-        </Link>
-      </div>
+            {section.items.map((item) => {
+              const isActive =
+                pathname === item.href ||
+                (item.href !== '/cockpit' && pathname.startsWith(item.href));
 
-      {/* Navigation links */}
-      <nav className="p-3 space-y-1 flex-1 overflow-y-auto">
-        <span className="px-3 text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-2">
-          Gestion & Production
-        </span>
-
-        {navigation.map((item) => {
-          const Icon = item.icon;
-          const isActive = pathname === item.href || (item.href !== '/cockpit' && pathname.startsWith(item.href));
-
-          return (
-            <Link
-              key={item.name}
-              href={item.href}
-              className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${isActive
-                ? 'bg-[#E12B7B] text-white shadow-md'
-                : item.highlight
-                  ? 'bg-white/10 text-white hover:bg-white/15 border border-[#C59A45]/30'
-                  : 'text-gray-300 hover:text-white hover:bg-white/5'
-                }`}
-            >
-              <div className="flex items-center gap-2.5">
-                <Icon className={`w-4 h-4 ${isActive
-                  ? 'text-white'
-                  : item.highlight
-                    ? 'text-[#C59A45]'
-                    : 'text-gray-400'
-                  }`} />
-                <span>{item.name}</span>
-              </div>
-
-              {item.highlight && !isActive && (
-                <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-[#C59A45]/20 text-[#C59A45]">
-                  LAB
-                </span>
-              )}
-              {item.badge && !isActive && (
-                <span className={`text-[10px] font-bold tracking-wider px-2 py-0.5 rounded-full flex items-center gap-1 ${
-                  item.badgeUrgent
-                    ? 'bg-[#E12B7B] text-white shadow-xs font-mono'
-                    : 'bg-[#E12B7B]/20 text-[#F44293]'
-                }`}>
-                  {item.badgeUrgent && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />}
-                  {item.badge}
-                </span>
-              )}
-              {item.badge && isActive && (
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/25 text-white font-mono">
-                  {item.badge}
-                </span>
-              )}
-            </Link>
-          );
-        })}
+              return (
+                <SidebarNavItem
+                  key={item.name}
+                  item={item}
+                  isActive={isActive}
+                />
+              );
+            })}
+          </div>
+        ))}
       </nav>
 
-      {/* Footer Profile & Switch to Public */}
-      <div className="p-4 border-t border-gray-800 space-y-3 bg-[#0E141D]">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-[#E12B7B] flex items-center justify-center text-white font-bold text-xs">
-            {currentUser
-              ? `${currentUser.first_name.charAt(0).toUpperCase()}${currentUser.last_name.charAt(0).toUpperCase()}`
-              : 'N'}
-          </div>
-          <div className="overflow-hidden">
-            <span className="text-xs font-bold text-white block truncate">
-              {currentUser
-                ? `${currentUser.first_name} ${currentUser.last_name}`
-                : 'Nelly Fernandez'}
-            </span>
-            <span className="text-[10px] text-[#C59A45] block truncate">
-              {currentUser
-                ? currentUser.role === 'admin'
-                  ? 'Administrateur'
-                  : 'Agent'
-                : 'CPI 1310 2019 000 042 974'}
-            </span>
-          </div>
-        </div>
-
-        <Link
-          href="/"
-          target="_blank"
-          className="w-full py-2 px-3 rounded-lg border border-gray-800 hover:border-gray-700 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white text-xs font-medium flex items-center justify-center gap-2 transition"
-        >
-          <ExternalLink className="w-3.5 h-3.5" />
-          <span>Voir Site Vitrine Public</span>
-        </Link>
-      </div>
-
+      <SidebarFooter currentUser={currentUser} />
     </aside>
   );
 }

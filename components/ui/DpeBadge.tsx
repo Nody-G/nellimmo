@@ -4,6 +4,7 @@ import React from 'react';
 import { DpeLetter, GesLetter } from '@/lib/types';
 import { isAuditEnergetiqueObligatoire } from '@/lib/hoguet';
 import { AlertTriangle, Zap, Leaf } from 'lucide-react';
+import { DPE_COLORS, GES_COLORS, DpeScaleColumn, GesScaleColumn } from './dpe';
 
 interface DpeBadgeProps {
   dpeValue?: number;
@@ -16,26 +17,6 @@ interface DpeBadgeProps {
   compact?: boolean;
 }
 
-const DPE_COLORS: Record<DpeLetter, { bg: string; text: string; label: string; range: string }> = {
-  A: { bg: '#009E52', text: '#FFFFFF', label: '≤ 70', range: 'A' },
-  B: { bg: '#33B85B', text: '#FFFFFF', label: '71 à 110', range: 'B' },
-  C: { bg: '#99D25F', text: '#1C232B', label: '111 à 180', range: 'C' },
-  D: { bg: '#FFE833', text: '#1C232B', label: '181 à 250', range: 'D' },
-  E: { bg: '#F8B633', text: '#1C232B', label: '251 à 330', range: 'E' },
-  F: { bg: '#EC6A33', text: '#FFFFFF', label: '331 à 420', range: 'F' },
-  G: { bg: '#DF1A22', text: '#FFFFFF', label: '> 420', range: 'G' },
-};
-
-const GES_COLORS: Record<GesLetter, { bg: string; text: string; label: string; range: string }> = {
-  A: { bg: '#A6CDE2', text: '#1C232B', label: '≤ 6', range: 'A' },
-  B: { bg: '#86B5D8', text: '#FFFFFF', label: '7 à 11', range: 'B' },
-  C: { bg: '#6A92C5', text: '#FFFFFF', label: '12 à 30', range: 'C' },
-  D: { bg: '#546EA8', text: '#FFFFFF', label: '31 à 50', range: 'D' },
-  E: { bg: '#48508F', text: '#FFFFFF', label: '51 à 70', range: 'E' },
-  F: { bg: '#3B3673', text: '#FFFFFF', label: '71 à 100', range: 'F' },
-  G: { bg: '#292153', text: '#FFFFFF', label: '> 100', range: 'G' },
-};
-
 export function DpeBadge({
   dpeValue,
   dpeLetter,
@@ -46,7 +27,6 @@ export function DpeBadge({
   energyCostMax,
   compact = false,
 }: DpeBadgeProps) {
-  const letters: DpeLetter[] = ['A', 'B', 'C', 'D', 'E', 'F', 'G'];
   const auditRequired = isAuditEnergetiqueObligatoire(dpeLetter);
 
   if (compact) {
@@ -92,87 +72,8 @@ export function DpeBadge({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* ÉCHELLE DPE */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-gray-700">Consommation Énergétique</span>
-            <span className="text-xs text-gray-500 font-mono">kWh/m²/an</span>
-          </div>
-
-          <div className="space-y-1">
-            {letters.map((letter, idx) => {
-              const isCurrent = dpeLetter === letter;
-              const widthPercent = 38 + idx * 10;
-              const colorInfo = DPE_COLORS[letter];
-
-              return (
-                <div key={letter} className="flex items-center gap-2">
-                  <div
-                    className="h-6 rounded-r-md flex items-center justify-between px-2 text-xs font-bold transition-all relative"
-                    style={{
-                      width: `${widthPercent}%`,
-                      backgroundColor: colorInfo.bg,
-                      color: colorInfo.text,
-                      boxShadow: isCurrent ? '0 0 0 2px #1C232B, 0 2px 4px rgba(0,0,0,0.2)' : 'none',
-                      transform: isCurrent ? 'scale(1.02)' : 'scale(1)',
-                    }}
-                  >
-                    <span>{letter}</span>
-                    <span className="text-[10px] opacity-90 font-normal">{colorInfo.label}</span>
-                  </div>
-
-                  {isCurrent && (
-                    <div className="flex items-center gap-1 font-bold text-sm text-gray-900 bg-gray-100 px-2 py-0.5 rounded border border-gray-300">
-                      <span>{dpeValue || '-'}</span>
-                      <span className="text-[10px] text-gray-500 font-normal">kWh/m²</span>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* ÉCHELLE GES */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-gray-700">Émissions de Gaz à Effet de Serre</span>
-            <span className="text-xs text-gray-500 font-mono">kg CO₂/m²/an</span>
-          </div>
-
-          <div className="space-y-1">
-            {letters.map((letter, idx) => {
-              const isCurrent = gesLetter === letter;
-              const widthPercent = 38 + idx * 10;
-              const colorInfo = GES_COLORS[letter];
-
-              return (
-                <div key={letter} className="flex items-center gap-2">
-                  <div
-                    className="h-6 rounded-r-md flex items-center justify-between px-2 text-xs font-bold transition-all relative"
-                    style={{
-                      width: `${widthPercent}%`,
-                      backgroundColor: colorInfo.bg,
-                      color: colorInfo.text,
-                      boxShadow: isCurrent ? '0 0 0 2px #1C232B, 0 2px 4px rgba(0,0,0,0.2)' : 'none',
-                      transform: isCurrent ? 'scale(1.02)' : 'scale(1)',
-                    }}
-                  >
-                    <span>{letter}</span>
-                    <span className="text-[10px] opacity-90 font-normal">{colorInfo.label}</span>
-                  </div>
-
-                  {isCurrent && (
-                    <div className="flex items-center gap-1 font-bold text-sm text-gray-900 bg-gray-100 px-2 py-0.5 rounded border border-gray-300">
-                      <span>{gesValue || '-'}</span>
-                      <span className="text-[10px] text-gray-500 font-normal">kg CO₂</span>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
+        <DpeScaleColumn currentLetter={dpeLetter} currentValue={dpeValue} />
+        <GesScaleColumn currentLetter={gesLetter} currentValue={gesValue} />
       </div>
 
       {/* ESTIMATION DES DÉPENSES ANNUELLES */}

@@ -1,5 +1,6 @@
 'use client';
 
+import React, { Suspense } from 'react';
 import { MandateWizardStepper } from '@/components/cockpit/mandats/wizard/MandateWizardStepper';
 import { StepSeller } from '@/components/cockpit/mandats/wizard/StepSeller';
 import { StepLocation } from '@/components/cockpit/mandats/wizard/StepLocation';
@@ -12,7 +13,7 @@ import { NewMandateHeader } from '@/components/cockpit/mandats/nouveau/NewMandat
 import { NewMandateSubmitBar } from '@/components/cockpit/mandats/nouveau/NewMandateSubmitBar';
 import { useNewMandateForm } from '@/components/cockpit/mandats/nouveau/useNewMandateForm';
 
-export default function NewMandatePage() {
+function NewMandateContent() {
   const form = useNewMandateForm();
 
   return (
@@ -139,3 +140,13 @@ export default function NewMandatePage() {
     </div>
   );
 }
+
+export default function NewMandatePage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-xs text-gray-500">Chargement de l’assistant de création...</div>}>
+      <NewMandateContent />
+    </Suspense>
+  );
+}
+
+

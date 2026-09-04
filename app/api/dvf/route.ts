@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { MOCK_DVF_TRANSACTIONS } from '@/lib/mock-data-cockpit';
+import { MOCK_DVF_TRANSACTIONS } from '@/lib/mock-data-dvf';
 import type { DVFTransaction } from '@/lib/types';
 
 /** Table de correspondance des communes clés du Pays Salonais & Provence. */

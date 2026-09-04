@@ -1,10 +1,12 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { AgencyKey, Property, KeyBorrowerRole } from '@/lib/types';
-import { UserCheck, Check, FileSignature } from 'lucide-react';
+import { UserCheck, Check } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
+import { SignaturePad, SignaturePadHandle } from './SignaturePad';
+import { BorrowerFields } from './BorrowerFields';
 
 interface KeyLoanModalProps {
   isOpen: boolean;
@@ -41,72 +43,13 @@ export const KeyLoanModal: React.FC<KeyLoanModalProps> = ({
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Canvas signature state
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [isDrawing, setIsDrawing] = useState(false);
-  const [hasSignature, setHasSignature] = useState(false);
-
-  useEffect(() => {
-    if (isOpen && canvasRef.current) {
-      const canvas = canvasRef.current;
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        ctx.lineWidth = 2.5;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-        ctx.strokeStyle = '#131B26';
-      }
-    }
-  }, [isOpen]);
-
-  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    const rect = canvas.getBoundingClientRect();
-    const x = 'touches' in e ? e.touches[0].clientX - rect.left : e.clientX - rect.left;
-    const y = 'touches' in e ? e.touches[0].clientY - rect.top : e.clientY - rect.top;
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    setIsDrawing(true);
-    setHasSignature(true);
-  };
-
-  const draw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
-    if (!isDrawing) return;
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    const rect = canvas.getBoundingClientRect();
-    const x = 'touches' in e ? e.touches[0].clientX - rect.left : e.clientX - rect.left;
-    const y = 'touches' in e ? e.touches[0].clientY - rect.top : e.clientY - rect.top;
-    ctx.lineTo(x, y);
-    ctx.stroke();
-  };
-
-  const stopDrawing = () => {
-    setIsDrawing(false);
-  };
-
-  const clearSignature = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    setHasSignature(false);
-  };
+  const signaturePadRef = useRef<SignaturePadHandle | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!borrowerName || !borrowerPhone) return;
 
-    let signatureUrl = '';
-    if (canvasRef.current && hasSignature) {
-      signatureUrl = canvasRef.current.toDataURL('image/png');
-    }
+    const signatureUrl = signaturePadRef.current?.toDataURL() || undefined;
 
     try {
       setIsSubmitting(true);
@@ -117,13 +60,13 @@ export const KeyLoanModal: React.FC<KeyLoanModalProps> = ({
         borrowerRole,
         loanPurpose,
         expectedReturnDate,
-        signatureUrl: signatureUrl || undefined
+        signatureUrl
       });
       // Reset form
       setBorrowerName('');
       setBorrowerPhone('');
       setBorrowerCompany('');
-      clearSignature();
+      signaturePadRef.current?.clear();
       onClose();
     } finally {
       setIsSubmitting(false);
@@ -157,118 +100,22 @@ export const KeyLoanModal: React.FC<KeyLoanModalProps> = ({
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label className="font-bold text-gray-700 block mb-1">Nom du réceptionnaire *</label>
-            <input
-              type="text"
-              required
-              placeholder="Ex: David Martin"
-              value={borrowerName}
-              onChange={(e) => setBorrowerName(e.target.value)}
-              className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl font-semibold focus:outline-[#E12B7B]"
-            />
-          </div>
-          <div>
-            <label className="font-bold text-gray-700 block mb-1">Téléphone portable *</label>
-            <input
-              type="tel"
-              required
-              placeholder="06 12 34 56 78"
-              value={borrowerPhone}
-              onChange={(e) => setBorrowerPhone(e.target.value)}
-              className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl font-semibold focus:outline-[#E12B7B]"
-            />
-          </div>
-        </div>
+        <BorrowerFields
+          borrowerName={borrowerName}
+          setBorrowerName={setBorrowerName}
+          borrowerPhone={borrowerPhone}
+          setBorrowerPhone={setBorrowerPhone}
+          borrowerCompany={borrowerCompany}
+          setBorrowerCompany={setBorrowerCompany}
+          borrowerRole={borrowerRole}
+          setBorrowerRole={setBorrowerRole}
+          loanPurpose={loanPurpose}
+          setLoanPurpose={setLoanPurpose}
+          expectedReturnDate={expectedReturnDate}
+          setExpectedReturnDate={setExpectedReturnDate}
+        />
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label className="font-bold text-gray-700 block mb-1">Société / Entreprise</label>
-            <input
-              type="text"
-              placeholder="Ex: Peinture Pro Provence"
-              value={borrowerCompany}
-              onChange={(e) => setBorrowerCompany(e.target.value)}
-              className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl font-semibold focus:outline-[#E12B7B]"
-            />
-          </div>
-          <div>
-            <label className="font-bold text-gray-700 block mb-1">Qualité de l&apos;emprunteur</label>
-            <select
-              value={borrowerRole}
-              onChange={(e) => setBorrowerRole(e.target.value as KeyBorrowerRole)}
-              className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl font-semibold focus:outline-[#E12B7B]"
-            >
-              <option value="artisan">Artisan / Prestataire travaux</option>
-              <option value="diagnostiqueur">Diagnostiqueur immobilier</option>
-              <option value="confrere">Confrère agence (Délégation)</option>
-              <option value="acquereur">Futur acquéreur (Métrage devis)</option>
-              <option value="proprietaire">Propriétaire mandant</option>
-              <option value="autre">Autre intervenant</option>
-            </select>
-          </div>
-        </div>
-
-        <div>
-          <label className="font-bold text-gray-700 block mb-1">Motif du prêt & interventions prévues</label>
-          <input
-            type="text"
-            value={loanPurpose}
-            onChange={(e) => setLoanPurpose(e.target.value)}
-            className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl font-semibold focus:outline-[#E12B7B]"
-          />
-        </div>
-
-        <div>
-          <label className="font-bold text-gray-700 block mb-1">Date & heure de restitution promise</label>
-          <input
-            type="datetime-local"
-            value={expectedReturnDate}
-            onChange={(e) => setExpectedReturnDate(e.target.value)}
-            className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl font-semibold focus:outline-[#E12B7B]"
-          />
-        </div>
-
-        {/* Signature Canvas */}
-        <div className="space-y-1 pt-2">
-          <div className="flex items-center justify-between">
-            <label className="font-bold text-gray-700 flex items-center gap-1.5">
-              <FileSignature className="w-3.5 h-3.5 text-[#E12B7B]" />
-              Émargement tactile du réceptionnaire (Décharge de responsabilité) :
-            </label>
-            {hasSignature && (
-              <button
-                type="button"
-                onClick={clearSignature}
-                className="text-[10px] text-rose-600 hover:underline font-bold"
-              >
-                Effacer
-              </button>
-            )}
-          </div>
-
-          <div className="border-2 border-dashed border-gray-300 rounded-2xl bg-[#FAF5F8]/30 overflow-hidden relative">
-            <canvas
-              ref={canvasRef}
-              width={480}
-              height={120}
-              onMouseDown={startDrawing}
-              onMouseMove={draw}
-              onMouseUp={stopDrawing}
-              onMouseLeave={stopDrawing}
-              onTouchStart={startDrawing}
-              onTouchMove={draw}
-              onTouchEnd={stopDrawing}
-              className="w-full h-28 touch-none cursor-crosshair"
-            />
-            {!hasSignature && (
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none text-gray-400 text-xs italic">
-                Signez ici au doigt ou stylet pour décharge légale
-              </div>
-            )}
-          </div>
-        </div>
+        <SignaturePad ref={signaturePadRef} />
 
         <div className="p-3 bg-gray-50 rounded-xl text-[10px] text-gray-500 leading-relaxed">
           Par son émargement, l&apos;emprunteur reconnaît avoir reçu ce jour les clés désignées sous sa responsabilité exclusive, s&apos;interdit formellement toute reproduction et s&apos;engage à les restituer dans le délai convenu.

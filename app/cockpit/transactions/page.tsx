@@ -6,9 +6,7 @@ import { TransactionDeal, TransactionStatus } from '@/lib/types';
 import { useToast } from '@/components/ui/Toast';
 import { TransactionsHeader } from '@/components/cockpit/transactions/TransactionsHeader';
 import { KanbanBoard } from '@/components/cockpit/transactions/KanbanBoard';
-import { DealDetailModal } from '@/components/cockpit/transactions/DealDetailModal';
-import { InvoicePrintModal } from '@/components/cockpit/transactions/InvoicePrintModal';
-import { NewDealModal } from '@/components/cockpit/transactions/NewDealModal';
+import { TransactionsModals } from '@/components/cockpit/transactions/TransactionsModals';
 import { getDaysRemaining, computeUrgentAlert } from '@/components/cockpit/transactions/transactions-types';
 
 export default function TransactionsPipelinePage() {
@@ -21,16 +19,16 @@ export default function TransactionsPipelinePage() {
   const [searchTerm, setSearchTerm] = useState('');
 
   // Metrics
-  const activeDeals = transactions.filter(t => t.status !== 'acte_signe' && t.status !== 'annule');
-  const closedDeals = transactions.filter(t => t.status === 'acte_signe');
+  const activeDeals = transactions.filter((t) => t.status !== 'acte_signe' && t.status !== 'annule');
+  const closedDeals = transactions.filter((t) => t.status === 'acte_signe');
 
   const totalActiveVolume = activeDeals.reduce((sum, t) => sum + (t.offer_price_fai || 0), 0);
   const totalActiveFees = activeDeals.reduce((sum, t) => sum + (t.agency_fees_amount || 0), 0);
   const totalEarnedFees = closedDeals.reduce((sum, t) => sum + (t.agency_fees_amount || 0), 0);
 
   // Filtered
-  const filteredDeals = transactions.filter(t => {
-    const prop = properties.find(p => p.id === t.property_id);
+  const filteredDeals = transactions.filter((t) => {
+    const prop = properties.find((p) => p.id === t.property_id);
     const searchString = `${t.buyer_name} ${t.seller_name} ${t.seller_notary_name} ${prop?.title || ''} ${prop?.city || ''}`.toLowerCase();
     return searchString.includes(searchTerm.toLowerCase());
   });
@@ -45,7 +43,7 @@ export default function TransactionsPipelinePage() {
 
   // WhatsApp reminder generator
   const sendWhatsAppLoanReminder = (deal: TransactionDeal) => {
-    const prop = properties.find(p => p.id === deal.property_id);
+    const prop = properties.find((p) => p.id === deal.property_id);
     const message = `Bonjour ${deal.buyer_name.split(' ')[0]}, c'est Nelly Fernandez de l'agence Nell'Immo. Un petit point d'étape sur votre dossier de prêt pour la maison à ${prop?.city || 'Pélissanne'}. Avez-vous reçu l'accord de principe de la banque ? Le notaire ${deal.seller_notary_name} attend l'attestation avant le ${deal.loan_approval_deadline ? new Date(deal.loan_approval_deadline).toLocaleDateString('fr-FR') : 'prochainement'}. Bien à vous, Nelly.`;
     const cleanPhone = deal.buyer_phone.replace(/\s+/g, '').replace(/^0/, '33');
     window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`, '_blank');
@@ -79,7 +77,7 @@ export default function TransactionsPipelinePage() {
     }
   };
 
-  // B1 — Marque la facture comme envoyée au notaire après ouverture du mailto.
+  // Marque la facture comme envoyée au notaire après ouverture du mailto
   const handleInvoiceSentToNotary = (id: string) => {
     updateTransaction(id, { invoice_sent_to_notary: true });
     if (selectedDeal && selectedDeal.id === id) {
@@ -96,7 +94,7 @@ export default function TransactionsPipelinePage() {
     buyer_phone: string;
     seller_notary_name: string;
   }) => {
-    const prop = properties.find(p => p.id === data.property_id);
+    const prop = properties.find((p) => p.id === data.property_id);
     createTransaction({
       property_id: data.property_id,
       status: 'offre_acceptee',
@@ -125,11 +123,11 @@ export default function TransactionsPipelinePage() {
         cni_acquereur: false,
         justificatif_domicile: false,
         simulation_pret: false,
-        offre_achat_signee: true
+        offre_achat_signee: true,
       },
       invoice_sent_to_notary: false,
       fees_received: false,
-      google_review_requested: false
+      google_review_requested: false,
     });
     setIsNewDealModalOpen(false);
   };
@@ -158,41 +156,25 @@ export default function TransactionsPipelinePage() {
         onSelectDeal={setSelectedDeal}
       />
 
-      {/* DEAL DETAIL MODAL */}
-      {selectedDeal && (
-        <DealDetailModal
-          deal={selectedDeal}
-          properties={properties}
-          onUpdateStatus={handleUpdateStatus}
-          onUpdateChecklist={handleUpdateChecklist}
-          onClose={() => setSelectedDeal(null)}
-          onSendLoanReminder={sendWhatsAppLoanReminder}
-          onSendReviewRequest={sendGoogleReviewRequest}
-          onOpenInvoice={() => setIsInvoiceModalOpen(true)}
-        />
-      )}
-
-      {/* INVOICE OFFICIAL PRINT MODAL */}
-      {isInvoiceModalOpen && selectedDeal && (
-        <InvoicePrintModal
-          deal={selectedDeal}
-          properties={properties}
-          settings={settings}
-          documentType={invoiceDocumentType}
-          onSetDocumentType={setInvoiceDocumentType}
-          onInvoiceSent={handleInvoiceSentToNotary}
-          onClose={() => setIsInvoiceModalOpen(false)}
-        />
-      )}
-
-      {/* NEW DEAL MODAL */}
-      {isNewDealModalOpen && (
-        <NewDealModal
-          properties={properties}
-          onCreate={handleCreateDeal}
-          onClose={() => setIsNewDealModalOpen(false)}
-        />
-      )}
+      {/* Modals Container */}
+      <TransactionsModals
+        selectedDeal={selectedDeal}
+        properties={properties}
+        settings={settings}
+        onUpdateStatus={handleUpdateStatus}
+        onUpdateChecklist={handleUpdateChecklist}
+        onCloseDealModal={() => setSelectedDeal(null)}
+        onSendLoanReminder={sendWhatsAppLoanReminder}
+        onSendReviewRequest={sendGoogleReviewRequest}
+        isInvoiceModalOpen={isInvoiceModalOpen}
+        invoiceDocumentType={invoiceDocumentType}
+        onSetDocumentType={setInvoiceDocumentType}
+        onInvoiceSent={handleInvoiceSentToNotary}
+        onCloseInvoiceModal={() => setIsInvoiceModalOpen(false)}
+        isNewDealModalOpen={isNewDealModalOpen}
+        onCreateDeal={handleCreateDeal}
+        onCloseNewDealModal={() => setIsNewDealModalOpen(false)}
+      />
     </div>
   );
 }
