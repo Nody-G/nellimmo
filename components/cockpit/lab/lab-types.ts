@@ -42,7 +42,7 @@ export function generateLabFallbackOutput(mode: LabMode, property: Property | un
   const price = property?.price_fai ? property.price_fai.toLocaleString('fr-FR') + ' €' : '480 000 €';
 
   if (mode === 'ideation') {
-    return `💡 PLAN D'ACTION STRATÉGIQUE & IDÉES DISRUPTIVES — NELL'IMMO
+    return `💡 PLAN D'ACTION STRATÉGIQUE & COMMERCIAL — NELL'IMMO
 Bien ciblé : ${title} (${city})
 
 1. Vente Privée en Nocturne "Lumières & Saveurs de Provence"

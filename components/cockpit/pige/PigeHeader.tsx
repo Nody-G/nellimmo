@@ -14,7 +14,7 @@ export function PigeHeader({ onNewLead, onImport }: PigeHeaderProps) {
             <div>
                 <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#E12B7B]">
                     <Radar className="w-4 h-4" />
-                    <span>Module 05 • Radar PAP & Prospection Terrain</span>
+                    <span>Radar PAP & Prospection Terrain</span>
                 </div>
                 <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#131B26] mt-1">
                     Pige Immobilière & Détection Vendeurs

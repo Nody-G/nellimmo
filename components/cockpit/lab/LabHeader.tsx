@@ -3,7 +3,6 @@
 import React from 'react';
 import {
   BrainCircuit,
-  Flame,
   Lightbulb,
   FileSignature,
   PartyPopper,
@@ -29,14 +28,14 @@ export function LabHeader({ activeMode, onSelectMode }: LabHeaderProps) {
             Nell&apos;IA Infinite Lab
           </h1>
           <p className="text-xs text-gray-500">
-            L&apos;atelier sans aucune limite : brainstorming d&apos;angles novateurs, simulations de négociation, clauses juridiques et événements VIP.
+            Brainstorming d&apos;angles de vente, simulations de négociation, clauses juridiques et événements VIP.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           <span className="text-xs font-bold px-3 py-1.5 rounded-xl bg-[#FCFAF7] border border-[#E9DFD3] text-[#C59A45] flex items-center gap-1.5">
-            <Flame className="w-3.5 h-3.5" />
-            <span>Potentiel 100% Illimité</span>
+            <BrainCircuit className="w-3.5 h-3.5" />
+            <span>Espace Stratégie & Idéation</span>
           </span>
         </div>
       </div>

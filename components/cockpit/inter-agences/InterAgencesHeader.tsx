@@ -13,7 +13,7 @@ export function InterAgencesHeader({ onOpenNewDelegation }: InterAgencesHeaderPr
       <div>
         <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#E12B7B]">
           <Handshake className="w-4 h-4" />
-          <span>Fichier Commun & Partage Confrères (L’Alternative Supérieure à Interkab)</span>
+          <span>Fichier Commun & Partage Confrères</span>
         </div>
         <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#131B26] mt-1">
           Bourse Inter-Agences & Délégations de Mandats

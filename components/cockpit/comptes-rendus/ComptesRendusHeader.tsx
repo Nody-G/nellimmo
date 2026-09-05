@@ -17,7 +17,7 @@ export function ComptesRendusHeader({ currentProperty }: ComptesRendusHeaderProp
       <div>
         <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#E12B7B]">
           <FileCheck2 className="w-4 h-4" />
-          <span>Module 02 • Transparence Totale & Fidélisation Vendeur</span>
+          <span>Transparence Totale & Fidélisation Vendeur</span>
         </div>
         <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#131B26] mt-1">
           Comptes-Rendus Vendeurs & Bilan d’Activité

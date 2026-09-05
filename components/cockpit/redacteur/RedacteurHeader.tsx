@@ -29,14 +29,13 @@ export function RedacteurHeader({
             <div>
                 <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#E12B7B]">
                     <Sparkles className="w-4 h-4" />
-                    <span>Studio de Rédaction & Idéation Infinie</span>
+                    <span>Studio de Rédaction Immobilière</span>
                 </div>
                 <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#131B26] mt-1">
                     Générateur d{"\u2019"}Annonces, Vidéos & Pitchs
                 </h1>
                 <p className="text-xs text-gray-500">
-                    10 styles multicanaux, brainstormer d{"\u2019"}angles uniques et scripts vidéo sans
-                    aucune restriction d{"\u2019"}idée.
+                    10 styles rédactionnels, suggestions d{"\u2019"}angles uniques et scripts vidéo.
                 </p>
             </div>
 

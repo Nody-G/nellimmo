@@ -120,8 +120,8 @@ function EspaceVendeurPortal() {
         <div className="p-3.5 bg-[#FCFAF7] rounded-2xl border border-[#F3E8EE] flex items-center gap-3 text-xs text-gray-600">
           <Sparkles className="w-4 h-4 text-[#C59A45] shrink-0" />
           <div className="text-[11px]">
-            <span className="font-bold text-gray-900 block">Exemple de démonstration :</span>
-            <span>Tapez <strong className="text-[#E12B7B] cursor-pointer" onClick={() => setInputToken('token_dupont_2024')}>token_dupont_2024</strong> pour visualiser un espace vendeur type.</span>
+            <span className="font-bold text-gray-900 block">Espace de démonstration :</span>
+            <span>Accédez à un dossier type avec le code <strong className="text-[#E12B7B] cursor-pointer hover:underline" onClick={() => setInputToken('token_dupont_2024')}>token_dupont_2024</strong>.</span>
           </div>
         </div>
 

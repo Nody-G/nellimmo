@@ -22,13 +22,13 @@ export function VitrineHeader({
       <div>
         <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#E12B7B]">
           <Printer className="w-4 h-4" />
-          <span>Marketing Vitrine & Atelier Graphique Illimité</span>
+          <span>Marketing Vitrine & Atelier Graphique</span>
         </div>
         <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#131B26] mt-1">
           Studio Fiches Vitrine & Affiches LED
         </h1>
         <p className="text-xs text-gray-500">
-          5 agencements photos, badges sans restriction, QR code multi-destinations et 6 thèmes haute couture.
+          5 agencements photos, badges personnalisables, QR code interactif et thèmes élégants.
         </p>
       </div>
 
