@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   LayoutDashboard,
-  BarChart3,
   FileText,
   TrendingUp,
   Users,
@@ -14,14 +13,9 @@ import {
   Landmark,
   Radar,
   FileCheck2,
-  BrainCircuit,
-  Handshake,
   KeyRound,
   Calendar,
-  BookOpen,
   BellRing,
-  Calculator,
-  Share2,
   BookUser,
 } from 'lucide-react';
 
@@ -54,18 +48,16 @@ export function getNavSections(pendingRelancesCount: number): NavSection[] {
           badgeUrgent: pendingRelancesCount > 0,
         },
         { name: 'Pipeline Notaire & Ventes', href: '/cockpit/transactions', icon: Landmark },
-        { name: 'Bons de Visite & Sentiment', href: '/cockpit/visites', icon: PenTool },
+        { name: 'Bons de Visite & Signatures', href: '/cockpit/visites', icon: PenTool },
       ],
     },
     {
-      title: 'Portefeuille & CRM',
+      title: 'Portefeuille & Clients',
       items: [
         { name: 'Mandats & Biens', href: '/cockpit/mandats', icon: FileText },
-        { name: 'Carnet de Contacts Pro', href: '/cockpit/contacts', icon: BookUser },
         { name: 'Acquéreurs & Matching', href: '/cockpit/acquereurs', icon: Users },
+        { name: 'Carnet de Contacts Pro', href: '/cockpit/contacts', icon: BookUser },
         { name: 'Comptes-Rendus Vendeurs', href: '/cockpit/comptes-rendus', icon: FileCheck2 },
-        { name: 'Clés & Panneaux', href: '/cockpit/cles-panneaux', icon: KeyRound },
-        { name: 'Bourse Inter-Agences', href: '/cockpit/inter-agences', icon: Handshake },
       ],
     },
     {
@@ -73,25 +65,21 @@ export function getNavSections(pendingRelancesCount: number): NavSection[] {
       items: [
         { name: 'Pige & Prospection PAP', href: '/cockpit/pige', icon: Radar },
         { name: 'Avis de Valeur DVF', href: '/cockpit/avis-de-valeur', icon: TrendingUp },
-        { name: 'Simulateurs Financiers', href: '/cockpit/simulateurs', icon: Calculator },
       ],
     },
     {
-      title: 'Marketing & Stratégie',
+      title: 'Marketing & Diffusion',
       items: [
-        { name: 'Studio Rédaction IA', href: '/cockpit/redacteur', icon: Sparkles },
-        { name: 'Studio Réseaux Sociaux', href: '/cockpit/reseaux-sociaux', icon: Share2 },
+        { name: 'Studio Rédaction & Stratégie', href: '/cockpit/redacteur', icon: Sparkles },
         { name: 'Fiches Vitrine LED', href: '/cockpit/fiches-vitrine', icon: Printer },
         { name: 'Multidiffusion Portails', href: '/cockpit/diffusion', icon: Radio },
-        { name: 'Négociation & Stratégie', href: '/cockpit/lab', icon: BrainCircuit },
       ],
     },
     {
-      title: 'Gestion & Conformité',
+      title: 'Gestion & Terrain',
       items: [
-        { name: 'Registre DGCCRF', href: '/cockpit/registre-dgccrf', icon: ShieldCheck },
-        { name: 'Analytics & KPIs', href: '/cockpit/analytics', icon: BarChart3 },
-        { name: 'Guides & Academy', href: '/cockpit/aide', icon: BookOpen, badge: 'Academy' },
+        { name: 'Registre DGCCRF Mandats', href: '/cockpit/registre-dgccrf', icon: ShieldCheck },
+        { name: 'Clés & Panneaux Terrain', href: '/cockpit/cles-panneaux', icon: KeyRound },
         { name: 'Paramètres & Connexions', href: '/cockpit/parametres', icon: Settings },
       ],
     },

@@ -11,6 +11,8 @@ export type CopywritingStyle =
   | 'investisseur_lmnp'
   | 'international_en'
   | 'relance_baisse_prix'
+  | 'negociation_contre_offre'
+  | 'objection_mandat_exclusif'
   | 'mode_libre';
 
 export interface StyleTemplate {
@@ -91,6 +93,20 @@ export const STYLE_TEMPLATES: StyleTemplate[] = [
     badge: 'Re-commercialisation',
     category: 'direct',
     description: 'Message de relance percutant pour réveiller les acquéreurs chauds qui hésitaient sur le prix.',
+  },
+  {
+    id: 'negociation_contre_offre',
+    label: 'Contre-Attaque & Défense du Prix',
+    badge: 'Tactique Négociation',
+    category: 'strategique',
+    description: 'Argumentaire solide et courtois pour refuser une offre agressive et ramener l\'acquéreur au juste prix sans braquer le vendeur.',
+  },
+  {
+    id: 'objection_mandat_exclusif',
+    label: 'Défense du Mandat Exclusif',
+    badge: 'Prise de Mandat',
+    category: 'strategique',
+    description: 'Démontage bienveillant de l\'objection du propriétaire voulant confier son bien à plusieurs agences en mandat simple.',
   },
   {
     id: 'mode_libre',
@@ -387,6 +403,46 @@ Afin de vous donner la priorité, souhaitez-vous effectuer une contre-visite ou 
 
 Je suis à votre écoute au 07 55 68 61 09. Belle journée !
 Nelly Fernandez — Nell'Immo`;
+    }
+
+    case 'negociation_contre_offre': {
+      return `🛡️ PROTOCOLE STRATÉGIQUE DE NÉGOCIATION & CONTRE-OFFRE
+Bien : ${type.toUpperCase()} à ${city} (${surface} m²) — Prix affiché : ${price} (Réf. ${mandateRef})
+
+1. ANALYSE DE SITUATION :
+Face à une offre agressive en-deçà du prix marché, l'enjeu est de préserver la valeur patrimoniale du vendeur tout en maintenant l'acquéreur dans le tunnel d'achat grâce à des données factuelles.
+
+2. SCRIPT TÉLÉPHONIQUE & ARGUMENTAIRE ACQUÉREUR :
+« Bonjour, j'ai présenté votre offre à mes mandants avec toute l'attention qu'elle mérite. Ils ont apprécié le sérieux de votre dossier et votre réel coup de cœur pour les lieux.
+
+Toutefois, ils ne peuvent donner une suite favorable en l'état. Le prix de présentation (${price}) a été rigoureusement calibré sur les données réelles des ventes notariées (DVF) sur ${city}, où les biens bénéficiant de ces prestations (${featuresList || 'luminosité, calme, extérieur'}) et de ce niveau de DPE (${property.dpe_letter || 'C'}) sont particulièrement recherchés.
+
+Néanmoins, désireux d'aboutir à un accord équilibré et respectueux avec vous, mes mandants acceptent d'effectuer un effort financier ciblé en vous proposant une contre-offre ferme, sous condition de validation expresse de votre plan de financement sous 8 jours. »
+
+3. SCRIPT D'ACCOMPAGNEMENT POUR LE VENDEUR :
+« Chers vendeurs, cette contre-proposition démontre notre solidité. En ne cédant pas immédiatement mais en entrouvrant la porte avec fermeté, nous conservons l'initiative et protégeons votre prix net vendeur. »`;
+    }
+
+    case 'objection_mandat_exclusif': {
+      return `🎯 SCRIPT DE DÉFENSE DU MANDAT EXCLUSIF vs MANDAT SIMPLE
+Bien : ${type.toUpperCase()} à ${city} (${surface} m²) — Estimation : ${price}
+
+RÉPONSE À L'OBJECTION DU PROPRIÉTAIRE : « Je préfère confier mon bien à plusieurs agences pour multiplier mes chances. »
+
+ARGUMENTAIRE DE NELLY FERNANDEZ (PÉLISSANNE) :
+
+« Je comprends tout à fait votre réflexe de départ : on pense intuitivement que 4 agences vendront 4 fois plus vite qu'une seule. Pourtant, sur le terrain, c'est l'inverse exact qui se produit :
+
+1. L'Effet "Bien Brisé" sur Internet :
+Lorsque les acheteurs voient votre maison affichée 4 fois sur SeLoger et LeBonCoin, souvent avec des prix différents (écart d'honoraires) et des photos inégales, ils se disent immédiatement : « Cette maison ne se vend pas, les propriétaires sont pressés, négocions agressivement ! ». La sur-diffusion dévalorise votre patrimoine.
+
+2. Engagement d'Investissement Maximal :
+En mandat exclusif chez Nell'Immo, j'investis massivement pour votre bien : reportage photo soigné, fiches vitrine LED rétroéclairées, multidiffusion premium en tête de liste, ciblage direct de mon fichier d'acquéreurs qualifiés, et compte-rendu écrit sous 24h après chaque visite.
+
+3. Un Seul Interlocuteur Responsable :
+Vous n'avez pas 4 agents qui se battent pour faire visiter n'importe qui à n'importe quel prix. Vous avez un partenaire de confiance dédié qui défend chaque euro de votre prix net vendeur.
+
+92% de mes mandats exclusifs se vendent dans les 60 jours au juste prix. Avançons ensemble en toute sérénité. »`;
     }
 
     case 'mode_libre': {

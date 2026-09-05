@@ -13,7 +13,7 @@ import { NellimoProvider } from '@/lib/store';
 import { logout } from '@/lib/auth';
 import { lockVault } from '@/lib/vault';
 import { useRouter } from 'next/navigation';
-import { Menu, X, PlusCircle, LogOut, Smartphone } from 'lucide-react';
+import { Menu, X, PlusCircle, LogOut, Smartphone, Calculator } from 'lucide-react';
 import { LocalMobileSyncModal } from '@/components/cockpit/sync/LocalMobileSyncModal';
 import { LocalDataHealthPill } from '@/components/cockpit/LocalDataHealthPill';
 import { ThemeSwitcherButton } from '@/components/cockpit/theme/ThemeSwitcherButton';
@@ -109,6 +109,13 @@ export default function CockpitLayout({ children }: { children: React.ReactNode 
               <div className="flex items-center gap-3">
                 <ContextualHelpDrawer />
                 <CommandPalette />
+                <Link
+                  href="/cockpit/simulateurs"
+                  title="Simulateurs Frais de Notaire & Plus-Value"
+                  className="p-2 text-gray-500 hover:text-[#E12B7B] hover:bg-pink-50 rounded-lg text-xs font-bold transition flex items-center cursor-pointer"
+                >
+                  <Calculator className="w-4 h-4" />
+                </Link>
                 <ThemeSwitcherButton />
                 <InstallAppButton />
                 <button
