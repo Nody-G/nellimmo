@@ -21,6 +21,7 @@ const BACKUP_STORAGE_KEYS = [
     { key: 'partners', storage: 'nellimo_interagency_partners_v1' },
     { key: 'delegations', storage: 'nellimo_interagency_delegations_v1' },
     { key: 'relances', storage: 'nellimo_relances_v1' },
+    { key: 'contacts', storage: 'nellimo_contacts_v1' },
 ] as const;
 
 /** Builds and downloads the master JSON backup from localStorage + current form. */

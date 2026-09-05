@@ -44,7 +44,15 @@ export function ContextualHelpDrawer() {
       return HELP_GUIDES.find((g) => g.id === 'guide-redacteur') || HELP_GUIDES[0];
     if (pathname.includes('/diffusion'))
       return HELP_GUIDES.find((g) => g.id === 'guide-diffusion') || HELP_GUIDES[0];
-    if (pathname.includes('/cles-panneaux') || pathname.includes('/inter-agences'))
+    if (pathname.includes('/contacts'))
+      return HELP_GUIDES.find((g) => g.id === 'guide-organisation') || HELP_GUIDES[0];
+    if (pathname.includes('/relances') || pathname.includes('/agenda'))
+      return HELP_GUIDES.find((g) => g.id === 'guide-visites') || HELP_GUIDES[0];
+    if (pathname.includes('/simulateurs'))
+      return HELP_GUIDES.find((g) => g.id === 'guide-transactions') || HELP_GUIDES[0];
+    if (pathname.includes('/reseaux-sociaux'))
+      return HELP_GUIDES.find((g) => g.id === 'guide-redacteur') || HELP_GUIDES[0];
+    if (pathname.includes('/analytics') || pathname.includes('/cles-panneaux') || pathname.includes('/inter-agences'))
       return HELP_GUIDES.find((g) => g.id === 'guide-organisation') || HELP_GUIDES[0];
     if (pathname.includes('/import-hektor'))
       return HELP_GUIDES.find((g) => g.id === 'guide-hektor') || HELP_GUIDES[0];

@@ -637,3 +637,76 @@ export interface SocialPost {
   status: 'brouillon' | 'planifie' | 'publie';
   created_at: string;
 }
+
+// ----------------------------------------------------
+// CARNET DE CONTACTS PRO & HUB GMAIL IMMOBILIER
+// ----------------------------------------------------
+
+export type ContactRole =
+  | 'acquereur'
+  | 'vendeur'
+  | 'notaire'
+  | 'diagnostiqueur'
+  | 'courtier'
+  | 'artisan'
+  | 'syndic'
+  | 'confrere'
+  | 'autre';
+
+export type ContactStatus = 'actif' | 'vip' | 'en_veille' | 'archive';
+
+export type ContactInteractionType =
+  | 'email_gmail'
+  | 'appel'
+  | 'whatsapp'
+  | 'rdv'
+  | 'note'
+  | 'document';
+
+export interface ContactInteraction {
+  id: string;
+  contact_id: string;
+  type: ContactInteractionType;
+  title: string;
+  description?: string;
+  date: string; // ISO format
+  author?: string;
+}
+
+export interface ContactDocument {
+  id: string;
+  name: string;
+  category: 'kbis' | 'assurance_decennale' | 'rib' | 'carte_pro' | 'cni' | 'autre';
+  filename?: string;
+  uploaded_at: string;
+}
+
+export interface ContactItem {
+  id: string;
+  role: ContactRole;
+  status: ContactStatus;
+  civility?: 'M' | 'Mme' | 'M_Mme' | 'Societe';
+  first_name: string;
+  last_name: string;
+  company?: string;
+  specialty?: string;
+  email: string;
+  secondary_email?: string;
+  phone: string;
+  secondary_phone?: string;
+  address?: string;
+  postal_code?: string;
+  city?: string;
+  website?: string;
+  siret?: string;
+  associated_property_ids?: string[];
+  notes?: string;
+  tags?: string[];
+  interactions?: ContactInteraction[];
+  documents?: ContactDocument[];
+  is_favorite?: boolean;
+  created_at: string;
+  updated_at: string;
+  last_contact_at?: string;
+}
+

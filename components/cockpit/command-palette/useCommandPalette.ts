@@ -21,6 +21,15 @@ import {
   FileCheck2,
   BrainCircuit,
   BookOpen,
+  BookUser,
+  Calendar,
+  Bell,
+  Calculator,
+  Share2,
+  Key,
+  Building2,
+  BarChart3,
+  ArrowDownToLine,
 } from 'lucide-react';
 import { HELP_GUIDES } from '@/lib/help-content';
 import { PaletteItem } from './command-types';
@@ -29,7 +38,7 @@ export function useCommandPalette() {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const { properties, buyers, contactLeads, estimationLeads } = useNellimoStore();
+  const { properties, buyers, contactLeads, estimationLeads, contacts } = useNellimoStore();
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -103,6 +112,14 @@ export function useCommandPalette() {
         category: 'Outils',
         href: '/cockpit/transactions',
         icon: Landmark,
+      },
+      {
+        id: 'nav-contacts',
+        title: 'Carnet de Contacts Pro & Hub Gmail',
+        subtitle: 'Annuaire unifié notaires, diagnostiqueurs, artisans, acquéreurs & vendeurs',
+        category: 'Outils',
+        href: '/cockpit/contacts',
+        icon: BookUser,
       },
       {
         id: 'nav-acquereurs',
@@ -183,6 +200,70 @@ export function useCommandPalette() {
         category: 'Outils',
         href: '/cockpit/registre-dgccrf',
         icon: ShieldCheck,
+      },
+      {
+        id: 'nav-agenda',
+        title: 'Agenda & Planning Visites',
+        subtitle: 'Organisation des rendez-vous et plannings agents',
+        category: 'Outils',
+        href: '/cockpit/agenda',
+        icon: Calendar,
+      },
+      {
+        id: 'nav-relances',
+        title: 'Centre de Relances & Suivis',
+        subtitle: 'Relances acquéreurs, vendeurs et notaires',
+        category: 'Outils',
+        href: '/cockpit/relances',
+        icon: Bell,
+      },
+      {
+        id: 'nav-simulateurs',
+        title: 'Simulateurs Financiers & Juridiques',
+        subtitle: 'Rendement locatif LMNP, crédit HCSF 35% et délais SRU',
+        category: 'Outils',
+        href: '/cockpit/simulateurs',
+        icon: Calculator,
+      },
+      {
+        id: 'nav-reseaux-sociaux',
+        title: 'Studio Réseaux Sociaux & Visuels',
+        subtitle: 'Créateur de posts Instagram, Facebook, LinkedIn et formats HD',
+        category: 'Outils',
+        href: '/cockpit/reseaux-sociaux',
+        icon: Share2,
+      },
+      {
+        id: 'nav-cles-panneaux',
+        title: 'Registre Clés & Panneaux',
+        subtitle: 'Traçabilité des trousseaux et suivi d’implantation des panneaux',
+        category: 'Outils',
+        href: '/cockpit/cles-panneaux',
+        icon: Key,
+      },
+      {
+        id: 'nav-inter-agences',
+        title: 'Bourse Délégation & Inter-Agences',
+        subtitle: 'Partage de mandats et collaborations confrères',
+        category: 'Outils',
+        href: '/cockpit/inter-agences',
+        icon: Building2,
+      },
+      {
+        id: 'nav-analytics',
+        title: 'Statistiques & Performance Commerciale',
+        subtitle: 'KPIs d’activité, taux de transformation et prévisionnel',
+        category: 'Outils',
+        href: '/cockpit/analytics',
+        icon: BarChart3,
+      },
+      {
+        id: 'nav-import-hektor',
+        title: 'Passerelle Import Hektor',
+        subtitle: 'Synchronisation et migration automatique du catalogue Hektor',
+        category: 'Outils',
+        href: '/cockpit/import-hektor',
+        icon: ArrowDownToLine,
       },
       {
         id: 'nav-params',
@@ -277,6 +358,29 @@ export function useCommandPalette() {
       }
     });
 
+    // Search contacts
+    contacts.forEach((c) => {
+      const fullName = `${c.first_name} ${c.last_name}`;
+      if (
+        fullName.toLowerCase().includes(q) ||
+        c.email.toLowerCase().includes(q) ||
+        c.phone.includes(q) ||
+        c.role.toLowerCase().includes(q) ||
+        (c.company && c.company.toLowerCase().includes(q)) ||
+        (c.city && c.city.toLowerCase().includes(q))
+      ) {
+        items.push({
+          id: `contact-${c.id}`,
+          title: `${fullName}${c.company ? ` • ${c.company}` : ''}`,
+          subtitle: `${c.role.toUpperCase()} — ${c.phone} — ${c.email}`,
+          category: 'Contacts & Répertoire Pro',
+          href: `/cockpit/contacts?id=${c.id}`,
+          icon: BookUser,
+          badge: c.role,
+        });
+      }
+    });
+
     // Search static nav
     staticNavigation.forEach((nav) => {
       if (nav.title.toLowerCase().includes(q) || nav.category.toLowerCase().includes(q)) {
@@ -314,7 +418,7 @@ export function useCommandPalette() {
     });
 
     return items;
-  }, [search, properties, buyers, contactLeads, estimationLeads, staticNavigation]);
+  }, [search, properties, buyers, contactLeads, estimationLeads, contacts, staticNavigation]);
 
   const handleSelect = (href: string) => {
     setIsOpen(false);

@@ -1,15 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import {
-  Copy,
-  Check,
-  Share2,
-  CalendarPlus,
-  Sparkles,
-} from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import type { Property, SocialChannel, SocialBadge, SocialFormat, SocialPost } from '@/lib/types';
 import { generateSocialCopy } from './social-types';
+import { SocialShareButtons } from './SocialShareButtons';
 
 interface SocialCopywriterTabsProps {
   property: Property;
@@ -122,6 +117,7 @@ export function SocialCopywriterTabs({
           {channels.map((ch) => (
             <button
               key={ch.id}
+              type="button"
               onClick={() => setActiveChannel(ch.id)}
               className={`px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition cursor-pointer ${
                 activeChannel === ch.id
@@ -147,6 +143,7 @@ export function SocialCopywriterTabs({
         <div className="flex items-center justify-between text-[11px] text-gray-400 font-mono">
           <span>{postText.length} caractères • {postText.split(/\s+/).filter(Boolean).length} mots</span>
           <button
+            type="button"
             onClick={() =>
               setCustomEdits((prev) => {
                 const next = { ...prev };
@@ -163,76 +160,17 @@ export function SocialCopywriterTabs({
       </div>
 
       {/* 1-Click Multi-Sharing Bar */}
-      <div className="pt-2 border-t border-gray-100 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2 flex-wrap">
-          <button
-            onClick={handleCopy}
-            className="px-3.5 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-xl text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
-          >
-            {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-            <span>{copied ? 'Copié !' : 'Copier texte'}</span>
-          </button>
-
-          <button
-            onClick={handleNativeShare}
-            className="px-3.5 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-90 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition cursor-pointer shadow-2xs"
-            title="Partager via le menu natif de votre appareil"
-          >
-            <Share2 className="w-3.5 h-3.5" />
-            <span>Partage Direct</span>
-          </button>
-
-          <button
-            onClick={handleFacebookShare}
-            className="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center gap-1 transition cursor-pointer"
-            title="Partager sur Facebook"
-          >
-            <span>Facebook</span>
-          </button>
-
-          <button
-            onClick={handleLinkedInShare}
-            className="px-3 py-2 bg-[#0A66C2] hover:bg-[#084e96] text-white rounded-xl text-xs font-bold flex items-center gap-1 transition cursor-pointer"
-            title="Partager sur LinkedIn"
-          >
-            <span>LinkedIn</span>
-          </button>
-
-          <button
-            onClick={handleTwitterShare}
-            className="px-3 py-2 bg-black hover:bg-gray-800 text-white rounded-xl text-xs font-bold flex items-center gap-1 transition cursor-pointer"
-            title="Partager sur X / Twitter"
-          >
-            <span>X</span>
-          </button>
-
-          <button
-            onClick={handleWhatsAppShare}
-            className="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center gap-1 transition cursor-pointer"
-            title="Partager sur WhatsApp"
-          >
-            <span>WhatsApp</span>
-          </button>
-        </div>
-
-        {/* Add to Social Planner CTA */}
-        <button
-          onClick={handleSchedulePost}
-          className="px-4 py-2 bg-[#131B26] hover:bg-gray-800 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition shadow-sm cursor-pointer"
-        >
-          {addedToPlanner ? (
-            <>
-              <Check className="w-4 h-4 text-emerald-400" />
-              <span>Post planifié !</span>
-            </>
-          ) : (
-            <>
-              <CalendarPlus className="w-4 h-4 text-[#C59A45]" />
-              <span>Planifier dans le Social Planner</span>
-            </>
-          )}
-        </button>
-      </div>
+      <SocialShareButtons
+        copied={copied}
+        addedToPlanner={addedToPlanner}
+        onCopy={handleCopy}
+        onNativeShare={handleNativeShare}
+        onFacebookShare={handleFacebookShare}
+        onLinkedInShare={handleLinkedInShare}
+        onTwitterShare={handleTwitterShare}
+        onWhatsAppShare={handleWhatsAppShare}
+        onSchedulePost={handleSchedulePost}
+      />
     </div>
   );
 }

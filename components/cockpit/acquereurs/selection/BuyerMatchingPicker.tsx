@@ -43,7 +43,10 @@ export function BuyerMatchingPicker({
               <input
                 type="checkbox"
                 checked={isSelected}
-                onChange={() => {}}
+                onChange={(e) => {
+                  e.stopPropagation();
+                  onToggleProperty(p.id);
+                }}
                 className="mt-1 accent-[#E12B7B] cursor-pointer"
               />
 

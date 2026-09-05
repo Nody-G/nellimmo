@@ -19,7 +19,9 @@ import {
   KeyLoanRecord,
   ProposalStatus,
   PartnerAgency,
-  DelegationAgreement
+  DelegationAgreement,
+  ContactItem,
+  ContactInteraction
 } from './types';
 import type { RelanceStatusMap } from './relances';
 import {
@@ -38,7 +40,8 @@ import {
   INITIAL_MANDATE_AVENANTS,
   INITIAL_PROPOSALS,
   INITIAL_PARTNERS,
-  INITIAL_DELEGATIONS
+  INITIAL_DELEGATIONS,
+  INITIAL_CONTACTS
 } from './mock-data';
 import { computeSHA256, generateSellerToken } from './hoguet';
 import { getSupabaseClient, isSupabaseConfigured } from './supabase';
@@ -67,6 +70,7 @@ const STORAGE_KEYS = {
   PARTNERS: 'nellimo_interagency_partners_v1',
   DELEGATIONS: 'nellimo_interagency_delegations_v1',
   RELANCES: 'nellimo_relances_v1',
+  CONTACTS: 'nellimo_contacts_v1',
 };
 
 function loadFromStorage<T>(key: string, defaultValue: T): T {
@@ -106,6 +110,7 @@ interface NellimoContextType {
   proposals: ProposalHistory[];
   partners: PartnerAgency[];
   delegations: DelegationAgreement[];
+  contacts: ContactItem[];
   relanceStatuses: RelanceStatusMap;
   isLoaded: boolean;
   isSupabaseActive: boolean;
@@ -149,6 +154,11 @@ interface NellimoContextType {
   addPartner: (data: Omit<PartnerAgency, 'id'>) => Promise<PartnerAgency>;
   updatePartner: (id: string, updates: Partial<PartnerAgency>) => Promise<void>;
   deletePartner: (id: string) => Promise<void>;
+  createContact: (contactData: Omit<ContactItem, 'id' | 'created_at' | 'updated_at'>) => Promise<ContactItem>;
+  updateContact: (id: string, updates: Partial<ContactItem>) => Promise<ContactItem | null>;
+  deleteContact: (id: string) => Promise<void>;
+  addContactInteraction: (contactId: string, interaction: Omit<ContactInteraction, 'id' | 'contact_id' | 'date'>) => Promise<void>;
+  syncContactsFromActivity: () => Promise<number>;
   setRelanceStatus: (actionId: string, status: RelanceStatusMap[string]) => void;
   resetRelanceStatuses: () => void;
   resetToDemoData: () => void;
@@ -191,6 +201,7 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
   const [partners, setPartners] = useState<PartnerAgency[]>(() => loadFromStorage(STORAGE_KEYS.PARTNERS, INITIAL_PARTNERS));
   const [delegations, setDelegations] = useState<DelegationAgreement[]>(() => loadFromStorage(STORAGE_KEYS.DELEGATIONS, INITIAL_DELEGATIONS));
   const [relanceStatuses, setRelanceStatuses] = useState<RelanceStatusMap>(() => loadFromStorage<RelanceStatusMap>(STORAGE_KEYS.RELANCES, {}));
+  const [contacts, setContacts] = useState<ContactItem[]>(() => loadFromStorage(STORAGE_KEYS.CONTACTS, INITIAL_CONTACTS));
   const [isLoaded, setIsLoaded] = useState(true);
   const [isSupabaseActive] = useState(() => isSupabaseConfigured());
 
@@ -267,6 +278,11 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
   const updateRelanceStatuses = useCallback((newStatuses: RelanceStatusMap) => {
     setRelanceStatuses(newStatuses);
     saveToStorage(STORAGE_KEYS.RELANCES, newStatuses);
+  }, []);
+
+  const updateContacts = useCallback((newContacts: ContactItem[]) => {
+    setContacts(newContacts);
+    saveToStorage(STORAGE_KEYS.CONTACTS, newContacts);
   }, []);
 
   const setRelanceStatus = useCallback((actionId: string, status: RelanceStatusMap[string]) => {
@@ -1075,6 +1091,182 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
     updatePartners(updated);
   };
 
+  // --- CONTACTS PRO & GMAIL ---
+
+  const createContact = async (
+    contactData: Omit<ContactItem, 'id' | 'created_at' | 'updated_at'>
+  ): Promise<ContactItem> => {
+    const newContact: ContactItem = {
+      ...contactData,
+      id: `cont-${Date.now()}`,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      interactions: contactData.interactions || [],
+      documents: contactData.documents || [],
+      associated_property_ids: contactData.associated_property_ids || [],
+    };
+    const updated = [newContact, ...contacts];
+    updateContacts(updated);
+    return newContact;
+  };
+
+  const updateContact = async (
+    id: string,
+    updates: Partial<ContactItem>
+  ): Promise<ContactItem | null> => {
+    let target: ContactItem | null = null;
+    const updated = contacts.map((c) => {
+      if (c.id === id) {
+        target = { ...c, ...updates, updated_at: new Date().toISOString() };
+        return target;
+      }
+      return c;
+    });
+    if (target) updateContacts(updated);
+    return target;
+  };
+
+  const deleteContact = async (id: string): Promise<void> => {
+    const updated = contacts.filter((c) => c.id !== id);
+    updateContacts(updated);
+  };
+
+  const addContactInteraction = async (
+    contactId: string,
+    interaction: Omit<ContactInteraction, 'id' | 'contact_id' | 'date'>
+  ): Promise<void> => {
+    const newInter: ContactInteraction = {
+      ...interaction,
+      id: `inter-${Date.now()}`,
+      contact_id: contactId,
+      date: new Date().toISOString(),
+    };
+    const updated = contacts.map((c) => {
+      if (c.id === contactId) {
+        const inters = [newInter, ...(c.interactions || [])];
+        return {
+          ...c,
+          interactions: inters,
+          last_contact_at: newInter.date,
+          updated_at: new Date().toISOString(),
+        };
+      }
+      return c;
+    });
+    updateContacts(updated);
+  };
+
+  const syncContactsFromActivity = async (): Promise<number> => {
+    let countAdded = 0;
+    const newContactsList = [...contacts];
+
+    // 1. Synchronise les acquéreurs depuis buyers
+    for (const buyer of buyers) {
+      const exists = newContactsList.some(
+        (c) =>
+          (buyer.email && c.email?.toLowerCase() === buyer.email.toLowerCase()) ||
+          (buyer.phone && c.phone.replace(/\s+/g, '') === buyer.phone.replace(/\s+/g, ''))
+      );
+      if (!exists) {
+        newContactsList.push({
+          id: `cont-sync-buy-${buyer.id}`,
+          role: 'acquereur',
+          status: buyer.status === 'actif' ? 'actif' : 'en_veille',
+          first_name: buyer.first_name,
+          last_name: buyer.last_name,
+          email: buyer.email || '',
+          phone: buyer.phone,
+          specialty: `Acquéreur qualifié (Budget max: ${buyer.budget_max.toLocaleString('fr-FR')} €)`,
+          city: buyer.target_cities?.[0] || 'Salon / Pélissanne',
+          notes: buyer.notes || `Recherche : ${buyer.target_property_types.join(', ')}`,
+          tags: ['Synchronisé Acquéreurs', buyer.financing_status],
+          interactions: [],
+          documents: [],
+          created_at: buyer.created_at || new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        });
+        countAdded++;
+      }
+    }
+
+    // 2. Synchronise les vendeurs depuis properties
+    for (const prop of properties) {
+      if (!prop.seller_name) continue;
+      const exists = newContactsList.some(
+        (c) =>
+          (prop.seller_email && c.email?.toLowerCase() === prop.seller_email.toLowerCase()) ||
+          (prop.seller_phone && c.phone.replace(/\s+/g, '') === prop.seller_phone.replace(/\s+/g, ''))
+      );
+      if (!exists) {
+        const parts = prop.seller_name.split(' ');
+        const firstName = parts.length > 1 ? parts[0] : 'Vendeur';
+        const lastName = parts.length > 1 ? parts.slice(1).join(' ') : prop.seller_name;
+        newContactsList.push({
+          id: `cont-sync-vend-${prop.id}`,
+          role: 'vendeur',
+          status: 'actif',
+          first_name: firstName,
+          last_name: lastName,
+          email: prop.seller_email || '',
+          phone: prop.seller_phone,
+          address: prop.seller_address || prop.address,
+          postal_code: prop.postal_code,
+          city: prop.city,
+          specialty: `Vendeur Mandat #${prop.mandate_number} (${prop.title})`,
+          associated_property_ids: [prop.id],
+          tags: ['Synchronisé Mandats'],
+          interactions: [],
+          documents: [],
+          created_at: prop.created_at || new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        });
+        countAdded++;
+      }
+    }
+
+    // 3. Synchronise les notaires depuis transactions
+    for (const trans of transactions) {
+      if (trans.seller_notary_name) {
+        const notName = trans.seller_notary_name;
+        const exists = newContactsList.some(
+          (c) =>
+            c.role === 'notaire' &&
+            ((trans.seller_notary_email && c.email.toLowerCase() === trans.seller_notary_email.toLowerCase()) ||
+              c.last_name.toLowerCase().includes(notName.toLowerCase()))
+        );
+        if (!exists) {
+          const parts = notName.replace(/^(Me|Maître)\s+/i, '').split(' ');
+          const firstName = parts[0] || 'Maître';
+          const lastName = parts.slice(1).join(' ') || notName;
+          newContactsList.push({
+            id: `cont-sync-not-${trans.id}`,
+            role: 'notaire',
+            status: 'actif',
+            civility: 'M',
+            first_name: firstName,
+            last_name: lastName,
+            company: trans.seller_notary_office || 'Office Notarial',
+            specialty: 'Notaire instrumentaire',
+            email: trans.seller_notary_email,
+            phone: trans.seller_notary_phone,
+            associated_property_ids: [trans.property_id],
+            tags: ['Synchronisé Ventes'],
+            interactions: [],
+            documents: [],
+            created_at: trans.created_at || new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          });
+          countAdded++;
+        }
+      }
+    }
+
+    if (countAdded > 0) {
+      updateContacts(newContactsList);
+    }
+    return countAdded;
+  };
+
   // --- RESET DEMO PROVENCE ---
 
   const resetToDemoData = () => {
@@ -1095,6 +1287,7 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
     updateProposals(INITIAL_PROPOSALS);
     updatePartners(INITIAL_PARTNERS);
     updateDelegations(INITIAL_DELEGATIONS);
+    updateContacts(INITIAL_CONTACTS);
     resetRelanceStatuses();
   };
 
@@ -1115,6 +1308,7 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
     proposals,
     partners,
     delegations,
+    contacts,
     relanceStatuses,
     isLoaded,
     isSupabaseActive,
@@ -1158,6 +1352,11 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
     addPartner,
     updatePartner,
     deletePartner,
+    createContact,
+    updateContact,
+    deleteContact,
+    addContactInteraction,
+    syncContactsFromActivity,
     setRelanceStatus,
     resetRelanceStatuses,
     resetToDemoData,
@@ -1186,6 +1385,7 @@ export function useNellimoStore(): NellimoContextType {
       proposals: INITIAL_PROPOSALS,
       partners: INITIAL_PARTNERS,
       delegations: INITIAL_DELEGATIONS,
+      contacts: INITIAL_CONTACTS,
       relanceStatuses: {},
       isLoaded: true,
       isSupabaseActive: false,
@@ -1229,6 +1429,11 @@ export function useNellimoStore(): NellimoContextType {
       addPartner: async (p) => ({ ...p, id: 'part-temp' }),
       updatePartner: async () => { },
       deletePartner: async () => { },
+      createContact: async (c) => ({ ...c, id: 'cont-temp', created_at: '', updated_at: '' }),
+      updateContact: async () => null,
+      deleteContact: async () => { },
+      addContactInteraction: async () => { },
+      syncContactsFromActivity: async () => 0,
       setRelanceStatus: () => { },
       resetRelanceStatuses: () => { },
       resetToDemoData: () => { },
@@ -1350,5 +1555,17 @@ export function useRelances() {
     relanceStatuses: store.relanceStatuses,
     setRelanceStatus: store.setRelanceStatus,
     resetRelanceStatuses: store.resetRelanceStatuses
+  };
+}
+
+export function useContacts() {
+  const store = useNellimoStore();
+  return {
+    contacts: store.contacts,
+    createContact: store.createContact,
+    updateContact: store.updateContact,
+    deleteContact: store.deleteContact,
+    addContactInteraction: store.addContactInteraction,
+    syncContactsFromActivity: store.syncContactsFromActivity,
   };
 }

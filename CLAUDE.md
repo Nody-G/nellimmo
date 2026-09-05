@@ -56,7 +56,7 @@ Guide d'exécution : `supabase/MIGRATION_GUIDE.md`. Le site public devra lire vi
 
 ## État de vérification
 
-- `npm run build` : ✅ passe (41 routes, TypeScript propre).
+- `npm run build` : ✅ passe (46 routes, TypeScript propre).
 - `npm run lint` : ✅ **0 erreur, 0 warning** (nettoyage lint terminé).
 - `npx tsc --noEmit` : ✅ 0 erreur.
 - Convention apostrophes dans le texte JSX : utiliser l'entité HTML `'` (apostrophe) ou l'apostrophe typographique `’` (U+2019) — jamais l'apostrophe ASCII nue `'` (règle `react/no-unescaped-entities`).
@@ -84,6 +84,14 @@ Guide d'exécution : `supabase/MIGRATION_GUIDE.md`. Le site public devra lire vi
   - Export HD direct en PNG (1080x1080 / 1080x1920) via `html2canvas` côté client.
   - Rédacteur social multicanal (`SocialCopywriterTabs.tsx`) avec Web Share API native, partages 1-clic Facebook, LinkedIn, X, WhatsApp.
   - Social Planner avec calendrier des posts (`SocialPlannerView.tsx`) et simulation de grille Instagram 3x3 (`InstagramGridPreview.tsx`).
+- **Carnet de Contacts Pro & Hub Gmail Immobilier 360° (`/cockpit/contacts`)** :
+  - Répertoire unifié multi-rôles : Acquéreurs, Vendeurs, Notaires & Clercs, Diagnostiqueurs, Courtiers & Banques, Artisans & BTP, Syndics & Géomètres, Confrères.
+  - Hub Gmail & Modèles Métier : Intégration 1-clic Gmail Web (`view=cm`), modèles d'emails pré-rédigés par rôle (compromis, DDT, attestations courtier, comptes-rendus), variables dynamiques et Nell'IA Email Copilot.
+  - Journalisation automatique des emails Gmail dans la fiche 360° du contact.
+  - Export CSV officiel Google Contacts (compatible `contacts.google.com`), export vCard 3.0 universel et import CSV/vCard.
+  - Bouton magique « Synchroniser l'activité » agrégeant automatiquement les acheteurs, vendeurs des mandats et notaires des transactions.
+  - Double affichage Grille de cartes pro & Tableau CRM dense avec recherche instantanée et filtres à facettes.
+  - Intégration native dans la Command Palette (`Ctrl+K`), la navigation latérale et le système de sauvegarde Master JSON (`nellimo_contacts_v1`).
 
 ## Règle d'architecture : PAS de god components (IMPORTANTE)
 

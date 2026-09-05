@@ -23,6 +23,7 @@ import {
   BellRing,
   Calculator,
   Share2,
+  BookUser,
 } from 'lucide-react';
 
 export interface NavItem {
@@ -61,6 +62,7 @@ export function getNavSections(pendingRelancesCount: number): NavSection[] {
       title: 'Portefeuille & CRM',
       items: [
         { name: 'Mandats & Biens', href: '/cockpit/mandats', icon: FileText },
+        { name: 'Carnet de Contacts Pro', href: '/cockpit/contacts', icon: BookUser },
         { name: 'Acquéreurs & Matching', href: '/cockpit/acquereurs', icon: Users },
         { name: 'Comptes-Rendus Vendeurs', href: '/cockpit/comptes-rendus', icon: FileCheck2 },
         { name: 'Clés & Panneaux', href: '/cockpit/cles-panneaux', icon: KeyRound },

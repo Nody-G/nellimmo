@@ -33,7 +33,7 @@ export const QuickActionsGrid: React.FC = () => {
     {
       label: 'Studio IA Rédaction',
       href: '/cockpit/redacteur',
-      desc: '5 styles de plume signature',
+      desc: '10 styles de plume signature',
       icon: <Sparkles className="w-5 h-5 text-purple-600" />,
       bg: 'bg-purple-50'
     },
