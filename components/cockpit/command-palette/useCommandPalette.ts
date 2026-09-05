@@ -30,6 +30,8 @@ import {
   Building2,
   BarChart3,
   ArrowDownToLine,
+  Navigation,
+  Mail,
 } from 'lucide-react';
 import { HELP_GUIDES } from '@/lib/help-content';
 import { PaletteItem } from './command-types';
@@ -273,6 +275,42 @@ export function useCommandPalette() {
         href: '/cockpit/parametres',
         icon: Settings,
       },
+      {
+        id: 'google-agenda',
+        title: 'Google Agenda (Planning Mobile)',
+        subtitle: 'Ouvrir Google Calendar nellimmo.acte@gmail.com',
+        category: 'Écosystème Google',
+        href: 'https://calendar.google.com',
+        icon: Calendar,
+        badge: 'Google',
+      },
+      {
+        id: 'google-gmail',
+        title: 'Gmail Pro Nell\'Immo',
+        subtitle: 'Accéder à la messagerie nellimmo.acte@gmail.com',
+        category: 'Écosystème Google',
+        href: 'https://mail.google.com',
+        icon: Mail,
+        badge: 'Gmail',
+      },
+      {
+        id: 'google-drive',
+        title: 'Google Drive Mandats (Photos HD & ALUR)',
+        subtitle: 'Accéder à l\'espace de stockage cloud Google Drive',
+        category: 'Écosystème Google',
+        href: 'https://drive.google.com',
+        icon: Building2,
+        badge: 'Drive',
+      },
+      {
+        id: 'google-tour',
+        title: 'Tournée Visites Google Maps',
+        subtitle: 'Calculer l\'itinéraire multi-visites optimisé du jour',
+        category: 'Écosystème Google',
+        href: '/cockpit/visites',
+        icon: Navigation,
+        badge: 'Maps',
+      },
     ],
     []
   );
@@ -422,6 +460,10 @@ export function useCommandPalette() {
 
   const handleSelect = (href: string) => {
     setIsOpen(false);
+    if (href.startsWith('http://') || href.startsWith('https://')) {
+      window.open(href, '_blank', 'noopener,noreferrer');
+      return;
+    }
     router.push(href);
   };
 

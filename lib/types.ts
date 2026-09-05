@@ -108,6 +108,9 @@ export interface Property {
 
   // Joined images
   images?: PropertyImage[];
+
+  // Écosystème Google Drive
+  google_drive_url?: string; // Lien direct vers le dossier Drive (photos HD, diagnostics, compromis)
 }
 
 export type AlurDocumentCategory = 'identite' | 'propriete' | 'diagnostics' | 'copropriete' | 'urbanisme' | 'autre';

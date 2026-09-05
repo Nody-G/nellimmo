@@ -9,6 +9,7 @@ import { Card } from '@/components/ui/Card';
 import { DpeBadge } from '@/components/ui/DpeBadge';
 import { MandateFinancialCards } from './MandateFinancialCards';
 import { MandateCadastreCard } from './MandateCadastreCard';
+import { GoogleTerrainCard } from './GoogleTerrainCard';
 
 interface MandateOverviewTabProps {
   property: Property;
@@ -31,8 +32,17 @@ export const MandateOverviewTab: React.FC<MandateOverviewTabProps> = ({ property
     });
   };
 
+  const handleSaveDriveUrl = async (url: string) => {
+    await updateProperty(property.id, {
+      google_drive_url: url,
+    });
+  };
+
   return (
     <div className="space-y-6">
+      {/* Hub Google Terrain & Cloud */}
+      <GoogleTerrainCard property={property} onSaveDriveUrl={handleSaveDriveUrl} />
+
       {/* Financials & Specs Cards */}
       <MandateFinancialCards property={property} />
 

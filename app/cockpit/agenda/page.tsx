@@ -135,11 +135,25 @@ function AgendaContent() {
     showToast('Fichier iCalendar exporté pour votre smartphone !', 'success');
   };
 
+  const tourStops = useMemo(() => {
+    const stops: string[] = [];
+    filteredEvents.forEach((e) => {
+      if (e.location && e.location.trim()) {
+        const loc = e.location.trim();
+        if (!stops.includes(loc)) {
+          stops.push(loc);
+        }
+      }
+    });
+    return stops.slice(0, 8);
+  }, [filteredEvents]);
+
   return (
     <div className="space-y-6 animate-fade-in pb-20">
       <AgendaHeader
         onNewEvent={() => setIsNewEventModalOpen(true)}
         onExportICal={handleDownloadICal}
+        tourStops={tourStops}
       />
 
       <AgendaControlBar

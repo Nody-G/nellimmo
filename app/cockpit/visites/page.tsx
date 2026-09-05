@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, Suspense } from 'react';
+import React, { useState, useRef, useMemo, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useNellimoStore } from '@/lib/store';
 import { VoiceVisitRecorder } from '@/components/cockpit/VoiceVisitRecorder';
@@ -108,6 +108,20 @@ function VisitSheetsContent() {
     }
   };
 
+  const tourStops = useMemo(() => {
+    const stops: string[] = [];
+    visits.forEach((v) => {
+      const prop = properties.find((p) => p.id === v.property_id);
+      if (prop && (prop.address || prop.city)) {
+        const fullAddr = `${prop.address || ''}, ${prop.postal_code || ''} ${prop.city || 'Pélissanne'}`.trim();
+        if (fullAddr && !stops.includes(fullAddr)) {
+          stops.push(fullAddr);
+        }
+      }
+    });
+    return stops.slice(0, 8);
+  }, [visits, properties]);
+
   return (
     <div className="space-y-6 animate-fade-in pb-12">
       <VisitHeader
@@ -115,6 +129,7 @@ function VisitSheetsContent() {
         onOpenCalendar={() => setIsCalendarModalOpen(true)}
         propertyAddress={selectedProperty?.address}
         propertyCity={selectedProperty?.city}
+        tourStops={tourStops}
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

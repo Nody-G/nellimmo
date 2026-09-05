@@ -5,9 +5,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Property, Buyer, VisitSheet } from '@/lib/types';
 import { formatMandateRef } from '@/lib/hoguet';
-import { Printer } from 'lucide-react';
+import { Printer, Navigation, Calendar } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { PrintableVisitData } from './PrintableVisitModal';
+import { createGoogleMapsNavUrl, createGoogleCalendarUrl } from '@/lib/google';
 
 interface VisitRegisterTableProps {
   visits: VisitSheet[];
@@ -42,6 +43,24 @@ export const VisitRegisterTable: React.FC<VisitRegisterTableProps> = ({
           visits.map((v) => {
             const prop = properties.find((p) => p.id === v.property_id);
             const buyer = buyers.find((b) => b.id === v.buyer_id);
+
+            const handleOpenGps = () => {
+              if (!prop) return;
+              const url = createGoogleMapsNavUrl(prop.address || '', prop.city || 'Pélissanne');
+              window.open(url, '_blank', 'noopener,noreferrer');
+            };
+
+            const handleAddToGoogleCalendar = () => {
+              const buyerName = buyer ? `${buyer.first_name} ${buyer.last_name}` : 'Acquéreur';
+              const propTitle = prop?.title || 'Bien';
+              const url = createGoogleCalendarUrl({
+                title: `Visite ${propTitle} — ${buyerName}`,
+                location: prop ? `${prop.address}, ${prop.postal_code || ''} ${prop.city}` : 'Pélissanne',
+                startDate: v.visit_date,
+                description: `Acquéreur: ${buyerName} (${buyer?.phone || 'N/C'})\nEmail: ${buyer?.email || 'N/C'}\nMandat: ${prop?.mandate_number ? formatMandateRef(prop.mandate_number) : 'Nell\'Immo'}\nNotes: ${v.notes || 'Aucune'}`,
+              });
+              window.open(url, '_blank', 'noopener,noreferrer');
+            };
 
             return (
               <div
@@ -87,7 +106,30 @@ export const VisitRegisterTable: React.FC<VisitRegisterTableProps> = ({
                   </div>
                 )}
 
-                <div className="pt-1 flex justify-end">
+                <div className="pt-2 flex flex-wrap items-center justify-between gap-2 border-t border-gray-100">
+                  <div className="flex items-center gap-2">
+                    {prop && (
+                      <button
+                        type="button"
+                        onClick={handleOpenGps}
+                        className="text-[10px] text-blue-700 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-2 py-1 rounded-lg font-bold flex items-center gap-1 transition cursor-pointer"
+                        title="Lancer le guidage GPS Google Maps"
+                      >
+                        <Navigation className="w-3 h-3 text-blue-600" />
+                        <span>GPS Maps</span>
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={handleAddToGoogleCalendar}
+                      className="text-[10px] text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded-lg font-bold flex items-center gap-1 transition cursor-pointer"
+                      title="Ajouter ce rendez-vous dans Google Agenda"
+                    >
+                      <Calendar className="w-3 h-3 text-gray-500" />
+                      <span>Google Agenda</span>
+                    </button>
+                  </div>
+
                   <button
                     type="button"
                     onClick={() =>
@@ -103,7 +145,7 @@ export const VisitRegisterTable: React.FC<VisitRegisterTableProps> = ({
                     className="text-[10px] text-[#C59A45] hover:text-[#131B26] font-bold flex items-center gap-1 cursor-pointer transition"
                   >
                     <Printer className="w-3 h-3" />
-                    <span>Bon de Visite Officiel</span>
+                    <span>Bon Officiel</span>
                   </button>
                 </div>
               </div>

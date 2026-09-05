@@ -1,10 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { ExternalLink, MapPin, MessageCircle, Navigation } from 'lucide-react';
+import { ExternalLink, MapPin, MessageCircle, Navigation, Calendar } from 'lucide-react';
 import { formatMandateRef } from '@/lib/hoguet';
 import type { AgendaEvent } from './agenda-types';
 import { EventBadge } from './EventBadge';
+import { createGoogleMapsNavUrl, createGoogleCalendarUrl } from '@/lib/google';
 
 interface ListViewProps {
     events: AgendaEvent[];
@@ -25,8 +26,24 @@ export function ListView({ events, currentTime, onWhatsApp }: ListViewProps) {
 
             <div className="divide-y divide-gray-100">
                 {events.map((ev) => {
-                    const eventDate = new Date(`${ev.date}T${ev.time}:00`);
+                    const eventDate = new Date(`${ev.date}T${ev.time || '10:00'}:00`);
                     const isPast = currentTime !== null && eventDate.getTime() < currentTime;
+
+                    const handleOpenGoogleCalendar = () => {
+                        const url = createGoogleCalendarUrl({
+                            title: ev.title,
+                            location: ev.location,
+                            startDate: `${ev.date}T${ev.time || '10:00'}:00`,
+                            description: `Contact: ${ev.contactName} (${ev.contactPhone})\nNotes: ${ev.notes || 'Rendez-vous agence Nell\'Immo'}`,
+                        });
+                        window.open(url, '_blank', 'noopener,noreferrer');
+                    };
+
+                    const handleOpenGps = () => {
+                        if (!ev.location) return;
+                        const url = createGoogleMapsNavUrl(ev.location);
+                        window.open(url, '_blank', 'noopener,noreferrer');
+                    };
 
                     return (
                         <div
@@ -78,14 +95,23 @@ export function ListView({ events, currentTime, onWhatsApp }: ListViewProps) {
                                     <span>WhatsApp</span>
                                 </button>
 
-                                <a
-                                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ev.location)}`}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="p-1.5 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-xl transition"
+                                <button
+                                    type="button"
+                                    onClick={handleOpenGoogleCalendar}
+                                    className="p-1.5 bg-gray-50 hover:bg-gray-100 text-[#E12B7B] rounded-xl transition cursor-pointer"
+                                    title="Ajouter dans Google Agenda"
+                                >
+                                    <Calendar className="w-3.5 h-3.5" />
+                                </button>
+
+                                <button
+                                    type="button"
+                                    onClick={handleOpenGps}
+                                    className="p-1.5 bg-gray-50 hover:bg-gray-100 text-blue-600 rounded-xl transition cursor-pointer"
+                                    title="Itinéraire GPS Google Maps"
                                 >
                                     <Navigation className="w-3.5 h-3.5" />
-                                </a>
+                                </button>
 
                                 {ev.propertyId && (
                                     <Link

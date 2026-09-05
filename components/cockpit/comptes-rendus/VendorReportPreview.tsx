@@ -1,10 +1,11 @@
 'use client';
 
-import { Check, Copy, MessageCircle, Quote, Printer } from 'lucide-react';
+import { Check, Copy, MessageCircle, Quote, Printer, Mail } from 'lucide-react';
 import type { VendorReport, Property } from '@/lib/types';
 import { formatMandateRef } from '@/lib/hoguet';
 import { AvisDonutChart } from './AvisDonutChart';
 import { DvfPositioningSection } from './DvfPositioningSection';
+import { openGmailCompose } from '@/lib/google';
 
 interface VendorReportPreviewProps {
     report: VendorReport;
@@ -34,6 +35,14 @@ export function VendorReportPreview({
         report.views_seloger + report.views_leboncoin + report.views_bienici + report.views_website;
     const verbatims = report.anonymized_verbatims ?? [];
 
+    const handleSendGmail = () => {
+        openGmailCompose({
+            to: property.seller_email || '',
+            subject: `Compte-Rendu de Commercialisation — ${property.title} (Réf. ${formatMandateRef(property.mandate_number)})`,
+            body: whatsappDigest,
+        });
+    };
+
     return (
         <div className="bg-white rounded-3xl p-6 sm:p-8 border-2 border-[#E12B7B] shadow-xl space-y-6 animate-fade-in print:border-none print:shadow-none">
             {/* Header */}
@@ -51,7 +60,7 @@ export function VendorReportPreview({
                     </span>
                 </div>
 
-                <div className="flex items-center gap-2 print:hidden">
+                <div className="flex flex-wrap items-center gap-2 print:hidden">
                     <button
                         onClick={() => window.print()}
                         className="px-3 py-2 bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 rounded-xl text-xs font-bold flex items-center gap-1.5 transition cursor-pointer shadow-2xs"
@@ -59,6 +68,15 @@ export function VendorReportPreview({
                     >
                         <Printer className="w-3.5 h-3.5 text-[#C59A45]" />
                         <span>Imprimer / PDF</span>
+                    </button>
+
+                    <button
+                        onClick={handleSendGmail}
+                        className="px-3 py-2 bg-blue-50 hover:bg-blue-100 text-blue-900 border border-blue-200 rounded-xl text-xs font-bold flex items-center gap-1.5 transition cursor-pointer shadow-2xs"
+                        title="Ouvrir le rapport pré-rempli dans Gmail"
+                    >
+                        <Mail className="w-3.5 h-3.5 text-blue-600" />
+                        <span>Gmail</span>
                     </button>
 
                     <button
@@ -78,7 +96,7 @@ export function VendorReportPreview({
                         className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-2xs cursor-pointer"
                     >
                         <MessageCircle className="w-4 h-4" />
-                        <span>Envoyer au Vendeur (WhatsApp)</span>
+                        <span>Envoyer (WhatsApp)</span>
                     </button>
                 </div>
             </div>
