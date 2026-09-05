@@ -1,8 +1,9 @@
 'use client';
 
-import { Info } from 'lucide-react';
+import { Info, Eye, Navigation } from 'lucide-react';
 import type { DVFTransaction } from '@/lib/types';
 import { formatFr } from './avis-de-valeur-types';
+import { createGoogleStreetViewUrl, getGoogleMapsSearchUrl } from '@/lib/google';
 
 interface DvfTransactionsTableProps {
     transactions: DVFTransaction[];
@@ -68,6 +69,7 @@ export function DvfTransactionsTable({
                             <th className="pb-3">Distance</th>
                             <th className="pb-3">Prix Acte Réel</th>
                             <th className="pb-3 text-right">Prix / m²</th>
+                            <th className="pb-3 text-right">Repérage</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
@@ -84,6 +86,28 @@ export function DvfTransactionsTable({
                                 </td>
                                 <td className="py-3 font-bold text-[#E12B7B] text-right">
                                     {formatFr(t.prix_m2)} €/m²
+                                </td>
+                                <td className="py-3 text-right">
+                                    <div className="flex items-center justify-end gap-1.5">
+                                        <a
+                                            href={createGoogleStreetViewUrl(`${t.adresse_numero} ${t.adresse_nom_voie}`, t.nom_commune || 'Pélissanne', t.latitude, t.longitude)}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="p-1.5 bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-lg text-xs font-semibold transition"
+                                            title="Explorer la rue en immersion 360° Google Street View"
+                                        >
+                                            <Eye className="w-3.5 h-3.5" />
+                                        </a>
+                                        <a
+                                            href={getGoogleMapsSearchUrl(`${t.adresse_numero} ${t.adresse_nom_voie}`, t.nom_commune || 'Pélissanne')}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="p-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-xs font-semibold transition"
+                                            title="Localiser sur Google Maps"
+                                        >
+                                            <Navigation className="w-3.5 h-3.5" />
+                                        </a>
+                                    </div>
                                 </td>
                             </tr>
                         ))}

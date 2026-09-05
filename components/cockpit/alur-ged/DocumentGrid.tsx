@@ -13,6 +13,7 @@ interface DocumentGridProps {
     onChangeStatus: (docId: string, status: AlurDocumentStatus) => void;
     onDelete: (docId: string) => void;
     onWhatsApp: (itemName: string) => void;
+    onEmail?: (itemName: string) => void;
 }
 
 /** Responsive grid of ALUR checklist document cards. */
@@ -24,6 +25,7 @@ export function DocumentGrid({
     onChangeStatus,
     onDelete,
     onWhatsApp,
+    onEmail,
 }: DocumentGridProps) {
     const visibleItems = items.filter(
         (item) => activeCategory === 'all' || item.category === activeCategory
@@ -44,6 +46,7 @@ export function DocumentGrid({
                         onChangeStatus={onChangeStatus}
                         onDelete={onDelete}
                         onWhatsApp={onWhatsApp}
+                        onEmail={onEmail}
                     />
                 );
             })}

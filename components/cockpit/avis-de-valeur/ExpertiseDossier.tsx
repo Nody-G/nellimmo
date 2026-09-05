@@ -1,8 +1,9 @@
 'use client';
 
-import { Printer } from 'lucide-react';
+import { Printer, MessageCircle, Mail } from 'lucide-react';
 import type { DVFTransaction } from '@/lib/types';
 import { formatFr } from './avis-de-valeur-types';
+import { openGmailCompose } from '@/lib/google';
 
 interface ExpertiseDossierProps {
     ownerName: string;
@@ -28,6 +29,19 @@ export function ExpertiseDossier({
     priceTarget,
     initialCity,
 }: ExpertiseDossierProps) {
+    const handleShareWhatsapp = () => {
+        const text = `Bonjour ${ownerName},\n\nJ'ai le plaisir de vous transmettre la synthèse de votre Avis de Valeur certifié pour "${addressSearch}".\n\n🎯 Estimation de valeur : ${formatFr(priceTarget)} € (${formatFr(baseDvfM2)} €/m² moyen)\n📊 Analyse DVF : ${transactions.length} ventes réelles notariées dans votre secteur.\n\nJe reste disponible pour vous présenter le livret complet.\nNelly Fernandez — Nell'Immo (07 55 68 61 09)`;
+        window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+    };
+
+    const handleShareGmail = () => {
+        openGmailCompose({
+            to: '',
+            subject: `[Nell'Immo] Avis de Valeur & Étude DVF — ${addressSearch}`,
+            body: `Bonjour ${ownerName},\n\nDans le cadre de votre projet immobilier pour le bien situé au ${addressSearch}, voici la synthèse de votre Avis de Valeur :\n\n• Caractéristiques : ${surfaceInput} m² hab., terrain ${landInput} m², ${roomsInput} pièces\n• Références notariées DVF : ${transactions.length} ventes réelles comparables\n• Prix moyen pondéré : ${formatFr(baseDvfM2)} €/m²\n• Cible d'équilibre certifiée : ${formatFr(priceTarget)} €\n\nJe me tiens à votre disposition pour vous remettre le dossier complet de 8 chapitres.\n\nBien cordialement,\nNelly Fernandez — SASU Nell'Immo Pélissanne\n📞 07 55 68 61 09 | ✉️ nellimmo.acte@gmail.com`,
+        });
+    };
+
     return (
         <div className="bg-white rounded-3xl p-8 sm:p-12 border-2 border-[#E12B7B] shadow-2xl space-y-8 animate-fade-in print-page">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b-2 border-gray-200 pb-4">
@@ -38,13 +52,31 @@ export function ExpertiseDossier({
                     </h2>
                     <span className="text-xs text-gray-500">Préparé pour {ownerName} • {addressSearch}</span>
                 </div>
-                <button
-                    onClick={() => window.print()}
-                    className="px-6 py-3 bg-[#131B26] hover:bg-gray-800 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-md transition cursor-pointer shrink-0"
-                >
-                    <Printer className="w-4 h-4 text-[#C59A45]" />
-                    <span>Imprimer le Livret Relié</span>
-                </button>
+                <div className="flex flex-wrap items-center gap-2 print:hidden">
+                    <button
+                        onClick={handleShareWhatsapp}
+                        className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs transition cursor-pointer"
+                        title="Transmettre la synthèse par WhatsApp"
+                    >
+                        <MessageCircle className="w-4 h-4" />
+                        <span>WhatsApp</span>
+                    </button>
+                    <button
+                        onClick={handleShareGmail}
+                        className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs transition cursor-pointer"
+                        title="Transmettre par email via Gmail"
+                    >
+                        <Mail className="w-4 h-4" />
+                        <span>Gmail</span>
+                    </button>
+                    <button
+                        onClick={() => window.print()}
+                        className="px-4 py-2.5 bg-[#131B26] hover:bg-gray-800 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-xs transition cursor-pointer"
+                    >
+                        <Printer className="w-4 h-4 text-[#C59A45]" />
+                        <span>Imprimer</span>
+                    </button>
+                </div>
             </div>
 
             {/* Dossier Structure: 8 Complete Chapters */}

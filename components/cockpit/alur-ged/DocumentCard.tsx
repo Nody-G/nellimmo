@@ -4,6 +4,7 @@ import {
     Clock,
     Download,
     FileText,
+    Mail,
     MessageCircle,
     Trash2,
     Upload,
@@ -19,6 +20,7 @@ interface DocumentCardProps {
     onChangeStatus: (docId: string, status: AlurDocumentStatus) => void;
     onDelete: (docId: string) => void;
     onWhatsApp: (itemName: string) => void;
+    onEmail?: (itemName: string) => void;
 }
 
 /** A single ALUR checklist item card with status, attached file and actions. */
@@ -30,18 +32,14 @@ export function DocumentCard({
     onChangeStatus,
     onDelete,
     onWhatsApp,
+    onEmail,
 }: DocumentCardProps) {
+    const cardBorder = status === 'valide' ? 'border-emerald-200 bg-emerald-50/20 shadow-xs' : status === 'a_renouveler' ? 'border-amber-300 bg-amber-50/20' : item.mandatory ? 'border-rose-200 bg-rose-50/10' : 'border-gray-200';
+    const badgeStyle = status === 'valide' ? 'bg-emerald-100 text-emerald-800' : status === 'a_renouveler' ? 'bg-amber-100 text-amber-800 animate-pulse' : item.mandatory ? 'bg-rose-100 text-rose-800' : 'bg-gray-100 text-gray-600';
+    const badgeLabel = status === 'valide' ? '✓ Valide' : status === 'a_renouveler' ? '⚠️ Périmé' : item.mandatory ? 'Obligatoire' : 'Optionnel';
+
     return (
-        <div
-            className={`bg-white rounded-2xl p-4 border transition-all flex flex-col justify-between ${status === 'valide'
-                    ? 'border-emerald-200 bg-emerald-50/20 shadow-xs'
-                    : status === 'a_renouveler'
-                        ? 'border-amber-300 bg-amber-50/20'
-                        : item.mandatory
-                            ? 'border-rose-200 bg-rose-50/10'
-                            : 'border-gray-200'
-                }`}
-        >
+        <div className={`bg-white rounded-2xl p-4 border transition-all flex flex-col justify-between ${cardBorder}`}>
             <div className="space-y-2">
                 <div className="flex items-start justify-between gap-2">
                     <div className="space-y-0.5">
@@ -53,23 +51,8 @@ export function DocumentCard({
                         </h4>
                     </div>
 
-                    <span
-                        className={`px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0 ${status === 'valide'
-                                ? 'bg-emerald-100 text-emerald-800'
-                                : status === 'a_renouveler'
-                                    ? 'bg-amber-100 text-amber-800 animate-pulse'
-                                    : item.mandatory
-                                        ? 'bg-rose-100 text-rose-800'
-                                        : 'bg-gray-100 text-gray-600'
-                            }`}
-                    >
-                        {status === 'valide'
-                            ? '✓ Valide'
-                            : status === 'a_renouveler'
-                                ? '⚠️ Périmé'
-                                : item.mandatory
-                                    ? 'Obligatoire'
-                                    : 'Optionnel'}
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold shrink-0 ${badgeStyle}`}>
+                        {badgeLabel}
                     </span>
                 </div>
 
@@ -117,14 +100,26 @@ export function DocumentCard({
                                 <Trash2 className="w-3.5 h-3.5" />
                             </button>
                             {status === 'a_renouveler' && (
-                                <button
-                                    type="button"
-                                    onClick={() => onWhatsApp(item.name)}
-                                    className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition"
-                                    title="Demander le renouvellement au vendeur par WhatsApp"
-                                >
-                                    <MessageCircle className="w-3.5 h-3.5" />
-                                </button>
+                                <>
+                                    <button
+                                        type="button"
+                                        onClick={() => onWhatsApp(item.name)}
+                                        className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg transition cursor-pointer"
+                                        title="Demander le renouvellement par WhatsApp"
+                                    >
+                                        <MessageCircle className="w-3.5 h-3.5" />
+                                    </button>
+                                    {onEmail && (
+                                        <button
+                                            type="button"
+                                            onClick={() => onEmail(item.name)}
+                                            className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition cursor-pointer"
+                                            title="Demander le renouvellement par Gmail"
+                                        >
+                                            <Mail className="w-3.5 h-3.5" />
+                                        </button>
+                                    )}
+                                </>
                             )}
                         </div>
 
@@ -154,6 +149,16 @@ export function DocumentCard({
                         >
                             <MessageCircle className="w-3.5 h-3.5" />
                         </button>
+                        {onEmail && (
+                            <button
+                                type="button"
+                                onClick={() => onEmail(item.name)}
+                                className="p-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl text-xs font-bold transition flex items-center justify-center shrink-0 cursor-pointer"
+                                title="Demander cette pièce par Gmail"
+                            >
+                                <Mail className="w-3.5 h-3.5" />
+                            </button>
+                        )}
                     </div>
                 )}
             </div>

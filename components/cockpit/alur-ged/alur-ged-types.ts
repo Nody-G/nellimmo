@@ -4,7 +4,8 @@ import type {
     AlurDocumentCategory,
     AlurDocumentStatus,
 } from '@/lib/types';
-import { isAuditEnergetiqueObligatoire } from '@/lib/hoguet';
+import { isAuditEnergetiqueObligatoire, formatMandateRef } from '@/lib/hoguet';
+import { openGmailCompose } from '@/lib/google';
 
 /** Definition of a required/optional document in the ALUR checklist. */
 export interface ChecklistItemDef {
@@ -273,4 +274,62 @@ export function openWhatsappReminder(property: Property, message: string): void 
     const phoneWithPrefix = cleanPhone.startsWith('0') ? '33' + cleanPhone.slice(1) : cleanPhone;
     const url = `https://wa.me/${phoneWithPrefix}?text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');
+}
+
+/** Builds the formal email reminder for the seller (Gmail). */
+export function buildEmailReminderContent(
+    property: Property,
+    missingNames: string[],
+    singleItemName?: string
+): { subject: string; body: string } {
+    const seller = property.seller_name || 'Monsieur, Madame';
+    const ref = formatMandateRef(property.mandate_number);
+    const subject = `[Nell'Immo] Pièces complémentaires dossier notaire — Mandat ${ref} (${property.title})`;
+
+    if (singleItemName) {
+        const body = `Bonjour ${seller},
+
+Dans le cadre du suivi juridique et de la préparation du dossier notaire (Loi ALUR) pour votre bien "${property.title}", nous aurions besoin du document suivant :
+
+• ${singleItemName}
+
+Pourriez-vous nous le faire parvenir par retour de mail ou nous indiquer où nous pouvons nous le procurer ?
+
+Restant à votre entière disposition,
+
+Bien cordialement,
+Nelly Fernandez — Nell'Immo Pélissanne
+📞 07 55 68 61 09
+✉️ nellimmo.acte@gmail.com`;
+        return { subject, body };
+    }
+
+    const itemsList = missingNames.map((m) => `• ${m}`).join('\n');
+    const body = `Bonjour ${seller},
+
+Dans le cadre de la constitution du dossier de vente notaire (Loi ALUR) de votre bien "${property.title}" (Mandat ${ref}), nous vous remercions de bien vouloir nous transmettre les pièces suivantes :
+
+${itemsList}
+
+Vous pouvez nous faire parvenir ces documents numérisés en répondant directement à ce courriel.
+
+Nous restons à votre entière disposition pour tout renseignement.
+
+Bien cordialement,
+Nelly Fernandez — SASU Nell'Immo
+26 avenue des Enjouvènes, 13330 Pélissanne
+📞 07 55 68 61 09
+✉️ nellimmo.acte@gmail.com`;
+
+    return { subject, body };
+}
+
+/** Opens Gmail compose with the seller reminder. */
+export function openGmailReminder(property: Property, missingNames: string[], singleItemName?: string): void {
+    const { subject, body } = buildEmailReminderContent(property, missingNames, singleItemName);
+    openGmailCompose({
+        to: property.seller_email || '',
+        subject,
+        body,
+    });
 }

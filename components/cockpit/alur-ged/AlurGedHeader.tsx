@@ -2,6 +2,7 @@
 
 import {
     FileCheck2,
+    Mail,
     MessageCircle,
     PlusCircle,
     ShieldCheck,
@@ -22,6 +23,7 @@ interface AlurGedHeaderProps {
     onCategoryChange: (category: AlurDocumentCategory | 'all') => void;
     onOpenNotarySlip: () => void;
     onSendReminder: () => void;
+    onSendEmailReminder?: () => void;
     onAddDocument: () => void;
 }
 
@@ -38,20 +40,16 @@ export function AlurGedHeader({
     onCategoryChange,
     onOpenNotarySlip,
     onSendReminder,
+    onSendEmailReminder,
     onAddDocument,
 }: AlurGedHeaderProps) {
-    const categoryButton = (
-        category: AlurDocumentCategory | 'all',
-        label: string,
-        show = true
-    ) =>
+    const categoryButton = (category: AlurDocumentCategory | 'all', label: string, show = true) =>
         show ? (
             <button
                 onClick={() => onCategoryChange(category)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition ${activeCategory === category
-                        ? 'bg-[#131B26] text-white shadow-xs'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition ${
+                    activeCategory === category ? 'bg-[#131B26] text-white shadow-xs' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
             >
                 {label}
             </button>
@@ -91,13 +89,7 @@ export function AlurGedHeader({
                                     d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                                 />
                                 <path
-                                    className={
-                                        completionPercent >= 80
-                                            ? 'text-emerald-500'
-                                            : completionPercent >= 50
-                                                ? 'text-amber-500'
-                                                : 'text-rose-500'
-                                    }
+                                    className={completionPercent >= 80 ? 'text-emerald-500' : completionPercent >= 50 ? 'text-amber-500' : 'text-rose-500'}
                                     strokeDasharray={`${completionPercent}, 100`}
                                     strokeWidth="3.5"
                                     strokeLinecap="round"
@@ -133,15 +125,28 @@ export function AlurGedHeader({
                         </button>
 
                         {missingCount > 0 && (
-                            <button
-                                type="button"
-                                onClick={onSendReminder}
-                                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-xs transition cursor-pointer"
-                                title="Envoyer un rappel WhatsApp au vendeur avec la liste des pièces manquantes"
-                            >
-                                <MessageCircle className="w-4 h-4" />
-                                Relancer Vendeur ({missingCount})
-                            </button>
+                            <div className="grid grid-cols-2 gap-1.5">
+                                <button
+                                    type="button"
+                                    onClick={onSendReminder}
+                                    className="px-2.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[11px] font-bold uppercase tracking-wider flex items-center justify-center gap-1 shadow-xs transition cursor-pointer"
+                                    title="Envoyer un rappel WhatsApp au vendeur"
+                                >
+                                    <MessageCircle className="w-3.5 h-3.5" />
+                                    <span>WhatsApp ({missingCount})</span>
+                                </button>
+                                {onSendEmailReminder && (
+                                    <button
+                                        type="button"
+                                        onClick={onSendEmailReminder}
+                                        className="px-2.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-[11px] font-bold uppercase tracking-wider flex items-center justify-center gap-1 shadow-xs transition cursor-pointer"
+                                        title="Envoyer un rappel officiel par Gmail au vendeur"
+                                    >
+                                        <Mail className="w-3.5 h-3.5" />
+                                        <span>Gmail ({missingCount})</span>
+                                    </button>
+                                )}
+                            </div>
                         )}
 
                         <button

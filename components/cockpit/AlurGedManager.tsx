@@ -9,6 +9,7 @@ import {
   computeDocumentStatus,
   buildWhatsappReminderMessage,
   openWhatsappReminder,
+  openGmailReminder,
 } from './alur-ged/alur-ged-types';
 import { AlurGedHeader } from './alur-ged/AlurGedHeader';
 import { DocumentGrid } from './alur-ged/DocumentGrid';
@@ -103,11 +104,16 @@ export function AlurGedManager({ property, onUpdateProperty }: AlurGedManagerPro
     await onUpdateProperty(property.id, { documents: updatedDocuments });
   };
 
-  // WhatsApp reminders
+  // WhatsApp and Gmail reminders
   const generateWhatsappReminder = (singleItemName?: string) => {
     const missingNames = missingMandatoryItems.map((m) => m.name);
     const message = buildWhatsappReminderMessage(property, missingNames, singleItemName);
     openWhatsappReminder(property, message);
+  };
+
+  const generateEmailReminder = (singleItemName?: string) => {
+    const missingNames = missingMandatoryItems.map((m) => m.name);
+    openGmailReminder(property, missingNames, singleItemName);
   };
 
   const openUploadModal = (docKey = '') => {
@@ -129,6 +135,7 @@ export function AlurGedManager({ property, onUpdateProperty }: AlurGedManagerPro
         onCategoryChange={setActiveCategory}
         onOpenNotarySlip={() => setShowNotarySlip(true)}
         onSendReminder={() => generateWhatsappReminder()}
+        onSendEmailReminder={() => generateEmailReminder()}
         onAddDocument={() => openUploadModal()}
       />
 
@@ -140,6 +147,7 @@ export function AlurGedManager({ property, onUpdateProperty }: AlurGedManagerPro
         onChangeStatus={handleChangeStatus}
         onDelete={handleDeleteDocument}
         onWhatsApp={(itemName) => generateWhatsappReminder(itemName)}
+        onEmail={(itemName) => generateEmailReminder(itemName)}
       />
 
       <UploadDocumentModal
@@ -154,10 +162,8 @@ export function AlurGedManager({ property, onUpdateProperty }: AlurGedManagerPro
         onSelectedDocKeyChange={setSelectedDocKey}
         onCustomDocNameChange={setCustomDocName}
         onCustomCategoryChange={setCustomCategory}
-        onCustomExpiryChange={setCustomExpiry}
-        onUploadedFileNameChange={setUploadedFileName}
-        onSave={handleSaveDocument}
-        onClose={() => setIsUploadModalOpen(false)}
+        onCustomExpiryChange={setCustomExpiry} onUploadedFileNameChange={setUploadedFileName}
+        onSave={handleSaveDocument} onClose={() => setIsUploadModalOpen(false)}
       />
 
       <NotarySlipModal

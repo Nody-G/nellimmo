@@ -36,7 +36,7 @@ export const MandateDetailHeader: React.FC<MandateDetailHeaderProps> = ({
   onOpenAvenantModal,
   onOpenContractModal,
   onOpenShareModal,
-  onOpenWeeklyDigestModal
+  onOpenWeeklyDigestModal,
 }) => {
   const mandateRef = formatMandateRef(property.mandate_number);
 
@@ -100,33 +100,15 @@ export const MandateDetailHeader: React.FC<MandateDetailHeaderProps> = ({
           <span>Vitrine</span>
         </Link>
 
-        <Button
-          type="button"
-          variant="secondary"
-          size="sm"
-          onClick={onOpenContractModal}
-          leftIcon={<Printer className="w-3.5 h-3.5" />}
-        >
-          Contrat Mandat A4
+        <Button type="button" variant="secondary" size="sm" onClick={onOpenContractModal} leftIcon={<Printer className="w-3.5 h-3.5" />}>
+          Contrat A4
         </Button>
 
-        <Button
-          type="button"
-          variant="primary"
-          size="sm"
-          onClick={onOpenSignatureModal}
-          leftIcon={<FileSignature className="w-3.5 h-3.5" />}
-        >
+        <Button type="button" variant="primary" size="sm" onClick={onOpenSignatureModal} leftIcon={<FileSignature className="w-3.5 h-3.5" />}>
           Signer Mandat
         </Button>
 
-        <Button
-          type="button"
-          variant="gold"
-          size="sm"
-          onClick={onOpenAvenantModal}
-          leftIcon={<TrendingDown className="w-3.5 h-3.5" />}
-        >
+        <Button type="button" variant="gold" size="sm" onClick={onOpenAvenantModal} leftIcon={<TrendingDown className="w-3.5 h-3.5" />}>
           Avenant Prix
         </Button>
 
@@ -134,10 +116,10 @@ export const MandateDetailHeader: React.FC<MandateDetailHeaderProps> = ({
           type="button"
           onClick={onOpenShareModal}
           className="p-2 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 text-emerald-700 rounded-xl text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
-          title="Partager la fiche par WhatsApp à un acquéreur"
+          title="Partager la fiche par WhatsApp"
         >
           <Share2 className="w-3.5 h-3.5" />
-          <span>Partager Fiche</span>
+          <span>Partager</span>
         </button>
 
         <button
@@ -153,10 +135,10 @@ export const MandateDetailHeader: React.FC<MandateDetailHeaderProps> = ({
         <Link
           href={`/cockpit/fiches-vitrine?propertyId=${property.id}`}
           className="p-2 bg-pink-50 border border-pink-200 hover:bg-pink-100 text-[#E12B7B] rounded-xl text-xs font-bold flex items-center gap-1.5 transition"
-          title="Créer l'affiche vitrine ou réseaux sociaux pour ce bien"
+          title="Créer l'affiche vitrine"
         >
           <LayoutTemplate className="w-3.5 h-3.5" />
-          <span>Affiche Vitrine</span>
+          <span>Affiche</span>
         </Link>
 
         <Link
@@ -165,7 +147,7 @@ export const MandateDetailHeader: React.FC<MandateDetailHeaderProps> = ({
           title="Générer le rapport d'activité vendeur"
         >
           <FileBarChart className="w-3.5 h-3.5" />
-          <span>Compte-Rendu</span>
+          <span>Bilan Vendeur</span>
         </Link>
 
         <Link

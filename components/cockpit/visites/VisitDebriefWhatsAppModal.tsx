@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import { MessageSquare, Copy, Check, X, Send, Sparkles } from 'lucide-react';
+import { MessageSquare, Copy, Check, X, Send, Sparkles, Mail } from 'lucide-react';
 import type { Property, Buyer } from '@/lib/types';
 import type { VisitorSentiment } from './visites-types';
+import { openGmailCompose } from '@/lib/google';
 
 interface VisitDebriefWhatsAppModalProps {
   isOpen: boolean;
@@ -52,8 +53,8 @@ ${weaknessesText ? `• ${weaknessesText}\n` : ''}• Financement : Profil quali
 Je fais le point avec eux sous 24-48h pour recueillir leur position définitive et je vous tiens informé(e) sans faute.
 
 Bien à vous,
-Nelly Fernandez — Nell'Immo
-📞 04 90 55 55 55 / 06 00 00 00 00` : '';
+Nelly Fernandez — Nell'Immo Pélissanne
+📞 07 55 68 61 09 | ✉️ nellimmo.acte@gmail.com` : '';
 
   const message = customMessage ?? defaultMessage;
 
@@ -71,6 +72,16 @@ Nelly Fernandez — Nell'Immo
     }
   };
 
+  const handleEmailSeller = () => {
+    if (!property || !buyer) return;
+    openGmailCompose({
+      to: property.seller_email || '',
+      subject: `[Nell'Immo] Compte-rendu de visite — ${buyer.first_name} ${buyer.last_name} (${property.title || property.address})`,
+      body: message,
+    });
+    onClose();
+  };
+
   if (!isOpen || !property || !buyer) return null;
 
   return (
@@ -83,7 +94,7 @@ Nelly Fernandez — Nell'Immo
             </div>
             <div>
               <h3 className="font-serif font-bold text-gray-900 text-sm">
-                Débriefing Immédiat au Vendeur (WhatsApp)
+                Débriefing Immédiat au Vendeur
               </h3>
               <p className="text-[11px] text-gray-500">
                 Destinataire : {property.seller_name} ({property.seller_phone || 'Tél non renseigné'})
@@ -108,7 +119,7 @@ Nelly Fernandez — Nell'Immo
 
         <div>
           <label className="text-xs font-bold text-gray-700 block mb-1">
-            Message WhatsApp pré-rédigé à votre plume :
+            Message pré-rédigé à votre plume :
           </label>
           <textarea
             rows={7}
@@ -118,24 +129,33 @@ Nelly Fernandez — Nell'Immo
           />
         </div>
 
-        <div className="flex flex-col sm:flex-row items-center gap-2.5 pt-1">
+        <div className="flex flex-col sm:flex-row items-center gap-2 pt-1">
           <a
             href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
             onClick={onClose}
-            className="w-full sm:flex-1 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md transition"
+            className="w-full sm:flex-1 py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md transition cursor-pointer"
           >
-            <Send className="w-4 h-4" />
-            Envoyer sur WhatsApp Vendeur
+            <Send className="w-3.5 h-3.5" />
+            <span>WhatsApp</span>
           </a>
           <button
             type="button"
-            onClick={handleCopy}
-            className="w-full sm:w-auto py-3 px-4 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs flex items-center justify-center gap-2 transition"
+            onClick={handleEmailSeller}
+            className="w-full sm:flex-1 py-2.5 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md transition cursor-pointer"
+            title="Envoyer ce débriefing par email via Gmail"
           >
-            {copied ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
-            {copied ? 'Copié !' : 'Copier'}
+            <Mail className="w-3.5 h-3.5" />
+            <span>Gmail</span>
+          </button>
+          <button
+            type="button"
+            onClick={handleCopy}
+            className="w-full sm:w-auto py-2.5 px-3 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
+          >
+            {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+            <span>{copied ? 'Copié !' : 'Copier'}</span>
           </button>
         </div>
       </div>
