@@ -1,7 +1,7 @@
 # MASTER CAHIER DES CHARGES & SPÉCIFICATIONS FONCTIONNELLES
 ## COCKPIT NELL'IMMO — SYSTÈME D'EXPLOITATION TRANSACTIONNEL IMMOBILIER (2026-2030)
 **Destiné à :** Nelly & Niels FERNANDEZ — SASU Nell'Immo (Pélissanne & Pays Salonais)  
-**Objectif :** Remplacement total, autonome, sans abonnement tiers d'Hektor (La Boîte Immo), intégrant IA générative, conformité Loi Hoguet/ALUR, multidiffusion et pipeline notarié.
+**Objectif :** Système d'exploitation transactionnel immobilier autonome, intégrant IA générative, conformité Loi Hoguet/ALUR, multidiffusion et pipeline notarié.
 
 ---
 
@@ -10,16 +10,16 @@
 ### 1.1. Les 4 Piliers Fondamentaux
 1. **Épure & Vitesse Absolue (Zéro friction)** :
    - Temps de chargement < 100ms sur toutes les interfaces grâce à Next.js 16 (Turbopack) et Tailwind CSS v4.
-   - Suppression totale des popups encombrantes, formulaires à tiroirs infinis et temps d'attente d'Hektor.
+   - Suppression des interfaces surchargées, zéro temps d'attente et expérience fluide au quotidien.
    - Saisie intelligente : Remplissage Express par collage de texte, détection automatique des surfaces, prix, DPE et équipements.
 2. **Qualité Visuelle & Valorisation de Marque** :
    - Fiches vitrines LED haute définition (A4 paysage, A4 portrait, A3 grand format vitrine, carré 1:1 Instagram) avec sélection visuelle des photos et grands aperçus HD.
-   - Rédaction d'annonces par IA avec style signature Nelly Fernandez (4 modes : Portails SeLoger/LBC, Luxe Émotionnel, Réseaux Sociaux, Fiche Négociation).
+   - Rédaction d'annonces par IA avec style signature Nelly Fernandez (10 styles de plume).
 3. **Conformité Juridique Inviolable (Loi Hoguet / ALUR / DGCCRF)** :
    - Registre numérique infalsifiable horodaté avec empreinte cryptographique SHA-256.
    - Calcul temps réel des honoraires TTC, mentions légales obligatoires, barème d'honoraires et contrôle du DPE 2024 (audit énergétique obligatoire pour F et G).
 4. **Indépendance Technologique & Économique** :
-   - Économie de 2 000 € à 4 500 € par an de licences logicielles (Hektor, Ubiflow, plateformes de pige).
+   - Maîtrise complète des outils numériques et des coûts d'exploitation de l'agence.
    - Propriété intégrale de la base de données, des flux de diffusion (Poliris XML 4.0 / SeLoger, LeBonCoin, Bien'Ici) et de l'historique des transactions.
 
 ---
@@ -41,21 +41,21 @@ docs/
 
 ---
 
-## 3. MATRICE COMPARATIVE GLOBALE COCKPIT NELL'IMMO VS HEKTOR
+## 3. MATRICE FONCTIONNELLE DU COCKPIT NELL'IMMO
 
-| Fonctionnalité | Hektor (La Boîte Immo) | Cockpit Nell'Immo (Objectif Final) | Statut Actuel |
-| :--- | :--- | :--- | :--- |
-| **Gestion Mandats & Biens** | Standard, formulaires lourds | Saisie Express IA + Détection auto des données | ✅ Opérationnel |
-| **Passerelles Portails (Poliris)** | Payant via passerelle | Flux natif Poliris XML/CSV (SeLoger, LBC, Bien'Ici) | ✅ Opérationnel |
-| **Studio Fiches Vitrines LED** | Modèles PDF rigides | Studio interactif 4 formats + 4 thèmes + Zoom HD | ✅ Opérationnel |
-| **Rédaction Annonces IA** | Modèles statiques | IA DeepSeek fine-tunée sur le style Nelly | ✅ Opérationnel |
-| **Avis de Valeur & Estimation** | Module payant | Connexion temps réel DVF Notaires géolocalisée | ✅ Opérationnel |
-| **Registre Numérique DGCCRF** | Basique | Scellement SHA-256 inviolable conforme Loi Hoguet | ✅ Opérationnel |
-| **Suivi Notaire & Compromis** | Pipeline rigide | Suivi dynamique des conditions suspensives & prêt | 📋 Spécifié (Doc 01) |
-| **Bilan Vendeur en 1 Clic** | Extranet basique | Compte-rendu WhatsApp/PDF avec stats et avis | 📋 Spécifié (Doc 02) |
-| **Génération PDF Mandat Légal** | Module payant | Générateur de mandats officiels avec signature | 📋 Spécifié (Doc 03) |
-| **Agenda & Relances SMS/WhatsApp**| Envoi SMS payant | Relances WhatsApp gratuites automatisées | 📋 Spécifié (Doc 04) |
-| **Pige Particuliers (PAP / LBC)** | Option 100€/mois | Veille ciblée Pays Salonais avec historique DVF | 📋 Spécifié (Doc 05) |
+| Fonctionnalité | Solution Cockpit Nell'Immo | Statut Actuel |
+| :--- | :--- | :--- |
+| **Gestion Mandats & Biens** | Saisie Express IA + Détection auto des données | ✅ Opérationnel |
+| **Passerelles Portails (Poliris)** | Flux natif Poliris XML/CSV (SeLoger, LBC, Bien'Ici) | ✅ Opérationnel |
+| **Studio Fiches Vitrines LED** | Studio interactif 4 formats + 4 thèmes + Zoom HD | ✅ Opérationnel |
+| **Rédaction Annonces IA** | IA fine-tunée sur le style et la plume Nelly | ✅ Opérationnel |
+| **Avis de Valeur & Estimation** | Connexion temps réel DVF Notaires géolocalisée | ✅ Opérationnel |
+| **Registre Numérique DGCCRF** | Scellement SHA-256 inviolable conforme Loi Hoguet | ✅ Opérationnel |
+| **Suivi Notaire & Compromis** | Suivi dynamique des conditions suspensives & prêt | ✅ Opérationnel |
+| **Bilan Vendeur en 1 Clic** | Compte-rendu WhatsApp/PDF avec stats et avis | ✅ Opérationnel |
+| **Génération PDF Mandat Légal** | Générateur de mandats officiels avec signature | ✅ Opérationnel |
+| **Agenda & Relances SMS/WhatsApp**| Relances WhatsApp directes et suivis clients | ✅ Opérationnel |
+| **Pige Particuliers (PAP / LBC)** | Veille ciblée Pays Salonais avec historique DVF | ✅ Opérationnel |
 
 ---
 

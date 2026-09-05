@@ -70,13 +70,13 @@ export function PortalQuotasCard({ activeProperties, settings }: PortalQuotasCar
           </h3>
         </div>
 
-        {/* Badge Économie vs Hektor/Ubiflow */}
+        {/* Badge Passerelle Directe */}
         <div className="flex items-center gap-2 bg-[#FCFAF7] border border-[#F3E8EE] px-4 py-2.5 rounded-2xl shadow-2xs">
           <TrendingDown className="w-4 h-4 text-emerald-600 shrink-0" />
           <div className="text-left">
-            <div className="text-xs font-black text-[#131B26]">0 € de surfacturation</div>
+            <div className="text-xs font-black text-[#131B26]">Passerelle Directe & Automatique</div>
             <div className="text-[10px] text-gray-500 font-medium">
-              Économie vs passerelle Ubiflow / Hektor (~180 € HT/mois)
+              Flux Poliris & XML certifiés sans intermédiaire
             </div>
           </div>
         </div>

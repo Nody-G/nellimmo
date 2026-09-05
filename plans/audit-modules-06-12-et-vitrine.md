@@ -17,17 +17,17 @@ L'audit complet confirme que le Cockpit Nell'Immo dispose d'un niveau de couvert
 
 ### Synthèse par Module
 
-| Module / Page | État | Verdict vs Hektor | Atouts Clés |
+| Module / Page | État | Niveau de Maturité | Atouts Clés |
 | :--- | :--- | :--- | :--- |
-| **06. Multidiffusion & Passerelles** | ✅ Opérationnel | 🟢 Supérieur (0€ vs Ubiflow ~99€/m) | Poliris CSV/photos.cfg/config.txt natifs, XML Bien'Ici, cron SFTP `/api/cron/sync-sftp` |
-| **07. Dashboard & Analytics** | ✅ Opérationnel | 🟢 Supérieur | Supervision unifiée, alertes urgentes SRU/prêt/clés, comparateur Hektor, funnel de conversion |
-| **08. Studio Fiches Vitrine LED** | ✅ Opérationnel | 🟢 Supérieur | 4 formats (A4/A3/Carré), 6 thèmes visuels, zoom HD, QR codes dynamiques, impression A4 nette |
-| **09. Rédaction & Copywriting IA** | ✅ Opérationnel | 🟢 Supérieur | 10 styles signature Nelly Fernandez, DeepSeek API + repli local qualifié, Lab d'idéation |
-| **10. CRM Acquéreurs & Matching** | ✅ Opérationnel | 🟢 Supérieur | Scoring 0-100%, alertes 1 clic WhatsApp/Email, simulateurs prêt & notaire |
-| **11. Avis de Valeur & Estimation DVF** | ✅ Opérationnel | 🟢 Supérieur | Triangulation 3 méthodes, connexion API DVF live Notaires/DGFiP (`/api/dvf`), dossier 8p |
-| **12. Clés, Panneaux & Inter-Agences** | ✅ Opérationnel | 🟢 Supérieur (absent d'Hektor) | Décharge tactile de clés, suivi des panneaux terrain, bourses & délégations d'honoraires |
-| **13. Import Hektor, Registre & Sécurité** | ✅ Opérationnel | 🟢 Supérieur | Ingestion universelle Hektor, registre scellé SHA-256 Hoguet, coffre-fort chiffré AES-GCM |
-| **Site Vitrine Public (7 pages)** | ✅ Opérationnel | 🟢 Supérieur | Design joaillerie provençal, SEO local Schema.org, calculatrices, espace vendeur dynamique |
+| **06. Multidiffusion & Passerelles** | ✅ Opérationnel | 🟢 Production | Poliris CSV/photos.cfg/config.txt natifs, XML Bien'Ici, cron SFTP `/api/cron/sync-sftp` |
+| **07. Dashboard & Analytics** | ✅ Opérationnel | 🟢 Production | Supervision unifiée, alertes urgentes SRU/prêt/clés, funnel de conversion |
+| **08. Studio Fiches Vitrine LED** | ✅ Opérationnel | 🟢 Production | 4 formats (A4/A3/Carré), 6 thèmes visuels, zoom HD, QR codes dynamiques, impression A4 nette |
+| **09. Rédaction & Copywriting IA** | ✅ Opérationnel | 🟢 Production | 10 styles signature Nelly Fernandez, DeepSeek API + repli local qualifié, Lab d'idéation |
+| **10. CRM Acquéreurs & Matching** | ✅ Opérationnel | 🟢 Production | Scoring 0-100%, alertes 1 clic WhatsApp/Email, simulateurs prêt & notaire |
+| **11. Avis de Valeur & Estimation DVF** | ✅ Opérationnel | 🟢 Production | Triangulation 3 méthodes, connexion API DVF live Notaires/DGFiP (`/api/dvf`), dossier 8p |
+| **12. Clés, Panneaux & Inter-Agences** | ✅ Opérationnel | 🟢 Production | Décharge tactile de clés, suivi des panneaux terrain, bourses & délégations d'honoraires |
+| **13. Import Catalogue, Registre & Sécurité** | ✅ Opérationnel | 🟢 Production | Ingestion universelle catalogue, registre scellé SHA-256 Hoguet, coffre-fort chiffré AES-GCM |
+| **Site Vitrine Public (7 pages)** | ✅ Opérationnel | 🟢 Production | Design joaillerie provençal, SEO local Schema.org, calculatrices, espace vendeur dynamique |
 
 ---
 
@@ -46,7 +46,6 @@ L'audit complet confirme que le Cockpit Nell'Immo dispose d'un niveau de couvert
 - **Conformité** :
   - KPIs temps réel (mandats actifs, exclusivités, portefeuille FAI, honoraires potentiels).
   - Alertes consolidées : délais de prêt J-15, SRU 10j, clés non restituées, panneaux à déposer.
-  - Benchmark d'économie Hektor (~4 968 €/an économisés affichés en direct).
   - Boîte de réception des leads entrants (contact + estimation) avec tri et actions directes.
   - Analytics : Funnel de vente complet (Mandats → Visites → Offres → Compromis → Actes), CA prévisionnel, ventilation par commune et type de bien.
 
@@ -126,7 +125,7 @@ Pour couronner l'audit de l'espace pro et du site vitrine, voici les chantiers �
 - **Ajout légal RGPD** : Ajouter un bouton d'action officiel dans les Paramètres : « Purge RGPD des acquéreurs inactifs (> 3 ans sans visite ni transaction) » conforme à la recommandation CNIL et au Doc 06 §4.
 
 ### Chantier 2 : Concierge Virtuel "Nelly IA" 24/7 sur le Site Vitrine Public
-- **Objectif** : Offrir aux visiteurs du site public une expérience d'accueil interactive d'exception qui n'existe nulle part chez les concurrents ou dans Hektor.
+- **Objectif** : Offrir aux visiteurs du site public une expérience d'accueil interactive d'exception sur le marché provençal.
 - **Fonctionnalités** :
   - Badge flottant discret et élégant en bas à droite de la vitrine.
   - Chat interactif accueillant le visiteur avec bienveillance.

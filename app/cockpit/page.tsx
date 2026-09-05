@@ -10,7 +10,6 @@ import {
 } from 'lucide-react';
 import { DashboardKpis } from '@/components/cockpit/dashboard/DashboardKpis';
 import { UrgentAlertsWidget } from '@/components/cockpit/dashboard/UrgentAlertsWidget';
-import { HektorBenchmarkWidget } from '@/components/cockpit/dashboard/HektorBenchmarkWidget';
 import { RecentTransactionsWidget } from '@/components/cockpit/dashboard/RecentTransactionsWidget';
 import { QuickActionsGrid } from '@/components/cockpit/dashboard/QuickActionsGrid';
 import { LeadsInboxWidget } from '@/components/cockpit/dashboard/LeadsInboxWidget';
@@ -95,9 +94,6 @@ export default function CockpitDashboard() {
         keys={keys}
         signboards={signboards}
       />
-
-      {/* Hektor Benchmark & Superiority Widget */}
-      <HektorBenchmarkWidget />
 
       {/* Main Two-Column Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

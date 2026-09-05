@@ -987,14 +987,14 @@ Nelly Fernandez — Nell'Immo.`
     concreteExample: {
       title: 'Exemple Réel : Bascule complète sans rupture de diffusion',
       location: 'Pélissanne (13330)',
-      context: 'Nelly résilie son abonnement Hektor / Ubiflow qui lui coûtait 240 € HT chaque mois. Elle doit assurer la continuité de ses 14 mandats sur SeLoger et LeBonCoin.',
+      context: 'Nelly configure la passerelle directe pour assurer la diffusion automatisée de ses 14 mandats sur SeLoger et LeBonCoin.',
       solution: 'Nelly configure ses codes d\'accès SFTP SeLoger dans Cockpit. Elle génère le flux Poliris 4.08 direct. Les serveurs de SeLoger ingèrent les 14 annonces avec photos sans aucune interruption pour les acquéreurs.',
-      outcome: 'Zéro coupure de parution, économie nette de 2 880 € HT dès la première année.',
+      outcome: 'Zéro coupure de parution, synchronisation directe et instantanée.',
       keyFigures: [
-        { label: 'Économie annuelle', value: '2 880 € HT' },
+        { label: 'Mandats synchronisés', value: '14 mandats' },
         { label: 'Format utilisé', value: 'Poliris 4.08 & XML' },
         { label: 'Délai de mise à jour', value: 'Quotidien' },
-        { label: 'Intermédiaire tiers', value: '0 € (Supprimé)' }
+        { label: 'Intermédiaire tiers', value: '0 (Direct)' }
       ]
     },
     legalAlerts: [
@@ -1098,8 +1098,8 @@ Nelly Fernandez — Nell'Immo.`
   // -------------------------------------------------------------
   {
     id: 'guide-hektor',
-    slug: 'migration-import-hektor-la-boite-immo-autonomie',
-    title: 'Migration & Import Hektor (La Boîte Immo) Sans Perte de Données',
+    slug: 'import-donnees-hektor-catalogue',
+    title: 'Importation de Données & Catalogue Externe Sans Perte',
     shortTitle: 'Import Hektor',
     category: 'hektor',
     categoryLabel: 'Import & Migration Hektor',
@@ -1108,7 +1108,7 @@ Nelly Fernandez — Nell'Immo.`
     toolRoute: '/cockpit/import-hektor',
     toolLabel: 'Passerelle Hektor',
     summary: 'Procédure pas-à-pas pour exporter vos contacts acquéreurs, vendeurs et mandats depuis le logiciel Hektor et les injecter dans Cockpit Nell\'Immo en quelques secondes sans double saisie.',
-    objective: 'Quitter définitivement l\'écosystème fermé d\'Hektor sans perdre une seule miette de votre historique commercial accumulé depuis des années.',
+    objective: 'Importer et synchroniser facilement vos contacts, acquéreurs et mandats depuis Hektor sans perdre aucune donnée de votre historique commercial.',
     prerequisites: [
       'Accès administrateur à votre compte Hektor (La Boîte Immo)',
       'Exportation des fichiers CSV standard Hektor (biens, contacts, acquéreurs)',
@@ -1137,7 +1137,7 @@ Nelly Fernandez — Nell'Immo.`
     concreteExample: {
       title: 'Exemple Réel : Importation de 42 mandats et 180 acquéreurs en 2 minutes',
       location: 'SASU Nell\'Immo (Pélissanne)',
-      context: 'Nelly décide d\'arrêter son abonnement Hektor. Elle dispose de 42 fiches de biens et 180 profils d\'acquéreurs actifs.',
+      context: 'Nelly souhaite intégrer dans Cockpit son historique de 42 fiches de biens et 180 profils d\'acquéreurs au format Hektor.',
       solution: 'Nelly glisse le fichier CSV exporté d\'Hektor dans le module d\'importation Cockpit.',
       outcome: 'En 1 minute 40 secondes, l\'intégralité des 42 mandats et 180 acquéreurs est injectée dans Cockpit. Tous les numéros de téléphone sont cliquables pour les appels et WhatsApp.',
       keyFigures: [

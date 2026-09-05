@@ -33,8 +33,7 @@ export function SocialHeader({
           Community Management & Studio Visuel
         </h2>
         <p className="text-xs text-gray-500 mt-0.5">
-          Générez des visuels HD 1:1 / 9:16 / 16:9, publiez en 1 clic et planifiez vos posts sans surcoût
-          Mooveo/Hektor.
+          Générez des visuels HD 1:1 / 9:16 / 16:9, publiez en 1 clic et planifiez vos posts sur tous vos réseaux.
         </p>
       </div>
 
