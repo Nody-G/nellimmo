@@ -1,26 +1,208 @@
 @import "tailwindcss";
 
-:root {
+/* ==========================================================================
+   THEMES SYSTEM FOR COCKPIT NELL'IMMO
+   ========================================================================== */
+
+/* THEME 1: Signature Nell'Immo (Default) */
+:root,
+[data-theme="signature"] {
   --background: #FCFAF7;
   --foreground: #1C232B;
   --card: #FFFFFF;
   --card-foreground: #1C232B;
   
-  /* Palette Provençale Haute Finition Nellimo */
-  --primary: #E12B7B;        /* pink chaleureux */
+  --primary: #E12B7B;        /* Rose Rubis Joaillerie */
   --primary-hover: #C71B62;
   --primary-light: #FDF2F8;
   --primary-dark: #9F1239;
 
-  --secondary: #3D4E41;      /* Vert Olive / Sauge des Alpilles */
+  --secondary: #3D4E41;      /* Sauge des Alpilles */
   --secondary-light: #EEF3EF;
 
-  --accent-gold: #C59A45;    /* Or antique / Pierre du Luberon */
+  --accent-gold: #C59A45;    /* Or antique Luberon */
   --accent-gold-light: #FBF6E9;
 
   --dark-navy: #131B26;      /* Ardoise nuit profonde */
-  --stone-bg: #FAF5F8;       /* Pierre de Rognes naturelle */
+  --stone-bg: #FAF5F8;       /* Pierre de Rognes */
   --border-color: #F3E8EE;
+}
+
+/* THEME 2: Bleu Notarial & Or Prestige */
+[data-theme="notarial"] {
+  --background: #F8FAFC;
+  --foreground: #0F172A;
+  --card: #FFFFFF;
+  --card-foreground: #0F172A;
+
+  --primary: #1E3A8A;        /* Marine Royal Notarial */
+  --primary-hover: #1D4ED8;
+  --primary-light: #EFF6FF;
+  --primary-dark: #172554;
+
+  --secondary: #475569;
+  --secondary-light: #F1F5F9;
+
+  --accent-gold: #D4AF37;    /* Or Impérial 24K */
+  --accent-gold-light: #FEF9C3;
+
+  --dark-navy: #0B132B;
+  --stone-bg: #F1F5F9;
+  --border-color: #E2E8F0;
+}
+
+/* THEME 3: Terre de Provence & Oliviers */
+[data-theme="provence"] {
+  --background: #FAF7F2;
+  --foreground: #231C18;
+  --card: #FFFFFF;
+  --card-foreground: #231C18;
+
+  --primary: #C25E38;        /* Tomette Salonaise */
+  --primary-hover: #A64825;
+  --primary-light: #FFF5ED;
+  --primary-dark: #873618;
+
+  --secondary: #3A5A40;      /* Oliviers & Sauge */
+  --secondary-light: #EBF3ED;
+
+  --accent-gold: #D9822B;    /* Ocre du Luberon */
+  --accent-gold-light: #FEF3E2;
+
+  --dark-navy: #1F1A16;
+  --stone-bg: #F5EFE6;
+  --border-color: #EBDDCF;
+}
+
+/* THEME 4: Émeraude Riviera & Sable Fin */
+[data-theme="riviera"] {
+  --background: #FAF9F5;
+  --foreground: #0F1E1D;
+  --card: #FFFFFF;
+  --card-foreground: #0F1E1D;
+
+  --primary: #0F766E;        /* Émeraude Méditerranée */
+  --primary-hover: #115E59;
+  --primary-light: #F0FDFA;
+  --primary-dark: #042F2E;
+
+  --secondary: #2E5C57;
+  --secondary-light: #EDF7F5;
+
+  --accent-gold: #C7A75B;    /* Champagne Doré */
+  --accent-gold-light: #FAF4E3;
+
+  --dark-navy: #062423;
+  --stone-bg: #F0F5F4;
+  --border-color: #E0EBE8;
+}
+
+/* THEME 5: Graphite Platine & Tech Minimal */
+[data-theme="minimal"] {
+  --background: #F8F9FA;
+  --foreground: #18181B;
+  --card: #FFFFFF;
+  --card-foreground: #18181B;
+
+  --primary: #18181B;        /* Carbone Titane */
+  --primary-hover: #09090B;
+  --primary-light: #F4F4F5;
+  --primary-dark: #000000;
+
+  --secondary: #52525B;
+  --secondary-light: #F4F4F5;
+
+  --accent-gold: #2563EB;    /* Cobalt Hektor */
+  --accent-gold-light: #EFF6FF;
+
+  --dark-navy: #09090B;
+  --stone-bg: #EFEFEF;
+  --border-color: #E4E4E7;
+}
+
+/* THEME 6: Dark Ébène & Or Impérial (Mode Nuit) */
+[data-theme="dark"] {
+  --background: #0F141C;
+  --foreground: #F1F5F9;
+  --card: #17202D;
+  --card-foreground: #F1F5F9;
+
+  --primary: #F43F85;        /* Rose Néon Couture */
+  --primary-hover: #FB7185;
+  --primary-light: #2A1522;
+  --primary-dark: #BE185D;
+
+  --secondary: #38BDF8;
+  --secondary-light: #15293A;
+
+  --accent-gold: #F59E0B;    /* Or Lumineux */
+  --accent-gold-light: #2D2310;
+
+  --dark-navy: #0A0E15;
+  --stone-bg: #131B26;
+  --border-color: #243042;
+}
+
+/* Dynamic theme overrides for hardcoded Tailwind classes */
+[data-theme]:not([data-theme="signature"]) [class*="bg-[#E12B7B]"],
+[data-theme]:not([data-theme="signature"]) .bg-\[\#E12B7B\] {
+  background-color: var(--primary) !important;
+}
+
+[data-theme]:not([data-theme="signature"]) [class*="text-[#E12B7B]"],
+[data-theme]:not([data-theme="signature"]) .text-\[\#E12B7B\] {
+  color: var(--primary) !important;
+}
+
+[data-theme]:not([data-theme="signature"]) [class*="border-[#E12B7B]"],
+[data-theme]:not([data-theme="signature"]) .border-\[\#E12B7B\] {
+  border-color: var(--primary) !important;
+}
+
+[data-theme]:not([data-theme="signature"]) [class*="hover:bg-[#C71B62]"]:hover,
+[data-theme]:not([data-theme="signature"]) [class*="hover:bg-[#E12B7B]"]:hover {
+  background-color: var(--primary-hover) !important;
+}
+
+[data-theme]:not([data-theme="signature"]) [class*="text-[#C59A45]"],
+[data-theme]:not([data-theme="signature"]) .text-\[\#C59A45\] {
+  color: var(--accent-gold) !important;
+}
+
+[data-theme]:not([data-theme="signature"]) [class*="bg-[#C59A45]"],
+[data-theme]:not([data-theme="signature"]) .bg-\[\#C59A45\] {
+  background-color: var(--accent-gold) !important;
+}
+
+[data-theme]:not([data-theme="signature"]) [class*="border-[#F3E8EE]"] {
+  border-color: var(--border-color) !important;
+}
+
+[data-theme]:not([data-theme="signature"]) [class*="bg-[#FAF5F8]"] {
+  background-color: var(--stone-bg) !important;
+}
+
+/* Dark mode panel surface adaptations */
+[data-theme="dark"] .bg-white {
+  background-color: var(--card) !important;
+  color: var(--card-foreground) !important;
+}
+[data-theme="dark"] .text-gray-900,
+[data-theme="dark"] .text-gray-800,
+[data-theme="dark"] .text-gray-700 {
+  color: #E2E8F0 !important;
+}
+[data-theme="dark"] .text-gray-600,
+[data-theme="dark"] .text-gray-500 {
+  color: #94A3B8 !important;
+}
+[data-theme="dark"] .bg-gray-50,
+[data-theme="dark"] .bg-gray-100 {
+  background-color: #1E293B !important;
+}
+[data-theme="dark"] .border-gray-100,
+[data-theme="dark"] .border-gray-200 {
+  border-color: #334155 !important;
 }
 
 @theme inline {

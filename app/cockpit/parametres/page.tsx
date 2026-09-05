@@ -5,6 +5,7 @@ import { useNellimoStore } from '@/lib/store';
 import { useToast } from '@/components/ui/Toast';
 import { SettingsHeader } from '@/components/cockpit/parametres/SettingsHeader';
 import { IdentitySection } from '@/components/cockpit/parametres/IdentitySection';
+import { ThemeSettingsSection } from '@/components/cockpit/parametres/ThemeSettingsSection';
 import { SocialSection } from '@/components/cockpit/parametres/SocialSection';
 import { GoogleSection } from '@/components/cockpit/parametres/GoogleSection';
 import { AiSection } from '@/components/cockpit/parametres/AiSection';
@@ -55,6 +56,7 @@ export default function AgencySettingsPage() {
 
       <form onSubmit={handleSubmit} className="space-y-8">
         <IdentitySection formData={formData} onChange={handleFieldChange} />
+        <ThemeSettingsSection />
         <SocialSection formData={formData} onChange={handleFieldChange} />
         <GoogleSection
           formData={formData}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Printer, Mail } from 'lucide-react';
 import type { Property, TransactionDeal, AgencySettings } from '@/lib/types';
 import {
@@ -31,6 +31,18 @@ export function InvoicePrintModal({
 }: InvoicePrintModalProps) {
   const prop = properties.find((p) => p.id === deal.property_id);
   const [emailNotice, setEmailNotice] = useState<{ type: 'error' | 'success'; message: string } | null>(null);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.body.style.overflow = '';
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [onClose]);
 
   const handleEmailToNotary = () => {
     const notaryEmail = deal.seller_notary_email || deal.buyer_notary_email;
@@ -74,8 +86,16 @@ export function InvoicePrintModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
-      <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[92vh] overflow-y-auto p-8 space-y-6 shadow-2xl border border-gray-200 print:p-0 print:border-none">
+    <div
+      className="fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 z-50 animate-fade-in overflow-hidden print:p-0 print:bg-white print:static"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div
+        className="bg-white rounded-3xl max-w-2xl w-full max-h-[92vh] overflow-y-auto p-6 sm:p-8 space-y-6 shadow-2xl border border-gray-200 print:p-0 print:border-none"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Notice message */}
         {emailNotice && (
           <div

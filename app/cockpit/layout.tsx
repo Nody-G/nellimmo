@@ -16,6 +16,7 @@ import { useRouter } from 'next/navigation';
 import { Menu, X, PlusCircle, LogOut, Smartphone } from 'lucide-react';
 import { LocalMobileSyncModal } from '@/components/cockpit/sync/LocalMobileSyncModal';
 import { LocalDataHealthPill } from '@/components/cockpit/LocalDataHealthPill';
+import { ThemeSwitcherButton } from '@/components/cockpit/theme/ThemeSwitcherButton';
 
 export default function CockpitLayout({ children }: { children: React.ReactNode }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -60,6 +61,7 @@ export default function CockpitLayout({ children }: { children: React.ReactNode 
             <div className="flex items-center gap-2">
               <ContextualHelpDrawer />
               <CommandPalette />
+              <ThemeSwitcherButton compact />
               <button
                 type="button"
                 onClick={() => setMobileSyncOpen(true)}
@@ -107,6 +109,7 @@ export default function CockpitLayout({ children }: { children: React.ReactNode 
               <div className="flex items-center gap-3">
                 <ContextualHelpDrawer />
                 <CommandPalette />
+                <ThemeSwitcherButton />
                 <InstallAppButton />
                 <button
                   type="button"

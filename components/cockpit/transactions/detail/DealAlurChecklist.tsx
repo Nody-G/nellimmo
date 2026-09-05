@@ -9,6 +9,20 @@ interface DealAlurChecklistProps {
   onUpdateChecklist: (id: string, docs: TransactionDeal['checklist_documents']) => void;
 }
 
+const ALUR_LABELS: Record<string, string> = {
+  titre_propriete: 'Titre de Propriété',
+  taxe_fonciere: 'Avis Taxe Foncière',
+  dossier_diagnostics: 'Dossier Diagnostics (DDT)',
+  audit_energetique: 'Audit Énergétique',
+  pre_etat_date: 'Pré-état Daté (Copro)',
+  reglement_copro: 'Règlement de Copropriété',
+  cni_vendeur: 'CNI / Passeport Vendeur',
+  cni_acquereur: 'CNI / Passeport Acquéreur',
+  justificatif_domicile: 'Justificatif Domicile (< 3 mois)',
+  simulation_pret: 'Attestation / Accord de Prêt',
+  offre_achat_signee: "Offre d’Achat Contresignée",
+};
+
 export const DealAlurChecklist: React.FC<DealAlurChecklistProps> = ({
   dealId,
   checklistDocuments,
@@ -43,8 +57,8 @@ export const DealAlurChecklist: React.FC<DealAlurChecklistProps> = ({
               }}
               className="w-4 h-4 text-[#E12B7B] rounded focus:ring-[#E12B7B]"
             />
-            <span className="capitalize text-gray-700 font-medium">
-              {key.replace(/_/g, ' ')}
+            <span className="text-gray-700 font-medium">
+              {ALUR_LABELS[key] || key.replace(/_/g, ' ')}
             </span>
           </label>
         ))}
