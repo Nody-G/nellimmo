@@ -3,6 +3,7 @@
 import React, { useEffect } from 'react';
 import { Palette, Check, Sparkles, X } from 'lucide-react';
 import { useTheme, ThemeId } from '@/lib/theme';
+import { Portal } from '@/components/ui/Portal';
 
 interface ThemeSwitcherModalProps {
   isOpen: boolean;
@@ -32,16 +33,17 @@ export function ThemeSwitcherModal({ isOpen, onClose }: ThemeSwitcherModalProps)
   };
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-3 sm:p-6 animate-fade-in overflow-hidden"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
-    >
+    <Portal>
       <div
-        className="bg-white rounded-3xl max-w-3xl w-full max-h-[92vh] flex flex-col shadow-2xl border border-gray-100 overflow-hidden"
-        onClick={(e) => e.stopPropagation()}
+        className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-xs p-3 sm:p-6 animate-fade-in overflow-hidden"
+        onClick={(e) => {
+          if (e.target === e.currentTarget) onClose();
+        }}
       >
+        <div
+          className="bg-white rounded-3xl max-w-3xl w-full max-h-[88vh] flex flex-col shadow-2xl border border-gray-100 overflow-hidden"
+          onClick={(e) => e.stopPropagation()}
+        >
         {/* Header */}
         <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4 bg-white shrink-0">
           <div className="flex items-center gap-3">
@@ -76,7 +78,7 @@ export function ThemeSwitcherModal({ isOpen, onClose }: ThemeSwitcherModalProps)
         </div>
 
         {/* Content: Themes Cards */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-4">
+        <div className="flex-1 min-h-0 overflow-y-auto p-6 space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
             {themes.map((item) => {
               const isSelected = theme === item.id;
@@ -173,6 +175,7 @@ export function ThemeSwitcherModal({ isOpen, onClose }: ThemeSwitcherModalProps)
           </button>
         </div>
       </div>
-    </div>
+      </div>
+    </Portal>
   );
 }

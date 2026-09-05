@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Printer, Mail } from 'lucide-react';
+import { Portal } from '@/components/ui/Portal';
 import type { Property, TransactionDeal, AgencySettings } from '@/lib/types';
 import {
   InvoiceAgencyHeader,
@@ -86,12 +87,13 @@ export function InvoicePrintModal({
   };
 
   return (
-    <div
-      className="fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 z-50 animate-fade-in overflow-hidden print:p-0 print:bg-white print:static"
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
-    >
+    <Portal>
+      <div
+        className="fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 z-[9999] animate-fade-in overflow-hidden print:p-0 print:bg-white print:static"
+        onClick={(e) => {
+          if (e.target === e.currentTarget) onClose();
+        }}
+      >
       <div
         className="bg-white rounded-3xl max-w-2xl w-full max-h-[92vh] overflow-y-auto p-6 sm:p-8 space-y-6 shadow-2xl border border-gray-200 print:p-0 print:border-none"
         onClick={(e) => e.stopPropagation()}
@@ -195,5 +197,6 @@ export function InvoicePrintModal({
         </div>
       </div>
     </div>
+    </Portal>
   );
 }

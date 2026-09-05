@@ -1,6 +1,7 @@
 'use client';
 import React, { useEffect } from 'react';
 import type { Property } from '@/lib/types';
+import { Portal } from '@/components/ui/Portal';
 
 interface NewDealModalProps {
     properties: Property[];
@@ -29,16 +30,17 @@ export function NewDealModal({ properties, onCreate, onClose }: NewDealModalProp
     }, [onClose]);
 
     return (
-        <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 z-50 animate-fade-in overflow-hidden"
-            onClick={(e) => {
-                if (e.target === e.currentTarget) onClose();
-            }}
-        >
+        <Portal>
             <div
-                className="bg-white rounded-3xl max-w-2xl w-full max-h-[92vh] overflow-y-auto p-6 sm:p-8 space-y-4 shadow-2xl border border-gray-100"
-                onClick={(e) => e.stopPropagation()}
+                className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 z-[9999] animate-fade-in overflow-hidden"
+                onClick={(e) => {
+                    if (e.target === e.currentTarget) onClose();
+                }}
             >
+                <div
+                    className="bg-white rounded-3xl max-w-2xl w-full max-h-[92vh] overflow-y-auto p-6 sm:p-8 space-y-4 shadow-2xl border border-gray-100"
+                    onClick={(e) => e.stopPropagation()}
+                >
                 <div className="flex items-center justify-between border-b border-gray-100 pb-3">
                     <h3 className="text-lg font-serif font-bold text-[#131B26]">
                         Créer un Nouveau Dossier de Vente
@@ -175,5 +177,6 @@ export function NewDealModal({ properties, onCreate, onClose }: NewDealModalProp
                 </form>
             </div>
         </div>
+        </Portal>
     );
 }
