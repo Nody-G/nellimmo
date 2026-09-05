@@ -2,9 +2,10 @@
 
 import React, { useState } from 'react';
 import { ContactLead, EstimationLead } from '@/lib/types';
-import { Mail } from 'lucide-react';
+import { Mail, Sparkles } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { LeadsInboxTabs, ContactLeadCard, EstimationLeadCard } from './leads';
+import { QuickLeadParserModal } from './leads/QuickLeadParserModal';
 
 interface LeadsInboxWidgetProps {
   contactLeads: ContactLead[];
@@ -24,6 +25,7 @@ export const LeadsInboxWidget: React.FC<LeadsInboxWidgetProps> = ({
   onDeleteEstimation
 }) => {
   const [activeTab, setActiveTab] = useState<'contacts' | 'estimations'>('contacts');
+  const [isParserOpen, setIsParserOpen] = useState(false);
 
   const newContactsCount = contactLeads.filter((l) => l.status === 'nouveau').length;
   const newEstimationsCount = estimationLeads.filter((l) => l.status === 'nouveau').length;
@@ -31,9 +33,19 @@ export const LeadsInboxWidget: React.FC<LeadsInboxWidgetProps> = ({
   return (
     <Card>
       <CardHeader>
-        <div className="flex items-center gap-2">
-          <Mail className="w-4 h-4 text-[#E12B7B]" />
-          <CardTitle className="text-sm">Boîte de Réception Demandes Entrantes (Site Web)</CardTitle>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 w-full">
+          <div className="flex items-center gap-2">
+            <Mail className="w-4 h-4 text-[#E12B7B]" />
+            <CardTitle className="text-sm">Boîte de Réception Demandes Entrantes (Site & Portails)</CardTitle>
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsParserOpen(true)}
+            className="py-1.5 px-3 bg-purple-50 hover:bg-purple-100 text-purple-700 rounded-xl text-xs font-bold flex items-center gap-1.5 transition cursor-pointer border border-purple-200 shrink-0"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Coller un Lead Portail / SMS</span>
+          </button>
         </div>
         <LeadsInboxTabs
           activeTab={activeTab}
@@ -81,6 +93,7 @@ export const LeadsInboxWidget: React.FC<LeadsInboxWidgetProps> = ({
           )
         )}
       </CardContent>
+      <QuickLeadParserModal isOpen={isParserOpen} onClose={() => setIsParserOpen(false)} />
     </Card>
   );
 };

@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Shield, Trash2, AlertCircle } from 'lucide-react';
+import Link from 'next/link';
+import { Shield, Trash2, AlertCircle, FileSpreadsheet } from 'lucide-react';
 import type { AgencySettings } from '@/lib/types';
 import type { ToastType } from '@/components/ui/Toast';
 import { SectionCard } from './SectionCard';
@@ -17,7 +18,7 @@ interface BackupSectionProps {
     showToast: (message: string, type?: ToastType) => void;
 }
 
-/** Section 6: Sauvegarde & Portabilité des Données de l'Agence. */
+/** Section 6: Sauvegarde, Portabilité & Migration des Données de l'Agence. */
 export function BackupSection({ formData, showToast }: BackupSectionProps) {
     const [inactiveCount, setInactiveCount] = useState<number>(() => countInactiveBuyers(3));
     const [isConfirmingPurge, setIsConfirmingPurge] = useState(false);
@@ -86,6 +87,27 @@ export function BackupSection({ formData, showToast }: BackupSectionProps) {
                         }}
                     />
                 </label>
+
+                {/* Passerelle de migration Hektor */}
+                <Link
+                    href="/cockpit/import-hektor"
+                    className="p-4 bg-[#FCFAF7] hover:bg-purple-50 border border-[#F3E8EE] hover:border-purple-200 rounded-2xl flex items-center justify-between transition cursor-pointer text-left group sm:col-span-2"
+                >
+                    <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center shrink-0">
+                            <FileSpreadsheet className="w-4 h-4" />
+                        </div>
+                        <div>
+                            <span className="font-bold text-xs text-gray-900 group-hover:text-purple-900 block">
+                                Passerelle de Migration Hektor (CSV)
+                            </span>
+                            <span className="text-[11px] text-gray-500">
+                                Importer votre catalogue mandats et vos acquéreurs depuis un export Hektor
+                            </span>
+                        </div>
+                    </div>
+                    <span className="text-xs font-black text-purple-600">Ouvrir l&apos;outil →</span>
+                </Link>
             </div>
 
             {/* Conformité RGPD — Purge des données acquéreurs inactifs > 3 ans */}

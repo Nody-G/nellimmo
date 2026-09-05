@@ -35,6 +35,8 @@ export default function MandateDetailPage({ params }: { params: Promise<{ id: st
   const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
   const [isAvenantModalOpen, setIsAvenantModalOpen] = useState(false);
   const [isContractModalOpen, setIsContractModalOpen] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [isWeeklyDigestOpen, setIsWeeklyDigestOpen] = useState(false);
 
   const property = properties.find((p) => p.id === resolvedParams.id);
 
@@ -78,6 +80,8 @@ export default function MandateDetailPage({ params }: { params: Promise<{ id: st
         onOpenSignatureModal={() => setIsSignatureModalOpen(true)}
         onOpenAvenantModal={() => setIsAvenantModalOpen(true)}
         onOpenContractModal={() => setIsContractModalOpen(true)}
+        onOpenShareModal={() => setIsShareModalOpen(true)}
+        onOpenWeeklyDigestModal={() => setIsWeeklyDigestOpen(true)}
       />
 
       {/* Tabs Navigation */}
@@ -157,6 +161,10 @@ export default function MandateDetailPage({ params }: { params: Promise<{ id: st
         onCloseAvenantModal={() => setIsAvenantModalOpen(false)}
         isContractModalOpen={isContractModalOpen}
         onCloseContractModal={() => setIsContractModalOpen(false)}
+        isShareModalOpen={isShareModalOpen}
+        onCloseShareModal={() => setIsShareModalOpen(false)}
+        isWeeklyDigestOpen={isWeeklyDigestOpen}
+        onCloseWeeklyDigest={() => setIsWeeklyDigestOpen(false)}
       />
     </div>
   );

@@ -22,13 +22,13 @@ export function LabHeader({ activeMode, onSelectMode }: LabHeaderProps) {
         <div>
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#E12B7B]">
             <BrainCircuit className="w-4 h-4" />
-            <span>Incubateur d&apos;Idées & Intelligence Augmentée</span>
+            <span>Boîte à Outils Stratégique & Négociation</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#131B26] mt-1">
-            Nell&apos;IA Infinite Lab
+            Stratégie & Négociation Commerciale
           </h1>
           <p className="text-xs text-gray-500">
-            Brainstorming d&apos;angles de vente, simulations de négociation, clauses juridiques et événements VIP.
+            Simulations de contre-offres, clauses juridiques complexes, relance de mandats endormis et événements VIP.
           </p>
         </div>
 

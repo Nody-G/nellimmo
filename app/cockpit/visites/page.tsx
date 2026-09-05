@@ -21,6 +21,7 @@ import {
   captureCanvasSignature,
   toggleInList,
 } from '@/components/cockpit/visites';
+import { VisitDebriefWhatsAppModal } from '@/components/cockpit/visites/VisitDebriefWhatsAppModal';
 import { useToast } from '@/components/ui/Toast';
 
 function VisitSheetsContent() {
@@ -41,6 +42,7 @@ function VisitSheetsContent() {
   const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false);
   const [isLegalPrintModalOpen, setIsLegalPrintModalOpen] = useState(false);
   const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
+  const [isDebriefModalOpen, setIsDebriefModalOpen] = useState(false);
   const [selectedVisitToPrint, setSelectedVisitToPrint] = useState<PrintableVisitData | null>(null);
 
   // Sentiment & Feedback state
@@ -90,6 +92,7 @@ function VisitSheetsContent() {
 
       setIsSigned(true);
       showToast('Bon de visite horodaté et archivé avec succès !', 'success');
+      setIsDebriefModalOpen(true);
 
       setSelectedVisitToPrint({
         property: selectedProperty,
@@ -188,6 +191,17 @@ function VisitSheetsContent() {
         isLegalPrintModalOpen={isLegalPrintModalOpen}
         onCloseLegalPrintModal={() => setIsLegalPrintModalOpen(false)}
         selectedVisitToPrint={selectedVisitToPrint}
+      />
+
+      <VisitDebriefWhatsAppModal
+        isOpen={isDebriefModalOpen}
+        onClose={() => setIsDebriefModalOpen(false)}
+        property={selectedProperty}
+        buyer={selectedBuyer}
+        sentiment={visitorSentiment}
+        strengths={selectedStrengths}
+        weaknesses={selectedWeaknesses}
+        notes={notes}
       />
     </div>
   );

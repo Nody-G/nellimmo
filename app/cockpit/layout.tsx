@@ -13,10 +13,13 @@ import { NellimoProvider } from '@/lib/store';
 import { logout } from '@/lib/auth';
 import { lockVault } from '@/lib/vault';
 import { useRouter } from 'next/navigation';
-import { Menu, X, PlusCircle, LogOut } from 'lucide-react';
+import { Menu, X, PlusCircle, LogOut, Smartphone } from 'lucide-react';
+import { LocalMobileSyncModal } from '@/components/cockpit/sync/LocalMobileSyncModal';
+import { LocalDataHealthPill } from '@/components/cockpit/LocalDataHealthPill';
 
 export default function CockpitLayout({ children }: { children: React.ReactNode }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileSyncOpen, setMobileSyncOpen] = useState(false);
   const router = useRouter();
 
   const handleLogout = () => {
@@ -57,6 +60,14 @@ export default function CockpitLayout({ children }: { children: React.ReactNode 
             <div className="flex items-center gap-2">
               <ContextualHelpDrawer />
               <CommandPalette />
+              <button
+                type="button"
+                onClick={() => setMobileSyncOpen(true)}
+                title="Synchroniser avec le PC"
+                className="p-2 rounded-lg bg-white/10 text-[#C59A45] hover:text-white"
+              >
+                <Smartphone className="w-4 h-4" />
+              </button>
               <InstallAppButton />
               <Link
                 href="/cockpit/mandats/nouveau"
@@ -90,12 +101,22 @@ export default function CockpitLayout({ children }: { children: React.ReactNode 
                 </div>
                 <span className="text-gray-300">•</span>
                 <span className="text-gray-500">Pélissanne & Pays Salonais</span>
+                <LocalDataHealthPill onOpenSync={() => setMobileSyncOpen(true)} />
               </div>
 
               <div className="flex items-center gap-3">
                 <ContextualHelpDrawer />
                 <CommandPalette />
                 <InstallAppButton />
+                <button
+                  type="button"
+                  onClick={() => setMobileSyncOpen(true)}
+                  title="Synchroniser avec votre smartphone"
+                  className="px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-[#967026] border border-amber-200/80 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Smartphone className="w-3.5 h-3.5" />
+                  <span>Sync Mobile</span>
+                </button>
                 <button
                   onClick={handleLogout}
                   title="Se déconnecter"
@@ -131,6 +152,11 @@ export default function CockpitLayout({ children }: { children: React.ReactNode 
           <div className="print:hidden">
             <CockpitMobileNav />
           </div>
+
+          <LocalMobileSyncModal
+            isOpen={mobileSyncOpen}
+            onClose={() => setMobileSyncOpen(false)}
+          />
         </div>
       </AuthGate>
     </NellimoProvider>

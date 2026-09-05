@@ -13,7 +13,9 @@ import {
   TrendingDown,
   LayoutTemplate,
   FileBarChart,
-  PenTool
+  PenTool,
+  Share2,
+  MessageSquare
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 
@@ -23,6 +25,8 @@ interface MandateDetailHeaderProps {
   onOpenSignatureModal: () => void;
   onOpenAvenantModal: () => void;
   onOpenContractModal: () => void;
+  onOpenShareModal: () => void;
+  onOpenWeeklyDigestModal: () => void;
 }
 
 export const MandateDetailHeader: React.FC<MandateDetailHeaderProps> = ({
@@ -30,7 +34,9 @@ export const MandateDetailHeader: React.FC<MandateDetailHeaderProps> = ({
   onStatusChange,
   onOpenSignatureModal,
   onOpenAvenantModal,
-  onOpenContractModal
+  onOpenContractModal,
+  onOpenShareModal,
+  onOpenWeeklyDigestModal
 }) => {
   const mandateRef = formatMandateRef(property.mandate_number);
 
@@ -123,6 +129,26 @@ export const MandateDetailHeader: React.FC<MandateDetailHeaderProps> = ({
         >
           Avenant Prix
         </Button>
+
+        <button
+          type="button"
+          onClick={onOpenShareModal}
+          className="p-2 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 text-emerald-700 rounded-xl text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
+          title="Partager la fiche par WhatsApp à un acquéreur"
+        >
+          <Share2 className="w-3.5 h-3.5" />
+          <span>Partager Fiche</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={onOpenWeeklyDigestModal}
+          className="p-2 bg-purple-50 border border-purple-200 hover:bg-purple-100 text-purple-700 rounded-xl text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
+          title="Envoyer le point d'étape hebdomadaire au vendeur"
+        >
+          <MessageSquare className="w-3.5 h-3.5" />
+          <span>Point Hebdo</span>
+        </button>
 
         <Link
           href={`/cockpit/fiches-vitrine?propertyId=${property.id}`}

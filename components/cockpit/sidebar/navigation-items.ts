@@ -10,7 +10,6 @@ import {
   Radio,
   ShieldCheck,
   Sparkles,
-  FileSpreadsheet,
   Settings,
   Landmark,
   Radar,
@@ -78,13 +77,13 @@ export function getNavSections(pendingRelancesCount: number): NavSection[] {
       ],
     },
     {
-      title: 'Marketing & IA',
+      title: 'Marketing & Stratégie',
       items: [
         { name: 'Studio Rédaction IA', href: '/cockpit/redacteur', icon: Sparkles },
         { name: 'Studio Réseaux Sociaux', href: '/cockpit/reseaux-sociaux', icon: Share2 },
         { name: 'Fiches Vitrine LED', href: '/cockpit/fiches-vitrine', icon: Printer },
         { name: 'Multidiffusion Portails', href: '/cockpit/diffusion', icon: Radio },
-        { name: "Nell'IA Infinite Lab", href: '/cockpit/lab', icon: BrainCircuit, highlight: true },
+        { name: 'Négociation & Stratégie', href: '/cockpit/lab', icon: BrainCircuit },
       ],
     },
     {
@@ -93,7 +92,6 @@ export function getNavSections(pendingRelancesCount: number): NavSection[] {
         { name: 'Registre DGCCRF', href: '/cockpit/registre-dgccrf', icon: ShieldCheck },
         { name: 'Analytics & KPIs', href: '/cockpit/analytics', icon: BarChart3 },
         { name: 'Guides & Academy', href: '/cockpit/aide', icon: BookOpen, badge: 'Academy' },
-        { name: 'Import Hektor', href: '/cockpit/import-hektor', icon: FileSpreadsheet },
         { name: 'Paramètres & Connexions', href: '/cockpit/parametres', icon: Settings },
       ],
     },

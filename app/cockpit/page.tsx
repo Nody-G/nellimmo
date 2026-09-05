@@ -8,12 +8,12 @@ import {
   TrendingUp,
   Landmark
 } from 'lucide-react';
+import { DailyBriefingWidget } from '@/components/cockpit/dashboard/DailyBriefingWidget';
 import { DashboardKpis } from '@/components/cockpit/dashboard/DashboardKpis';
 import { UrgentAlertsWidget } from '@/components/cockpit/dashboard/UrgentAlertsWidget';
 import { RecentTransactionsWidget } from '@/components/cockpit/dashboard/RecentTransactionsWidget';
 import { QuickActionsGrid } from '@/components/cockpit/dashboard/QuickActionsGrid';
 import { LeadsInboxWidget } from '@/components/cockpit/dashboard/LeadsInboxWidget';
-import { AssistantPanel } from '@/components/cockpit/assistant/AssistantPanel';
 import { useToast } from '@/components/ui/Toast';
 
 export default function CockpitDashboard() {
@@ -79,6 +79,15 @@ export default function CockpitDashboard() {
         </div>
       </div>
 
+      {/* Daily Executive Briefing (Nerve Center) */}
+      <DailyBriefingWidget
+        properties={properties}
+        transactions={transactions}
+        visits={visits}
+        buyers={buyers}
+        contactLeads={contactLeads}
+      />
+
       {/* KPI Cards Grid */}
       <DashboardKpis
         properties={properties}
@@ -87,10 +96,9 @@ export default function CockpitDashboard() {
         visits={visits}
       />
 
-      {/* Urgent Alerts Widget */}
+      {/* Urgent Alerts Widget (Logistique & Réglementaire) */}
       <UrgentAlertsWidget
         properties={properties}
-        transactions={transactions}
         keys={keys}
         signboards={signboards}
       />
@@ -125,9 +133,6 @@ export default function CockpitDashboard() {
           showToast('Demande d\'estimation supprimée.', 'info');
         }}
       />
-
-      {/* Assistant IA — Qualification des leads entrants */}
-      <AssistantPanel />
     </div>
   );
 }

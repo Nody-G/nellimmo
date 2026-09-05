@@ -5,23 +5,21 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Property } from '@/lib/types';
 import { formatMandateRef } from '@/lib/hoguet';
-import { Eye, Edit } from 'lucide-react';
+import { Eye, Edit, Share2 } from 'lucide-react';
 
 interface MandateTableRowProps {
   property: Property;
+  onShare?: (property: Property) => void;
 }
 
-export function MandateTableRow({ property }: MandateTableRowProps) {
+export function MandateTableRow({ property, onShare }: MandateTableRowProps) {
   const mandateRef = formatMandateRef(property.mandate_number);
 
   return (
     <tr className="hover:bg-gray-50/80 transition-colors">
       {/* Mandate Number */}
       <td className="p-4 font-mono font-black text-sm">
-        <Link
-          href={`/cockpit/mandats/${property.id}`}
-          className="text-[#E12B7B] hover:underline block"
-        >
+        <Link href={`/cockpit/mandats/${property.id}`} className="text-[#E12B7B] hover:underline block">
           {mandateRef}
         </Link>
         <span className="text-[10px] text-gray-400">N° d’ordre #{property.mandate_number}</span>
@@ -29,16 +27,10 @@ export function MandateTableRow({ property }: MandateTableRowProps) {
 
       {/* Title & City */}
       <td className="p-4">
-        <Link
-          href={`/cockpit/mandats/${property.id}`}
-          className="flex items-center gap-3 group"
-        >
+        <Link href={`/cockpit/mandats/${property.id}`} className="flex items-center gap-3 group">
           <div className="relative w-12 h-9 rounded-lg overflow-hidden bg-gray-100 shrink-0 group-hover:scale-105 transition-transform">
             <Image
-              src={
-                property.images?.[0]?.image_url ||
-                'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=200&q=80'
-              }
+              src={property.images?.[0]?.image_url || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=200&q=80'}
               alt=""
               fill
               sizes="48px"
@@ -76,9 +68,7 @@ export function MandateTableRow({ property }: MandateTableRowProps) {
       <td className="p-4">
         <span
           className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase inline-block mb-1 ${
-            property.mandate_type === 'exclusif'
-              ? 'bg-[#FDF2F8] text-[#E12B7B]'
-              : 'bg-gray-100 text-gray-700'
+            property.mandate_type === 'exclusif' ? 'bg-[#FDF2F8] text-[#E12B7B]' : 'bg-gray-100 text-gray-700'
           }`}
         >
           {property.mandate_type}
@@ -104,31 +94,19 @@ export function MandateTableRow({ property }: MandateTableRowProps) {
       <td className="p-4">
         <div className="flex items-center gap-1 text-[10px]">
           <span
-            className={`px-1.5 py-0.5 rounded ${
-              property.publish_website
-                ? 'bg-emerald-50 text-emerald-700 font-bold'
-                : 'text-gray-300'
-            }`}
+            className={`px-1.5 py-0.5 rounded ${property.publish_website ? 'bg-emerald-50 text-emerald-700 font-bold' : 'text-gray-300'}`}
             title="Site Web"
           >
             Web
           </span>
           <span
-            className={`px-1.5 py-0.5 rounded ${
-              property.publish_seloger
-                ? 'bg-blue-50 text-blue-700 font-bold'
-                : 'text-gray-300'
-            }`}
+            className={`px-1.5 py-0.5 rounded ${property.publish_seloger ? 'bg-blue-50 text-blue-700 font-bold' : 'text-gray-300'}`}
             title="SeLoger"
           >
             SL
           </span>
           <span
-            className={`px-1.5 py-0.5 rounded ${
-              property.publish_leboncoin
-                ? 'bg-orange-50 text-orange-700 font-bold'
-                : 'text-gray-300'
-            }`}
+            className={`px-1.5 py-0.5 rounded ${property.publish_leboncoin ? 'bg-orange-50 text-orange-700 font-bold' : 'text-gray-300'}`}
             title="LeBonCoin"
           >
             LBC
@@ -155,6 +133,16 @@ export function MandateTableRow({ property }: MandateTableRowProps) {
 
       {/* Actions */}
       <td className="p-4 text-right space-x-1">
+        {onShare && (
+          <button
+            type="button"
+            onClick={() => onShare(property)}
+            className="p-1.5 bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white rounded-lg transition inline-flex items-center"
+            title="Partager par WhatsApp"
+          >
+            <Share2 className="w-3.5 h-3.5" />
+          </button>
+        )}
         <Link
           href={`/cockpit/mandats/${property.id}`}
           className="p-1.5 bg-gray-100 hover:bg-[#131B26] hover:text-white rounded-lg transition inline-flex items-center"

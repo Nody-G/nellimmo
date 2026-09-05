@@ -164,6 +164,16 @@ La plupart des « god components » historiques listés dans les anciennes versi
 - `components/cockpit/pige/NewLeadModal.tsx` → **190 l.** (`components/cockpit/pige/AssistedPigeInput.tsx`, `PigeDvfBenchmarkBox.tsx`)
 - `components/public/FavoritesDrawer.tsx` → **91 l.** (`components/public/favorites/`)
 - `components/cockpit/transactions/DealDetailModal.tsx` → **87 l.** (`components/cockpit/transactions/detail/`)
+- `components/cockpit/dashboard/DailyBriefingWidget.tsx` → **101 l.** (`components/cockpit/dashboard/briefing/`)
+- `components/cockpit/dashboard/QuickCallModal.tsx` → **165 l.** (Prise d'appel express & matching live)
+- `components/cockpit/dashboard/leads/QuickLeadParserModal.tsx` → **158 l.** (Ingestion intelligente leads portails/SMS)
+- `components/cockpit/visites/VisitDebriefWhatsAppModal.tsx` → **132 l.** (Débriefing post-visite WhatsApp vendeur)
+- `components/cockpit/sync/LocalMobileSyncModal.tsx` → **145 l.** (Passerelle de sync locale PC ↔ Smartphone)
+- `components/cockpit/mandats/PropertyShareModal.tsx` → **158 l.** (Partage WhatsApp 1 clic depuis tableau & fiche mandat)
+- `components/cockpit/mandats/VendorWeeklyDigestModal.tsx` → **128 l.** (Point hebdo rassurant vendeur sur WhatsApp)
+- `components/cockpit/simulateurs/QuickFinanceModal.tsx` → **176 l.** (Calculette express financement & notaire 35% HCSF)
+- `components/cockpit/pige/SellerDiscoveryModal.tsx` → **174 l.** (`SellerDiscoveryDvfCard.tsx` [48 l.], `SellerDiscoverySpecsCard.tsx` [118 l.])
+- `components/cockpit/LocalDataHealthPill.tsx` → **32 l.** (Pilule de santé données locales & alerte sauvegarde)
 
 **Restants à refactorer** :
 
