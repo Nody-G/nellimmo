@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useEffect, useRef, useState, useCallback } from 'react';
-import L from 'leaflet';
-import { Maximize2, LocateFixed, ZoomIn, ZoomOut, ExternalLink } from 'lucide-react';
-import { CadastreParcel, calculateDistanceMeters } from '@/lib/cadastre';
+import React, { useState, useRef, useCallback } from 'react';
+import { CadastreParcel, calculateDistanceMeters, getGeoportailEmbedUrl } from '@/lib/cadastre';
+import { ParcelTileOverlaySvg } from './ParcelTileOverlaySvg';
+import { ParcelMapControls, MapMode } from './ParcelMapControls';
 
 interface InteractiveParcelMapProps {
   parcel: CadastreParcel;
@@ -11,145 +11,147 @@ interface InteractiveParcelMapProps {
   height?: number;
 }
 
-type LayerType = 'satellite' | 'plan' | 'osmfr';
+export function InteractiveParcelMap({
+  parcel,
+  onOpenInspector,
+  height = 340,
+}: InteractiveParcelMapProps) {
+  const [mode, setMode] = useState<MapMode>('satellite');
+  const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartRef = useRef({ x: 0, y: 0, panX: 0, panY: 0 });
 
-const TILES: Record<LayerType, { label: string; url: string; sub?: string[] }> = {
-  satellite: { label: 'Satellite HD', url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' },
-  plan: { label: 'Plan & Rues', url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', sub: ['a', 'b', 'c', 'd'] },
-  osmfr: { label: 'Cadastre & IGN', url: 'https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', sub: ['a', 'b', 'c'] },
-};
+  const centerLat = parcel.coordinates?.lat || 43.64;
+  const centerLon = parcel.coordinates?.lon || 5.197;
 
-export function InteractiveParcelMap({ parcel, onOpenInspector, height = 340 }: InteractiveParcelMapProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<L.Map | null>(null);
-  const tileRef = useRef<L.TileLayer | null>(null);
-  const [activeLayer, setActiveLayer] = useState<LayerType>('satellite');
+  // Slippy Mercator tile projection at zoom 18
+  const z = 18;
+  const n = Math.pow(2, z);
+  const lonToX = useCallback((l: number) => ((l + 180) / 360) * n, [n]);
+  const latToY = useCallback((l: number) => ((1 - Math.asinh(Math.tan((l * Math.PI) / 180)) / Math.PI) / 2) * n, [n]);
 
-  const fitBounds = useCallback(() => {
-    if (!mapRef.current || !parcel.polygon || parcel.polygon.length < 3) return;
-    const pts = parcel.polygon.map(([lon, lat]) => [lat, lon] as [number, number]);
-    mapRef.current.fitBounds(L.latLngBounds(pts), { padding: [40, 40], maxZoom: 19 });
-  }, [parcel.polygon]);
+  const centerTileX = Math.floor(lonToX(centerLon));
+  const centerTileY = Math.floor(latToY(centerLat));
+  const originTileX = centerTileX - 1;
+  const originTileY = centerTileY - 1;
 
-  useEffect(() => {
-    if (!containerRef.current || mapRef.current) return;
-    const map = L.map(containerRef.current, {
-      center: [parcel.coordinates.lat || 43.64, parcel.coordinates.lon || 5.197],
-      zoom: 18,
-      zoomControl: false,
-      attributionControl: false,
-    });
-    mapRef.current = map;
+  const parcelCenterX = (lonToX(centerLon) - originTileX) * 256;
+  const parcelCenterY = (latToY(centerLat) - originTileY) * 256;
 
-    const t = TILES.satellite;
-    tileRef.current = L.tileLayer(t.url, { maxZoom: 19, subdomains: t.sub || 'abc' }).addTo(map);
+  const polygonPts = (parcel.polygon || []).map(([lon, lat], idx) => ({
+    x: (lonToX(lon) - originTileX) * 256,
+    y: (latToY(lat) - originTileY) * 256,
+    lon,
+    lat,
+    index: idx + 1,
+  }));
 
-    if (parcel.polygon && parcel.polygon.length >= 3) {
-      const pts = parcel.polygon.map(([lon, lat]) => [lat, lon] as [number, number]);
-      L.polygon(pts, { color: '#0D9488', weight: 3, dashArray: '5, 5', fillColor: '#14B8A6', fillOpacity: 0.28 }).addTo(map);
+  const svgPath = polygonPts.length >= 3 ? `M ${polygonPts.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' L ')} Z` : '';
 
-      pts.forEach(([lat, lon], idx) => {
-        const next = pts[(idx + 1) % pts.length];
-        const dist = calculateDistanceMeters(lon, lat, next[1], next[0]);
-        const icon = L.divIcon({
-          className: '',
-          html: `<div style="background:#F59E0B;color:#FFF;font-size:9px;font-weight:900;width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;border:2px solid #FFF;box-shadow:0 2px 4px rgba(0,0,0,0.4)">${idx + 1}</div>`,
-          iconSize: [18, 18],
-          iconAnchor: [9, 9],
-        });
-        L.marker([lat, lon], { icon }).addTo(map).bindTooltip(`Borne B${idx + 1} • vers B${((idx + 1) % pts.length) + 1} : ${dist} m`, { direction: 'top', offset: [0, -8] });
-      });
+  const midpoints = polygonPts.map((p1, i) => {
+    const p2 = polygonPts[(i + 1) % polygonPts.length];
+    const dist = calculateDistanceMeters(p1.lon, p1.lat, p2.lon, p2.lat);
+    return { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2, label: `${dist} m` };
+  });
 
-      map.fitBounds(L.latLngBounds(pts), { padding: [35, 35], maxZoom: 19 });
-    }
-
-    return () => { map.remove(); mapRef.current = null; };
-  }, [parcel, fitBounds]);
-
-  const switchLayer = (layer: LayerType) => {
-    setActiveLayer(layer);
-    if (!mapRef.current || !tileRef.current) return;
-    mapRef.current.removeLayer(tileRef.current);
-    const t = TILES[layer];
-    tileRef.current = L.tileLayer(t.url, { maxZoom: 19, subdomains: t.sub || 'abc' }).addTo(mapRef.current);
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    dragStartRef.current = { x: e.clientX, y: e.clientY, panX: pan.x, panY: pan.y };
   };
 
-  const streetViewUrl = `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${parcel.coordinates.lat},${parcel.coordinates.lon}`;
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return;
+    setPan({
+      x: dragStartRef.current.panX + (e.clientX - dragStartRef.current.x),
+      y: dragStartRef.current.panY + (e.clientY - dragStartRef.current.y),
+    });
+  };
+
+  const handleWheel = (e: React.WheelEvent) => {
+    e.preventDefault();
+    setZoom((cur) => Math.max(0.6, Math.min(3.5, cur - e.deltaY * 0.0015)));
+  };
+
+  const streetViewUrl = `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${centerLat},${centerLon}`;
+  const ignEmbedUrl = getGeoportailEmbedUrl(centerLon, centerLat);
 
   return (
-    <div className="relative rounded-2xl overflow-hidden border border-[#F3E8EE] shadow-inner bg-black">
-      <div className="absolute top-3 left-3 right-3 z-[400] flex items-center justify-between gap-2 pointer-events-none">
-        <div className="pointer-events-auto flex items-center bg-[#131B26]/90 backdrop-blur-md p-1 rounded-xl border border-white/10 shadow-lg">
-          {(Object.keys(TILES) as LayerType[]).map((k) => (
-            <button
-              key={k}
-              type="button"
-              onClick={() => switchLayer(k)}
-              className={`px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${
-                activeLayer === k ? 'bg-teal-600 text-white shadow-xs' : 'text-gray-300 hover:text-white'
-              }`}
-            >
-              {TILES[k].label}
-            </button>
-          ))}
+    <div
+      style={{ height: `${height}px` }}
+      className="relative w-full rounded-2xl overflow-hidden border border-[#F3E8EE] bg-[#0A1017] select-none cursor-grab active:cursor-grabbing"
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={() => setIsDragging(false)}
+      onMouseLeave={() => setIsDragging(false)}
+      onWheel={handleWheel}
+    >
+      <ParcelMapControls
+        mode={mode}
+        onSelectMode={setMode}
+        streetViewUrl={streetViewUrl}
+        onOpenInspector={onOpenInspector}
+        onZoomIn={() => setZoom((zVal) => Math.min(3.5, zVal + 0.3))}
+        onZoomOut={() => setZoom((zVal) => Math.max(0.6, zVal - 0.3))}
+        onReset={() => { setPan({ x: 0, y: 0 }); setZoom(1); }}
+      />
+
+      {mode === 'ign' ? (
+        <iframe title="IGN Géoportail Live" src={ignEmbedUrl} className="w-full h-full border-0" allowFullScreen />
+      ) : (
+        <div
+          className="absolute inset-0 flex items-center justify-center pointer-events-none"
+          style={{
+            transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+            transformOrigin: 'center center',
+            transition: isDragging ? 'none' : 'transform 0.15s ease-out',
+          }}
+        >
+          <div className="relative w-[768px] h-[768px] shrink-0" style={{ left: `${384 - parcelCenterX}px`, top: `${384 - parcelCenterY}px` }}>
+            {mode !== 'arpenteur' ? (
+              [-1, 0, 1].map((dy) =>
+                [-1, 0, 1].map((dx) => {
+                  const tx = centerTileX + dx;
+                  const ty = centerTileY + dy;
+                  const url =
+                    mode === 'satellite'
+                      ? `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/18/${ty}/${tx}`
+                      : `https://tile.openstreetmap.org/18/${tx}/${ty}.png`;
+                  return (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
+                      key={`${tx}-${ty}`}
+                      src={url}
+                      alt=""
+                      className="absolute w-[256px] h-[256px] select-none pointer-events-none filter brightness-95"
+                      style={{ left: `${(dx + 1) * 256}px`, top: `${(dy + 1) * 256}px` }}
+                      loading="eager"
+                    />
+                  );
+                })
+              )
+            ) : (
+              <div
+                className="absolute inset-0 bg-[#0c1622] opacity-90"
+                style={{
+                  backgroundImage: 'radial-gradient(circle, #0D9488 1.2px, transparent 1.2px)',
+                  backgroundSize: '24px 24px',
+                }}
+              />
+            )}
+
+            <ParcelTileOverlaySvg
+              svgPath={svgPath}
+              points={polygonPts}
+              midpoints={midpoints}
+              isSatellite={mode === 'satellite'}
+            />
+          </div>
         </div>
+      )}
 
-        <div className="pointer-events-auto flex items-center gap-1.5">
-          <a
-            href={streetViewUrl}
-            target="_blank"
-            rel="noreferrer"
-            title="Ouvrir Google Street View"
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-[#131B26]/90 backdrop-blur-md border border-white/10 text-white hover:bg-teal-600 text-xs font-bold transition shadow-lg"
-          >
-            <span>Street View</span>
-            <ExternalLink className="w-3 h-3 text-teal-300" />
-          </a>
-          {onOpenInspector && (
-            <button
-              type="button"
-              onClick={onOpenInspector}
-              title="Agrandir en grand studio"
-              className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-[#131B26]/90 backdrop-blur-md border border-white/10 text-white hover:bg-teal-600 text-xs font-bold transition shadow-lg cursor-pointer"
-            >
-              <Maximize2 className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Studio</span>
-            </button>
-          )}
-        </div>
-      </div>
-
-      <div ref={containerRef} style={{ height: `${height}px` }} className="w-full z-0 cursor-grab active:cursor-grabbing" />
-
-      <div className="absolute bottom-3 right-3 z-[400] flex flex-col gap-1.5">
-        <button
-          type="button"
-          onClick={() => mapRef.current?.zoomIn()}
-          title="Zoomer (+)"
-          className="p-2 rounded-xl bg-[#131B26]/90 backdrop-blur-md text-white border border-white/10 hover:bg-teal-600 transition shadow-lg cursor-pointer"
-        >
-          <ZoomIn className="w-4 h-4" />
-        </button>
-        <button
-          type="button"
-          onClick={() => mapRef.current?.zoomOut()}
-          title="Dézoomer (-)"
-          className="p-2 rounded-xl bg-[#131B26]/90 backdrop-blur-md text-white border border-white/10 hover:bg-teal-600 transition shadow-lg cursor-pointer"
-        >
-          <ZoomOut className="w-4 h-4" />
-        </button>
-        <button
-          type="button"
-          onClick={fitBounds}
-          title="Recentrer sur la parcelle"
-          className="p-2 rounded-xl bg-[#131B26]/90 backdrop-blur-md text-white border border-white/10 hover:bg-teal-600 transition shadow-lg cursor-pointer"
-        >
-          <LocateFixed className="w-4 h-4 text-teal-400" />
-        </button>
-      </div>
-
-      <div className="absolute bottom-3 left-3 z-[400] bg-black/80 backdrop-blur-md px-2.5 py-1 rounded-lg border border-white/10 text-[10px] text-gray-300 font-mono pointer-events-none">
-        Parcelle {parcel.section} N°{parcel.numero} • {parcel.contenance} m²
+      <div className="absolute bottom-3 left-3 z-30 bg-black/80 backdrop-blur-md px-2.5 py-1 rounded-lg border border-white/10 text-[10px] text-gray-300 font-mono pointer-events-none">
+        Parcelle {parcel.section} N°{parcel.numero} • {parcel.contenance} m² • Zoom {zoom.toFixed(1)}x
       </div>
     </div>
   );
