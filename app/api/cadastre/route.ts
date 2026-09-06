@@ -1,5 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { fetchCadastreByCoordinates, fetchCadastreByAddress } from '@/lib/cadastre';
+import {
+  fetchCadastreByCoordinates,
+  fetchCadastreByAddress,
+  calculatePolygonPerimeter,
+  calculateBoundingDimensions,
+  estimateSolarExposure,
+  calculateSegmentDetails,
+} from '@/lib/cadastre';
 
 export async function GET(req: NextRequest) {
   try {
@@ -29,6 +36,14 @@ export async function GET(req: NextRequest) {
       const defaultSection = 'AC';
       const defaultNumero = '0245';
       const fallbackIdu = `13071000${defaultSection}${defaultNumero}`;
+      const fallbackPolygon: [number, number][] = [
+        [5.1968, 43.6402],
+        [5.1974, 43.6403],
+        [5.1975, 43.6398],
+        [5.1967, 43.6397],
+        [5.1968, 43.6402],
+      ];
+
       parcel = {
         idu: fallbackIdu,
         section: defaultSection,
@@ -38,15 +53,13 @@ export async function GET(req: NextRequest) {
         code_insee: '13071',
         code_dep: '13',
         coordinates: { lat: 43.64, lon: 5.197 },
-        polygon: [
-          [5.1968, 43.6402],
-          [5.1974, 43.6403],
-          [5.1975, 43.6398],
-          [5.1967, 43.6397],
-          [5.1968, 43.6402],
-        ],
+        polygon: fallbackPolygon,
         geoportailUrl: `https://www.geoportail.gouv.fr/carte?c=5.197,43.64&z=19`,
         cadastreGouvUrl: `https://cadastre.gouv.fr/scpc/rechercherParReferenceCadastrale.do`,
+        perimeter: calculatePolygonPerimeter(fallbackPolygon),
+        dimensions: calculateBoundingDimensions(fallbackPolygon),
+        exposure: estimateSolarExposure(fallbackPolygon),
+        segments: calculateSegmentDetails(fallbackPolygon),
       };
     }
 
