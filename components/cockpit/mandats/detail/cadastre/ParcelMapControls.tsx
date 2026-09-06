@@ -36,7 +36,6 @@ interface ParcelMapControlsProps {
   onToggleLayer: (layer: keyof ActiveLayers) => void;
   isMeasuring: boolean;
   onToggleMeasuring: () => void;
-  onOpenInspector?: () => void;
   isFullscreen?: boolean;
   onToggleFullscreen?: () => void;
   onZoomIn: () => void;
@@ -60,7 +59,6 @@ export function ParcelMapControls({
   onToggleLayer,
   isMeasuring,
   onToggleMeasuring,
-  onOpenInspector,
   isFullscreen,
   onToggleFullscreen,
   onZoomIn,
@@ -223,21 +221,20 @@ export function ParcelMapControls({
             <button
               type="button"
               onClick={onToggleFullscreen}
-              className="p-2 rounded-xl bg-[#131B26]/90 backdrop-blur-md border border-white/10 text-white hover:bg-teal-600 text-xs font-bold transition shadow-lg cursor-pointer"
-              title={isFullscreen ? 'Quitter Plein Écran (F11)' : 'Plein Écran Total (F11)'}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#131B26]/90 backdrop-blur-md border border-white/10 text-white hover:bg-teal-600 text-xs font-bold transition shadow-lg cursor-pointer"
+              title={isFullscreen ? 'Quitter le Plein Écran (Échap)' : 'Plein Écran Total'}
             >
-              {isFullscreen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
-            </button>
-          )}
-
-          {onOpenInspector && (
-            <button
-              type="button"
-              onClick={onOpenInspector}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold transition shadow-lg cursor-pointer"
-            >
-              <Maximize2 className="w-3.5 h-3.5" />
-              <span>Grand Studio</span>
+              {isFullscreen ? (
+                <>
+                  <Minimize2 className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Quitter</span>
+                </>
+              ) : (
+                <>
+                  <Maximize2 className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Plein écran</span>
+                </>
+              )}
             </button>
           )}
         </div>

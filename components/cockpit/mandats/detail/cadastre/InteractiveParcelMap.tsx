@@ -10,14 +10,12 @@ import { SolarLocatorPanel } from './SolarLocatorPanel';
 
 interface InteractiveParcelMapProps {
   parcel: CadastreParcel;
-  onOpenInspector?: () => void;
   height?: number | string;
 }
 
 export function InteractiveParcelMap({
   parcel,
-  onOpenInspector,
-  height = 700,
+  height = 850,
 }: InteractiveParcelMapProps) {
   const [mode, setMode] = useState<MapMode>('arpenteur');
   const [zoom, setZoom] = useState(1);
@@ -258,7 +256,6 @@ export function InteractiveParcelMap({
           setIsMeasuring((cur) => !cur);
           if (isMeasuring) setMeasurePoints([]);
         }}
-        onOpenInspector={onOpenInspector}
         isFullscreen={isFullscreen}
         onToggleFullscreen={toggleFullscreen}
         onZoomIn={() => setZoom((zVal) => Math.min(5.0, zVal + 0.35))}

@@ -1,12 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Compass, Save, Check, RefreshCw, Maximize2 } from 'lucide-react';
+import { Compass, Save, Check, RefreshCw } from 'lucide-react';
 import type { Property } from '@/lib/types';
 import { CadastreParcel } from '@/lib/cadastre';
 import { ParcelMapViewer } from './cadastre/ParcelMapViewer';
 import { ParcelSpecsGrid } from './cadastre/ParcelSpecsGrid';
-import { ParcelInspectorModal } from './cadastre/ParcelInspectorModal';
 
 interface MandateCadastreCardProps {
   property: Property;
@@ -17,7 +16,6 @@ export function MandateCadastreCard({ property, onSaveCadastre }: MandateCadastr
   const [parcel, setParcel] = useState<CadastreParcel | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [isInspectorOpen, setIsInspectorOpen] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -89,31 +87,21 @@ export function MandateCadastreCard({ property, onSaveCadastre }: MandateCadastr
 
       {parcel ? (
         <div className="space-y-4">
-          {/* Main Visualizer - Grande fenêtre panoramique 700px (2x plus grande) */}
+          {/* Main Visualizer - Grande fenêtre panoramique immersive 850px */}
           <ParcelMapViewer
             parcel={parcel}
-            onOpenInspector={() => setIsInspectorOpen(true)}
-            height={700}
+            height={850}
           />
 
           {/* Technical Specs Grid */}
           <ParcelSpecsGrid property={property} parcel={parcel} />
 
           {/* Actions Bar */}
-          <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-gray-100">
-            <button
-              type="button"
-              onClick={() => setIsInspectorOpen(true)}
-              className="text-xs font-bold text-teal-700 hover:text-teal-900 flex items-center gap-1.5 transition cursor-pointer"
-            >
-              <Maximize2 className="w-3.5 h-3.5" />
-              <span>Ouvrir le Grand Studio Plein Écran (Immersion Totale & SIG)</span>
-            </button>
-
+          <div className="flex items-center justify-end gap-3 pt-2 border-t border-gray-100">
             <button
               type="button"
               onClick={handleSave}
-              className="px-3.5 py-2 bg-[#131B26] hover:bg-gray-800 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition cursor-pointer shadow-2xs"
+              className="px-4 py-2.5 bg-[#131B26] hover:bg-gray-800 text-white rounded-xl text-xs font-bold flex items-center gap-2 transition cursor-pointer shadow-md"
             >
               {saved ? (
                 <>
@@ -128,14 +116,6 @@ export function MandateCadastreCard({ property, onSaveCadastre }: MandateCadastr
               )}
             </button>
           </div>
-
-          {/* Fullscreen Inspector Modal */}
-          <ParcelInspectorModal
-            isOpen={isInspectorOpen}
-            onClose={() => setIsInspectorOpen(false)}
-            parcel={parcel}
-            property={property}
-          />
         </div>
       ) : (
         <div className="text-xs text-gray-400 p-8 text-center bg-gray-50/50 rounded-2xl border border-dashed border-gray-200">
