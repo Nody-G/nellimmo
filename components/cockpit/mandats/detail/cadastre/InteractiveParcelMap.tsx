@@ -3,8 +3,10 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Compass } from 'lucide-react';
 import { CadastreParcel, calculateDistanceMeters, getGeoportailEmbedUrl } from '@/lib/cadastre';
+import { getDaySolarSummary, getSolarPosition } from '@/lib/solar';
 import { ParcelTileOverlaySvg } from './ParcelTileOverlaySvg';
 import { ParcelMapControls, MapMode, ActiveLayers } from './ParcelMapControls';
+import { SolarLocatorPanel } from './SolarLocatorPanel';
 
 interface InteractiveParcelMapProps {
   parcel: CadastreParcel;
@@ -29,6 +31,8 @@ export function InteractiveParcelMap({
     sun: false,
     radius: false,
   });
+  const [solarSeason, setSolarSeason] = useState<'summer' | 'winter' | 'equinox' | 'today'>('today');
+  const [solarHour, setSolarHour] = useState<number>(14);
   const [isMeasuring, setIsMeasuring] = useState(false);
   const [measurePoints, setMeasurePoints] = useState<{ screenX: number; screenY: number; lon: number; lat: number }[]>([]);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -37,6 +41,10 @@ export function InteractiveParcelMap({
 
   const centerLat = parcel.coordinates?.lat || 43.64;
   const centerLon = parcel.coordinates?.lon || 5.197;
+
+  // Astronomical ephemeris for exact coordinates & chosen season/hour
+  const solarSummary = getDaySolarSummary(centerLat, centerLon, solarSeason);
+  const solarPosition = getSolarPosition(centerLat, centerLon, solarSummary.date, solarHour);
 
   // Track real container width & height via ResizeObserver
   useEffect(() => {
@@ -341,8 +349,23 @@ export function InteractiveParcelMap({
             layers={layers}
             measurePoints={measurePoints.map((m) => ({ x: m.screenX, y: m.screenY }))}
             measureDistance={measureDistance}
+            solarPosition={solarPosition}
+            solarSummary={solarSummary}
           />
         </div>
+      )}
+
+      {/* SolarLocator Pro HUD Overlay */}
+      {layers.sun && (
+        <SolarLocatorPanel
+          lat={centerLat}
+          lon={centerLon}
+          selectedSeason={solarSeason}
+          onSelectSeason={setSolarSeason}
+          hourDecimal={solarHour}
+          onChangeHour={setSolarHour}
+          onClose={() => setLayers((l) => ({ ...l, sun: false }))}
+        />
       )}
 
       {/* Measurement Tool Guide Banner */}

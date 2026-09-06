@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import type { ActiveLayers } from './ParcelMapControls';
+import type { SolarPosition, DaySolarSummary } from '@/lib/solar';
 
 interface PointInfo {
   x: number;
@@ -29,6 +30,8 @@ interface ParcelTileOverlaySvgProps {
   layers?: ActiveLayers;
   measurePoints?: { x: number; y: number }[];
   measureDistance?: number | null;
+  solarPosition?: SolarPosition;
+  solarSummary?: DaySolarSummary;
 }
 
 export function ParcelTileOverlaySvg({
@@ -42,6 +45,8 @@ export function ParcelTileOverlaySvg({
   layers = { lines: true, points: true, texts: true },
   measurePoints = [],
   measureDistance = null,
+  solarPosition,
+  solarSummary,
 }: ParcelTileOverlaySvgProps) {
   const [hoveredPoint, setHoveredPoint] = useState<number | null>(null);
 
@@ -163,35 +168,147 @@ export function ParcelTileOverlaySvg({
           </g>
         ))}
 
-      {/* 5. CALQUE SOLEIL: Course solaire et points cardinaux */}
-      {layers.sun && centerPos && (
+      {/* 5. CALQUE SOLEIL HAUTE PRÉCISION SUNLOCATOR */}
+      {layers.sun && centerPos && solarPosition && solarSummary && (
         <g transform={`translate(${centerPos.x}, ${centerPos.y})`}>
-          <g transform={`scale(${invScale})`}>
-            {/* Arc trajectoire solaire */}
-            <path
-              d="M -140 0 A 140 140 0 0 0 140 0"
-              fill="none"
-              stroke="#F59E0B"
-              strokeWidth="2"
-              strokeDasharray="6 4"
-              opacity="0.8"
-            />
-            {/* Soleil Matin (Est - droite carto) */}
-            <g transform="translate(140, 0)">
-              <circle r="9" fill="#FBBF24" stroke="#FFF" strokeWidth="2" />
-              <text y="18" fill="#FDE68A" fontSize="9" fontWeight="bold" textAnchor="middle">Matin (Est)</text>
-            </g>
-            {/* Soleil Midi (Sud - bas carto hémisphère nord) */}
-            <g transform="translate(0, 140)">
-              <circle r="12" fill="#F59E0B" stroke="#FFF" strokeWidth="2" />
-              <text y="22" fill="#FDE68A" fontSize="10" fontWeight="bold" textAnchor="middle">Zénith (Sud)</text>
-            </g>
-            {/* Soleil Soir (Ouest - gauche carto) */}
-            <g transform="translate(-140, 0)">
-              <circle r="9" fill="#F97316" stroke="#FFF" strokeWidth="2" />
-              <text y="18" fill="#FDE68A" fontSize="9" fontWeight="bold" textAnchor="middle">Soir (Ouest)</text>
-            </g>
-          </g>
+          {(() => {
+            const R = 220;
+            const RAD = Math.PI / 180;
+            const sunAngle = (solarPosition.azimuthDeg - 90) * RAD;
+            const sunX = Math.cos(sunAngle) * R;
+            const sunY = Math.sin(sunAngle) * R;
+
+            const shadowAngle = sunAngle + Math.PI;
+            const shadowLen = Math.min(180, Math.max(40, (solarPosition.shadowRatio || 1) * 25));
+            const shadowX = Math.cos(shadowAngle) * shadowLen;
+            const shadowY = Math.sin(shadowAngle) * shadowLen;
+
+            const riseAngle = (solarSummary.sunriseAzimuthDeg - 90) * RAD;
+            const setAngle = (solarSummary.sunsetAzimuthDeg - 90) * RAD;
+
+            return (
+              <>
+                {/* Arc de la course solaire réelle */}
+                {solarSummary.hourlyArc.length > 2 && (
+                  <path
+                    d={`M ${solarSummary.hourlyArc
+                      .map((pt) => {
+                        const a = (pt.azimuthDeg - 90) * RAD;
+                        return `${(Math.cos(a) * R).toFixed(1)},${(Math.sin(a) * R).toFixed(1)}`;
+                      })
+                      .join(' L ')}`}
+                    fill="none"
+                    stroke="#F59E0B"
+                    strokeWidth="2.5"
+                    strokeDasharray="6 4"
+                    opacity="0.85"
+                  />
+                )}
+
+                {/* Points horaires jalons (9h, 12h, 15h, 18h) */}
+                {solarSummary.hourlyArc
+                  .filter((p) => [9, 12, 15, 18].includes(p.hour))
+                  .map((p) => {
+                    const a = (p.azimuthDeg - 90) * RAD;
+                    const px = Math.cos(a) * R;
+                    const py = Math.sin(a) * R;
+                    return (
+                      <g key={`h-${p.hour}`} transform={`translate(${px}, ${py})`}>
+                        <circle r="4" fill="#FBBF24" stroke="#0B132B" strokeWidth="1.5" />
+                        <text
+                          y={py > 0 ? 14 : -8}
+                          fill="#FDE68A"
+                          fontSize="9"
+                          fontWeight="bold"
+                          textAnchor="middle"
+                          fontFamily="monospace"
+                        >
+                          {p.hour}h
+                        </text>
+                      </g>
+                    );
+                  })}
+
+                {/* Rayon Lever de Soleil */}
+                <line
+                  x1="0"
+                  y1="0"
+                  x2={Math.cos(riseAngle) * (R + 15)}
+                  y2={Math.sin(riseAngle) * (R + 15)}
+                  stroke="#FBBF24"
+                  strokeWidth="1.5"
+                  strokeDasharray="4 3"
+                  opacity="0.75"
+                />
+                <g transform={`translate(${Math.cos(riseAngle) * (R + 32)}, ${Math.sin(riseAngle) * (R + 32)})`}>
+                  <text fill="#FDE68A" fontSize="9" fontWeight="bold" textAnchor="middle">
+                    🌅 {solarSummary.sunriseTime}
+                  </text>
+                </g>
+
+                {/* Rayon Coucher de Soleil */}
+                <line
+                  x1="0"
+                  y1="0"
+                  x2={Math.cos(setAngle) * (R + 15)}
+                  y2={Math.sin(setAngle) * (R + 15)}
+                  stroke="#F97316"
+                  strokeWidth="1.5"
+                  strokeDasharray="4 3"
+                  opacity="0.75"
+                />
+                <g transform={`translate(${Math.cos(setAngle) * (R + 32)}, ${Math.sin(setAngle) * (R + 32)})`}>
+                  <text fill="#FDE68A" fontSize="9" fontWeight="bold" textAnchor="middle">
+                    🌇 {solarSummary.sunsetTime}
+                  </text>
+                </g>
+
+                {/* Faisceau d'ensoleillement actif vers la propriété */}
+                {solarPosition.isDaylight && (
+                  <>
+                    <line
+                      x1={sunX}
+                      y1={sunY}
+                      x2="0"
+                      y2="0"
+                      stroke="#F59E0B"
+                      strokeWidth="2.5"
+                      opacity="0.9"
+                    />
+
+                    {/* Cône d'Ombre Portée Projetée (Opposé au soleil) */}
+                    <path
+                      d={`M 0 0 L ${shadowX - 16} ${shadowY} L ${shadowX + 16} ${shadowY} Z`}
+                      fill="#1E293B"
+                      fillOpacity="0.55"
+                      stroke="#475569"
+                      strokeWidth="1"
+                      strokeDasharray="4 2"
+                    />
+                    <g transform={`translate(${shadowX}, ${shadowY + (shadowY > 0 ? 16 : -10)})`}>
+                      <rect x="-42" y="-9" width="84" height="18" rx="5" fill="#0F172A" fillOpacity="0.9" stroke="#64748B" strokeWidth="1" />
+                      <text y="3.5" fill="#CBD5E1" fontSize="8.5" fontWeight="bold" textAnchor="middle" fontFamily="monospace">
+                        Ombre {solarPosition.shadowRatio}×
+                      </text>
+                    </g>
+
+                    {/* Soleil Actuel Lumineux */}
+                    <g transform={`translate(${sunX}, ${sunY})`}>
+                      <circle r="14" fill="#F59E0B" fillOpacity="0.3" className="animate-ping" />
+                      <circle r="11" fill="#FBBF24" stroke="#FFF" strokeWidth="2.5" />
+                      <circle r="5" fill="#F59E0B" />
+                      <g transform="translate(0, -18)">
+                        <rect x="-38" y="-10" width="76" height="20" rx="6" fill="#0B132B" stroke="#F59E0B" strokeWidth="1.5" fillOpacity="0.95" />
+                        <text y="3.5" fill="#FDE68A" fontSize="9.5" fontWeight="bold" textAnchor="middle" fontFamily="monospace">
+                          {solarPosition.elevationDeg}° • {solarPosition.cardinalLabel}
+                        </text>
+                      </g>
+                    </g>
+                  </>
+                )}
+              </>
+            );
+          })()}
         </g>
       )}
 
