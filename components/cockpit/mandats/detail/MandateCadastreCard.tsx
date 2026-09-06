@@ -89,11 +89,11 @@ export function MandateCadastreCard({ property, onSaveCadastre }: MandateCadastr
 
       {parcel ? (
         <div className="space-y-4">
-          {/* Main Visualizer */}
+          {/* Main Visualizer - Grande fenêtre panoramique */}
           <ParcelMapViewer
             parcel={parcel}
             onOpenInspector={() => setIsInspectorOpen(true)}
-            height={240}
+            height={420}
           />
 
           {/* Technical Specs Grid */}

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Ruler, Sun, Compass, MapPin, Hash, ShieldCheck, Copy, Check } from 'lucide-react';
+import { Ruler, Sun, Compass, MapPin, Hash, ShieldCheck, Copy, Check, Trees } from 'lucide-react';
 import type { Property } from '@/lib/types';
 import { CadastreParcel } from '@/lib/cadastre';
 
@@ -19,6 +19,8 @@ export function ParcelSpecsGrid({ property, parcel }: ParcelSpecsGridProps) {
   const dimensions = parcel.dimensions;
   const exposure = parcel.exposure || 'Sud / Traversant (Ensoleillement optimal)';
   const idu = property.cadastral_id || parcel.idu;
+  const livingArea = property.living_area || 0;
+  const gardenArea = surface && livingArea && surface > livingArea ? surface - livingArea : null;
 
   const handleCopyIdu = () => {
     if (!idu) return;
@@ -82,6 +84,19 @@ export function ParcelSpecsGrid({ property, parcel }: ParcelSpecsGridProps) {
           </div>
           <div className="text-xs font-bold text-amber-950">{exposure}</div>
         </div>
+
+        {/* Espaces Verts / Plein Air */}
+        {gardenArea && (
+          <div className="p-3 bg-emerald-50/50 rounded-2xl border border-emerald-100/60 col-span-2">
+            <div className="flex items-center gap-1.5 text-emerald-800 mb-1">
+              <Trees className="w-3.5 h-3.5 text-emerald-600" />
+              <span className="text-[10px] font-medium uppercase tracking-wider">Extérieurs & Plein Air</span>
+            </div>
+            <div className="text-xs font-bold text-emerald-950">
+              ~{gardenArea.toLocaleString('fr-FR')} m² non bâtis ({Math.round((gardenArea / surface) * 100)}% de la parcelle)
+            </div>
+          </div>
+        )}
 
         {/* IDU National */}
         <div className="p-3 bg-gray-50/80 rounded-2xl border border-gray-100/80 col-span-2 flex items-center justify-between">

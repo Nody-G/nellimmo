@@ -24,6 +24,7 @@ interface ParcelTileOverlaySvgProps {
   surfaceText?: string;
   centerPos?: { x: number; y: number };
   scale?: number;
+  showOverlays?: boolean;
 }
 
 export function ParcelTileOverlaySvg({
@@ -34,10 +35,11 @@ export function ParcelTileOverlaySvg({
   surfaceText,
   centerPos,
   scale = 1,
+  showOverlays = true,
 }: ParcelTileOverlaySvgProps) {
   const [hoveredPoint, setHoveredPoint] = useState<number | null>(null);
 
-  if (!svgPath) return null;
+  if (!svgPath || !showOverlays) return null;
 
   const invScale = 1 / Math.max(scale, 0.1);
 

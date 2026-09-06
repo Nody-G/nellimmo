@@ -21,6 +21,7 @@ export function InteractiveParcelMap({
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
+  const [showOverlays, setShowOverlays] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
   const dragStartRef = useRef({ x: 0, y: 0, panX: 0, panY: 0 });
 
@@ -98,6 +99,7 @@ export function InteractiveParcelMap({
   };
 
   const streetViewUrl = `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${centerLat},${centerLon}`;
+  const earth3dUrl = `https://earth.google.com/web/@${centerLat},${centerLon},150a,600d,35y,0h,45t,0r`;
   const ignEmbedUrl = getGeoportailEmbedUrl(centerLon, centerLat);
 
   return (
@@ -117,6 +119,9 @@ export function InteractiveParcelMap({
         mode={mode}
         onSelectMode={setMode}
         streetViewUrl={streetViewUrl}
+        earth3dUrl={earth3dUrl}
+        showOverlays={showOverlays}
+        onToggleOverlays={() => setShowOverlays((cur) => !cur)}
         onOpenInspector={onOpenInspector}
         onZoomIn={() => setZoom((zVal) => Math.min(4.0, zVal + 0.35))}
         onZoomOut={() => setZoom((zVal) => Math.max(0.5, zVal - 0.35))}
@@ -182,6 +187,7 @@ export function InteractiveParcelMap({
               surfaceText={`${parcel.contenance} m²`}
               centerPos={{ x: parcelCenterX, y: parcelCenterY }}
               scale={currentScale}
+              showOverlays={showOverlays}
             />
           </div>
         </div>
