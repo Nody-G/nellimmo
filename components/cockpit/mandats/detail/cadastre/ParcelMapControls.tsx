@@ -15,6 +15,7 @@ import {
   Sun,
   Layers,
   ChevronDown,
+  MapPin,
 } from 'lucide-react';
 
 export type MapMode = 'arpenteur' | 'satellite' | 'plan' | 'ign';
@@ -25,6 +26,7 @@ export interface ActiveLayers {
   texts: boolean;
   sun?: boolean;
   radius?: boolean;
+  amenities?: boolean;
 }
 
 interface ParcelMapControlsProps {
@@ -172,6 +174,20 @@ export function ParcelMapControls({
                     Rayon 300m / 500m
                   </span>
                   <span className="text-[10px] font-mono">{layers.radius ? 'ON' : 'OFF'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => onToggleLayer('amenities')}
+                  className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs font-medium transition cursor-pointer ${
+                    layers.amenities ? 'bg-indigo-500/20 text-indigo-200 font-bold' : 'text-gray-300 hover:bg-white/10'
+                  }`}
+                >
+                  <span className="flex items-center gap-1.5">
+                    <MapPin className="w-3.5 h-3.5 text-indigo-400" />
+                    Commodités (Écoles / Commerces)
+                  </span>
+                  <span className="text-[10px] font-mono">{layers.amenities ? 'ON' : 'OFF'}</span>
                 </button>
               </div>
             )}

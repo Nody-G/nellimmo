@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Compass } from 'lucide-react';
 import { CadastreParcel, calculateDistanceMeters, getGeoportailEmbedUrl } from '@/lib/cadastre';
 import { getDaySolarSummary, getSolarPosition } from '@/lib/solar';
+import { AmenityItem } from '@/lib/amenities';
 import { ParcelTileOverlaySvg } from './ParcelTileOverlaySvg';
 import { ParcelMapControls, MapMode, ActiveLayers } from './ParcelMapControls';
 import { SolarLocatorPanel } from './SolarLocatorPanel';
@@ -28,7 +29,9 @@ export function InteractiveParcelMap({
     texts: true,
     sun: false,
     radius: false,
+    amenities: false,
   });
+  const [amenitiesList, setAmenitiesList] = useState<AmenityItem[]>([]);
   const [solarSeason, setSolarSeason] = useState<'summer' | 'winter' | 'equinox' | 'today'>('today');
   const [solarHour, setSolarHour] = useState<number>(14);
   const [isMeasuring, setIsMeasuring] = useState(false);
@@ -158,6 +161,36 @@ export function InteractiveParcelMap({
     container.addEventListener('wheel', handleNativeWheel, { passive: false });
     return () => container.removeEventListener('wheel', handleNativeWheel);
   }, []);
+
+  // Fetch amenities when user enables amenities layer
+  useEffect(() => {
+    if (!layers.amenities || amenitiesList.length > 0) return;
+    fetch(`/api/amenities?lat=${centerLat}&lon=${centerLon}&city=${encodeURIComponent(parcel.nom_com || 'Provence')}`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.success && d.data?.amenities) {
+          setAmenitiesList(d.data.amenities);
+        }
+      })
+      .catch(() => {});
+  }, [layers.amenities, amenitiesList.length, centerLat, centerLon, parcel.nom_com]);
+
+  // Transform amenities to screen coordinates
+  const amenityScreenPoints = layers.amenities
+    ? amenitiesList.map((a) => {
+        const aWorldX = lonToX(a.lon) * 256;
+        const aWorldY = latToY(a.lat) * 256;
+        return {
+          id: a.id,
+          name: a.name,
+          category: a.category,
+          subtypeLabel: a.subtypeLabel,
+          distanceMeters: a.distanceMeters,
+          x: (aWorldX - viewCenterWorldX) * currentScale + containerSize.width / 2,
+          y: (aWorldY - viewCenterWorldY) * currentScale + containerSize.height / 2,
+        };
+      })
+    : [];
 
   // Listen to fullscreen changes
   useEffect(() => {
@@ -353,6 +386,7 @@ export function InteractiveParcelMap({
             measureDistance={measureDistance}
             solarPosition={solarPosition}
             solarSummary={solarSummary}
+            amenityPoints={amenityScreenPoints}
           />
         </div>
       )}

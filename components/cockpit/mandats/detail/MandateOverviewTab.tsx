@@ -10,6 +10,7 @@ import { DpeBadge } from '@/components/ui/DpeBadge';
 import { MandateFinancialCards } from './MandateFinancialCards';
 import { MandateCadastreCard } from './MandateCadastreCard';
 import { GoogleTerrainCard } from './GoogleTerrainCard';
+import { NeighborhoodAmenitiesAssistant } from './amenities/NeighborhoodAmenitiesAssistant';
 
 interface MandateOverviewTabProps {
   property: Property;
@@ -48,6 +49,9 @@ export const MandateOverviewTab: React.FC<MandateOverviewTabProps> = ({ property
 
       {/* Cadastre & IGN Geoportail Parcel Card */}
       <MandateCadastreCard property={property} onSaveCadastre={handleSaveCadastre} />
+
+      {/* Assistant Quartier & Commodités Haute Précision */}
+      <NeighborhoodAmenitiesAssistant property={property} />
 
       {/* DPE & Diagnostic preview */}
       <Card className="p-5">

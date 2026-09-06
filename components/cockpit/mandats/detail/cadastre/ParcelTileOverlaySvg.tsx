@@ -32,6 +32,7 @@ interface ParcelTileOverlaySvgProps {
   measureDistance?: number | null;
   solarPosition?: SolarPosition;
   solarSummary?: DaySolarSummary;
+  amenityPoints?: { id: string; name: string; category: string; subtypeLabel: string; distanceMeters: number; x: number; y: number }[];
 }
 
 export function ParcelTileOverlaySvg({
@@ -47,6 +48,7 @@ export function ParcelTileOverlaySvg({
   measureDistance = null,
   solarPosition,
   solarSummary,
+  amenityPoints = [],
 }: ParcelTileOverlaySvgProps) {
   const [hoveredPoint, setHoveredPoint] = useState<number | null>(null);
 
@@ -357,6 +359,36 @@ export function ParcelTileOverlaySvg({
               </g>
             </>
           )}
+        </g>
+      )}
+
+      {/* 8. CALQUE COMMODITÉS DE PROXIMITÉ */}
+      {layers.amenities && amenityPoints && amenityPoints.length > 0 && (
+        <g>
+          {amenityPoints.map((a) => {
+            const isEducation = a.category === 'education';
+            const isCommerce = a.category === 'commerce';
+            const isSport = a.category === 'sport';
+            const isSante = a.category === 'sante';
+            const bg = isEducation ? '#4F46E5' : isCommerce ? '#D97706' : isSport ? '#059669' : isSante ? '#E11D48' : '#2563EB';
+
+            return (
+              <g key={`amenity-${a.id}`} transform={`translate(${a.x}, ${a.y})`}>
+                <g transform={`scale(${invScale})`}>
+                  <circle r="12" fill={bg} stroke="#FFF" strokeWidth="2" fillOpacity="0.9" className="drop-shadow-md" />
+                  <text y="3.5" fill="#FFF" fontSize="9" fontWeight="black" textAnchor="middle">
+                    {isEducation ? '🎒' : isCommerce ? '🛒' : isSport ? '⚽' : isSante ? '💊' : '🚆'}
+                  </text>
+                  <g transform="translate(0, 20)">
+                    <rect x="-40" y="-8" width="80" height="16" rx="5" fill="#0B132B" fillOpacity="0.95" stroke={bg} strokeWidth="1" />
+                    <text y="3.5" fill="#FFF" fontSize="8" fontWeight="bold" textAnchor="middle" fontFamily="monospace">
+                      {a.distanceMeters < 1000 ? `${a.distanceMeters}m` : `${(a.distanceMeters / 1000).toFixed(1)}km`}
+                    </text>
+                  </g>
+                </g>
+              </g>
+            );
+          })}
         </g>
       )}
     </svg>
