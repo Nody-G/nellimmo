@@ -638,7 +638,12 @@ export function NeighborhoodAmenitiesAssistant({ property }: NeighborhoodAmeniti
               centerLon={summary.center.lon}
               amenities={filteredAmenities}
               selectedAmenityId={selectedAmenityId}
-              onSelectAmenity={(item) => setSelectedAmenityId(item.id)}
+              onSelectAmenity={(item) => setSelectedAmenityId(item ? item.id : null)}
+              propertyAddress={
+                property.address
+                  ? `${property.address}, ${property.postal_code || ''} ${property.city || ''}`.trim()
+                  : undefined
+              }
               height={560}
             />
           </div>

@@ -2,12 +2,11 @@
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { AmenityItem, CATEGORY_CONFIG } from '@/lib/amenities';
+import { GooglePlaceSheet } from './GooglePlaceSheet';
 import {
   ZoomIn,
   ZoomOut,
   RotateCcw,
-  ExternalLink,
-  Navigation,
   MapPin,
   Map,
   Satellite,
@@ -18,8 +17,9 @@ interface NeighborhoodAmenitiesMapProps {
   centerLon: number;
   amenities: AmenityItem[];
   selectedAmenityId: string | null;
-  onSelectAmenity: (amenity: AmenityItem) => void;
+  onSelectAmenity: (amenity: AmenityItem | null) => void;
   height?: number;
+  propertyAddress?: string;
 }
 
 export function NeighborhoodAmenitiesMap({
@@ -29,6 +29,7 @@ export function NeighborhoodAmenitiesMap({
   selectedAmenityId,
   onSelectAmenity,
   height = 560,
+  propertyAddress,
 }: NeighborhoodAmenitiesMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [zoom, setZoom] = useState(1); // 1 = ~1.5km radius
@@ -390,52 +391,14 @@ export function NeighborhoodAmenitiesMap({
         </div>
       </div>
 
-      {/* Selected Amenity Info Card (Floating Bottom Panel) */}
+      {/* Fiche Google Maps Intégrée (Google Business Profile) */}
       {selectedItem && (
-        <div
-          data-no-drag
-          onPointerDown={(e) => e.stopPropagation()}
-          className="absolute bottom-3 left-3 right-3 sm:left-4 sm:right-auto sm:w-[360px] bg-[#0B132B]/95 backdrop-blur-xl border border-white/20 p-3.5 rounded-2xl shadow-2xl z-40 text-white animate-in fade-in slide-in-from-bottom-2"
-        >
-          <div className="flex items-start justify-between gap-2">
-            <div>
-              <div className="flex items-center gap-1.5 text-xs text-amber-300 font-bold mb-0.5">
-                <span>{CATEGORY_CONFIG[selectedItem.category]?.emoji}</span>
-                <span>{selectedItem.subtypeLabel}</span>
-              </div>
-              <h5 className="font-bold text-sm text-white line-clamp-1">{selectedItem.name}</h5>
-              <p className="text-[11px] text-gray-300 line-clamp-1 mt-0.5">{selectedItem.address}</p>
-            </div>
-
-            <span className="px-2 py-1 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-mono font-bold whitespace-nowrap">
-              {selectedItem.distanceMeters < 1000
-                ? `${selectedItem.distanceMeters} m`
-                : `${(selectedItem.distanceMeters / 1000).toFixed(1)} km`}
-            </span>
-          </div>
-
-          <div className="flex items-center justify-between gap-2 mt-3 pt-2.5 border-t border-white/10 text-xs">
-            <div className="flex items-center gap-3 text-gray-300">
-              <span>🚶 <strong>{selectedItem.walkingMinutes} min</strong> à pied</span>
-              <span>🚗 <strong>{selectedItem.drivingMinutes} min</strong> auto</span>
-            </div>
-
-            <a
-              href={
-                selectedItem.googleMapsDirectionsUrl ||
-                `https://www.google.com/maps/dir/?api=1&origin=${centerLat},${centerLon}&destination=${selectedItem.lat},${selectedItem.lon}&travelmode=${selectedItem.distanceMeters <= 1200 ? 'walking' : 'driving'}`
-              }
-              target="_blank"
-              rel="noreferrer"
-              title="Itinéraire Google Maps au départ du bien"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold transition shadow-md cursor-pointer"
-            >
-              <Navigation className="w-3 h-3" />
-              <span>Itinéraire depuis le bien</span>
-              <ExternalLink className="w-2.5 h-2.5 opacity-70" />
-            </a>
-          </div>
-        </div>
+        <GooglePlaceSheet
+          key={selectedItem.id}
+          item={selectedItem}
+          propertyAddress={propertyAddress}
+          onClose={() => onSelectAmenity(null)}
+        />
       )}
     </div>
   );
