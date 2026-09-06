@@ -49,6 +49,7 @@ export function MandateUnifiedStudioSection({
   const [selectedProfile, setSelectedProfile] = useState<ClientProfileKey>('famille');
   const [selectedCategory, setSelectedCategory] = useState<'all' | AmenityCategory>('all');
   const [selectedAmenityId, setSelectedAmenityId] = useState<string | null>(null);
+  const [showAmenitiesOnMap, setShowAmenitiesOnMap] = useState(true);
 
   // Copy states
   const [copiedPitch, setCopiedPitch] = useState(false);
@@ -183,6 +184,7 @@ export function MandateUnifiedStudioSection({
 
   const handleSelectKeyAmenity = (item?: AmenityItem) => {
     if (!item) return;
+    setShowAmenitiesOnMap(true);
     setSelectedAmenityId(item.id);
   };
 
@@ -208,6 +210,19 @@ export function MandateUnifiedStudioSection({
               <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-teal-50 text-teal-800 border border-teal-200">
                 IGN Live + Commodités
               </span>
+              <button
+                type="button"
+                onClick={() => setShowAmenitiesOnMap((cur) => !cur)}
+                className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold transition flex items-center gap-1.5 cursor-pointer border ${
+                  showAmenitiesOnMap
+                    ? 'bg-indigo-50 border-indigo-200 text-indigo-900 font-black shadow-2xs'
+                    : 'bg-gray-100 hover:bg-gray-200 border-gray-200 text-gray-500'
+                }`}
+                title="Afficher ou masquer les commodités (écoles, commerces, transports) sur la carte"
+              >
+                <span>🎒</span>
+                <span>Commodités : {showAmenitiesOnMap ? 'Affichées (ON)' : 'Masquées (OFF)'}</span>
+              </button>
               {parcel && (
                 <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-gray-100 text-gray-700">
                   Sec. {parcel.section} N°{parcel.numero} • {parcel.contenance} m²
@@ -275,6 +290,8 @@ export function MandateUnifiedStudioSection({
             selectedAmenityId={selectedAmenityId}
             onSelectAmenity={(item) => setSelectedAmenityId(item ? item.id : null)}
             propertyAddress={propertyFullAddress}
+            showAmenitiesLayer={showAmenitiesOnMap}
+            onToggleAmenitiesLayer={setShowAmenitiesOnMap}
           />
         </div>
       ) : (
@@ -662,7 +679,10 @@ export function MandateUnifiedStudioSection({
               return (
                 <div
                   key={item.id}
-                  onClick={() => setSelectedAmenityId(item.id)}
+                  onClick={() => {
+                    setShowAmenitiesOnMap(true);
+                    setSelectedAmenityId(item.id);
+                  }}
                   className={`p-3.5 rounded-2xl border transition-all cursor-pointer ${
                     isSelected
                       ? 'bg-amber-50/40 border-amber-500 ring-2 ring-amber-500/20 shadow-md'

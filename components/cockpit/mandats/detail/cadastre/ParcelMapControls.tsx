@@ -132,6 +132,28 @@ export function ParcelMapControls({
             Textes
           </button>
 
+          {/* Direct Amenities Layer Toggle */}
+          <button
+            type="button"
+            onClick={() => onToggleLayer('amenities')}
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer ${
+              layers.amenities
+                ? 'bg-indigo-600 text-white shadow-xs font-black'
+                : 'text-gray-400 hover:text-white hover:bg-white/5'
+            }`}
+            title="Afficher ou masquer les commodités (écoles, commerces, sports, santé) sur la carte"
+          >
+            <MapPin className="w-3.5 h-3.5 text-indigo-300" />
+            <span>Commodités</span>
+            <span
+              className={`text-[9px] px-1 py-0.2 rounded font-mono font-bold ${
+                layers.amenities ? 'bg-indigo-800 text-white' : 'bg-white/10 text-gray-400'
+              }`}
+            >
+              {layers.amenities ? 'ON' : 'OFF'}
+            </span>
+          </button>
+
           {/* Menu Calques Avancés (Soleil & Rayons) */}
           <div className="relative">
             <button

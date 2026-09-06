@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { AmenityItem, CATEGORY_CONFIG, AmenitySubtype } from '@/lib/amenities';
 import {
   Star,
@@ -136,6 +136,33 @@ export function GooglePlaceSheet({
   const [imgLoaded, setImgLoaded] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
 
+  const sheetRef = useRef<HTMLDivElement>(null);
+  const scrollableContentRef = useRef<HTMLDivElement>(null);
+
+  // Native wheel containment: guarantees smooth sheet scroll and stops bubbling to map zoom
+  useEffect(() => {
+    const sheetEl = sheetRef.current;
+    if (!sheetEl) return;
+
+    const handleSheetWheel = (e: WheelEvent) => {
+      // 1. Strictly isolate native wheel bubbling from map zoom listeners
+      e.stopPropagation();
+
+      // 2. If hovering non-scrollable parts of the sheet (header, hero photo, footer),
+      // smoothly route the scroll to the scrollable content container
+      const scrollEl = scrollableContentRef.current;
+      if (scrollEl && !e.defaultPrevented) {
+        const targetNode = e.target as Node | null;
+        if (targetNode && !scrollEl.contains(targetNode)) {
+          scrollEl.scrollTop += e.deltaY;
+        }
+      }
+    };
+
+    sheetEl.addEventListener('wheel', handleSheetWheel, { passive: true });
+    return () => sheetEl.removeEventListener('wheel', handleSheetWheel);
+  }, []);
+
   const preset = SUBTYPE_PRESETS[item.subtype] || SUBTYPE_PRESETS.supermarche;
   const config = CATEGORY_CONFIG[item.category];
 
@@ -225,6 +252,9 @@ export function GooglePlaceSheet({
 
   return (
     <div
+      ref={sheetRef}
+      data-sheet-container
+      data-allow-scroll
       data-no-drag
       onPointerDown={(e) => e.stopPropagation()}
       onWheel={(e) => e.stopPropagation()}
@@ -337,7 +367,11 @@ export function GooglePlaceSheet({
 
       {/* 3. TAB CONTENT: Detailed Google Place Profile Sheet */}
       {activeTab === 'profile' && (
-        <div className="flex-1 overflow-y-auto divide-y divide-gray-100 dark:divide-white/5">
+        <div
+          ref={scrollableContentRef}
+          data-allow-scroll
+          className="flex-1 overflow-y-auto divide-y divide-gray-100 dark:divide-white/5"
+        >
           {/* Hero Visual Cover */}
           <div className="relative h-36 w-full overflow-hidden bg-gradient-to-tr from-gray-800 to-gray-600">
             {/* eslint-disable-next-line @next/next/no-img-element */}

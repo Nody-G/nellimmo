@@ -32,6 +32,7 @@ export function NeighborhoodAmenitiesMap({
   propertyAddress,
 }: NeighborhoodAmenitiesMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const isHoveringOverlayRef = useRef(false);
   const [zoom, setZoom] = useState(1); // 1 = ~1.5km radius
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
@@ -153,8 +154,12 @@ export function NeighborhoodAmenitiesMap({
     const el = containerRef.current;
     if (!el) return;
     const onWheel = (e: WheelEvent) => {
-      const target = e.target as HTMLElement | null;
-      if (target && target.closest('[data-no-drag], .overflow-y-auto, .overflow-y-scroll, [data-allow-scroll]')) {
+      if (isHoveringOverlayRef.current) {
+        return;
+      }
+      const target = e.target as (HTMLElement | SVGElement | null);
+      const element = target?.nodeType === 3 ? (target.parentElement as HTMLElement | null) : (target as HTMLElement | null);
+      if (element && element.closest('[data-no-drag], [data-overlay-container], [data-sheet-container], .overflow-y-auto, .overflow-y-scroll, [data-allow-scroll]')) {
         return; // Let natural scroll happen inside GooglePlaceSheet without zooming the map
       }
       e.preventDefault();
@@ -397,12 +402,23 @@ export function NeighborhoodAmenitiesMap({
 
       {/* Fiche Google Maps Intégrée (Google Business Profile) */}
       {selectedItem && (
-        <GooglePlaceSheet
-          key={selectedItem.id}
-          item={selectedItem}
-          propertyAddress={propertyAddress}
-          onClose={() => onSelectAmenity(null)}
-        />
+        <div
+          data-overlay-container
+          onPointerEnter={() => {
+            isHoveringOverlayRef.current = true;
+          }}
+          onPointerLeave={() => {
+            isHoveringOverlayRef.current = false;
+          }}
+          className="z-50 pointer-events-auto"
+        >
+          <GooglePlaceSheet
+            key={selectedItem.id}
+            item={selectedItem}
+            propertyAddress={propertyAddress}
+            onClose={() => onSelectAmenity(null)}
+          />
+        </div>
       )}
     </div>
   );

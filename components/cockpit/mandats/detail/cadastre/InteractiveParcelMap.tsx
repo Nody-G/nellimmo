@@ -18,6 +18,8 @@ interface InteractiveParcelMapProps {
   onSelectAmenity?: (amenity: AmenityItem | null) => void;
   propertyAddress?: string;
   initialLayers?: Partial<ActiveLayers>;
+  showAmenitiesLayer?: boolean;
+  onToggleAmenitiesLayer?: (show: boolean) => void;
 }
 
 export function InteractiveParcelMap({
@@ -28,13 +30,15 @@ export function InteractiveParcelMap({
   onSelectAmenity,
   propertyAddress,
   initialLayers,
+  showAmenitiesLayer,
+  onToggleAmenitiesLayer,
 }: InteractiveParcelMapProps) {
   const [mode, setMode] = useState<MapMode>('arpenteur');
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [containerSize, setContainerSize] = useState({ width: 1200, height: 700 });
-  const [layers, setLayers] = useState<ActiveLayers>({
+  const [internalLayers, setInternalLayers] = useState<ActiveLayers>({
     lines: true,
     points: true,
     texts: true,
@@ -43,6 +47,13 @@ export function InteractiveParcelMap({
     amenities: true,
     ...initialLayers,
   });
+
+  // Effective layers derive amenities from showAmenitiesLayer if provided, otherwise internalLayers
+  const layers: ActiveLayers = {
+    ...internalLayers,
+    amenities: showAmenitiesLayer !== undefined ? showAmenitiesLayer : (internalLayers.amenities ?? true),
+  };
+
   const [amenitiesList, setAmenitiesList] = useState<AmenityItem[]>([]);
   const [internalSelectedAmenityId, setInternalSelectedAmenityId] = useState<string | null>(null);
   const activeSelectedAmenityId = selectedAmenityId !== undefined ? selectedAmenityId : internalSelectedAmenityId;
@@ -58,6 +69,7 @@ export function InteractiveParcelMap({
   const [measurePoints, setMeasurePoints] = useState<{ lon: number; lat: number }[]>([]);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const isHoveringOverlayRef = useRef(false);
   const dragStartRef = useRef({ x: 0, y: 0, panX: 0, panY: 0, moved: false });
 
   const centerLat = parcel.coordinates?.lat || 43.64;
@@ -225,8 +237,13 @@ export function InteractiveParcelMap({
     const container = containerRef.current;
     if (!container) return;
     const handleNativeWheel = (e: WheelEvent) => {
-      const target = e.target as HTMLElement | null;
-      if (target && target.closest('[data-no-drag], .overflow-y-auto, .overflow-y-scroll, [data-allow-scroll]')) {
+      // 1. If mouse pointer is over an overlay sheet or panel, NEVER zoom the map!
+      if (isHoveringOverlayRef.current) {
+        return;
+      }
+      const target = e.target as (HTMLElement | SVGElement | null);
+      const element = target?.nodeType === 3 ? (target.parentElement as HTMLElement | null) : (target as HTMLElement | null);
+      if (element && element.closest('[data-no-drag], [data-overlay-container], [data-sheet-container], .overflow-y-auto, .overflow-y-scroll, [data-allow-scroll]')) {
         return;
       }
       e.preventDefault();
@@ -319,7 +336,13 @@ export function InteractiveParcelMap({
   };
 
   const toggleLayer = (layer: keyof ActiveLayers) => {
-    setLayers((prev) => ({ ...prev, [layer]: !prev[layer] }));
+    if (layer === 'amenities' && onToggleAmenitiesLayer) {
+      onToggleAmenitiesLayer(!layers.amenities);
+    }
+    setInternalLayers((prev) => ({
+      ...prev,
+      [layer]: layer === 'amenities' && showAmenitiesLayer !== undefined ? !showAmenitiesLayer : !prev[layer],
+    }));
   };
 
   const streetViewUrl = `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${centerLat},${centerLon}`;
@@ -508,25 +531,47 @@ export function InteractiveParcelMap({
 
       {/* Google Place Profile Sheet Modal over Map */}
       {selectedAmenity && (
-        <GooglePlaceSheet
-          key={selectedAmenity.id}
-          item={selectedAmenity}
-          propertyAddress={propertyAddress}
-          onClose={() => handleSelectAmenity(null)}
-        />
+        <div
+          data-overlay-container
+          onPointerEnter={() => {
+            isHoveringOverlayRef.current = true;
+          }}
+          onPointerLeave={() => {
+            isHoveringOverlayRef.current = false;
+          }}
+          className="z-50 pointer-events-auto"
+        >
+          <GooglePlaceSheet
+            key={selectedAmenity.id}
+            item={selectedAmenity}
+            propertyAddress={propertyAddress}
+            onClose={() => handleSelectAmenity(null)}
+          />
+        </div>
       )}
 
       {/* SolarLocator Pro HUD Overlay */}
       {layers.sun && (
-        <SolarLocatorPanel
-          lat={centerLat}
-          lon={centerLon}
-          selectedSeason={solarSeason}
-          onSelectSeason={setSolarSeason}
-          hourDecimal={solarHour}
-          onChangeHour={setSolarHour}
-          onClose={() => setLayers((l) => ({ ...l, sun: false }))}
-        />
+        <div
+          data-overlay-container
+          onPointerEnter={() => {
+            isHoveringOverlayRef.current = true;
+          }}
+          onPointerLeave={() => {
+            isHoveringOverlayRef.current = false;
+          }}
+          className="z-50 pointer-events-auto"
+        >
+          <SolarLocatorPanel
+            lat={centerLat}
+            lon={centerLon}
+            selectedSeason={solarSeason}
+            onSelectSeason={setSolarSeason}
+            hourDecimal={solarHour}
+            onChangeHour={setSolarHour}
+            onClose={() => setInternalLayers((l) => ({ ...l, sun: false }))}
+          />
+        </div>
       )}
 
       {/* Multi-point Polyline Measurement Tool Guide Banner */}
