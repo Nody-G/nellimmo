@@ -6,11 +6,15 @@ import { FINANCING_STATUS_OPTIONS } from './acquereurs-types';
 
 export type AcquereursSortOption =
   | 'matching_desc'
+  | 'matching_asc'
   | 'budget_desc'
   | 'budget_asc'
   | 'surface_desc'
+  | 'surface_asc'
   | 'recent'
+  | 'oldest'
   | 'name_asc'
+  | 'name_desc'
   | 'financing';
 
 interface AcquereursFilterBarProps {
@@ -75,11 +79,15 @@ export function AcquereursFilterBar({
               className="bg-transparent text-xs font-bold text-gray-800 focus:outline-none cursor-pointer pr-1"
             >
               <option value="matching_desc">Meilleur matching (Mandats correspondants)</option>
+              <option value="matching_asc">Matching (Moins de mandats)</option>
               <option value="budget_desc">Budget max (Plus élevé)</option>
               <option value="budget_asc">Budget max (Plus accessible)</option>
               <option value="surface_desc">Surface min (Plus grande)</option>
+              <option value="surface_asc">Surface min (Plus compacte)</option>
               <option value="recent">Inscription (Plus récents)</option>
+              <option value="oldest">Inscription (Plus anciens)</option>
               <option value="name_asc">Nom (A → Z)</option>
+              <option value="name_desc">Nom (Z → A)</option>
               <option value="financing">Financement validé en priorité</option>
             </select>
           </div>

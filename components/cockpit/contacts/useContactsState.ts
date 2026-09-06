@@ -11,9 +11,13 @@ export type ContactsSortOption =
   | 'name_asc'
   | 'name_desc'
   | 'recent'
+  | 'oldest'
   | 'role'
+  | 'role_desc'
   | 'company'
-  | 'city';
+  | 'company_desc'
+  | 'city'
+  | 'city_desc';
 
 export function useContactsState(initialContactId?: string) {
   const { contacts } = useNellimoStore();
@@ -104,19 +108,38 @@ export function useContactsState(initialContactId?: string) {
           const timeB = new Date(b.updated_at || b.created_at || 0).getTime();
           return timeB - timeA;
         }
+        case 'oldest': {
+          const timeA = new Date(a.updated_at || a.created_at || 0).getTime();
+          const timeB = new Date(b.updated_at || b.created_at || 0).getTime();
+          return timeA - timeB;
+        }
         case 'role': {
           const roleComp = a.role.localeCompare(b.role, 'fr');
           return roleComp !== 0 ? roleComp : a.last_name.localeCompare(b.last_name, 'fr');
+        }
+        case 'role_desc': {
+          const roleComp = b.role.localeCompare(a.role, 'fr');
+          return roleComp !== 0 ? roleComp : b.last_name.localeCompare(a.last_name, 'fr');
         }
         case 'company': {
           const compA = a.company || 'zzz';
           const compB = b.company || 'zzz';
           return compA.localeCompare(compB, 'fr', { sensitivity: 'base' });
         }
+        case 'company_desc': {
+          const compA = a.company || 'zzz';
+          const compB = b.company || 'zzz';
+          return compB.localeCompare(compA, 'fr', { sensitivity: 'base' });
+        }
         case 'city': {
           const cityA = a.city || 'zzz';
           const cityB = b.city || 'zzz';
           return cityA.localeCompare(cityB, 'fr', { sensitivity: 'base' });
+        }
+        case 'city_desc': {
+          const cityA = a.city || 'zzz';
+          const cityB = b.city || 'zzz';
+          return cityB.localeCompare(cityA, 'fr', { sensitivity: 'base' });
         }
         default:
           return 0;

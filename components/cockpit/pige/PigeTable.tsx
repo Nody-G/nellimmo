@@ -11,17 +11,28 @@ import {
   STATUS_OPTIONS,
 } from './pige-types';
 
+import { SortableColumnHeader } from '../common/SortableColumnHeader';
+import type { PigeSortOption } from './PigeFilterBar';
+
 interface PigeTableProps {
   leads: ProspectingLead[];
   onConvertToMandate: (lead: ProspectingLead) => void;
   onStatusChange?: (leadId: string, newStatus: ProspectingStatus) => void;
+  sortBy?: PigeSortOption;
+  onSortChange?: (newSort: PigeSortOption) => void;
 }
 
 export function PigeTable({
   leads,
   onConvertToMandate,
   onStatusChange,
+  sortBy = 'recent',
+  onSortChange,
 }: PigeTableProps) {
+  const handleSort = (option: PigeSortOption) => {
+    if (onSortChange) onSortChange(option);
+  };
+
   if (leads.length === 0) {
     return (
       <div className="bg-white rounded-3xl border border-[#F3E8EE] shadow-xs p-12 text-center text-gray-500 space-y-3">
@@ -40,13 +51,63 @@ export function PigeTable({
         <table className="w-full text-left text-xs">
           <thead>
             <tr className="bg-[#FCFAF7] border-b border-[#F3E8EE] text-gray-600 font-bold uppercase text-[10px]">
-              <th className="p-4 w-12 text-center">Rang</th>
-              <th className="p-4">Annonce / Bien</th>
-              <th className="p-4">Vendeur & Contact</th>
-              <th className="p-4">Source</th>
-              <th className="p-4">Prix Demandé</th>
-              <th className="p-4">Écart DVF Notaires</th>
-              <th className="p-4">Statut Prospection</th>
+              <th className="p-4 w-14 text-center">
+                <SortableColumnHeader
+                  label="Rang"
+                  active={sortBy === 'recent' || sortBy === 'oldest'}
+                  direction={sortBy === 'oldest' ? 'asc' : 'desc'}
+                  align="center"
+                  onClick={() => handleSort(sortBy === 'recent' ? 'oldest' : 'recent')}
+                />
+              </th>
+              <th className="p-4">
+                <SortableColumnHeader
+                  label="Annonce / Bien"
+                  active={sortBy === 'surface_desc' || sortBy === 'surface_asc'}
+                  direction={sortBy === 'surface_asc' ? 'asc' : 'desc'}
+                  onClick={() => handleSort(sortBy === 'surface_desc' ? 'surface_asc' : 'surface_desc')}
+                />
+              </th>
+              <th className="p-4">
+                <SortableColumnHeader
+                  label="Vendeur & Contact"
+                  active={sortBy === 'seller_asc' || sortBy === 'seller_desc'}
+                  direction={sortBy === 'seller_desc' ? 'desc' : 'asc'}
+                  onClick={() => handleSort(sortBy === 'seller_asc' ? 'seller_desc' : 'seller_asc')}
+                />
+              </th>
+              <th className="p-4">
+                <SortableColumnHeader
+                  label="Source"
+                  active={sortBy === 'source_asc' || sortBy === 'source_desc'}
+                  direction={sortBy === 'source_desc' ? 'desc' : 'asc'}
+                  onClick={() => handleSort(sortBy === 'source_asc' ? 'source_desc' : 'source_asc')}
+                />
+              </th>
+              <th className="p-4">
+                <SortableColumnHeader
+                  label="Prix Demandé"
+                  active={sortBy === 'price_desc' || sortBy === 'price_asc'}
+                  direction={sortBy === 'price_asc' ? 'asc' : 'desc'}
+                  onClick={() => handleSort(sortBy === 'price_desc' ? 'price_asc' : 'price_desc')}
+                />
+              </th>
+              <th className="p-4">
+                <SortableColumnHeader
+                  label="Écart DVF Notaires"
+                  active={sortBy === 'dvf_opportunity' || sortBy === 'dvf_gap_desc'}
+                  direction={sortBy === 'dvf_gap_desc' ? 'desc' : 'asc'}
+                  onClick={() => handleSort(sortBy === 'dvf_opportunity' ? 'dvf_gap_desc' : 'dvf_opportunity')}
+                />
+              </th>
+              <th className="p-4">
+                <SortableColumnHeader
+                  label="Statut Prospection"
+                  active={sortBy === 'days_online'}
+                  direction="desc"
+                  onClick={() => handleSort('days_online')}
+                />
+              </th>
               <th className="p-4 text-right">Actions</th>
             </tr>
           </thead>

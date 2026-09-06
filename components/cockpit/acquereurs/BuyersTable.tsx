@@ -13,17 +13,28 @@ import {
   toWhatsAppNumber,
 } from './acquereurs-types';
 
+import { SortableColumnHeader } from '../common/SortableColumnHeader';
+import type { AcquereursSortOption } from './AcquereursFilterBar';
+
 interface BuyersTableProps {
   buyers: Buyer[];
   activeProperties: Property[];
   onOpenSelection: (buyer: Buyer) => void;
+  sortBy?: AcquereursSortOption;
+  onSortChange?: (newSort: AcquereursSortOption) => void;
 }
 
 export function BuyersTable({
   buyers,
   activeProperties,
   onOpenSelection,
+  sortBy = 'matching_desc',
+  onSortChange,
 }: BuyersTableProps) {
+  const handleSort = (option: AcquereursSortOption) => {
+    if (onSortChange) onSortChange(option);
+  };
+
   if (buyers.length === 0) {
     return (
       <div className="bg-white rounded-3xl border border-[#F3E8EE] shadow-xs p-12 text-center text-gray-500 space-y-3">
@@ -42,13 +53,56 @@ export function BuyersTable({
         <table className="w-full text-left text-xs">
           <thead>
             <tr className="bg-[#FCFAF7] border-b border-[#F3E8EE] text-gray-600 font-bold uppercase text-[10px]">
-              <th className="p-4 w-12 text-center">Rang</th>
-              <th className="p-4">Acquéreur</th>
+              <th className="p-4 w-14 text-center">
+                <SortableColumnHeader
+                  label="Rang"
+                  active={sortBy === 'matching_desc' || sortBy === 'matching_asc'}
+                  direction={sortBy === 'matching_asc' ? 'asc' : 'desc'}
+                  align="center"
+                  onClick={() => handleSort(sortBy === 'matching_desc' ? 'matching_asc' : 'matching_desc')}
+                />
+              </th>
+              <th className="p-4">
+                <SortableColumnHeader
+                  label="Acquéreur"
+                  active={sortBy === 'name_asc' || sortBy === 'name_desc'}
+                  direction={sortBy === 'name_desc' ? 'desc' : 'asc'}
+                  onClick={() => handleSort(sortBy === 'name_asc' ? 'name_desc' : 'name_asc')}
+                />
+              </th>
               <th className="p-4">Coordonnées</th>
-              <th className="p-4">Financement</th>
-              <th className="p-4">Budget Max</th>
-              <th className="p-4">Critères Recherchés</th>
-              <th className="p-4">Rapprochement Mandats</th>
+              <th className="p-4">
+                <SortableColumnHeader
+                  label="Financement"
+                  active={sortBy === 'financing'}
+                  direction="desc"
+                  onClick={() => handleSort('financing')}
+                />
+              </th>
+              <th className="p-4">
+                <SortableColumnHeader
+                  label="Budget Max"
+                  active={sortBy === 'budget_desc' || sortBy === 'budget_asc'}
+                  direction={sortBy === 'budget_asc' ? 'asc' : 'desc'}
+                  onClick={() => handleSort(sortBy === 'budget_desc' ? 'budget_asc' : 'budget_desc')}
+                />
+              </th>
+              <th className="p-4">
+                <SortableColumnHeader
+                  label="Critères (Surface)"
+                  active={sortBy === 'surface_desc' || sortBy === 'surface_asc'}
+                  direction={sortBy === 'surface_asc' ? 'asc' : 'desc'}
+                  onClick={() => handleSort(sortBy === 'surface_desc' ? 'surface_asc' : 'surface_desc')}
+                />
+              </th>
+              <th className="p-4">
+                <SortableColumnHeader
+                  label="Rapprochement Mandats"
+                  active={sortBy === 'matching_desc' || sortBy === 'matching_asc'}
+                  direction={sortBy === 'matching_asc' ? 'asc' : 'desc'}
+                  onClick={() => handleSort(sortBy === 'matching_desc' ? 'matching_asc' : 'matching_desc')}
+                />
+              </th>
               <th className="p-4 text-right">Actions</th>
             </tr>
           </thead>

@@ -13,7 +13,13 @@ export type MandatesSortOption =
   | 'sqm_desc'
   | 'sqm_asc'
   | 'city_asc'
-  | 'ref_desc';
+  | 'city_desc'
+  | 'ref_desc'
+  | 'ref_asc'
+  | 'title_asc'
+  | 'title_desc'
+  | 'seller_asc'
+  | 'seller_desc';
 
 interface MandatesFilterBarProps {
   searchQuery: string;
@@ -88,8 +94,14 @@ export function MandatesFilterBar({
               <option value="area_asc">Surface m² (Plus compacte)</option>
               <option value="sqm_desc">Prix au m² (€/m² le plus haut)</option>
               <option value="sqm_asc">Prix au m² (€/m² le plus attractif)</option>
-              <option value="city_asc">Commune (A → Z)</option>
               <option value="ref_desc">N° Mandat (Décroissant)</option>
+              <option value="ref_asc">N° Mandat (Croissant)</option>
+              <option value="title_asc">Titre du bien (A → Z)</option>
+              <option value="title_desc">Titre du bien (Z → A)</option>
+              <option value="seller_asc">Vendeur / Mandant (A → Z)</option>
+              <option value="seller_desc">Vendeur / Mandant (Z → A)</option>
+              <option value="city_asc">Commune (A → Z)</option>
+              <option value="city_desc">Commune (Z → A)</option>
             </select>
           </div>
 

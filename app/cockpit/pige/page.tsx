@@ -53,10 +53,20 @@ export default function ProspectingPage() {
           const dateB = new Date(b.created_at).getTime() || 0;
           return dateB - dateA;
         }
+        case 'oldest': {
+          const dateA = new Date(a.created_at).getTime() || 0;
+          const dateB = new Date(b.created_at).getTime() || 0;
+          return dateA - dateB;
+        }
         case 'dvf_opportunity': {
           const gapA = computeDvfGap(a).diffPct;
           const gapB = computeDvfGap(b).diffPct;
           return gapA - gapB; // Le plus bas / sous-coté par rapport au marché en premier
+        }
+        case 'dvf_gap_desc': {
+          const gapA = computeDvfGap(a).diffPct;
+          const gapB = computeDvfGap(b).diffPct;
+          return gapB - gapA;
         }
         case 'price_desc':
           return b.price_asked - a.price_asked;
@@ -64,8 +74,18 @@ export default function ProspectingPage() {
           return a.price_asked - b.price_asked;
         case 'surface_desc':
           return b.living_area - a.living_area;
+        case 'surface_asc':
+          return a.living_area - b.living_area;
         case 'days_online':
           return b.days_online - a.days_online;
+        case 'seller_asc':
+          return a.seller_name.localeCompare(b.seller_name, 'fr', { sensitivity: 'base' });
+        case 'seller_desc':
+          return b.seller_name.localeCompare(a.seller_name, 'fr', { sensitivity: 'base' });
+        case 'source_asc':
+          return a.source.localeCompare(b.source, 'fr');
+        case 'source_desc':
+          return b.source.localeCompare(a.source, 'fr');
         default:
           return 0;
       }
@@ -131,6 +151,8 @@ export default function ProspectingPage() {
           leads={filteredAndSortedLeads}
           onConvertToMandate={handleConvertToMandate}
           onStatusChange={handleUpdateStatus}
+          sortBy={sortBy}
+          onSortChange={setSortBy}
         />
       )}
 

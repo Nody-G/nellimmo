@@ -62,6 +62,19 @@ Guide d'exécution : `supabase/MIGRATION_GUIDE.md`. Le site public devra lire vi
 - Convention apostrophes dans le texte JSX : utiliser l'entité HTML `'` (apostrophe) ou l'apostrophe typographique `’` (U+2019) — jamais l'apostrophe ASCII nue `'` (règle `react/no-unescaped-entities`).
   - ⚠️ **Piège outil** : `apply_diff` et `write_to_file` **normalisent** `'` ↔ `'` (renvoient « Search and replace content are identical »). Pour échapper une apostrophe, préférer l'apostrophe typographique `’` (U+2019), qui n'est PAS normalisée et est typographiquement correcte en français.
 
+## Chantier livré — Tri Interactif par Clic sur Colonnes (Mandats, Acquéreurs, Pige, Contacts)
+
+> `tsc`, `eslint` (0 erreur, 0 warning) et `build` au vert.
+
+- **Composant réutilisable `SortableColumnHeader` (`components/cockpit/common/SortableColumnHeader.tsx`)** :
+  - En-têtes de colonnes cliquables avec indicateurs de direction animés (`ArrowUp` pour croissant, `ArrowDown` pour décroissant, `ArrowUpDown` discret au survol).
+  - Bascule 1-clic ascendante / descendante synchronisée en temps réel avec le menu déroulant de tri de chaque barre de filtre.
+  - Déployé sur l'ensemble des 4 tableaux du Cockpit :
+    - **Tableau Mandats ALUR** : N° Mandat, Bien & Titre, Vendeur (Mandant), Prix FAI (Loi ALUR), Type / Dates.
+    - **Tableau Acquéreurs CRM** : Rang, Acquéreur (Nom/Prénom), Financement, Budget Max, Critères (Surface), Rapprochement Mandats.
+    - **Tableau Pige & Prospection** : Rang, Annonce / Bien, Vendeur & Contact, Source, Prix Demandé, Écart DVF Notaires, Statut Prospection.
+    - **Tableau Carnet de Contacts** : Favoris (★), Contact (Nom/Prénom), Rôle, Entreprise & Spécialité, Ville.
+
 ## Chantier livré — Cartographie & Cadastre : Zoom Focalisé à la Molette
 
 > `tsc`, `eslint` (0 erreur, 0 warning) et `build` au vert.

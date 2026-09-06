@@ -6,11 +6,18 @@ import { SOURCE_OPTIONS, STATUS_OPTIONS } from './pige-types';
 
 export type PigeSortOption =
   | 'recent'
+  | 'oldest'
   | 'dvf_opportunity'
+  | 'dvf_gap_desc'
   | 'price_desc'
   | 'price_asc'
   | 'surface_desc'
-  | 'days_online';
+  | 'surface_asc'
+  | 'days_online'
+  | 'seller_asc'
+  | 'seller_desc'
+  | 'source_asc'
+  | 'source_desc';
 
 interface PigeFilterBarProps {
   searchKeyword: string;
@@ -81,10 +88,16 @@ export function PigeFilterBar({
               className="bg-transparent text-xs font-bold text-gray-800 focus:outline-none cursor-pointer pr-1"
             >
               <option value="recent">Date de détection (Plus récentes)</option>
+              <option value="oldest">Date de détection (Plus anciennes)</option>
               <option value="dvf_opportunity">Écart DVF (Meilleures opportunités)</option>
+              <option value="dvf_gap_desc">Écart DVF (Sur-cotées en premier)</option>
               <option value="price_desc">Prix demandé (Plus élevé)</option>
               <option value="price_asc">Prix demandé (Plus accessible)</option>
               <option value="surface_desc">Surface habitable (Plus grande)</option>
+              <option value="surface_asc">Surface habitable (Plus compacte)</option>
+              <option value="seller_asc">Vendeur / Contact (A → Z)</option>
+              <option value="seller_desc">Vendeur / Contact (Z → A)</option>
+              <option value="source_asc">Source (A → Z)</option>
               <option value="days_online">Ancienneté annonce (Plus de jours)</option>
             </select>
           </div>

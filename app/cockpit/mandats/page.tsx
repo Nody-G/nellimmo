@@ -69,8 +69,20 @@ export default function MandatesListPage() {
         }
         case 'city_asc':
           return a.city.localeCompare(b.city, 'fr', { sensitivity: 'base' });
+        case 'city_desc':
+          return b.city.localeCompare(a.city, 'fr', { sensitivity: 'base' });
         case 'ref_desc':
           return b.mandate_number - a.mandate_number;
+        case 'ref_asc':
+          return a.mandate_number - b.mandate_number;
+        case 'title_asc':
+          return a.title.localeCompare(b.title, 'fr', { sensitivity: 'base' });
+        case 'title_desc':
+          return b.title.localeCompare(a.title, 'fr', { sensitivity: 'base' });
+        case 'seller_asc':
+          return a.seller_name.localeCompare(b.seller_name, 'fr', { sensitivity: 'base' });
+        case 'seller_desc':
+          return b.seller_name.localeCompare(a.seller_name, 'fr', { sensitivity: 'base' });
         default:
           return 0;
       }
@@ -144,7 +156,11 @@ export default function MandatesListPage() {
       {viewMode === 'grid' ? (
         <MandatesModernGrid properties={filteredAndSortedProperties} />
       ) : (
-        <MandatesTableView properties={filteredAndSortedProperties} />
+        <MandatesTableView
+          properties={filteredAndSortedProperties}
+          sortBy={sortBy}
+          onSortChange={setSortBy}
+        />
       )}
     </div>
   );

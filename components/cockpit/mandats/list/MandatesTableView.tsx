@@ -5,13 +5,25 @@ import { Property } from '@/lib/types';
 import { FileText } from 'lucide-react';
 import { MandateTableRow } from './MandateTableRow';
 import { PropertyShareModal } from '../PropertyShareModal';
+import { SortableColumnHeader } from '../../common/SortableColumnHeader';
+import type { MandatesSortOption } from './MandatesFilterBar';
 
 interface MandatesTableViewProps {
   properties: Property[];
+  sortBy?: MandatesSortOption;
+  onSortChange?: (newSort: MandatesSortOption) => void;
 }
 
-export function MandatesTableView({ properties }: MandatesTableViewProps) {
+export function MandatesTableView({
+  properties,
+  sortBy = 'recent',
+  onSortChange,
+}: MandatesTableViewProps) {
   const [shareProperty, setShareProperty] = useState<Property | null>(null);
+
+  const handleSort = (option: MandatesSortOption) => {
+    if (onSortChange) onSortChange(option);
+  };
 
   if (properties.length === 0) {
     return (
@@ -32,11 +44,46 @@ export function MandatesTableView({ properties }: MandatesTableViewProps) {
           <table className="w-full text-left text-xs">
             <thead>
               <tr className="bg-[#FCFAF7] border-b border-[#F3E8EE] text-gray-600 font-bold uppercase text-[10px]">
-                <th className="p-4">N° Mandat</th>
-                <th className="p-4">Bien & Titre</th>
-                <th className="p-4">Vendeur (Mandant)</th>
-                <th className="p-4">Prix FAI (Loi ALUR)</th>
-                <th className="p-4">Type / Dates</th>
+                <th className="p-4">
+                  <SortableColumnHeader
+                    label="N° Mandat"
+                    active={sortBy === 'ref_desc' || sortBy === 'ref_asc'}
+                    direction={sortBy === 'ref_asc' ? 'asc' : 'desc'}
+                    onClick={() => handleSort(sortBy === 'ref_desc' ? 'ref_asc' : 'ref_desc')}
+                  />
+                </th>
+                <th className="p-4">
+                  <SortableColumnHeader
+                    label="Bien & Titre"
+                    active={sortBy === 'title_asc' || sortBy === 'title_desc' || sortBy === 'city_asc' || sortBy === 'city_desc'}
+                    direction={sortBy === 'title_desc' || sortBy === 'city_desc' ? 'desc' : 'asc'}
+                    onClick={() => handleSort(sortBy === 'title_asc' ? 'title_desc' : 'title_asc')}
+                  />
+                </th>
+                <th className="p-4">
+                  <SortableColumnHeader
+                    label="Vendeur (Mandant)"
+                    active={sortBy === 'seller_asc' || sortBy === 'seller_desc'}
+                    direction={sortBy === 'seller_desc' ? 'desc' : 'asc'}
+                    onClick={() => handleSort(sortBy === 'seller_asc' ? 'seller_desc' : 'seller_asc')}
+                  />
+                </th>
+                <th className="p-4">
+                  <SortableColumnHeader
+                    label="Prix FAI (Loi ALUR)"
+                    active={sortBy === 'price_desc' || sortBy === 'price_asc'}
+                    direction={sortBy === 'price_asc' ? 'asc' : 'desc'}
+                    onClick={() => handleSort(sortBy === 'price_desc' ? 'price_asc' : 'price_desc')}
+                  />
+                </th>
+                <th className="p-4">
+                  <SortableColumnHeader
+                    label="Type / Dates"
+                    active={sortBy === 'recent' || sortBy === 'oldest'}
+                    direction={sortBy === 'oldest' ? 'asc' : 'desc'}
+                    onClick={() => handleSort(sortBy === 'recent' ? 'oldest' : 'recent')}
+                  />
+                </th>
                 <th className="p-4">Diagnostics</th>
                 <th className="p-4">Canaux</th>
                 <th className="p-4">Statut</th>

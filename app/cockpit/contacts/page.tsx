@@ -112,6 +112,8 @@ function ContactsPageContent() {
           onEditContact={setContactForEdit}
           onDeleteContact={handleDeleteContact}
           onToggleFavorite={handleToggleFavorite}
+          sortBy={sortBy}
+          onSortChange={setSortBy}
         />
       )}
 
