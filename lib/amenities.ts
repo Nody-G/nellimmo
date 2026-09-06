@@ -35,8 +35,14 @@ export interface AmenityItem {
   drivingMinutes: number;
   address?: string;
   googleMapsDirectionsUrl: string;
+  googleMapsPlaceUrl?: string;
+  streetViewUrl?: string;
   details?: string;
   badge?: string;
+  phone?: string;
+  website?: string;
+  openingHours?: string;
+  isAddressCertified?: boolean;
 }
 
 export type ClientProfileKey = 'famille' | 'actif' | 'senior' | 'investisseur';
@@ -254,75 +260,13 @@ export function getDrivingMinutes(distanceMeters: number): number {
 }
 
 /**
- * Construit un ensemble riche de commodités de secours (fallback) pour Provence / France
- * déterministe par rapport aux coordonnées de la propriété.
+ * Règle stricte : Ne jamais inventer de fausse commodité synthétique.
+ * Toutes les commodités affichées doivent correspondre à des établissements réels
+ * vérifiés sur Base Adresse Nationale (BAN) et OpenStreetMap / Google Maps.
  */
-export function generateDeterministicAmenities(
-  centerLat: number,
-  centerLon: number,
-  city: string = 'Provence',
-  originAddress?: string
-): AmenityItem[] {
-  const cityName = city || 'Provence';
-
-  const mockTemplates: {
-    name: string;
-    category: AmenityCategory;
-    subtype: AmenitySubtype;
-    dLat: number;
-    dLon: number;
-    badge?: string;
-  }[] = [
-    // Écoles & Éducation
-    { name: `École Maternelle Les Boutons d'Or`, category: 'education', subtype: 'maternelle', dLat: 0.0032, dLon: 0.0028, badge: 'Public • 5 classes' },
-    { name: `École Élémentaire du Centre`, category: 'education', subtype: 'primaire', dLat: 0.0025, dLon: -0.0035, badge: 'Public • Restauration scolaire' },
-    { name: `Collège de la Vallée Verte`, category: 'education', subtype: 'college', dLat: 0.0085, dLon: 0.0072, badge: 'Sectorisation collège' },
-    { name: `Micro-crèche Les P'tits Loups`, category: 'education', subtype: 'creche', dLat: -0.0031, dLon: 0.0021, badge: 'Accueil 10 berceaux' },
-
-    // Commerces & Alimentation
-    { name: `Boulangerie Artisanale Le Fournil de ${cityName}`, category: 'commerce', subtype: 'boulangerie', dLat: 0.0018, dLon: -0.0015, badge: 'Pain au levain & viennoiseries' },
-    { name: `Supérette U Express`, category: 'commerce', subtype: 'superette', dLat: 0.0029, dLon: 0.0034, badge: 'Ouvert 7j/7 jusqu’à 20h' },
-    { name: `Supermarché Intermarché Contact`, category: 'commerce', subtype: 'supermarche', dLat: -0.0068, dLon: 0.0055, badge: 'Drive & Station service' },
-    { name: `Marché Provençal de ${cityName}`, category: 'commerce', subtype: 'marche', dLat: 0.0038, dLon: -0.0022, badge: 'Mardi & Samedi matin' },
-
-    // Sport & Loisirs
-    { name: `Complexe Sportif Municipal & Tennis`, category: 'sport', subtype: 'complexe_sportif', dLat: -0.0042, dLon: -0.0048, badge: '4 courts de tennis + gymnase' },
-    { name: `Stade & Terrain Multisports`, category: 'sport', subtype: 'terrain_sport', dLat: -0.0038, dLon: 0.0052, badge: 'Football & Piste d’athlétisme' },
-    { name: `Parc Public Ombragé & Aire de Jeux`, category: 'sport', subtype: 'parc', dLat: 0.0036, dLon: 0.0012, badge: 'Jeux pour enfants & bancs' },
-    { name: `Salle de Fitness & Musculation`, category: 'sport', subtype: 'gymnase', dLat: -0.0055, dLon: 0.0061, badge: 'Accès libre 6h-23h' },
-
-    // Santé
-    { name: `Pharmacie Centrale de ${cityName}`, category: 'sante', subtype: 'pharmacie', dLat: 0.0022, dLon: -0.0025, badge: 'Garde & équipement' },
-    { name: `Pôle Médical (Généralistes & Kinés)`, category: 'sante', subtype: 'medecin', dLat: 0.0035, dLon: -0.0018, badge: '3 médecins traitants' },
-
-    // Transports
-    { name: `Arrêt de Bus Ligne Express (Réseau Métropole)`, category: 'transport', subtype: 'bus', dLat: 0.0015, dLon: 0.0011, badge: 'Toutes les 15 min en pointe' },
-    { name: `Gare TER la plus proche`, category: 'transport', subtype: 'gare', dLat: 0.0152, dLon: -0.0125, badge: 'Liaison directe TGV / Métropole' },
-  ];
-
-  return mockTemplates.map((tpl, idx) => {
-    const lat = centerLat + tpl.dLat;
-    const lon = centerLon + tpl.dLon;
-    const distanceMeters = calculateDistanceMeters(centerLon, centerLat, lon, lat);
-    const walkingMinutes = getWalkingMinutes(distanceMeters);
-    const drivingMinutes = getDrivingMinutes(distanceMeters);
-
-    return {
-      id: `det-${idx}-${tpl.subtype}`,
-      name: tpl.name,
-      category: tpl.category,
-      subtype: tpl.subtype,
-      subtypeLabel: SUBTYPE_LABELS[tpl.subtype]?.label || tpl.subtype,
-      lat,
-      lon,
-      distanceMeters,
-      walkingMinutes,
-      drivingMinutes,
-      address: `${Math.round(distanceMeters)}m du centre • ${cityName}`,
-      googleMapsDirectionsUrl: getDirectionsUrl(centerLat, centerLon, lat, lon, tpl.name, originAddress),
-      badge: tpl.badge,
-    };
-  });
+export function generateDeterministicAmenities(): AmenityItem[] {
+  // Désactivé : aucune donnée fictive générée de toute pièce
+  return [];
 }
 
 /**

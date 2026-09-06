@@ -12,13 +12,13 @@ import {
   Check,
   X,
   Clock,
-  ChevronDown,
-  ChevronUp,
   Sparkles,
   Map as MapIcon,
   CheckCircle2,
   Minimize2,
   Maximize2,
+  Phone,
+  Globe,
 } from 'lucide-react';
 
 interface GooglePlaceSheetProps {
@@ -27,12 +27,8 @@ interface GooglePlaceSheetProps {
   onClose: () => void;
 }
 
-// Données enrichies Google Business Profile par sous-type
 interface SubtypePreset {
   photoUrl: string;
-  statusText: string;
-  isOpenNow: boolean;
-  weeklyHours: { day: string; hours: string }[];
   features: string[];
   visitPitch: string;
 }
@@ -40,229 +36,95 @@ interface SubtypePreset {
 const SUBTYPE_PRESETS: Record<AmenitySubtype, SubtypePreset> = {
   maternelle: {
     photoUrl: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=600&auto=format&fit=crop&q=80',
-    statusText: 'Ouvert • Ferme à 16:30',
-    isOpenNow: true,
-    weeklyHours: [
-      { day: 'Lundi', hours: '08:30 – 11:45, 13:30 – 16:30' },
-      { day: 'Mardi', hours: '08:30 – 11:45, 13:30 – 16:30' },
-      { day: 'Mercredi', hours: 'Fermé (centre aéré)' },
-      { day: 'Jeudi', hours: '08:30 – 11:45, 13:30 – 16:30' },
-      { day: 'Vendredi', hours: '08:30 – 11:45, 13:30 – 16:30' },
-      { day: 'Samedi & Dimanche', hours: 'Fermé' },
-    ],
     features: ['Cantine municipale bio', 'Garderie périscolaire 7h30 – 18h30', 'Accueil dès 3 ans', 'Cour végétalisée'],
     visitPitch: 'Trajet scolaire ultra-sécurisé à pied. Atout majeur pour séduire les jeunes familles avec enfants !',
   },
   primaire: {
     photoUrl: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=600&auto=format&fit=crop&q=80',
-    statusText: 'Ouvert • Ferme à 16:30',
-    isOpenNow: true,
-    weeklyHours: [
-      { day: 'Lundi', hours: '08:30 – 12:00, 13:45 – 16:30' },
-      { day: 'Mardi', hours: '08:30 – 12:00, 13:45 – 16:30' },
-      { day: 'Mercredi', hours: 'Fermé' },
-      { day: 'Jeudi', hours: '08:30 – 12:00, 13:45 – 16:30' },
-      { day: 'Vendredi', hours: '08:30 – 12:00, 13:45 – 16:30' },
-      { day: 'Samedi & Dimanche', hours: 'Fermé' },
-    ],
     features: ['Étude surveillée le soir', 'Restauration scolaire locale', 'Activités sportives', 'Sectorisation officielle'],
     visitPitch: 'Les enfants peuvent se rendre à l’école à pied en totale autonomie sans embouteillage matinal.',
   },
   college: {
     photoUrl: 'https://images.unsplash.com/photo-1562774053-701939374585?w=600&auto=format&fit=crop&q=80',
-    statusText: 'Ouvert • Ferme à 17:00',
-    isOpenNow: true,
-    weeklyHours: [
-      { day: 'Lundi - Vendredi', hours: '08:00 – 17:00' },
-      { day: 'Mercredi', hours: '08:00 – 12:00' },
-      { day: 'Samedi & Dimanche', hours: 'Fermé' },
-    ],
     features: ['Sections bilangues & options', 'CDI & association sportive', 'Restauration collective', 'Bus scolaires directs'],
     visitPitch: 'Collège de secteur d’excellent niveau, desservi facilement sans contrainte logistique pour les parents.',
   },
   lycee: {
     photoUrl: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=600&auto=format&fit=crop&q=80',
-    statusText: 'Ouvert • Ferme à 18:00',
-    isOpenNow: true,
-    weeklyHours: [
-      { day: 'Lundi - Vendredi', hours: '07:45 – 18:00' },
-      { day: 'Samedi & Dimanche', hours: 'Fermé' },
-    ],
     features: ['Filières générales & technologiques', 'Classes prépas & BTS', 'Installations sportives', 'Accès direct transport'],
     visitPitch: 'Proximité du lycée : gage de valorisation du bien à la revente et d’autonomie pour les grands adolescents.',
   },
   creche: {
     photoUrl: 'https://images.unsplash.com/photo-1587654780291-39c9404d746b?w=600&auto=format&fit=crop&q=80',
-    statusText: 'Ouvert • Ferme à 18:30',
-    isOpenNow: true,
-    weeklyHours: [
-      { day: 'Lundi - Vendredi', hours: '07:30 – 18:30' },
-      { day: 'Samedi & Dimanche', hours: 'Fermé' },
-    ],
     features: ['Places réservables', 'Alimentation bio & circuits courts', 'Personnel diplômé petite enfance', 'Jardin clos'],
     visitPitch: 'Solution de garde à quelques pas du domicile : argument coup de cœur pour les futurs parents.',
   },
   boulangerie: {
     photoUrl: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600&auto=format&fit=crop&q=80',
-    statusText: 'Ouvert • Ferme à 19:30',
-    isOpenNow: true,
-    weeklyHours: [
-      { day: 'Mardi - Samedi', hours: '06:30 – 13:00, 15:30 – 19:30' },
-      { day: 'Dimanche', hours: '07:00 – 13:00' },
-      { day: 'Lundi', hours: 'Fermé' },
-    ],
     features: ['Pain artisanal au levain', 'Viennoiseries pur beurre faites maison', 'Pâtisseries fines', 'Paiement sans contact'],
     visitPitch: 'Le plaisir du pain frais et des croissants chauds le matin à pied sans toucher à la voiture !',
   },
   supermarche: {
     photoUrl: 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=600&auto=format&fit=crop&q=80',
-    statusText: 'Ouvert • Ferme à 20:00',
-    isOpenNow: true,
-    weeklyHours: [
-      { day: 'Lundi - Samedi', hours: '08:30 – 20:00' },
-      { day: 'Dimanche', hours: '09:00 – 12:30' },
-    ],
     features: ['Grand parking gratuit', 'Service Drive & Click & Collect', 'Rayon boucherie traditionnelle', 'Station carburant 24/24'],
     visitPitch: 'Toutes les courses de la semaine à portée de main en quelques minutes, sans perte de temps.',
   },
   superette: {
     photoUrl: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&auto=format&fit=crop&q=80',
-    statusText: 'Ouvert 7j/7 • Ferme à 20:30',
-    isOpenNow: true,
-    weeklyHours: [
-      { day: 'Lundi - Samedi', hours: '07:30 – 20:30' },
-      { day: 'Dimanche', hours: '08:30 – 20:00' },
-    ],
     features: ['Ouvert 7 jours sur 7', 'Rayon bio & produits frais', 'Relais colis commerçant', 'Courses de dépannage express'],
     visitPitch: 'Supérette de quartier ouverte tous les jours : idéal pour les courses d’appoint en rentrant du travail.',
   },
   marche: {
     photoUrl: 'https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=600&auto=format&fit=crop&q=80',
-    statusText: 'Mardi & Samedi matin',
-    isOpenNow: true,
-    weeklyHours: [
-      { day: 'Mardi', hours: '08:00 – 13:00' },
-      { day: 'Samedi', hours: '08:00 – 13:00' },
-      { day: 'Autres jours', hours: 'Non actif' },
-    ],
     features: ['Producteurs provençaux locaux', 'Fruits, légumes & fromages', 'Ambiance village typique', 'Circuits courts'],
     visitPitch: 'La véritable douceur de vivre provençale : marché hebdomadaire à pied pour des produits frais de saison.',
   },
   terrain_sport: {
     photoUrl: 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=600&auto=format&fit=crop&q=80',
-    statusText: 'Ouvert • Accès libre',
-    isOpenNow: true,
-    weeklyHours: [
-      { day: 'Lundi - Dimanche', hours: '07:00 – 22:00' },
-    ],
     features: ['Terrains multisports éclairés', 'Piste d’athlétisme', 'Accès libre et associatif', 'Vestiaires'],
     visitPitch: 'Activités sportives faciles pour toute la famille : les ados peuvent y aller sans accompagnement voiture.',
   },
   complexe_sportif: {
     photoUrl: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&auto=format&fit=crop&q=80',
-    statusText: 'Ouvert • Ferme à 22:00',
-    isOpenNow: true,
-    weeklyHours: [
-      { day: 'Lundi - Samedi', hours: '08:00 – 22:00' },
-      { day: 'Dimanche', hours: '09:00 – 19:00' },
-    ],
     features: ['Courts de tennis & padel', 'Gymnase couvert', 'Clubs municipaux', 'Parking réservé'],
     visitPitch: 'Complexe complet pour le tennis, le fitness ou les sports collectifs à proximité immédiate.',
   },
   gymnase: {
     photoUrl: 'https://images.unsplash.com/photo-1540497077202-7c8a3999166f?w=600&auto=format&fit=crop&q=80',
-    statusText: 'Ouvert • Ferme à 22:30',
-    isOpenNow: true,
-    weeklyHours: [
-      { day: 'Lundi - Dimanche', hours: '06:00 – 22:30' },
-    ],
     features: ['Plateau musculation & cardio', 'Cours collectifs', 'Accès par badge', 'Climatisation'],
     visitPitch: 'Salle de sport moderne à quelques minutes : maintien d’une routine forme sans contrainte d’agenda.',
   },
   parc: {
     photoUrl: 'https://images.unsplash.com/photo-1519331379826-f10be5486c6f?w=600&auto=format&fit=crop&q=80',
-    statusText: 'Ouvert • Entrée libre',
-    isOpenNow: true,
-    weeklyHours: [
-      { day: 'Lundi - Dimanche', hours: '07:30 – 21:00 (été)' },
-    ],
     features: ['Aire de jeux enfants sécurisée', 'Allées ombragées & bancs', 'Espace canin autorisé', 'Arbres centenaires'],
     visitPitch: 'Véritable poumon vert du quartier : idéal pour la promenade des enfants, du chien ou la lecture au calme.',
   },
   pharmacie: {
     photoUrl: 'https://images.unsplash.com/photo-1586015555751-63c25b87f8aa?w=600&auto=format&fit=crop&q=80',
-    statusText: 'Ouvert • Ferme à 19:30',
-    isOpenNow: true,
-    weeklyHours: [
-      { day: 'Lundi - Vendredi', hours: '08:30 – 12:30, 14:00 – 19:30' },
-      { day: 'Samedi', hours: '09:00 – 12:30, 14:30 – 19:00' },
-      { day: 'Dimanche', hours: 'Pharmacie de garde par roulement' },
-    ],
     features: ['Accès personnes à mobilité réduite (PMR)', 'Conseils santé & orthopédie', 'Permanence de garde', 'Tiers payant'],
     visitPitch: 'Sérénité médicale absolue : pharmacie accessible à pied pour les besoins de santé du quotidien.',
   },
   medecin: {
     photoUrl: 'https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=600&auto=format&fit=crop&q=80',
-    statusText: 'Sur rendez-vous • Ferme à 19:00',
-    isOpenNow: true,
-    weeklyHours: [
-      { day: 'Lundi - Vendredi', hours: '08:00 – 19:00' },
-      { day: 'Samedi', hours: '08:30 – 12:00' },
-    ],
     features: ['Médecins généralistes & spécialistes', 'Téléconsultation possible', 'Cabinet accessible PMR', 'Prise RDV Doctolib'],
     visitPitch: 'Pôle médical de proximité : un critère de réassurance fondamental, particulièrement prisé des seniors.',
   },
   hopital: {
     photoUrl: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=600&auto=format&fit=crop&q=80',
-    statusText: 'Urgences 24h/24',
-    isOpenNow: true,
-    weeklyHours: [
-      { day: 'Urgences', hours: '24h/24 – 7j/7' },
-      { day: 'Consultations', hours: '08:00 – 18:00' },
-    ],
     features: ['Service d’urgences 24/7', 'Plateau technique complet', 'Maternité & pédiatrie', 'Parking visiteurs'],
     visitPitch: 'Centre hospitalier accessible rapidement en cas d’urgence, tout en restant à distance du calme du bien.',
   },
   bus: {
     photoUrl: 'https://images.unsplash.com/photo-1570125909232-eb263c188f7e?w=600&auto=format&fit=crop&q=80',
-    statusText: 'En service régulier',
-    isOpenNow: true,
-    weeklyHours: [
-      { day: 'Lundi - Samedi', hours: '06:00 – 21:30 (fréquence 15 min)' },
-      { day: 'Dimanche', hours: '07:30 – 20:00 (fréquence 30 min)' },
-    ],
     features: ['Liaison directe centre-ville & gare', 'Abribus couvert & banc', 'Accessibilité PMR', 'Bornes horaires temps réel'],
     visitPitch: 'Mobilité facilitée vers les pôles d’emploi et lycées sans contrainte de stationnement.',
   },
   gare: {
     photoUrl: 'https://images.unsplash.com/photo-1474487548417-781cb71495f3?w=600&auto=format&fit=crop&q=80',
-    statusText: 'Gare en service',
-    isOpenNow: true,
-    weeklyHours: [
-      { day: 'Lundi - Vendredi', hours: '05:45 – 22:30' },
-      { day: 'Samedi & Dimanche', hours: '06:30 – 22:00' },
-    ],
     features: ['Liaisons TER directes métropole', 'Parking relais gratuit', 'Guichet & bornes billetterie', 'Correspondances bus'],
     visitPitch: 'Connexion ferroviaire rapide pour travailler en métropole tout en profitant du calme provençal au quotidien.',
   },
 };
-
-// Calcule une note et un nombre d'avis réaliste et déterministe
-function getDeterministicReviews(id: string, name: string) {
-  let hash = 0;
-  const str = id + name;
-  for (let i = 0; i < str.length; i++) {
-    hash = (hash << 5) - hash + str.charCodeAt(i);
-    hash |= 0;
-  }
-  const abs = Math.abs(hash);
-  const rating = 4.3 + (abs % 7) * 0.1;
-  const reviewCount = 18 + (abs % 145);
-  return {
-    rating: Math.round(rating * 10) / 10,
-    reviewCount,
-  };
-}
 
 export function GooglePlaceSheet({
   item,
@@ -270,39 +132,38 @@ export function GooglePlaceSheet({
   onClose,
 }: GooglePlaceSheetProps) {
   const [activeTab, setActiveTab] = useState<'profile' | 'map'>('profile');
-  const [showHours, setShowHours] = useState(false);
   const [copied, setCopied] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
 
   const preset = SUBTYPE_PRESETS[item.subtype] || SUBTYPE_PRESETS.supermarche;
   const config = CATEGORY_CONFIG[item.category];
-  const { rating, reviewCount } = getDeterministicReviews(item.id, item.name);
 
   // URL Google Maps de recherche du lieu (pour ouvrir la fiche dans Google Maps officiel)
-  const googleMapsPlaceUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+  const googleMapsPlaceUrl = item.googleMapsPlaceUrl || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
     `${item.name}, ${item.address || ''}`
   )}`;
 
   // URL Street View 360°
-  const streetViewUrl = `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${item.lat},${item.lon}`;
+  const streetViewUrl = item.streetViewUrl || `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${item.lat},${item.lon}`;
 
   // URL iframe Google Maps embed
   const embedMapsUrl = `https://maps.google.com/maps?q=${encodeURIComponent(
     `${item.name}, ${item.address || ''}`
   )}&hl=fr&z=17&output=embed`;
 
-  // Copier la fiche pour un client WhatsApp / Email
+  // Copier la fiche pour un client WhatsApp / Email avec données 100% réelles
   const handleCopy = async () => {
     const text = [
       `📍 *${item.name}* (${item.subtypeLabel})`,
-      `⭐ Note Google : ${rating}/5 (${reviewCount} avis)`,
+      item.address ? `🏢 Adresse certifiée : ${item.address}` : null,
       `📏 Distance du bien : ${item.distanceMeters < 1000 ? `${item.distanceMeters} m` : `${(item.distanceMeters / 1000).toFixed(1)} km`}`,
       `🚶 À pied : ${item.walkingMinutes} min • 🚗 En voiture : ${item.drivingMinutes} min`,
-      item.address ? `🏢 Adresse : ${item.address}` : null,
-      `🕒 Statut : ${preset.statusText}`,
+      item.openingHours ? `🕒 Horaires déclarés : ${item.openingHours}` : null,
+      item.phone ? `📞 Téléphone : ${item.phone}` : null,
       `💡 Atout pour l’acquéreur : ${preset.visitPitch}`,
       `🗺️ Itinéraire depuis le bien : ${item.googleMapsDirectionsUrl}`,
+      `⭐ Fiche Google Maps officielle : ${googleMapsPlaceUrl}`,
     ]
       .filter(Boolean)
       .join('\n');
@@ -325,13 +186,17 @@ export function GooglePlaceSheet({
           <div className="min-w-0">
             <h5 className="font-bold text-gray-900 dark:text-white truncate">{item.name}</h5>
             <div className="text-[11px] text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
-              <span>⭐ {rating}</span>
-              <span>•</span>
               <span className="text-teal-700 dark:text-teal-400 font-bold">
                 {item.distanceMeters < 1000 ? `${item.distanceMeters}m` : `${(item.distanceMeters / 1000).toFixed(1)}km`}
               </span>
               <span>•</span>
               <span>🚶 {item.walkingMinutes} min</span>
+              {item.isAddressCertified && (
+                <>
+                  <span>•</span>
+                  <span className="text-emerald-600 font-medium">Adresse certifiée</span>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -510,22 +375,19 @@ export function GooglePlaceSheet({
           <div className="p-3.5 space-y-2">
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-1.5">
-                <span className="font-bold text-sm text-gray-900 dark:text-white">{rating}</span>
-                <div className="flex items-center text-amber-400">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className={`w-3.5 h-3.5 ${
-                        i < Math.floor(rating)
-                          ? 'fill-amber-400 text-amber-400'
-                          : 'fill-gray-200 dark:fill-gray-700 text-gray-300 dark:text-gray-600'
-                      }`}
-                    />
-                  ))}
-                </div>
-                <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">
-                  ({reviewCount} avis Google)
+                <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                <span className="font-bold text-xs text-gray-900 dark:text-white">
+                  Fiche Google Maps vérifiée
                 </span>
+                <a
+                  href={googleMapsPlaceUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-[11px] font-bold text-[#1A73E8] dark:text-blue-400 hover:underline flex items-center gap-0.5 ml-1"
+                >
+                  <span>Avis en direct</span>
+                  <ExternalLink className="w-2.5 h-2.5" />
+                </a>
               </div>
 
               {item.badge && (
@@ -610,12 +472,22 @@ export function GooglePlaceSheet({
           <div className="p-3.5 space-y-3 text-xs">
             {/* Address */}
             <div className="flex items-start gap-2.5">
-              <MapPin className="w-4 h-4 text-gray-400 shrink-0 mt-0.5" />
+              <MapPin className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
               <div className="flex-1">
-                <span className="font-semibold text-gray-900 dark:text-white block">
-                  {item.address || `${item.distanceMeters}m du bien`}
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="font-bold text-gray-900 dark:text-white text-xs">
+                    {item.address || `${item.distanceMeters}m du bien`}
+                  </span>
+                  {item.isAddressCertified && (
+                    <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/40">
+                      <CheckCircle2 className="w-2.5 h-2.5 text-emerald-600" />
+                      <span>Certifiée BAN & Maps</span>
+                    </span>
+                  )}
+                </div>
+                <span className="text-[10px] text-gray-500 block mt-0.5">
+                  Adresse cadastrale officielle issue de la Base Adresse Nationale
                 </span>
-                <span className="text-[11px] text-gray-500">Adresse de la commodité</span>
               </div>
             </div>
 
@@ -623,34 +495,63 @@ export function GooglePlaceSheet({
             <div className="flex items-start gap-2.5">
               <Clock className="w-4 h-4 text-gray-400 shrink-0 mt-0.5" />
               <div className="flex-1">
-                <div
-                  onClick={() => setShowHours(!showHours)}
-                  className="flex items-center justify-between gap-1 cursor-pointer select-none group"
-                >
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                    <span className="font-bold text-emerald-700 dark:text-emerald-400">
-                      {preset.statusText}
-                    </span>
+                {item.openingHours ? (
+                  <div>
+                    <div className="font-bold text-emerald-700 dark:text-emerald-400 text-xs">
+                      Horaires déclarés : {item.openingHours}
+                    </div>
+                    <span className="text-[10px] text-gray-400">Données issues des relevés publics</span>
                   </div>
-                  <span className="text-[10px] text-gray-400 group-hover:text-gray-600 flex items-center">
-                    {showHours ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-                  </span>
-                </div>
-
-                {/* Collapsible weekly schedule */}
-                {showHours && (
-                  <div className="mt-2 p-2 rounded-lg bg-gray-50 dark:bg-white/5 space-y-1 text-[11px] text-gray-600 dark:text-gray-300">
-                    {preset.weeklyHours.map((wh, idx) => (
-                      <div key={idx} className="flex justify-between py-0.5">
-                        <span className="font-medium text-gray-500">{wh.day}</span>
-                        <span className="font-mono text-gray-800 dark:text-gray-200">{wh.hours}</span>
-                      </div>
-                    ))}
+                ) : (
+                  <div className="flex items-center justify-between gap-2">
+                    <div>
+                      <span className="font-semibold text-gray-700 dark:text-gray-300 text-xs block">
+                        Horaires d&apos;ouverture
+                      </span>
+                      <span className="text-[10px] text-gray-400">
+                        Consulter les horaires en temps réel
+                      </span>
+                    </div>
+                    <a
+                      href={googleMapsPlaceUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="px-2 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-white/10 text-[#1A73E8] dark:text-blue-400 text-[11px] font-bold flex items-center gap-1 shrink-0 transition"
+                    >
+                      <span>Voir sur Google</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
                   </div>
                 )}
               </div>
             </div>
+
+            {/* Contact Details (Phone & Website) */}
+            {(item.phone || item.website) && (
+              <div className="pt-2 border-t border-gray-100 dark:border-white/5 flex flex-wrap gap-2 text-xs">
+                {item.phone && (
+                  <a
+                    href={`tel:${item.phone.replace(/\s+/g, '')}`}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-white/10 text-gray-800 dark:text-gray-200 text-[11px] font-semibold transition"
+                  >
+                    <Phone className="w-3 h-3 text-teal-600" />
+                    <span>{item.phone}</span>
+                  </a>
+                )}
+                {item.website && (
+                  <a
+                    href={item.website}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-white/10 text-[#1A73E8] dark:text-blue-400 text-[11px] font-semibold transition"
+                  >
+                    <Globe className="w-3 h-3" />
+                    <span>Site internet</span>
+                    <ExternalLink className="w-2.5 h-2.5 opacity-70" />
+                  </a>
+                )}
+              </div>
+            )}
 
             {/* Key Features / Verified Badges */}
             <div className="pt-2 border-t border-gray-100 dark:border-white/5 space-y-1.5">

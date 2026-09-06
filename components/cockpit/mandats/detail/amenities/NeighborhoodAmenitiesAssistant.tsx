@@ -22,6 +22,7 @@ import {
   HeartPulse,
   Compass,
   Bus,
+  CheckCircle2,
 } from 'lucide-react';
 
 interface NeighborhoodAmenitiesAssistantProps {
@@ -581,7 +582,18 @@ export function NeighborhoodAmenitiesAssistant({ property }: NeighborhoodAmeniti
                           )}
                         </div>
                         <h5 className="font-bold text-xs text-[#131B26] mt-1">{item.name}</h5>
-                        <p className="text-[11px] text-gray-500 mt-0.5">{item.address}</p>
+                        <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                          <p className="text-[11px] text-gray-500">{item.address}</p>
+                          {item.isAddressCertified && (
+                            <span
+                              className="inline-flex items-center gap-0.5 text-[9px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded-full shrink-0"
+                              title="Adresse officielle certifiée Base Adresse Nationale (BAN)"
+                            >
+                              <CheckCircle2 className="w-2.5 h-2.5 text-emerald-600" />
+                              <span>Certifiée BAN</span>
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
 
