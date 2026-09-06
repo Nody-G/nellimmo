@@ -8,17 +8,17 @@ interface ParcelMapViewerProps {
   parcel: CadastreParcel;
   onOpenInspector: () => void;
   className?: string;
-  height?: number;
+  height?: number | string;
 }
 
 export function ParcelMapViewer({
   parcel,
   onOpenInspector,
   className = '',
-  height = 320,
+  height = 700,
 }: ParcelMapViewerProps) {
   return (
-    <div className={`w-full ${className}`}>
+    <div className={`w-full h-full ${className}`}>
       <InteractiveParcelMap
         parcel={parcel}
         onOpenInspector={onOpenInspector}

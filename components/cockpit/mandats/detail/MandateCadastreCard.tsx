@@ -89,11 +89,11 @@ export function MandateCadastreCard({ property, onSaveCadastre }: MandateCadastr
 
       {parcel ? (
         <div className="space-y-4">
-          {/* Main Visualizer - Grande fenêtre panoramique */}
+          {/* Main Visualizer - Grande fenêtre panoramique 700px (2x plus grande) */}
           <ParcelMapViewer
             parcel={parcel}
             onOpenInspector={() => setIsInspectorOpen(true)}
-            height={420}
+            height={700}
           />
 
           {/* Technical Specs Grid */}
@@ -107,7 +107,7 @@ export function MandateCadastreCard({ property, onSaveCadastre }: MandateCadastr
               className="text-xs font-bold text-teal-700 hover:text-teal-900 flex items-center gap-1.5 transition cursor-pointer"
             >
               <Maximize2 className="w-3.5 h-3.5" />
-              <span>Ouvrir en plein écran • Simulateur & Géorisques</span>
+              <span>Ouvrir le Grand Studio Plein Écran (Immersion Totale & SIG)</span>
             </button>
 
             <button

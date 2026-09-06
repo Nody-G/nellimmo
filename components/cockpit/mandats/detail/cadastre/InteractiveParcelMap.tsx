@@ -4,26 +4,35 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Compass } from 'lucide-react';
 import { CadastreParcel, calculateDistanceMeters, getGeoportailEmbedUrl } from '@/lib/cadastre';
 import { ParcelTileOverlaySvg } from './ParcelTileOverlaySvg';
-import { ParcelMapControls, MapMode } from './ParcelMapControls';
+import { ParcelMapControls, MapMode, ActiveLayers } from './ParcelMapControls';
 
 interface InteractiveParcelMapProps {
   parcel: CadastreParcel;
   onOpenInspector?: () => void;
-  height?: number;
+  height?: number | string;
 }
 
 export function InteractiveParcelMap({
   parcel,
   onOpenInspector,
-  height = 340,
+  height = 700,
 }: InteractiveParcelMapProps) {
   const [mode, setMode] = useState<MapMode>('arpenteur');
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
-  const [showOverlays, setShowOverlays] = useState(true);
+  const [layers, setLayers] = useState<ActiveLayers>({
+    lines: true,
+    points: true,
+    texts: true,
+    sun: false,
+    radius: false,
+  });
+  const [isMeasuring, setIsMeasuring] = useState(false);
+  const [measurePoints, setMeasurePoints] = useState<{ x: number; y: number; lon: number; lat: number }[]>([]);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const dragStartRef = useRef({ x: 0, y: 0, panX: 0, panY: 0 });
+  const dragStartRef = useRef({ x: 0, y: 0, panX: 0, panY: 0, moved: false });
 
   const centerLat = parcel.coordinates?.lat || 43.64;
   const centerLon = parcel.coordinates?.lon || 5.197;
@@ -59,15 +68,19 @@ export function InteractiveParcelMap({
   const spanX = Math.max(maxX - minX, 25);
   const spanY = Math.max(maxY - minY, 25);
 
-  const targetPx = Math.max(130, Math.min(height * 0.62, 260));
+  const targetPx = typeof height === 'number' ? Math.max(220, Math.min(height * 0.65, 420)) : 320;
   const autoScale = Math.min(5.0, Math.max(1.2, targetPx / Math.max(spanX, spanY)));
   const currentScale = autoScale * zoom;
 
   const midpoints = polygonPts.map((p1, i) => {
     const p2 = polygonPts[(i + 1) % polygonPts.length];
     const dist = calculateDistanceMeters(p1.lon, p1.lat, p2.lon, p2.lat);
-    return { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2, label: `${dist} m` };
+    return { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2, dist, label: `${dist} m` };
   });
+
+  const measureDistance = measurePoints.length === 2
+    ? calculateDistanceMeters(measurePoints[0].lon, measurePoints[0].lat, measurePoints[1].lon, measurePoints[1].lat)
+    : null;
 
   // Native non-passive wheel listener: PREVENTS PAGE SCROLL WHILE ZOOMING
   useEffect(() => {
@@ -85,17 +98,65 @@ export function InteractiveParcelMap({
     };
   }, []);
 
+  // Listen to fullscreen changes
+  useEffect(() => {
+    const handleFsChange = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', handleFsChange);
+    return () => document.removeEventListener('fullscreenchange', handleFsChange);
+  }, []);
+
   const handleStart = (clientX: number, clientY: number) => {
     setIsDragging(true);
-    dragStartRef.current = { x: clientX, y: clientY, panX: pan.x, panY: pan.y };
+    dragStartRef.current = { x: clientX, y: clientY, panX: pan.x, panY: pan.y, moved: false };
   };
 
   const handleMove = (clientX: number, clientY: number) => {
     if (!isDragging) return;
+    const dx = clientX - dragStartRef.current.x;
+    const dy = clientY - dragStartRef.current.y;
+    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) dragStartRef.current.moved = true;
     setPan({
-      x: dragStartRef.current.panX + (clientX - dragStartRef.current.x),
-      y: dragStartRef.current.panY + (clientY - dragStartRef.current.y),
+      x: dragStartRef.current.panX + dx,
+      y: dragStartRef.current.panY + dy,
     });
+  };
+
+  const handleEnd = (clientX: number, clientY: number) => {
+    setIsDragging(false);
+    // If we were measuring and the user didn't drag, place a point!
+    if (isMeasuring && !dragStartRef.current.moved && containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      const clickScreenX = clientX - rect.left;
+      const clickScreenY = clientY - rect.top;
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      const svgRelX = (clickScreenX - centerX - pan.x) / currentScale + parcelCenterX;
+      const svgRelY = (clickScreenY - centerY - pan.y) / currentScale + parcelCenterY;
+
+      const tileX = originTileX + svgRelX / 256;
+      const tileY = originTileY + svgRelY / 256;
+      const lon = (tileX / n) * 360 - 180;
+      const lat = (Math.atan(Math.sinh(Math.PI * (1 - 2 * (tileY / n)))) * 180) / Math.PI;
+
+      if (measurePoints.length === 0 || measurePoints.length === 2) {
+        setMeasurePoints([{ x: svgRelX, y: svgRelY, lon, lat }]);
+      } else if (measurePoints.length === 1) {
+        setMeasurePoints((prev) => [...prev, { x: svgRelX, y: svgRelY, lon, lat }]);
+      }
+    }
+  };
+
+  const toggleFullscreen = () => {
+    if (!containerRef.current) return;
+    if (!document.fullscreenElement) {
+      containerRef.current.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen().catch(() => {});
+    }
+  };
+
+  const toggleLayer = (layer: keyof ActiveLayers) => {
+    setLayers((prev) => ({ ...prev, [layer]: !prev[layer] }));
   };
 
   const streetViewUrl = `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${centerLat},${centerLon}`;
@@ -105,27 +166,36 @@ export function InteractiveParcelMap({
   return (
     <div
       ref={containerRef}
-      style={{ height: `${height}px` }}
-      className="relative w-full rounded-2xl overflow-hidden border border-[#E2E8F0] dark:border-[#2A374A] bg-[#0B132B] select-none cursor-grab active:cursor-grabbing shadow-inner"
+      style={{ height: typeof height === 'number' ? `${height}px` : height }}
+      className={`relative w-full rounded-3xl overflow-hidden border border-[#E2E8F0] dark:border-[#2A374A] bg-[#070D1B] select-none shadow-2xl ${
+        isMeasuring ? 'cursor-crosshair' : 'cursor-grab active:cursor-grabbing'
+      }`}
       onMouseDown={(e) => handleStart(e.clientX, e.clientY)}
       onMouseMove={(e) => handleMove(e.clientX, e.clientY)}
-      onMouseUp={() => setIsDragging(false)}
+      onMouseUp={(e) => handleEnd(e.clientX, e.clientY)}
       onMouseLeave={() => setIsDragging(false)}
       onTouchStart={(e) => e.touches[0] && handleStart(e.touches[0].clientX, e.touches[0].clientY)}
       onTouchMove={(e) => e.touches[0] && handleMove(e.touches[0].clientX, e.touches[0].clientY)}
-      onTouchEnd={() => setIsDragging(false)}
+      onTouchEnd={(e) => e.changedTouches[0] && handleEnd(e.changedTouches[0].clientX, e.changedTouches[0].clientY)}
     >
       <ParcelMapControls
         mode={mode}
         onSelectMode={setMode}
         streetViewUrl={streetViewUrl}
         earth3dUrl={earth3dUrl}
-        showOverlays={showOverlays}
-        onToggleOverlays={() => setShowOverlays((cur) => !cur)}
+        layers={layers}
+        onToggleLayer={toggleLayer}
+        isMeasuring={isMeasuring}
+        onToggleMeasuring={() => {
+          setIsMeasuring((cur) => !cur);
+          if (isMeasuring) setMeasurePoints([]);
+        }}
         onOpenInspector={onOpenInspector}
+        isFullscreen={isFullscreen}
+        onToggleFullscreen={toggleFullscreen}
         onZoomIn={() => setZoom((zVal) => Math.min(4.0, zVal + 0.35))}
         onZoomOut={() => setZoom((zVal) => Math.max(0.5, zVal - 0.35))}
-        onReset={() => { setPan({ x: 0, y: 0 }); setZoom(1); }}
+        onReset={() => { setPan({ x: 0, y: 0 }); setZoom(1); setMeasurePoints([]); }}
       />
 
       {mode === 'ign' ? (
@@ -187,9 +257,27 @@ export function InteractiveParcelMap({
               surfaceText={`${parcel.contenance} m²`}
               centerPos={{ x: parcelCenterX, y: parcelCenterY }}
               scale={currentScale}
-              showOverlays={showOverlays}
+              layers={layers}
+              measurePoints={measurePoints}
+              measureDistance={measureDistance}
             />
           </div>
+        </div>
+      )}
+
+      {/* Measurement Tool Guide Banner */}
+      {isMeasuring && (
+        <div className="absolute top-16 left-1/2 -translate-x-1/2 z-40 bg-amber-500 text-black px-4 py-1.5 rounded-full text-xs font-black shadow-2xl flex items-center gap-2 border-2 border-black/20 animate-in fade-in">
+          <span>📐 {measurePoints.length === 0 ? 'Cliquez le 1er point' : measurePoints.length === 1 ? 'Cliquez le 2ème point' : `Distance mesurée : ${measureDistance} m`}</span>
+          {measurePoints.length > 0 && (
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); setMeasurePoints([]); }}
+              className="ml-2 px-2 py-0.5 bg-black/20 hover:bg-black/40 rounded text-[11px] font-bold cursor-pointer"
+            >
+              Effacer
+            </button>
+          )}
         </div>
       )}
 
