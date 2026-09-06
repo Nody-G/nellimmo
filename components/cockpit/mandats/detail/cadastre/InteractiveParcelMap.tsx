@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { Compass } from 'lucide-react';
 import { CadastreParcel, calculateDistanceMeters, getGeoportailEmbedUrl } from '@/lib/cadastre';
 import { ParcelTileOverlaySvg } from './ParcelTileOverlaySvg';
 import { ParcelMapControls, MapMode } from './ParcelMapControls';
@@ -20,6 +21,7 @@ export function InteractiveParcelMap({
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
   const dragStartRef = useRef({ x: 0, y: 0, panX: 0, panY: 0 });
 
   const centerLat = parcel.coordinates?.lat || 43.64;
@@ -49,7 +51,6 @@ export function InteractiveParcelMap({
 
   const svgPath = polygonPts.length >= 3 ? `M ${polygonPts.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' L ')} Z` : '';
 
-  // Auto-fit calculation so parcel is prominently sized (approx 62% of viewport height)
   const minX = polygonPts.length ? Math.min(...polygonPts.map((p) => p.x)) : 300;
   const maxX = polygonPts.length ? Math.max(...polygonPts.map((p) => p.x)) : 380;
   const minY = polygonPts.length ? Math.min(...polygonPts.map((p) => p.y)) : 220;
@@ -66,6 +67,22 @@ export function InteractiveParcelMap({
     const dist = calculateDistanceMeters(p1.lon, p1.lat, p2.lon, p2.lat);
     return { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2, label: `${dist} m` };
   });
+
+  // Native non-passive wheel listener: PREVENTS PAGE SCROLL WHILE ZOOMING
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    const handleNativeWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const delta = e.deltaY * 0.0015;
+      setZoom((cur) => Math.max(0.5, Math.min(4.0, cur - delta)));
+    };
+    container.addEventListener('wheel', handleNativeWheel, { passive: false });
+    return () => {
+      container.removeEventListener('wheel', handleNativeWheel);
+    };
+  }, []);
 
   const handleStart = (clientX: number, clientY: number) => {
     setIsDragging(true);
@@ -85,6 +102,7 @@ export function InteractiveParcelMap({
 
   return (
     <div
+      ref={containerRef}
       style={{ height: `${height}px` }}
       className="relative w-full rounded-2xl overflow-hidden border border-[#E2E8F0] dark:border-[#2A374A] bg-[#0B132B] select-none cursor-grab active:cursor-grabbing shadow-inner"
       onMouseDown={(e) => handleStart(e.clientX, e.clientY)}
@@ -94,7 +112,6 @@ export function InteractiveParcelMap({
       onTouchStart={(e) => e.touches[0] && handleStart(e.touches[0].clientX, e.touches[0].clientY)}
       onTouchMove={(e) => e.touches[0] && handleMove(e.touches[0].clientX, e.touches[0].clientY)}
       onTouchEnd={() => setIsDragging(false)}
-      onWheel={(e) => { e.preventDefault(); setZoom((cur) => Math.max(0.5, Math.min(4.0, cur - e.deltaY * 0.0015))); }}
     >
       <ParcelMapControls
         mode={mode}
@@ -131,16 +148,23 @@ export function InteractiveParcelMap({
                 [-1, 0, 1].map((dx) => {
                   const tx = centerTileX + dx;
                   const ty = centerTileY + dy;
+                  // Official French IGN GeoPF open data tiles (zero API key, zero watermark)
                   const url =
                     mode === 'satellite'
-                      ? `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/18/${ty}/${tx}`
-                      : `https://a.basemaps.cartocdn.com/rastertiles/voyager/18/${tx}/${ty}.png`;
+                      ? `https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=ORTHOIMAGERY.ORTHOPHOTOS&STYLE=normal&FORMAT=image/jpeg&TILEMATRIXSET=PM&TILEMATRIX=18&TILEROW=${ty}&TILECOL=${tx}`
+                      : `https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2&STYLE=normal&FORMAT=image/png&TILEMATRIXSET=PM&TILEMATRIX=18&TILEROW=${ty}&TILECOL=${tx}`;
                   return (
                     /* eslint-disable-next-line @next/next/no-img-element */
                     <img
                       key={`${tx}-${ty}`}
                       src={url}
                       alt=""
+                      onError={(e) => {
+                        // Fallback to Esri if IGN tile temporarily fails
+                        if (mode === 'satellite') {
+                          (e.currentTarget as HTMLImageElement).src = `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/18/${ty}/${tx}`;
+                        }
+                      }}
                       className="absolute w-[256px] h-[256px] select-none pointer-events-none filter brightness-95"
                       style={{ left: `${(dx + 1) * 256}px`, top: `${(dy + 1) * 256}px` }}
                       loading="eager"
@@ -157,10 +181,17 @@ export function InteractiveParcelMap({
               isSatellite={mode === 'satellite'}
               surfaceText={`${parcel.contenance} m²`}
               centerPos={{ x: parcelCenterX, y: parcelCenterY }}
+              scale={currentScale}
             />
           </div>
         </div>
       )}
+
+      {/* Compass North rose */}
+      <div className="absolute top-14 right-3 z-20 flex flex-col items-center pointer-events-none opacity-85">
+        <Compass className="w-5 h-5 text-teal-400 animate-pulse" />
+        <span className="text-[8px] font-bold text-teal-300 font-mono tracking-wider">N</span>
+      </div>
 
       {/* Cadastral live badge */}
       <div className="absolute bottom-3 left-3 z-30 bg-[#0B132B]/90 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10 text-[11px] text-gray-200 font-mono pointer-events-none flex items-center gap-2 shadow-lg">
@@ -172,3 +203,4 @@ export function InteractiveParcelMap({
     </div>
   );
 }
+

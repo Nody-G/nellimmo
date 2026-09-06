@@ -23,6 +23,7 @@ interface ParcelTileOverlaySvgProps {
   isSatellite: boolean;
   surfaceText?: string;
   centerPos?: { x: number; y: number };
+  scale?: number;
 }
 
 export function ParcelTileOverlaySvg({
@@ -32,10 +33,13 @@ export function ParcelTileOverlaySvg({
   isSatellite,
   surfaceText,
   centerPos,
+  scale = 1,
 }: ParcelTileOverlaySvgProps) {
   const [hoveredPoint, setHoveredPoint] = useState<number | null>(null);
 
   if (!svgPath) return null;
+
+  const invScale = 1 / Math.max(scale, 0.1);
 
   return (
     <svg className="absolute inset-0 w-[768px] h-[768px] pointer-events-none drop-shadow-[0_0_15px_rgba(20,184,166,0.7)]">
@@ -43,96 +47,99 @@ export function ParcelTileOverlaySvg({
       <path
         d={svgPath}
         fill="#0D9488"
-        fillOpacity={isSatellite ? 0.35 : 0.25}
+        fillOpacity={isSatellite ? 0.32 : 0.22}
         stroke="#14B8A6"
-        strokeWidth="3.5"
+        strokeWidth={3 * invScale}
         strokeLinejoin="round"
       />
 
-      {/* Badge central de surface */}
+      {/* Badge central de surface (Taille d'affichage constante) */}
       {surfaceText && centerPos && (
-        <g>
-          <rect
-            x={centerPos.x - 42}
-            y={centerPos.y - 12}
-            width="84"
-            height="24"
-            rx="8"
-            fill="#0B132B"
-            stroke="#14B8A6"
-            strokeWidth="1.5"
-            fillOpacity="0.92"
-          />
-          <text
-            x={centerPos.x}
-            y={centerPos.y + 4}
-            fill="#5EEAD4"
-            fontSize="10"
-            fontWeight="bold"
-            textAnchor="middle"
-            fontFamily="monospace"
-          >
-            {surfaceText}
-          </text>
+        <g transform={`translate(${centerPos.x}, ${centerPos.y})`}>
+          <g transform={`scale(${invScale})`}>
+            <rect
+              x="-46"
+              y="-13"
+              width="92"
+              height="26"
+              rx="8"
+              fill="#0B132B"
+              stroke="#14B8A6"
+              strokeWidth="1.5"
+              fillOpacity="0.95"
+            />
+            <text
+              y="4"
+              fill="#5EEAD4"
+              fontSize="11"
+              fontWeight="bold"
+              textAnchor="middle"
+              fontFamily="monospace"
+            >
+              {surfaceText}
+            </text>
+          </g>
         </g>
       )}
 
-      {/* Cotes métriques le long de chaque bord */}
+      {/* Cotes métriques (Taille d'affichage constante) */}
       {midpoints.map((mid, i) => (
-        <g key={`m-${i}`}>
-          <rect
-            x={mid.x - 22}
-            y={mid.y - 10}
-            width="44"
-            height="20"
-            rx="6"
-            fill="#131B26"
-            stroke="#0D9488"
-            strokeWidth="1"
-            fillOpacity="0.95"
-          />
-          <text
-            x={mid.x}
-            y={mid.y + 3.5}
-            fill="#5EEAD4"
-            fontSize="9.5"
-            fontWeight="bold"
-            textAnchor="middle"
-            fontFamily="monospace"
-          >
-            {mid.label}
-          </text>
+        <g key={`m-${i}`} transform={`translate(${mid.x}, ${mid.y})`}>
+          <g transform={`scale(${invScale})`}>
+            <rect
+              x="-24"
+              y="-11"
+              width="48"
+              height="22"
+              rx="6"
+              fill="#0B132B"
+              stroke="#0D9488"
+              strokeWidth="1"
+              fillOpacity="0.95"
+            />
+            <text
+              y="3.5"
+              fill="#5EEAD4"
+              fontSize="10"
+              fontWeight="bold"
+              textAnchor="middle"
+              fontFamily="monospace"
+            >
+              {mid.label}
+            </text>
+          </g>
         </g>
       ))}
 
-      {/* Bornes de propriété B1, B2... */}
+      {/* Bornes de propriété B1, B2... (Taille d'affichage constante) */}
       {points.map((p) => (
         <g
           key={`p-${p.index}`}
+          transform={`translate(${p.x}, ${p.y})`}
           onMouseEnter={() => setHoveredPoint(p.index)}
           onMouseLeave={() => setHoveredPoint(null)}
           className="pointer-events-auto cursor-pointer"
         >
-          <circle
-            cx={p.x}
-            cy={p.y}
-            r={hoveredPoint === p.index ? 7 : 5}
-            fill="#F59E0B"
-            stroke="#FFF"
-            strokeWidth="2"
-          />
-          <text
-            x={p.x}
-            y={p.y - 8}
-            fill="#FCD34D"
-            fontSize="8"
-            fontWeight="bold"
-            textAnchor="middle"
-          >
-            B{p.index}
-          </text>
+          <g transform={`scale(${invScale})`}>
+            <circle
+              r={hoveredPoint === p.index ? 8 : 6}
+              fill="#F59E0B"
+              stroke="#FFF"
+              strokeWidth="2"
+            />
+            <text
+              y="-10"
+              fill="#FCD34D"
+              fontSize="9"
+              fontWeight="bold"
+              textAnchor="middle"
+            >
+              B{p.index}
+            </text>
+          </g>
         </g>
       ))}
     </svg>
   );
 }
+
