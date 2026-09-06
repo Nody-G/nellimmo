@@ -106,14 +106,14 @@ export function NeighborhoodAmenitiesMap({
     } catch {}
   };
 
-  // Prevent wheel scroll
+  // Prevent wheel scroll & enable smooth multiplicative zoom with wide dezoom
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
-      const delta = e.deltaY * 0.0015;
-      setZoom((cur) => Math.max(0.4, Math.min(3.5, cur - delta)));
+      const factor = Math.exp(-e.deltaY * 0.0018);
+      setZoom((cur) => Math.max(0.04, Math.min(6.0, cur * factor)));
     };
     el.addEventListener('wheel', onWheel, { passive: false });
     return () => el.removeEventListener('wheel', onWheel);
@@ -253,13 +253,15 @@ export function NeighborhoodAmenitiesMap({
         <div className="pointer-events-auto bg-[#131B26]/90 backdrop-blur-md border border-white/10 px-3 py-1.5 rounded-2xl flex items-center gap-2 shadow-lg text-xs text-white">
           <span className="w-2 h-2 rounded-full bg-teal-400 animate-pulse" />
           <span className="font-bold">Radar de Quartier</span>
-          <span className="text-gray-400 text-[11px]">({amenities.length} commodités)</span>
+          <span className="text-gray-400 text-[11px] font-mono">
+            ({amenities.length} commodités • {zoom >= 1 ? `~${(1.2 / zoom).toFixed(1)}km` : `~${(1.2 / zoom).toFixed(0)}km`})
+          </span>
         </div>
 
         <div className="pointer-events-auto flex items-center gap-1.5">
           <button
             type="button"
-            onClick={() => setZoom((z) => Math.min(3.5, z + 0.35))}
+            onClick={() => setZoom((z) => Math.min(6.0, z * 1.35))}
             className="p-2 rounded-xl bg-[#131B26]/90 backdrop-blur-md text-white border border-white/10 hover:bg-teal-600 transition shadow-lg cursor-pointer"
             title="Zoomer (+)"
           >
@@ -267,7 +269,7 @@ export function NeighborhoodAmenitiesMap({
           </button>
           <button
             type="button"
-            onClick={() => setZoom((z) => Math.max(0.4, z - 0.35))}
+            onClick={() => setZoom((z) => Math.max(0.04, z / 1.35))}
             className="p-2 rounded-xl bg-[#131B26]/90 backdrop-blur-md text-white border border-white/10 hover:bg-teal-600 transition shadow-lg cursor-pointer"
             title="Dézoomer (-)"
           >

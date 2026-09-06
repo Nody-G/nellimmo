@@ -97,24 +97,39 @@ export function InteractiveParcelMap({
   const viewCenterWorldX = parcelWorldPxX - pan.x / currentScale;
   const viewCenterWorldY = parcelWorldPxY - pan.y / currentScale;
 
-  // Dynamically compute tile indices covering the ENTIRE visible screen + buffer
-  const halfW = (containerSize.width / 2) / currentScale;
-  const halfH = (containerSize.height / 2) / currentScale;
-  const minTileX = Math.floor((viewCenterWorldX - halfW - 256) / 256);
-  const maxTileX = Math.floor((viewCenterWorldX + halfW + 256) / 256);
-  const minTileY = Math.floor((viewCenterWorldY - halfH - 256) / 256);
-  const maxTileY = Math.floor((viewCenterWorldY + halfH + 256) / 256);
+  // Dynamic multi-scale tile calculation: adapts TILEMATRIX from 6 (France/Region) to 19 (High-precision Street)
+  // Ensures tile count on screen stays optimal (typically 12-25 tiles) regardless of zoom level
+  const effectiveZoom = 18 + Math.log2(Math.max(currentScale, 0.0001));
+  const tileZoom = Math.max(6, Math.min(19, Math.round(effectiveZoom)));
+  const nTile = Math.pow(2, tileZoom);
 
-  // Generate tile list
-  const tiles: { tx: number; ty: number; left: number; top: number; size: number }[] = [];
-  const tileSize = 256 * currentScale;
+  const centerTileX = ((centerLon + 180) / 360) * nTile;
+  const radCenter = (centerLat * Math.PI) / 180;
+  const centerTileY = ((1 - Math.asinh(Math.tan(radCenter)) / Math.PI) / 2) * nTile;
+
+  const tileScale = Math.pow(2, effectiveZoom - tileZoom);
+  const tileSize = 256 * tileScale;
+
+  const viewCenterTileX = centerTileX - pan.x / tileSize;
+  const viewCenterTileY = centerTileY - pan.y / tileSize;
+
+  const halfWTiles = (containerSize.width / 2) / tileSize;
+  const halfHTiles = (containerSize.height / 2) / tileSize;
+
+  const minTileX = Math.floor(viewCenterTileX - halfWTiles - 0.5);
+  const maxTileX = Math.floor(viewCenterTileX + halfWTiles + 0.5);
+  const minTileY = Math.floor(viewCenterTileY - halfHTiles - 0.5);
+  const maxTileY = Math.floor(viewCenterTileY + halfHTiles + 0.5);
+
+  const tiles: { tx: number; ty: number; tz: number; left: number; top: number; size: number }[] = [];
   for (let ty = minTileY; ty <= maxTileY; ty++) {
     for (let tx = minTileX; tx <= maxTileX; tx++) {
       tiles.push({
         tx,
         ty,
-        left: (tx * 256 - viewCenterWorldX) * currentScale + containerSize.width / 2,
-        top: (ty * 256 - viewCenterWorldY) * currentScale + containerSize.height / 2,
+        tz: tileZoom,
+        left: (tx - viewCenterTileX) * tileSize + containerSize.width / 2,
+        top: (ty - viewCenterTileY) * tileSize + containerSize.height / 2,
         size: tileSize,
       });
     }
@@ -148,15 +163,15 @@ export function InteractiveParcelMap({
     ? calculateDistanceMeters(measurePoints[0].lon, measurePoints[0].lat, measurePoints[1].lon, measurePoints[1].lat)
     : null;
 
-  // Native non-passive wheel listener: PREVENTS PAGE SCROLL WHILE ZOOMING
+  // Native non-passive wheel listener: PREVENTS PAGE SCROLL WHILE ZOOMING (Multiplicative infinite zoom)
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
     const handleNativeWheel = (e: WheelEvent) => {
       e.preventDefault();
       e.stopPropagation();
-      const delta = e.deltaY * 0.0015;
-      setZoom((cur) => Math.max(0.4, Math.min(5.0, cur - delta)));
+      const factor = Math.exp(-e.deltaY * 0.0018);
+      setZoom((cur) => Math.max(0.0005, Math.min(8.0, cur * factor)));
     };
     container.addEventListener('wheel', handleNativeWheel, { passive: false });
     return () => container.removeEventListener('wheel', handleNativeWheel);
@@ -296,8 +311,8 @@ export function InteractiveParcelMap({
         }}
         isFullscreen={isFullscreen}
         onToggleFullscreen={toggleFullscreen}
-        onZoomIn={() => setZoom((zVal) => Math.min(5.0, zVal + 0.35))}
-        onZoomOut={() => setZoom((zVal) => Math.max(0.4, zVal - 0.35))}
+        onZoomIn={() => setZoom((zVal) => Math.min(8.0, zVal * 1.4))}
+        onZoomOut={() => setZoom((zVal) => Math.max(0.0005, zVal / 1.4))}
         onReset={() => { setPan({ x: 0, y: 0 }); setZoom(1); setMeasurePoints([]); }}
       />
 
@@ -305,14 +320,14 @@ export function InteractiveParcelMap({
         <iframe title="IGN Géoportail Live" src={ignEmbedUrl} className="w-full h-full border-0" allowFullScreen />
       ) : (
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {/* Dynamic Tiles Layer covering 100% of viewport in any direction */}
+          {/* Dynamic Multi-Scale Tiles Layer covering 100% of viewport in any direction and zoom level */}
           {tiles.map((t) => {
-            const planUrl = `https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2&STYLE=normal&FORMAT=image/png&TILEMATRIXSET=PM&TILEMATRIX=18&TILEROW=${t.ty}&TILECOL=${t.tx}`;
-            const cadastreUrl = `https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=CADASTRALPARCELS.PARCELLAIRE_EXPRESS&STYLE=normal&FORMAT=image/png&TILEMATRIXSET=PM&TILEMATRIX=18&TILEROW=${t.ty}&TILECOL=${t.tx}`;
-            const satUrl = `https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=ORTHOIMAGERY.ORTHOPHOTOS&STYLE=normal&FORMAT=image/jpeg&TILEMATRIXSET=PM&TILEMATRIX=18&TILEROW=${t.ty}&TILECOL=${t.tx}`;
+            const planUrl = `https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2&STYLE=normal&FORMAT=image/png&TILEMATRIXSET=PM&TILEMATRIX=${t.tz}&TILEROW=${t.ty}&TILECOL=${t.tx}`;
+            const cadastreUrl = `https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=CADASTRALPARCELS.PARCELLAIRE_EXPRESS&STYLE=normal&FORMAT=image/png&TILEMATRIXSET=PM&TILEMATRIX=${t.tz}&TILEROW=${t.ty}&TILECOL=${t.tx}`;
+            const satUrl = `https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=ORTHOIMAGERY.ORTHOPHOTOS&STYLE=normal&FORMAT=image/jpeg&TILEMATRIXSET=PM&TILEMATRIX=${t.tz}&TILEROW=${t.ty}&TILECOL=${t.tx}`;
 
             return (
-              <React.Fragment key={`${t.tx}-${t.ty}`}>
+              <React.Fragment key={`${t.tz}-${t.tx}-${t.ty}`}>
                 {mode === 'arpenteur' && (
                   <>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -341,7 +356,7 @@ export function InteractiveParcelMap({
                       src={satUrl}
                       alt=""
                       onError={(e) => {
-                        (e.currentTarget as HTMLImageElement).src = `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/18/${t.ty}/${t.tx}`;
+                        (e.currentTarget as HTMLImageElement).src = `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${t.tz}/${t.ty}/${t.tx}`;
                       }}
                       className="absolute select-none pointer-events-none filter brightness-95"
                       style={{ left: `${t.left}px`, top: `${t.top}px`, width: `${t.size}px`, height: `${t.size}px` }}
@@ -435,7 +450,9 @@ export function InteractiveParcelMap({
         <span className="w-2 h-2 rounded-full bg-teal-400 animate-pulse" />
         <span>Section <strong>{parcel.section}</strong> N°<strong>{parcel.numero}</strong></span>
         <span className="text-teal-400 font-bold">• {parcel.contenance} m²</span>
-        <span className="text-gray-400 text-[10px]">({(currentScale).toFixed(1)}x)</span>
+        <span className="text-gray-400 text-[10px]">
+          ({currentScale >= 1 ? `${currentScale.toFixed(1)}x` : `1/${Math.round(1 / currentScale)}x`} • Z{tileZoom})
+        </span>
       </div>
     </div>
   );
