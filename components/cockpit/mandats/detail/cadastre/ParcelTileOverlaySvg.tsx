@@ -61,7 +61,7 @@ export function ParcelTileOverlaySvg({
   const filteredMidpoints = midpoints.filter((m) => m.dist >= 3.5);
 
   return (
-    <svg className="absolute inset-0 w-[768px] h-[768px] pointer-events-none drop-shadow-[0_0_15px_rgba(20,184,166,0.7)]">
+    <svg className="absolute inset-0 w-full h-full pointer-events-none drop-shadow-[0_0_15px_rgba(20,184,166,0.7)]">
       {/* 1. CALQUE LIGNES & CONTOURS */}
       {layers.lines && (
         <path

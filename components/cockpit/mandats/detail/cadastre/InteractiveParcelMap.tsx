@@ -45,8 +45,11 @@ export function InteractiveParcelMap({
 
   const centerTileX = Math.floor(lonToX(centerLon));
   const centerTileY = Math.floor(latToY(centerLat));
-  const originTileX = centerTileX - 1;
-  const originTileY = centerTileY - 1;
+  // 7x5 tile grid: 1792px x 1280px (eliminates black side borders on wide screens)
+  const originTileX = centerTileX - 3;
+  const originTileY = centerTileY - 2;
+  const GRID_WIDTH = 7 * 256;
+  const GRID_HEIGHT = 5 * 256;
 
   const parcelCenterX = (lonToX(centerLon) - originTileX) * 256;
   const parcelCenterY = (latToY(centerLat) - originTileY) * 256;
@@ -209,44 +212,89 @@ export function InteractiveParcelMap({
             transition: isDragging ? 'none' : 'transform 0.15s ease-out',
           }}
         >
-          <div className="relative w-[768px] h-[768px] shrink-0" style={{ left: `${384 - parcelCenterX}px`, top: `${384 - parcelCenterY}px` }}>
-            {mode === 'arpenteur' ? (
-              <div
-                className="absolute inset-0 bg-[#0B132B]"
-                style={{
-                  backgroundImage: 'radial-gradient(circle, rgba(20, 184, 166, 0.25) 1.2px, transparent 1.2px)',
-                  backgroundSize: '24px 24px',
-                }}
-              />
-            ) : (
-              [-1, 0, 1].map((dy) =>
-                [-1, 0, 1].map((dx) => {
-                  const tx = centerTileX + dx;
-                  const ty = centerTileY + dy;
-                  // Official French IGN GeoPF open data tiles (zero API key, zero watermark)
-                  const url =
-                    mode === 'satellite'
-                      ? `https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=ORTHOIMAGERY.ORTHOPHOTOS&STYLE=normal&FORMAT=image/jpeg&TILEMATRIXSET=PM&TILEMATRIX=18&TILEROW=${ty}&TILECOL=${tx}`
-                      : `https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2&STYLE=normal&FORMAT=image/png&TILEMATRIXSET=PM&TILEMATRIX=18&TILEROW=${ty}&TILECOL=${tx}`;
-                  return (
-                    /* eslint-disable-next-line @next/next/no-img-element */
-                    <img
-                      key={`${tx}-${ty}`}
-                      src={url}
-                      alt=""
-                      onError={(e) => {
-                        // Fallback to Esri if IGN tile temporarily fails
-                        if (mode === 'satellite') {
-                          (e.currentTarget as HTMLImageElement).src = `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/18/${ty}/${tx}`;
-                        }
-                      }}
-                      className="absolute w-[256px] h-[256px] select-none pointer-events-none filter brightness-95"
-                      style={{ left: `${(dx + 1) * 256}px`, top: `${(dy + 1) * 256}px` }}
-                      loading="eager"
-                    />
-                  );
-                })
-              )
+          <div
+            className="relative shrink-0"
+            style={{
+              width: `${GRID_WIDTH}px`,
+              height: `${GRID_HEIGHT}px`,
+              left: `${GRID_WIDTH / 2 - parcelCenterX}px`,
+              top: `${GRID_HEIGHT / 2 - parcelCenterY}px`,
+            }}
+          >
+            {[-2, -1, 0, 1, 2].map((dy, rowIdx) =>
+              [-3, -2, -1, 0, 1, 2, 3].map((dx, colIdx) => {
+                const tx = centerTileX + dx;
+                const ty = centerTileY + dy;
+                const leftPx = colIdx * 256;
+                const topPx = rowIdx * 256;
+
+                const planUrl = `https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2&STYLE=normal&FORMAT=image/png&TILEMATRIXSET=PM&TILEMATRIX=18&TILEROW=${ty}&TILECOL=${tx}`;
+                const cadastreUrl = `https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=CADASTRALPARCELS.PARCELLAIRE_EXPRESS&STYLE=normal&FORMAT=image/png&TILEMATRIXSET=PM&TILEMATRIX=18&TILEROW=${ty}&TILECOL=${tx}`;
+                const satUrl = `https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=ORTHOIMAGERY.ORTHOPHOTOS&STYLE=normal&FORMAT=image/jpeg&TILEMATRIXSET=PM&TILEMATRIX=18&TILEROW=${ty}&TILECOL=${tx}`;
+
+                return (
+                  <React.Fragment key={`${tx}-${ty}`}>
+                    {mode === 'arpenteur' && (
+                      <>
+                        {/* Fond Plan IGN clair */}
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={planUrl}
+                          alt=""
+                          className="absolute w-[256px] h-[256px] select-none pointer-events-none filter contrast-105"
+                          style={{ left: `${leftPx}px`, top: `${topPx}px` }}
+                          loading="eager"
+                        />
+                        {/* Surcouche Officielle Cadastre Express de l'État (Toutes les parcelles voisines et numéros) */}
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={cadastreUrl}
+                          alt=""
+                          className="absolute w-[256px] h-[256px] select-none pointer-events-none opacity-90"
+                          style={{ left: `${leftPx}px`, top: `${topPx}px` }}
+                          loading="eager"
+                        />
+                      </>
+                    )}
+
+                    {mode === 'satellite' && (
+                      <>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={satUrl}
+                          alt=""
+                          onError={(e) => {
+                            (e.currentTarget as HTMLImageElement).src = `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/18/${ty}/${tx}`;
+                          }}
+                          className="absolute w-[256px] h-[256px] select-none pointer-events-none filter brightness-95"
+                          style={{ left: `${leftPx}px`, top: `${topPx}px` }}
+                          loading="eager"
+                        />
+                        {/* Limites cadastrales environnantes en transparence */}
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={cadastreUrl}
+                          alt=""
+                          className="absolute w-[256px] h-[256px] select-none pointer-events-none opacity-60 filter invert"
+                          style={{ left: `${leftPx}px`, top: `${topPx}px` }}
+                          loading="eager"
+                        />
+                      </>
+                    )}
+
+                    {mode === 'plan' && (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img
+                        src={planUrl}
+                        alt=""
+                        className="absolute w-[256px] h-[256px] select-none pointer-events-none filter contrast-105"
+                        style={{ left: `${leftPx}px`, top: `${topPx}px` }}
+                        loading="eager"
+                      />
+                    )}
+                  </React.Fragment>
+                );
+              })
             )}
 
             <ParcelTileOverlaySvg
