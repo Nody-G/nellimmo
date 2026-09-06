@@ -6,6 +6,7 @@ import { Property, Buyer } from '@/lib/types';
 import { ShieldCheck, Printer } from 'lucide-react';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
+import { useAgencySettings } from '@/lib/store';
 
 export interface PrintableVisitData {
   property?: Property;
@@ -27,7 +28,22 @@ export const PrintableVisitModal: React.FC<PrintableVisitModalProps> = ({
   onClose,
   visitData
 }) => {
+  const { settings } = useAgencySettings();
   if (!visitData) return null;
+
+  const agencyName = settings.agency_name || "SASU Nell'Immo";
+  const agencyShort = agencyName.replace(/^SASU\s+/i, '').toUpperCase();
+  const agentName = settings.agent_name || 'Nelly FERNANDEZ';
+  const capital = settings.capital_social || '2 000 €';
+  const address = settings.address || '26 avenue des Enjouvènes';
+  const postalCity = `${settings.postal_code || '13330'} ${settings.city || 'Pélissanne'}`;
+  const siren = settings.siren || '853 807 006';
+  const rcsCity = settings.rcs_city || 'Salon-de-Provence';
+  const cardT = settings.card_t_number || 'CPI 1310 2019 000 042 974';
+  const cci = settings.cci_card_t || 'CCI Marseille Provence';
+  const guaranteeName = settings.guarantee_fund_name || 'GALIAN';
+  const guaranteeAmount = settings.guarantee_fund_amount || '120 000 €';
+  const insurancePolicy = settings.insurance_policy || 'N° 120 137 405';
 
   const handlePrint = () => {
     window.print();
@@ -52,16 +68,16 @@ export const PrintableVisitModal: React.FC<PrintableVisitModalProps> = ({
           <div className="flex items-center justify-between border-b-2 border-gray-900 pb-4">
             <div>
               <h2 className="text-lg font-serif font-black tracking-tight text-[#131B26]">
-                NELL&apos;IMMO IMMOBILIER
+                {agencyShort} IMMOBILIER
               </h2>
               <span className="text-[10px] uppercase font-bold text-[#E12B7B] block">
-                SASU NELL&apos;IMMO • Capital 1 000 € • Siège : 145 Chemin des Oliviers, 13330 Pélissanne
+                {agencyName} • Capital {capital} • Siège : {address}, {postalCity}
               </span>
               <span className="text-[9px] text-gray-500 block">
-                RCS Salon-de-Provence B 849 521 123 • Carte Pro CPI 1310 2019 000 042 974 (CCI Aix-Marseille)
+                RCS {rcsCity} B {siren} • Carte Pro {cardT} ({cci})
               </span>
               <span className="text-[9px] text-gray-500 block">
-                Garantie Financière GALIAN (120 000 €) • Assurance RCP MMA IARD N° 120 137 405
+                Garantie Financière {guaranteeName} ({guaranteeAmount}) • Assurance RCP MMA IARD {insurancePolicy}
               </span>
             </div>
             <div className="text-right">
@@ -77,10 +93,10 @@ export const PrintableVisitModal: React.FC<PrintableVisitModalProps> = ({
           {/* Title */}
           <div className="text-center py-1 bg-gray-50 border border-gray-200 rounded-lg">
             <h1 className="font-serif font-black text-sm uppercase tracking-wider text-gray-900">
-              BON DE VISITE IMMOBILIER & RECONNAISSANCE D&apos;HONORAIRES
+              BON DE VISITE IMMOBILIER & RECONNAISSANCE D’HONORAIRES
             </h1>
             <span className="text-[9px] text-gray-500 uppercase font-semibold">
-              Établi en application de la Loi Hoguet n° 70-9 du 2 Janvier 1970 et de l&apos;Article 73 du Décret n° 72-678 du 20 Juillet 1972
+              Établi en application de la Loi Hoguet n° 70-9 du 2 Janvier 1970 et de l’Article 73 du Décret n° 72-678 du 20 Juillet 1972
             </span>
           </div>
 
@@ -116,16 +132,16 @@ export const PrintableVisitModal: React.FC<PrintableVisitModalProps> = ({
           {/* Legal Eviction Clause */}
           <div className="p-3.5 bg-rose-50/50 rounded-xl border border-rose-200 text-[11px] space-y-2 text-gray-800">
             <span className="font-bold text-rose-900 block uppercase text-[10px] tracking-wider">
-              Engagement Juridique du Visiteur & Clause d&apos;Interdiction d&apos;Éviction :
+              Engagement Juridique du Visiteur & Clause d’Interdiction d’Éviction :
             </span>
             <p className="leading-relaxed">
-              Le soussigné reconnaît expressément que le bien immobilier mentionné ci-dessus lui a été présenté ce jour pour la première fois par l&apos;intermédiaire de l&apos;agence <strong>SASU NELL&apos;IMMO</strong>.
+              Le soussigné reconnaît expressément que le bien immobilier mentionné ci-dessus lui a été présenté ce jour pour la première fois par l’intermédiaire de l’agence <strong>{agencyName}</strong>.
             </p>
             <p className="leading-relaxed">
-              En conséquence, le visiteur s&apos;interdit formellement de négocier, d&apos;acquérir ou de traiter directement ou indirectement (y compris par l&apos;intermédiaire d&apos;un tiers, conjoint, ascendant, descendant, société interposée ou autre agence) l&apos;acquisition dudit bien avec le vendeur mandant, <strong>pendant une durée de 24 mois à compter de la date de la présente visite</strong>.
+              En conséquence, le visiteur s’interdit formellement de négocier, d’acquérir ou de traiter directement ou indirectement (y compris par l’intermédiaire d’un tiers, conjoint, ascendant, descendant, société interposée ou autre agence) l’acquisition dudit bien avec le vendeur mandant, <strong>pendant une durée de 24 mois à compter de la date de la présente visite</strong>.
             </p>
             <p className="leading-relaxed font-semibold text-rose-950">
-              En cas de manquement à cette obligation, le visiteur s&apos;engage à verser à la SASU NELL&apos;IMMO une indemnité forfaitaire compensatrice équivalente au montant intégral des honoraires d&apos;agence fixés au mandat de vente, à titre de clause pénale irrévocable (Art. 1231-5 du Code Civil).
+              En cas de manquement à cette obligation, le visiteur s’engage à verser à {agencyName} une indemnité forfaitaire compensatrice équivalente au montant intégral des honoraires d’agence fixés au mandat de vente, à titre de clause pénale irrévocable (Art. 1231-5 du Code Civil).
             </p>
           </div>
 
@@ -133,11 +149,11 @@ export const PrintableVisitModal: React.FC<PrintableVisitModalProps> = ({
           <div className="grid grid-cols-2 gap-6 pt-3 border-t border-gray-200">
             <div className="space-y-2 text-center">
               <span className="font-bold text-[10px] uppercase text-gray-700 block">
-                Pour l&apos;Agence Nell&apos;Immo :
+                Pour l’Agence {agencyName} :
               </span>
-              <span className="text-[11px] text-gray-500 block">Nelly FERNANDEZ (Dirigeante)</span>
+              <span className="text-[11px] text-gray-500 block">{agentName} (Dirigeante)</span>
               <div className="h-16 border border-gray-200 rounded-lg flex items-center justify-center bg-gray-50">
-                <span className="font-serif italic font-bold text-gray-700">Nelly Fernandez</span>
+                <span className="font-serif italic font-bold text-gray-700">{agentName}</span>
               </div>
             </div>
 

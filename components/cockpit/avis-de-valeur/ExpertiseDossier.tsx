@@ -30,7 +30,7 @@ export function ExpertiseDossier({
     initialCity,
 }: ExpertiseDossierProps) {
     const handleShareWhatsapp = () => {
-        const text = `Bonjour ${ownerName},\n\nJ'ai le plaisir de vous transmettre la synthèse de votre Avis de Valeur certifié pour "${addressSearch}".\n\n🎯 Estimation de valeur : ${formatFr(priceTarget)} € (${formatFr(baseDvfM2)} €/m² moyen)\n📊 Analyse DVF : ${transactions.length} ventes réelles notariées dans votre secteur.\n\nJe reste disponible pour vous présenter le livret complet.\nNelly Fernandez — Nell'Immo (07 55 68 61 09)`;
+        const text = `Bonjour ${ownerName},\n\nJ'ai le plaisir de vous transmettre la synthèse de votre Avis de Valeur pour "${addressSearch}".\n\n🎯 Estimation de valeur : ${formatFr(priceTarget)} € (${formatFr(baseDvfM2)} €/m² moyen)\n📊 Analyse DVF : ${transactions.length} références notariées dans votre secteur.\n\nJe reste disponible pour vous présenter le livret complet.\nNelly Fernandez — Nell'Immo (07 55 68 61 09)`;
         window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
     };
 
@@ -38,7 +38,7 @@ export function ExpertiseDossier({
         openGmailCompose({
             to: '',
             subject: `[Nell'Immo] Avis de Valeur & Étude DVF — ${addressSearch}`,
-            body: `Bonjour ${ownerName},\n\nDans le cadre de votre projet immobilier pour le bien situé au ${addressSearch}, voici la synthèse de votre Avis de Valeur :\n\n• Caractéristiques : ${surfaceInput} m² hab., terrain ${landInput} m², ${roomsInput} pièces\n• Références notariées DVF : ${transactions.length} ventes réelles comparables\n• Prix moyen pondéré : ${formatFr(baseDvfM2)} €/m²\n• Cible d'équilibre certifiée : ${formatFr(priceTarget)} €\n\nJe me tiens à votre disposition pour vous remettre le dossier complet de 8 chapitres.\n\nBien cordialement,\nNelly Fernandez — SASU Nell'Immo Pélissanne\n📞 07 55 68 61 09 | ✉️ nellimmo.acte@gmail.com`,
+            body: `Bonjour ${ownerName},\n\nDans le cadre de votre projet immobilier pour le bien situé au ${addressSearch}, voici la synthèse de votre Avis de Valeur :\n\n• Caractéristiques : ${surfaceInput} m² hab., terrain ${landInput} m², ${roomsInput} pièces\n• Références notariées DVF : ${transactions.length} comparables\n• Prix moyen pondéré : ${formatFr(baseDvfM2)} €/m²\n• Cible d'équilibre estimée : ${formatFr(priceTarget)} €\n\nJe me tiens à votre disposition pour vous remettre le dossier complet de 8 chapitres.\n\nBien cordialement,\nNelly Fernandez — SASU Nell'Immo Pélissanne\n📞 07 55 68 61 09 | ✉️ nellimmo.acte@gmail.com`,
         });
     };
 
@@ -46,7 +46,7 @@ export function ExpertiseDossier({
         <div className="bg-white rounded-3xl p-8 sm:p-12 border-2 border-[#E12B7B] shadow-2xl space-y-8 animate-fade-in print-page">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b-2 border-gray-200 pb-4">
                 <div>
-                    <span className="text-xs font-bold uppercase text-[#E12B7B]">Dossier d{"\u2019"}Expertise & Avis de Valeur Officiel</span>
+                    <span className="text-xs font-bold uppercase text-[#E12B7B]">Dossier d{"\u2019"}Expertise & Avis de Valeur</span>
                     <h2 className="text-2xl font-serif font-black text-[#131B26]">
                         Étude Comparative de Marché DVF & Avis de Valeur
                     </h2>
@@ -119,7 +119,7 @@ export function ExpertiseDossier({
                 <div className="p-4 bg-[#FCFAF7] rounded-2xl border border-[#F3E8EE] space-y-1">
                     <span className="font-bold text-[#E12B7B] block text-[10px] uppercase">Chapitre 8</span>
                     <strong className="block text-sm text-[#131B26]">Stratégie & Mandat Exclusif</strong>
-                    <p className="text-[11px] text-gray-600">Plan de commercialisation 360° et espace vendeur temps réel.</p>
+                    <p className="text-[11px] text-gray-600">Plan de commercialisation 360° et espace vendeur en ligne.</p>
                 </div>
             </div>
 
@@ -153,9 +153,9 @@ export function ExpertiseDossier({
                 <strong className="font-bold">Note méthodologique — source des données.</strong>{' '}
                 Les références DVF présentées dans ce dossier proviennent d{"\u2019"}un jeu de données local de
                 démonstration (simulation) et sont pondérées par distance et ancienneté pour refléter le micromarché.
-                Elles seront automatiquement remplacées par les ventes réelles de l{"\u2019"}API DGFiP / data.gouv dès
-                son raccordement. Ce document est un support d{"\u2019"}aide à la décision et ne vaut pas expertise
-                notariale.
+                L{"\u2019"}application interroge en priorité le flux open-data DVF (DGFiP / data.gouv) et bascule sur
+                ces données de simulation lorsque le réseau est indisponible. Ce document est un support d{"\u2019"}aide
+                à la décision et ne vaut pas expertise notariale.
             </div>
 
             {/* Agency Signature */}

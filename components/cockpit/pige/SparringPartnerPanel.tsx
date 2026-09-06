@@ -10,7 +10,7 @@ interface SparringPartnerPanelProps {
     onCopyPitch: (text: string) => void;
 }
 
-/** Sparring-Partner IA : Désamorçage d'objections au téléphone. */
+/** Sparring-Partner : Désamorçage d'objections au téléphone. */
 export function SparringPartnerPanel({
     activeObjectionIndex,
     copiedPitch,
@@ -28,10 +28,10 @@ export function SparringPartnerPanel({
                     </div>
                     <div>
                         <h3 className="font-serif font-bold text-base text-white">
-                            Sparring-Partner IA : Désamorçage d{"\u2019"}Objections au Téléphone
+                            Sparring-Partner : Désamorçage d{"\u2019"}Objections au Téléphone
                         </h3>
                         <p className="text-[11px] text-gray-300">
-                            Pige téléphonique à haute valeur ajoutée. Cliquez sur l{"\u2019"}objection du vendeur pour afficher la réponse psychologique certifiée.
+                            Pige téléphonique à haute valeur ajoutée. Cliquez sur l{"\u2019"}objection du vendeur pour afficher un argumentaire d{"\u2019"}appel prêt à l{"\u2019"}emploi.
                         </p>
                     </div>
                 </div>
@@ -48,8 +48,8 @@ export function SparringPartnerPanel({
                         type="button"
                         onClick={() => onSelectObjection(idx)}
                         className={`p-3 rounded-2xl text-left text-xs transition border cursor-pointer ${activeObjectionIndex === idx
-                                ? 'bg-[#E12B7B] text-white border-[#E12B7B] shadow-md'
-                                : 'bg-white/5 text-gray-300 border-white/10 hover:bg-white/10'
+                            ? 'bg-[#E12B7B] text-white border-[#E12B7B] shadow-md'
+                            : 'bg-white/5 text-gray-300 border-white/10 hover:bg-white/10'
                             }`}
                     >
                         <span className="font-bold line-clamp-2">{script.title}</span>

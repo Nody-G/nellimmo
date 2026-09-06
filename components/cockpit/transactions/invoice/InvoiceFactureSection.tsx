@@ -91,7 +91,7 @@ export function InvoiceFactureSection({ deal, prop, settings }: InvoiceFactureSe
               Coordonnées Bancaires pour Virement Notarié :
             </span>
             <p className="font-mono text-[11px] text-gray-800">
-              Titulaire : SASU NELL’IMMO
+              Titulaire : {settings.agency_name || "SASU NELL’IMMO"}
             </p>
             <p className="font-mono text-[11px] text-gray-800">
               IBAN : {settings.agency_rib_iban || 'FR76 3000 4000 5000 6000 7000 123'}

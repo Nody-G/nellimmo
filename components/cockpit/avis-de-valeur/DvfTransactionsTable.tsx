@@ -35,8 +35,8 @@ export function DvfTransactionsTable({
             {/* Transparency banner: reflects the active DVF source */}
             <div
                 className={`flex items-start gap-3 p-3.5 rounded-2xl text-[11px] leading-relaxed border ${isOfficial
-                        ? 'bg-emerald-50/70 border-emerald-200 text-emerald-900'
-                        : 'bg-amber-50/70 border-amber-200 text-amber-900'
+                    ? 'bg-emerald-50/70 border-emerald-200 text-emerald-900'
+                    : 'bg-amber-50/70 border-amber-200 text-amber-900'
                     }`}
             >
                 <Info className={`w-4 h-4 mt-0.5 shrink-0 ${isOfficial ? 'text-emerald-600' : 'text-amber-600'}`} />
@@ -50,9 +50,9 @@ export function DvfTransactionsTable({
                     <p>
                         <strong className="font-bold">Données de démonstration.</strong>{' '}
                         Les références ci-dessous sont issues de la source {sourceLabel} (simulation locale) afin
-                        d{"\u2019"}illustrer la méthode. Elles ne constituent pas des actes authentiques vérifiés. La
-                        connexion à l{"\u2019"}API officielle DGFiP / data.gouv remplacera automatiquement ces données
-                        par les ventes réelles de votre secteur.
+                        d{"\u2019"}illustrer la méthode. Elles ne constituent pas des actes authentiques vérifiés.
+                        L{"\u2019"}application interroge en priorité le flux open-data DVF (DGFiP / data.gouv) et
+                        bascule sur ces données de simulation lorsque le réseau est indisponible.
                     </p>
                 )}
             </div>

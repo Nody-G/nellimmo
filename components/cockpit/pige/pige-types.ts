@@ -90,10 +90,13 @@ export function filterLeads(
     });
 }
 
-/** Computes the DVF benchmark gap for a lead (returns price m², benchmark, diff %). */
+/**
+ * Computes the indicative €/m² gap for a lead (returns price m², benchmark, diff %).
+ * NOTE: the benchmark is an internal agency estimate, NOT an official notarial DVF statistic.
+ */
 export function computeDvfGap(lead: ProspectingLead): { priceM2: number; benchmarkDvf: number; diffPct: number } {
     const priceM2 = Math.round(lead.price_asked / lead.living_area);
-    // Benchmarks DVF Pélissanne ~3250 €/m², Salon ~3000 €/m², Lambesc ~3450 €/m²
+    // Repères €/m² indicatifs internes : Pélissanne ~3250 €/m², Salon ~3000 €/m², Lambesc ~3450 €/m²
     const benchmarkDvf = lead.city === 'Lambesc' ? 3450 : lead.city === 'Salon-de-Provence' ? 3000 : 3250;
     const diffPct = Math.round(((priceM2 - benchmarkDvf) / benchmarkDvf) * 100);
     return { priceM2, benchmarkDvf, diffPct };

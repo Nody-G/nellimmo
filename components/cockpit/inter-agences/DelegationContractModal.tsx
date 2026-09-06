@@ -3,6 +3,7 @@
 import React from 'react';
 import { X, FileSignature, Printer } from 'lucide-react';
 import type { DelegationAgreement, Property, PartnerAgency } from '@/lib/types';
+import { useAgencySettings } from '@/lib/store';
 
 interface DelegationContractModalProps {
   isOpen: boolean;
@@ -19,7 +20,18 @@ export function DelegationContractModal({
   property,
   partner,
 }: DelegationContractModalProps) {
+  const { settings } = useAgencySettings();
   if (!isOpen || !delegation || !property || !partner) return null;
+
+  const agencyName = settings.agency_name || "SASU Nell'Immo";
+  const capital = settings.capital_social || '2 000 €';
+  const address = settings.address || '26 avenue des Enjouvènes';
+  const postalCity = `${settings.postal_code || '13330'} ${settings.city || 'Pélissanne'}`;
+  const agentName = settings.agent_name || 'Nelly FERNANDEZ';
+  const cardT = settings.card_t_number || 'CPI 1310 2019 000 042 974';
+  const cci = settings.cci_card_t || 'CCI Marseille Provence';
+  const guaranteeName = settings.guarantee_fund_name || 'GALIAN';
+  const guaranteeAmount = settings.guarantee_fund_amount || '120 000 €';
 
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
@@ -51,7 +63,7 @@ export function DelegationContractModal({
 
           <div>
             <strong>ENTRE LES SOUSSIGNÉS :</strong><br />
-            <strong>1. LE DÉLÉGANT :</strong> SASU NELL’IMMO, Capital 1 000 €, siège 145 Chemin des Oliviers, 13330 Pélissanne, représentée par Mme Nelly FERNANDEZ, titulaire de la Carte Professionnelle CPI 1310 2019 000 042 974 délivrée par la CCI d’Aix-Marseille-Provence, garantie financière GALIAN (120 000 €).<br /><br />
+            <strong>1. LE DÉLÉGANT :</strong> {agencyName}, Capital {capital}, siège {address}, {postalCity}, représentée par Mme {agentName}, titulaire de la Carte Professionnelle {cardT} délivrée par la {cci}, garantie financière {guaranteeName} ({guaranteeAmount}).<br /><br />
             <strong>2. LE DÉLÉGUÉ :</strong> {partner.agency_name}, représentée par {partner.director_name}, titulaire de la Carte Professionnelle {partner.cpi_number}, garantie {partner.financial_guarantee}.
           </div>
 
@@ -78,7 +90,7 @@ export function DelegationContractModal({
           <div className="pt-3 border-t border-gray-200 grid grid-cols-2 gap-4 text-center">
             <div>
               <span>Pour le Délégant :</span><br />
-              <strong className="text-gray-900">Nelly FERNANDEZ (Nell’Immo)</strong>
+              <strong className="text-gray-900">{agentName} ({agencyName})</strong>
             </div>
             <div>
               <span>Pour le Délégué :</span><br />

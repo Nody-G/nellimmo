@@ -21,8 +21,8 @@ export function TriangulationPanel({ inputs, results }: TriangulationPanelProps)
                         Synthèse croisée : DVF pondéré (55%) + Rendement (25%) + Coût de remplacement (20%).
                     </p>
                 </div>
-                <span className="text-xs font-bold text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full">
-                    DVF Notaires 2024-2026 Certifié
+                <span className="text-xs font-bold text-[#9F1239] bg-[#FDF2F8] px-3 py-1 rounded-full">
+                    Références DVF Notaires (DGFiP)
                 </span>
             </div>
 

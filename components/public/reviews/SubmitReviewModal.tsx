@@ -48,7 +48,7 @@ export function SubmitReviewModal({
           <div className="flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-[#E12B7B]" />
             <h3 className="font-serif font-bold text-lg text-[#131B26]">
-              Partager votre Témoignage Vérifié
+              Partager votre Témoignage
             </h3>
           </div>
           <button
@@ -66,7 +66,7 @@ export function SubmitReviewModal({
               Merci infiniment pour votre témoignage !
             </h4>
             <p className="text-xs text-emerald-800">
-              Votre avis est certifié et s’affiche désormais parmi nos retours d’expérience vérifiés.
+              Votre témoignage a bien été enregistré et s’affiche désormais parmi nos retours d’expérience clients.
             </p>
           </div>
         ) : (
@@ -81,9 +81,8 @@ export function SubmitReviewModal({
                     key={star}
                     type="button"
                     onClick={() => setFormRating(star)}
-                    className={`hover:scale-125 transition cursor-pointer ${
-                      star <= formRating ? 'text-amber-400' : 'text-gray-300'
-                    }`}
+                    className={`hover:scale-125 transition cursor-pointer ${star <= formRating ? 'text-amber-400' : 'text-gray-300'
+                      }`}
                   >
                     ★
                   </button>
@@ -167,7 +166,7 @@ export function SubmitReviewModal({
               className="w-full py-3 bg-[#E12B7B] hover:bg-[#C71B62] text-white rounded-xl font-bold uppercase tracking-wider transition shadow-md cursor-pointer flex items-center justify-center gap-2"
             >
               <Send className="w-4 h-4" />
-              <span>Publier mon Avis Vérifié</span>
+              <span>Publier mon Témoignage</span>
             </button>
           </form>
         )}

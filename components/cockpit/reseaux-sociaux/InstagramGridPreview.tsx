@@ -60,6 +60,7 @@ export function InstagramGridPreview({
           </div>
           <div className="text-[11px] text-gray-600 font-medium">
             <strong>{allProperties.length + 42}</strong> publications • <strong>1 850</strong> abonnés
+            <span className="text-gray-400"> (aperçu illustratif)</span>
           </div>
           <p className="text-[10px] text-gray-500 line-clamp-1">
             Immobilier d’exception en Provence • Pélissanne & Pays Salonais
@@ -78,9 +79,8 @@ export function InstagramGridPreview({
           return (
             <div
               key={p.id + idx}
-              className={`relative aspect-square overflow-hidden rounded-lg group ${
-                isCurrent ? 'ring-2 ring-[#E12B7B] shadow-md' : ''
-              }`}
+              className={`relative aspect-square overflow-hidden rounded-lg group ${isCurrent ? 'ring-2 ring-[#E12B7B] shadow-md' : ''
+                }`}
             >
               <Image
                 src={photo}

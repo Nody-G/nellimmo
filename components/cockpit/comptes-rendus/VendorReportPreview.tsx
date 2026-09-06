@@ -49,7 +49,7 @@ export function VendorReportPreview({
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b-2 border-gray-100 pb-4">
                 <div>
                     <span className="text-[10px] uppercase font-bold text-[#E12B7B] tracking-wider block">
-                        Compte-Rendu {report.report_period.toUpperCase()} Certifié
+                        Compte-Rendu {report.report_period.toUpperCase()}
                     </span>
                     <h3 className="font-serif font-bold text-xl text-[#131B26]">
                         Bilan de Commercialisation : {property.title}

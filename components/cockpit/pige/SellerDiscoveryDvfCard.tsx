@@ -23,12 +23,15 @@ export function SellerDiscoveryDvfCard({
       <div className="flex items-center justify-between">
         <span className="font-bold flex items-center gap-1">
           <TrendingUp className="w-3.5 h-3.5 text-[#C59A45]" />
-          Estimation DVF Marché ({city}) :
+          Estimation indicative ({city}) :
         </span>
         <span className="font-serif font-bold text-sm text-[#967026]">
           ~{estimatedValue.toLocaleString('fr-FR')} €
         </span>
       </div>
+      <p className="text-[10px] text-gray-500">
+        Ordre de grandeur interne de l’agence — à confirmer par une analyse DVF réelle du secteur.
+      </p>
       <div className="flex items-center justify-between text-[11px] text-gray-600">
         <span>Prix souhaité par le propriétaire (€) :</span>
         <input
@@ -40,7 +43,7 @@ export function SellerDiscoveryDvfCard({
       </div>
       {gap !== 0 && (
         <div className="text-[10px] text-gray-500 text-right">
-          Écart face au DVF : {gap > 0 ? `+${gap.toLocaleString('fr-FR')} € (Surestimé)` : `${gap.toLocaleString('fr-FR')} € (Attractif)`}
+          Écart face à l’estimation : {gap > 0 ? `+${gap.toLocaleString('fr-FR')} € (Surestimé)` : `${gap.toLocaleString('fr-FR')} € (Attractif)`}
         </div>
       )}
     </div>

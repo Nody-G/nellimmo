@@ -78,10 +78,10 @@ export function VoiceVisitRecorder({ onTranscriptComplete }: VoiceVisitRecorderP
           </div>
           <div>
             <h4 className="font-serif font-bold text-sm text-white">
-              Dictée Vocale & IA Terrain (Débriefing Voiture)
+              Dictée Vocale Terrain (Débriefing Voiture)
             </h4>
             <span className="text-[10px] text-gray-400 block">
-              Dictez votre retour de visite à l&apos;oral : l&apos;IA extrait automatiquement les points forts, le sentiment et pré-remplit le compte-rendu.
+              Dictez votre retour de visite à l’oral : l’analyse extrait automatiquement les points forts, le sentiment et pré-remplit le compte-rendu.
             </span>
           </div>
         </div>
@@ -89,11 +89,10 @@ export function VoiceVisitRecorder({ onTranscriptComplete }: VoiceVisitRecorderP
         <button
           type="button"
           onClick={toggleRecording}
-          className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition cursor-pointer shadow-md ${
-            isRecording
+          className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition cursor-pointer shadow-md ${isRecording
               ? 'bg-rose-600 text-white animate-pulse'
               : 'bg-[#E12B7B] hover:bg-[#C71B62] text-white'
-          }`}
+            }`}
         >
           {isRecording ? (
             <>

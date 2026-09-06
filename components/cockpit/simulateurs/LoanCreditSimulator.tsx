@@ -44,7 +44,7 @@ export function LoanCreditSimulator() {
 👉 Mensualité Globale : ${result.totalMonthlyPayment.toLocaleString('fr-FR')} € / mois
 👉 Revenus Nets du Foyer Requis (Endettement max 35%) : ${result.minRequiredHouseholdIncome.toLocaleString('fr-FR')} € / mois
 
-Simulateur certifié Nell'Immo — Salon-de-Provence & Pays Salonais.`;
+Simulateur Nell'Immo — Salon-de-Provence & Pays Salonais.`;
 
     navigator.clipboard.writeText(summary);
     setCopied(true);

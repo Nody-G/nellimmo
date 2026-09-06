@@ -55,20 +55,20 @@ export const BuyerSelectionModal: React.FC<BuyerSelectionModalProps> = ({
 Suite à notre échange sur votre projet immobilier (budget jusqu'à ${buyer.budget_max.toLocaleString('fr-FR')} € sur ${buyer.target_cities.join(', ')}), j'ai sélectionné pour vous ${selectedProperties.length} opportunité(s) exclusive(s) correspondant parfaitement à vos attentes :
 
 ${selectedProperties
-  .map(
-    (p, i) =>
-      `${i + 1}️⃣ *${p.title}* à ${p.city}
+      .map(
+        (p, i) =>
+          `${i + 1}️⃣ *${p.title}* à ${p.city}
 💶 Prix FAI : ${p.price_fai.toLocaleString('fr-FR')} €
 📐 ${p.living_area} m² habitables • ${p.rooms_count} pièces (${p.bedrooms_count} ch.)
 🌳 ${p.land_area ? `Terrain de ${p.land_area} m²` : 'Prestations soignées'}
 🔗 Découvrir la fiche : ${origin}/biens/${p.id}`
-  )
-  .join('\n\n')}
+      )
+      .join('\n\n')}
 
 Seriez-vous disponible cette semaine pour organiser une visite découverte ?
 Bien cordialement,
 Nelly Fernandez — SASU Nell'Immo
-📞 06 12 34 56 78`;
+📞 07 55 68 61 09`;
 
   const handleSendWhatsApp = () => {
     const cleanPhone = buyer.phone.replace(/\s+/g, '').replace(/^0/, '33');
@@ -136,11 +136,10 @@ Nelly Fernandez — SASU Nell'Immo
             <div className="flex items-center gap-2 border-b border-gray-200 pb-2">
               <button
                 onClick={() => setActiveTab('whatsapp')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
-                  activeTab === 'whatsapp'
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${activeTab === 'whatsapp'
                     ? 'bg-emerald-600 text-white shadow-2xs'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
+                  }`}
               >
                 <MessageCircle className="w-3.5 h-3.5" />
                 <span>Message Direct (WhatsApp / Email)</span>
@@ -148,11 +147,10 @@ Nelly Fernandez — SASU Nell'Immo
 
               <button
                 onClick={() => setActiveTab('print')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
-                  activeTab === 'print'
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${activeTab === 'print'
                     ? 'bg-[#131B26] text-white shadow-2xs'
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
+                  }`}
               >
                 <Printer className="w-3.5 h-3.5 text-[#C59A45]" />
                 <span>Dossier de Sélection A4 Imprimable</span>

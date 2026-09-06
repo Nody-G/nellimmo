@@ -29,10 +29,10 @@ export function SignatureModalHeader({ mandateNumber, step, onClose }: Signature
                     <div>
                         <div className="flex items-center gap-2">
                             <span className="text-xs font-bold uppercase tracking-widest text-[#E12B7B]">
-                                Signature Électronique eIDAS
+                                Signature Électronique Sécurisée
                             </span>
-                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold">
-                                Niveau Avancé OTP
+                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold">
+                                Preuve SMS + Scellement SHA-256
                             </span>
                         </div>
                         <h3 className="text-lg font-serif font-bold text-[#131B26]">

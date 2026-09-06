@@ -20,7 +20,7 @@ export function DiffusionHeader({ onRunSync, isSyncing }: DiffusionHeaderProps) 
           Diffusion SeLoger, LeBonCoin & Bien&apos;ici
         </h1>
         <p className="text-xs text-gray-500">
-          Diffusion automatique de vos annonces vers vos portails partenaires.
+          Préparez et exportez vos annonces vers vos portails partenaires (SeLoger, LeBonCoin, Bien’ici).
         </p>
       </div>
 

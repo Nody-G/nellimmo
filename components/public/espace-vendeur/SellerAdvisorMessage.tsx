@@ -51,14 +51,21 @@ export function SellerAdvisorMessage({
       </div>
 
       <div className="space-y-3 text-xs leading-relaxed text-gray-300 font-sans">
-        <p className="text-sm font-serif italic text-white">
-          « Chers propriétaires, la commercialisation de votre bien se poursuit avec un flux soutenu de
-          consultations sur SeLoger et LeBonCoin. »
-        </p>
-        <p>
-          {propertyReport?.executive_summary ||
-            `Votre maison bénéficie d’une excellente visibilité sur Pélissanne et le Pays Salonais. Notre sélection rigoureuse permet d’écarter les curieux pour ne vous présenter que des acheteurs disposant d’un accord bancaire de principe. Je reste à votre entière disposition pour tout échange complémentaire.`}
-        </p>
+        {propertyReport ? (
+          <>
+            <p className="text-sm font-serif italic text-white">
+              « Chers propriétaires, voici le dernier bilan de la commercialisation de votre bien. »
+            </p>
+            <p>{propertyReport.executive_summary}</p>
+          </>
+        ) : (
+          <p>
+            Votre bien est actuellement en cours de commercialisation. Notre sélection rigoureuse permet
+            d’écarter les curieux pour ne vous présenter que des acheteurs disposant d’un accord bancaire
+            de principe. Le premier bilan chiffré de visibilité et de retours visiteurs vous sera transmis
+            dès sa génération. Je reste à votre entière disposition pour tout échange complémentaire.
+          </p>
+        )}
       </div>
     </section>
   );

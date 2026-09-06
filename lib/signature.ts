@@ -41,13 +41,13 @@ E-mail : ${property.seller_email || 'Non renseigné'}
 Ci-après dénommé « LE MANDANT », déclarant avoir la pleine capacité juridique et le pouvoir de disposer du bien ci-après désigné.
 
 ET D'AUTRE PART, LE MANDATAIRE (L'AGENCE) :
-La société SASU NELL'IMMO, société par actions simplifiée unipersonnelle au capital de ${settings.capital_social || '2 000 €'},
+La société ${settings.agency_name || 'SASU NELL\'IMMO'}, société par actions simplifiée unipersonnelle au capital de ${settings.capital_social || '2 000 €'},
 Dont le siège social est situé : ${settings.address}, ${settings.postal_code} ${settings.city},
 Immatriculée au RCS de ${settings.rcs_city || 'Salon-de-Provence'} sous le n° SIREN ${settings.siren || '853 807 006'},
 Titulaire de la Carte Professionnelle Transaction sur Immeubles et Fonds de Commerce n° ${settings.card_t_number || 'CPI 1310 2019 000 042 974'} délivrée par la ${settings.cci_card_t || 'CCI Marseille Provence'},
 Garantie Financière : ${settings.guarantee_fund_name || 'GALIAN Assurances'}, ${settings.guarantee_fund_address || '89 rue La Boétie, 75008 Paris'} (Montant : ${settings.guarantee_fund_amount || '120 000 €'}),
 Assurance Responsabilité Civile Professionnelle : ${settings.insurance_name || 'MMA Entreprise'} (${settings.insurance_policy || 'Police n° 114.240.230'}),
-Représentée par sa Directrice Générale, Mme Nelly FERNANDEZ.
+Représentée par sa Directrice Générale, ${settings.agent_name || 'Mme Nelly FERNANDEZ'}.
 Ci-après dénommé « LE MANDATAIRE ».
 
 --------------------------------------------------------------------------------
@@ -160,8 +160,13 @@ export async function createElectronicSignatureCertificate(params: {
     signer_phone: params.signerPhone,
     otp_code: params.otpCode,
     sha256_fingerprint: sha256Fingerprint,
-    ip_address: params.ipAddress || '88.164.214.12 (Pélissanne, FR)',
-    eidas_level: 'avance',
+    // On n'invente JAMAIS d'adresse IP : si elle n'a pas été réellement captée côté client,
+    // on l'indique explicitement plutôt que de sceller une fausse valeur dans le certificat.
+    ip_address: params.ipAddress || 'Adresse IP non capturée (signature locale)',
+    // Signature électronique « simple » réalisée localement (empreinte SHA-256 + OTP).
+    // Ce n'est PAS une signature eIDAS « avancée »/« qualifiée » délivrée par un prestataire
+    // de confiance certifié : on ne revendique donc pas un niveau supérieur à la réalité.
+    eidas_level: 'simple',
     contract_type: params.contractType,
     pdf_signed_url: undefined
   };

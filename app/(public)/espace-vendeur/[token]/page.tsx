@@ -39,7 +39,7 @@ export default function SellerSpacePage({ params }: { params: Promise<{ token: s
             className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#E12B7B] text-white rounded-xl text-xs font-bold uppercase tracking-wider shadow-md"
           >
             <Phone className="w-4 h-4" />
-            <span>Appeler l&apos;Agence</span>
+            <span>Appeler l’Agence</span>
           </a>
         </div>
       </div>
@@ -50,28 +50,36 @@ export default function SellerSpacePage({ params }: { params: Promise<{ token: s
   const propertyVisits = visits.filter((v) => v.property_id === property.id);
   const propertyReport = vendorReports.find((r) => r.property_id === property.id);
 
-  // Audience calculations
-  const viewsSeloger = propertyReport?.views_seloger || 340;
-  const viewsLeboncoin = propertyReport?.views_leboncoin || 510;
-  const viewsBienici = propertyReport?.views_bienici || 185;
-  const viewsWebsite = propertyReport?.views_website || 95;
-  const totalViews = viewsSeloger + viewsLeboncoin + viewsBienici + viewsWebsite;
+  // Audience & feedback : on ne présente QUE des données réelles issues du
+  // rapport de commercialisation (propertyReport) et des visites enregistrées.
+  // Aucune valeur n'est inventée en l'absence de rapport : l'interface affiche
+  // alors des indicateurs "à venir" plutôt que des chiffres fictifs.
+  const hasReport = Boolean(propertyReport);
 
-  const leadsCount = propertyReport?.total_leads_count || 8;
-  const visitsCount = propertyVisits.length || propertyReport?.visits_count || 3;
+  const viewsSeloger = propertyReport?.views_seloger ?? null;
+  const viewsLeboncoin = propertyReport?.views_leboncoin ?? null;
+  const viewsBienici = propertyReport?.views_bienici ?? null;
+  const viewsWebsite = propertyReport?.views_website ?? null;
+  const totalViews = hasReport
+    ? (viewsSeloger ?? 0) + (viewsLeboncoin ?? 0) + (viewsBienici ?? 0) + (viewsWebsite ?? 0)
+    : null;
 
-  const positiveFeedbacks = propertyReport?.positive_feedbacks_count ?? 2;
-  const neutralFeedbacks = propertyReport?.neutral_feedbacks_count ?? 1;
-  const negativeFeedbacks = propertyReport?.negative_feedbacks_count ?? 0;
-  const totalFeedbacks = positiveFeedbacks + neutralFeedbacks + negativeFeedbacks;
-  const satisfactionPct = totalFeedbacks > 0
-    ? Math.round(((positiveFeedbacks + neutralFeedbacks * 0.5) / totalFeedbacks) * 100)
-    : 92;
+  const leadsCount = propertyReport?.total_leads_count ?? null;
+  const visitsCount = propertyVisits.length > 0 ? propertyVisits.length : (propertyReport?.visits_count ?? null);
 
-  const verbatims = propertyReport?.anonymized_verbatims ?? [
-    'Très belle luminosité dans les pièces de vie, jardin soigné et au calme.',
-    'Emplacement recherché à Pélissanne, prestation globale de qualité.'
-  ];
+  const positiveFeedbacks = propertyReport?.positive_feedbacks_count ?? null;
+  const neutralFeedbacks = propertyReport?.neutral_feedbacks_count ?? null;
+  const negativeFeedbacks = propertyReport?.negative_feedbacks_count ?? null;
+  const totalFeedbacks =
+    positiveFeedbacks !== null && neutralFeedbacks !== null && negativeFeedbacks !== null
+      ? positiveFeedbacks + neutralFeedbacks + negativeFeedbacks
+      : 0;
+  const satisfactionPct =
+    totalFeedbacks > 0
+      ? Math.round(((positiveFeedbacks! + neutralFeedbacks! * 0.5) / totalFeedbacks) * 100)
+      : null;
+
+  const verbatims = propertyReport?.anonymized_verbatims ?? [];
 
   // Days remaining
   const mandateEndDate = new Date(property.mandate_end_date);
@@ -106,6 +114,7 @@ export default function SellerSpacePage({ params }: { params: Promise<{ token: s
       <main className="max-w-6xl mx-auto px-4 sm:px-6 pt-10 space-y-10">
         {/* Audience KPIs */}
         <SellerStatsCards
+          hasReport={hasReport}
           totalViews={totalViews}
           viewsLeboncoin={viewsLeboncoin}
           viewsSeloger={viewsSeloger}
@@ -121,6 +130,7 @@ export default function SellerSpacePage({ params }: { params: Promise<{ token: s
 
         {/* Feedback & Verbatim */}
         <SellerFeedbackSynthesis
+          hasReport={hasReport}
           positiveFeedbacks={positiveFeedbacks}
           neutralFeedbacks={neutralFeedbacks}
           negativeFeedbacks={negativeFeedbacks}
@@ -131,13 +141,13 @@ export default function SellerSpacePage({ params }: { params: Promise<{ token: s
         <section className="space-y-4">
           <div>
             <span className="text-xs font-bold uppercase tracking-widest text-[#E12B7B]">
-              Observatoire Notarial du Marché
+              Observatoire du Marché Immobilier
             </span>
             <h2 className="text-xl sm:text-2xl font-serif font-bold text-[#131B26]">
-              Positionnement Concurrentiel DVF & Ventes Récentes
+              Positionnement Concurrentiel & Ventes Récentes
             </h2>
             <p className="text-xs text-gray-500">
-              Comparatif des prix au m² réels constatés par les notaires sur {property.city}.
+              Comparatif du prix au m² de votre bien avec les références de ventes du secteur sur {property.city}.
             </p>
           </div>
 

@@ -83,7 +83,7 @@ export default function AvisClientsPage() {
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12 animate-fade-in">
       <ReviewsHeader />
 
-      <ReviewsScoreCard onOpenModal={() => setIsSubmitModalOpen(true)} />
+      <ReviewsScoreCard onOpenModal={() => setIsSubmitModalOpen(true)} reviews={reviewsList} />
 
       <ReviewsList reviews={reviewsList} />
 

@@ -41,6 +41,7 @@ export function MandateUnifiedStudioSection({
   // Cadastre state
   const [parcel, setParcel] = useState<CadastreParcel | null>(null);
   const [loadingCadastre, setLoadingCadastre] = useState(true);
+  const [cadastreNotFound, setCadastreNotFound] = useState(false);
   const [savedCadastre, setSavedCadastre] = useState(false);
 
   // Amenities state
@@ -60,6 +61,7 @@ export function MandateUnifiedStudioSection({
     let isMounted = true;
     async function loadCadastre() {
       setLoadingCadastre(true);
+      setCadastreNotFound(false);
       try {
         const params = new URLSearchParams();
         if (property.latitude && property.longitude) {
@@ -74,9 +76,12 @@ export function MandateUnifiedStudioSection({
         const data = await res.json();
         if (isMounted && data.success && data.parcel) {
           setParcel(data.parcel);
+        } else if (isMounted) {
+          setCadastreNotFound(true);
         }
       } catch (err) {
         console.error('Erreur chargement cadastre:', err);
+        if (isMounted) setCadastreNotFound(true);
       } finally {
         if (isMounted) setLoadingCadastre(false);
       }
@@ -213,11 +218,10 @@ export function MandateUnifiedStudioSection({
               <button
                 type="button"
                 onClick={() => setShowAmenitiesOnMap((cur) => !cur)}
-                className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold transition flex items-center gap-1.5 cursor-pointer border ${
-                  showAmenitiesOnMap
-                    ? 'bg-indigo-50 border-indigo-200 text-indigo-900 font-black shadow-2xs'
-                    : 'bg-gray-100 hover:bg-gray-200 border-gray-200 text-gray-500'
-                }`}
+                className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold transition flex items-center gap-1.5 cursor-pointer border ${showAmenitiesOnMap
+                  ? 'bg-indigo-50 border-indigo-200 text-indigo-900 font-black shadow-2xs'
+                  : 'bg-gray-100 hover:bg-gray-200 border-gray-200 text-gray-500'
+                  }`}
                 title="Afficher ou masquer les commodités (écoles, commerces, transports) sur la carte"
               >
                 <span>🎒</span>
@@ -295,9 +299,23 @@ export function MandateUnifiedStudioSection({
           />
         </div>
       ) : (
-        <div className="w-full h-[380px] bg-[#070D1B] rounded-3xl flex flex-col items-center justify-center text-gray-400 border border-[#E2E8F0] space-y-3">
-          <div className="w-10 h-10 border-3 border-teal-500 border-t-transparent rounded-full animate-spin" />
-          <p className="text-xs font-medium">Recherche de la parcelle cadastrale et des commodités IGN en cours...</p>
+        <div className="w-full h-[380px] bg-[#070D1B] rounded-3xl flex flex-col items-center justify-center text-gray-400 border border-[#E2E8F0] space-y-3 px-6 text-center">
+          {loadingCadastre ? (
+            <>
+              <div className="w-10 h-10 border-3 border-teal-500 border-t-transparent rounded-full animate-spin" />
+              <p className="text-xs font-medium">Recherche de la parcelle cadastrale et des commodités IGN en cours...</p>
+            </>
+          ) : cadastreNotFound ? (
+            <>
+              <span className="text-sm font-bold text-gray-300">Parcelle cadastrale introuvable</span>
+              <p className="text-xs max-w-md">
+                Aucune parcelle IGN n’a pu être localisée pour cette adresse / ces coordonnées.
+                Vérifiez l’adresse du bien ou renseignez la référence cadastrale manuellement.
+              </p>
+            </>
+          ) : (
+            <p className="text-xs font-medium">Aucune donnée cadastrale disponible pour ce bien.</p>
+          )}
         </div>
       )}
 
@@ -323,11 +341,10 @@ export function MandateUnifiedStudioSection({
                     key={key}
                     type="button"
                     onClick={() => setSelectedProfile(key)}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
-                      isSelected
-                        ? 'bg-teal-500 text-white shadow-md font-black'
-                        : 'text-gray-300 hover:text-white hover:bg-white/10'
-                    }`}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${isSelected
+                      ? 'bg-teal-500 text-white shadow-md font-black'
+                      : 'text-gray-300 hover:text-white hover:bg-white/10'
+                      }`}
                   >
                     <span>{prof.emoji}</span>
                     <span>{prof.label}</span>
@@ -387,11 +404,10 @@ export function MandateUnifiedStudioSection({
             <button
               type="button"
               onClick={() => handleSelectKeyAmenity(summary.minDistances.supermarche)}
-              className={`p-3 rounded-2xl border text-left transition cursor-pointer flex flex-col justify-between ${
-                selectedAmenityId === summary.minDistances.supermarche?.id
-                  ? 'bg-amber-50 border-amber-500 ring-2 ring-amber-500/20 shadow-md'
-                  : 'bg-gray-50/80 hover:bg-amber-50/40 border-gray-200'
-              }`}
+              className={`p-3 rounded-2xl border text-left transition cursor-pointer flex flex-col justify-between ${selectedAmenityId === summary.minDistances.supermarche?.id
+                ? 'bg-amber-50 border-amber-500 ring-2 ring-amber-500/20 shadow-md'
+                : 'bg-gray-50/80 hover:bg-amber-50/40 border-gray-200'
+                }`}
             >
               <span className="text-xs">🛒</span>
               <div>
@@ -413,11 +429,10 @@ export function MandateUnifiedStudioSection({
             <button
               type="button"
               onClick={() => handleSelectKeyAmenity(summary.minDistances.superette)}
-              className={`p-3 rounded-2xl border text-left transition cursor-pointer flex flex-col justify-between ${
-                selectedAmenityId === summary.minDistances.superette?.id
-                  ? 'bg-amber-50 border-amber-500 ring-2 ring-amber-500/20 shadow-md'
-                  : 'bg-gray-50/80 hover:bg-amber-50/40 border-gray-200'
-              }`}
+              className={`p-3 rounded-2xl border text-left transition cursor-pointer flex flex-col justify-between ${selectedAmenityId === summary.minDistances.superette?.id
+                ? 'bg-amber-50 border-amber-500 ring-2 ring-amber-500/20 shadow-md'
+                : 'bg-gray-50/80 hover:bg-amber-50/40 border-gray-200'
+                }`}
             >
               <span className="text-xs">🏪</span>
               <div>
@@ -437,11 +452,10 @@ export function MandateUnifiedStudioSection({
             <button
               type="button"
               onClick={() => handleSelectKeyAmenity(summary.minDistances.boulangerie)}
-              className={`p-3 rounded-2xl border text-left transition cursor-pointer flex flex-col justify-between ${
-                selectedAmenityId === summary.minDistances.boulangerie?.id
-                  ? 'bg-amber-50 border-amber-500 ring-2 ring-amber-500/20 shadow-md'
-                  : 'bg-gray-50/80 hover:bg-amber-50/40 border-gray-200'
-              }`}
+              className={`p-3 rounded-2xl border text-left transition cursor-pointer flex flex-col justify-between ${selectedAmenityId === summary.minDistances.boulangerie?.id
+                ? 'bg-amber-50 border-amber-500 ring-2 ring-amber-500/20 shadow-md'
+                : 'bg-gray-50/80 hover:bg-amber-50/40 border-gray-200'
+                }`}
             >
               <span className="text-xs">🥖</span>
               <div>
@@ -461,11 +475,10 @@ export function MandateUnifiedStudioSection({
             <button
               type="button"
               onClick={() => handleSelectKeyAmenity(summary.minDistances.maternelle)}
-              className={`p-3 rounded-2xl border text-left transition cursor-pointer flex flex-col justify-between ${
-                selectedAmenityId === summary.minDistances.maternelle?.id
-                  ? 'bg-indigo-50 border-indigo-500 ring-2 ring-indigo-500/20 shadow-md'
-                  : 'bg-gray-50/80 hover:bg-indigo-50/40 border-gray-200'
-              }`}
+              className={`p-3 rounded-2xl border text-left transition cursor-pointer flex flex-col justify-between ${selectedAmenityId === summary.minDistances.maternelle?.id
+                ? 'bg-indigo-50 border-indigo-500 ring-2 ring-indigo-500/20 shadow-md'
+                : 'bg-gray-50/80 hover:bg-indigo-50/40 border-gray-200'
+                }`}
             >
               <span className="text-xs">🧸</span>
               <div>
@@ -485,11 +498,10 @@ export function MandateUnifiedStudioSection({
             <button
               type="button"
               onClick={() => handleSelectKeyAmenity(summary.minDistances.primaire)}
-              className={`p-3 rounded-2xl border text-left transition cursor-pointer flex flex-col justify-between ${
-                selectedAmenityId === summary.minDistances.primaire?.id
-                  ? 'bg-indigo-50 border-indigo-500 ring-2 ring-indigo-500/20 shadow-md'
-                  : 'bg-gray-50/80 hover:bg-indigo-50/40 border-gray-200'
-              }`}
+              className={`p-3 rounded-2xl border text-left transition cursor-pointer flex flex-col justify-between ${selectedAmenityId === summary.minDistances.primaire?.id
+                ? 'bg-indigo-50 border-indigo-500 ring-2 ring-indigo-500/20 shadow-md'
+                : 'bg-gray-50/80 hover:bg-indigo-50/40 border-gray-200'
+                }`}
             >
               <span className="text-xs">🎒</span>
               <div>
@@ -509,11 +521,10 @@ export function MandateUnifiedStudioSection({
             <button
               type="button"
               onClick={() => handleSelectKeyAmenity(summary.minDistances.college)}
-              className={`p-3 rounded-2xl border text-left transition cursor-pointer flex flex-col justify-between ${
-                selectedAmenityId === summary.minDistances.college?.id
-                  ? 'bg-indigo-50 border-indigo-500 ring-2 ring-indigo-500/20 shadow-md'
-                  : 'bg-gray-50/80 hover:bg-indigo-50/40 border-gray-200'
-              }`}
+              className={`p-3 rounded-2xl border text-left transition cursor-pointer flex flex-col justify-between ${selectedAmenityId === summary.minDistances.college?.id
+                ? 'bg-indigo-50 border-indigo-500 ring-2 ring-indigo-500/20 shadow-md'
+                : 'bg-gray-50/80 hover:bg-indigo-50/40 border-gray-200'
+                }`}
             >
               <span className="text-xs">🎓</span>
               <div>
@@ -533,11 +544,10 @@ export function MandateUnifiedStudioSection({
             <button
               type="button"
               onClick={() => handleSelectKeyAmenity(summary.minDistances.sport)}
-              className={`p-3 rounded-2xl border text-left transition cursor-pointer flex flex-col justify-between ${
-                selectedAmenityId === summary.minDistances.sport?.id
-                  ? 'bg-emerald-50 border-emerald-500 ring-2 ring-emerald-500/20 shadow-md'
-                  : 'bg-gray-50/80 hover:bg-emerald-50/40 border-gray-200'
-              }`}
+              className={`p-3 rounded-2xl border text-left transition cursor-pointer flex flex-col justify-between ${selectedAmenityId === summary.minDistances.sport?.id
+                ? 'bg-emerald-50 border-emerald-500 ring-2 ring-emerald-500/20 shadow-md'
+                : 'bg-gray-50/80 hover:bg-emerald-50/40 border-gray-200'
+                }`}
             >
               <span className="text-xs">⚽</span>
               <div>
@@ -557,11 +567,10 @@ export function MandateUnifiedStudioSection({
             <button
               type="button"
               onClick={() => handleSelectKeyAmenity(summary.minDistances.pharmacie)}
-              className={`p-3 rounded-2xl border text-left transition cursor-pointer flex flex-col justify-between ${
-                selectedAmenityId === summary.minDistances.pharmacie?.id
-                  ? 'bg-rose-50 border-rose-500 ring-2 ring-rose-500/20 shadow-md'
-                  : 'bg-gray-50/80 hover:bg-rose-50/40 border-gray-200'
-              }`}
+              className={`p-3 rounded-2xl border text-left transition cursor-pointer flex flex-col justify-between ${selectedAmenityId === summary.minDistances.pharmacie?.id
+                ? 'bg-rose-50 border-rose-500 ring-2 ring-rose-500/20 shadow-md'
+                : 'bg-gray-50/80 hover:bg-rose-50/40 border-gray-200'
+                }`}
             >
               <span className="text-xs">💊</span>
               <div>
@@ -590,11 +599,10 @@ export function MandateUnifiedStudioSection({
                 <button
                   type="button"
                   onClick={() => setSelectedCategory('all')}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
-                    selectedCategory === 'all'
-                      ? 'bg-teal-600 text-white shadow-xs'
-                      : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
-                  }`}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${selectedCategory === 'all'
+                    ? 'bg-teal-600 text-white shadow-xs'
+                    : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                    }`}
                 >
                   Tous ({summary.totalCount})
                 </button>
@@ -602,11 +610,10 @@ export function MandateUnifiedStudioSection({
                 <button
                   type="button"
                   onClick={() => setSelectedCategory('education')}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1 ${
-                    selectedCategory === 'education'
-                      ? 'bg-indigo-600 text-white shadow-xs'
-                      : 'bg-indigo-50 hover:bg-indigo-100 text-indigo-800'
-                  }`}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1 ${selectedCategory === 'education'
+                    ? 'bg-indigo-600 text-white shadow-xs'
+                    : 'bg-indigo-50 hover:bg-indigo-100 text-indigo-800'
+                    }`}
                 >
                   <GraduationCap className="w-3.5 h-3.5" />
                   <span>Écoles ({summary.byCategory.education.length})</span>
@@ -615,11 +622,10 @@ export function MandateUnifiedStudioSection({
                 <button
                   type="button"
                   onClick={() => setSelectedCategory('commerce')}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1 ${
-                    selectedCategory === 'commerce'
-                      ? 'bg-amber-600 text-white shadow-xs'
-                      : 'bg-amber-50 hover:bg-amber-100 text-amber-800'
-                  }`}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1 ${selectedCategory === 'commerce'
+                    ? 'bg-amber-600 text-white shadow-xs'
+                    : 'bg-amber-50 hover:bg-amber-100 text-amber-800'
+                    }`}
                 >
                   <ShoppingCart className="w-3.5 h-3.5" />
                   <span>Commerces ({summary.byCategory.commerce.length})</span>
@@ -628,11 +634,10 @@ export function MandateUnifiedStudioSection({
                 <button
                   type="button"
                   onClick={() => setSelectedCategory('sport')}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1 ${
-                    selectedCategory === 'sport'
-                      ? 'bg-emerald-600 text-white shadow-xs'
-                      : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800'
-                  }`}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1 ${selectedCategory === 'sport'
+                    ? 'bg-emerald-600 text-white shadow-xs'
+                    : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800'
+                    }`}
                 >
                   <span>⚽</span>
                   <span>Sports ({summary.byCategory.sport.length})</span>
@@ -641,11 +646,10 @@ export function MandateUnifiedStudioSection({
                 <button
                   type="button"
                   onClick={() => setSelectedCategory('sante')}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1 ${
-                    selectedCategory === 'sante'
-                      ? 'bg-rose-600 text-white shadow-xs'
-                      : 'bg-rose-50 hover:bg-rose-100 text-rose-800'
-                  }`}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1 ${selectedCategory === 'sante'
+                    ? 'bg-rose-600 text-white shadow-xs'
+                    : 'bg-rose-50 hover:bg-rose-100 text-rose-800'
+                    }`}
                 >
                   <HeartPulse className="w-3.5 h-3.5" />
                   <span>Santé ({summary.byCategory.sante.length})</span>
@@ -654,11 +658,10 @@ export function MandateUnifiedStudioSection({
                 <button
                   type="button"
                   onClick={() => setSelectedCategory('transport')}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1 ${
-                    selectedCategory === 'transport'
-                      ? 'bg-blue-600 text-white shadow-xs'
-                      : 'bg-blue-50 hover:bg-blue-100 text-blue-800'
-                  }`}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1 ${selectedCategory === 'transport'
+                    ? 'bg-blue-600 text-white shadow-xs'
+                    : 'bg-blue-50 hover:bg-blue-100 text-blue-800'
+                    }`}
                 >
                   <Bus className="w-3.5 h-3.5" />
                   <span>Transports ({summary.byCategory.transport.length})</span>
@@ -683,11 +686,10 @@ export function MandateUnifiedStudioSection({
                     setShowAmenitiesOnMap(true);
                     setSelectedAmenityId(item.id);
                   }}
-                  className={`p-3.5 rounded-2xl border transition-all cursor-pointer ${
-                    isSelected
-                      ? 'bg-amber-50/40 border-amber-500 ring-2 ring-amber-500/20 shadow-md'
-                      : 'bg-gray-50/50 hover:bg-gray-50 border-gray-200'
-                  }`}
+                  className={`p-3.5 rounded-2xl border transition-all cursor-pointer ${isSelected
+                    ? 'bg-amber-50/40 border-amber-500 ring-2 ring-amber-500/20 shadow-md'
+                    : 'bg-gray-50/50 hover:bg-gray-50 border-gray-200'
+                    }`}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-start gap-2.5">

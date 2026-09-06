@@ -13,11 +13,10 @@ export const PigeDvfBenchmarkBox: React.FC<PigeDvfBenchmarkBoxProps> = ({ dvfGap
 
   return (
     <div
-      className={`p-3.5 rounded-2xl border text-xs space-y-1.5 ${
-        dvfGap.isOverpriced
+      className={`p-3.5 rounded-2xl border text-xs space-y-1.5 ${dvfGap.isOverpriced
           ? 'bg-amber-50/80 border-amber-200 text-amber-900'
           : 'bg-emerald-50/80 border-emerald-200 text-emerald-900'
-      }`}
+        }`}
     >
       <div className="flex items-center justify-between font-bold">
         <span className="flex items-center gap-1.5 text-xs">
@@ -25,13 +24,12 @@ export const PigeDvfBenchmarkBox: React.FC<PigeDvfBenchmarkBoxProps> = ({ dvfGap
           <span>Prix demandé : {dvfGap.askingM2.toLocaleString('fr-FR')} €/m²</span>
         </span>
         <span
-          className={`px-2 py-0.5 rounded-full text-[10px] font-black ${
-            dvfGap.isOverpriced
+          className={`px-2 py-0.5 rounded-full text-[10px] font-black ${dvfGap.isOverpriced
               ? 'bg-amber-200 text-amber-900'
               : 'bg-emerald-200 text-emerald-900'
-          }`}
+            }`}
         >
-          {dvfGap.gapPct > 0 ? `+${dvfGap.gapPct}%` : `${dvfGap.gapPct}%`} vs marché notarié
+          {dvfGap.gapPct > 0 ? `+${dvfGap.gapPct}%` : `${dvfGap.gapPct}%`} vs repère indicatif
         </span>
       </div>
       <p className="text-[11px] leading-relaxed text-gray-700">

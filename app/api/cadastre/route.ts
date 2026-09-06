@@ -1,12 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import {
-  fetchCadastreByCoordinates,
-  fetchCadastreByAddress,
-  calculatePolygonPerimeter,
-  calculateBoundingDimensions,
-  estimateSolarExposure,
-  calculateSegmentDetails,
-} from '@/lib/cadastre';
+import { fetchCadastreByCoordinates, fetchCadastreByAddress } from '@/lib/cadastre';
 
 export async function GET(req: NextRequest) {
   try {
@@ -30,42 +23,17 @@ export async function GET(req: NextRequest) {
     }
 
     if (!parcel) {
-      // Fallback déterministe centré sur la propriété
-      const centerLat = !isNaN(propLat) && propLat !== 0 ? propLat : 43.64;
-      const centerLon = !isNaN(propLon) && propLon !== 0 ? propLon : 5.197;
-
-      const cosLat = Math.cos((centerLat * Math.PI) / 180);
-      const dLon = 12.8 / (111320 * (cosLat || 1));
-      const dLat = 12.8 / 111000;
-
-      const defaultSection = 'AC';
-      const defaultNumero = '0245';
-      const fallbackIdu = `13071000${defaultSection}${defaultNumero}`;
-      const fallbackPolygon: [number, number][] = [
-        [centerLon - dLon, centerLat + dLat],
-        [centerLon + dLon, centerLat + dLat * 0.95],
-        [centerLon + dLon * 0.98, centerLat - dLat],
-        [centerLon - dLon, centerLat - dLat * 0.98],
-        [centerLon - dLon, centerLat + dLat],
-      ];
-
-      parcel = {
-        idu: fallbackIdu,
-        section: defaultSection,
-        numero: defaultNumero,
-        contenance: 650,
-        nom_com: city || 'Provence',
-        code_insee: '13071',
-        code_dep: '13',
-        coordinates: { lat: centerLat, lon: centerLon },
-        polygon: fallbackPolygon,
-        geoportailUrl: `https://www.geoportail.gouv.fr/carte?c=${centerLon},${centerLat}&z=19`,
-        cadastreGouvUrl: `https://cadastre.gouv.fr/scpc/rechercherParReferenceCadastrale.do`,
-        perimeter: calculatePolygonPerimeter(fallbackPolygon),
-        dimensions: calculateBoundingDimensions(fallbackPolygon),
-        exposure: estimateSolarExposure(fallbackPolygon),
-        segments: calculateSegmentDetails(fallbackPolygon),
-      };
+      // Aucune parcelle cadastrale réelle n'a pu être retrouvée.
+      // On ne fabrique PAS de parcelle fictive : une référence cadastrale inventée
+      // pourrait être reprise dans des documents juridiques (mandats, compromis).
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Parcelle cadastrale introuvable pour cette adresse / ces coordonnées.',
+          parcel: null,
+        },
+        { status: 404 }
+      );
     }
 
     return NextResponse.json({

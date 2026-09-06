@@ -85,17 +85,17 @@ export function LeadCard({ lead, onConvertToMandate, onStatusChange }: LeadCardP
                     </div>
                 </div>
 
-                {/* DVF Gap Analyzer */}
+                {/* Indicative €/m² Gap Analyzer */}
                 <div className={`p-3 rounded-2xl border text-xs flex items-center justify-between ${diffPct > 5
-                        ? 'bg-amber-50 border-amber-200 text-amber-900'
-                        : 'bg-emerald-50 border-emerald-200 text-emerald-900'
+                    ? 'bg-amber-50 border-amber-200 text-amber-900'
+                    : 'bg-emerald-50 border-emerald-200 text-emerald-900'
                     }`}>
                     <div className="space-y-0.5">
                         <span className="font-bold block text-[11px]">
-                            Écart avec le Marché Notaires DVF (~{benchmarkDvf} €/m²)
+                            Écart avec le repère €/m² indicatif (~{benchmarkDvf} €/m²)
                         </span>
                         <span className="text-[10px] text-gray-600 block">
-                            {diffPct > 0 ? `Surévalué de +${diffPct}% par rapport aux actes réels` : `Prix cohérent avec les ventes réelles`}
+                            {diffPct > 0 ? `Surévalué de +${diffPct}% par rapport au repère interne` : `Prix cohérent avec le repère interne`}
                         </span>
                     </div>
                     <div className="text-right font-black text-sm">
@@ -152,7 +152,7 @@ export function LeadCard({ lead, onConvertToMandate, onStatusChange }: LeadCardP
                         className="w-full py-2.5 bg-[#131B26] hover:bg-gray-800 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition cursor-pointer shadow-2xs"
                     >
                         <Sparkles className="w-3.5 h-3.5 text-[#C59A45]" />
-                        <span>Transformer en Mandat Officiel (1 Clic)</span>
+                        <span>Créer un Mandat Brouillon (1 Clic)</span>
                     </button>
                 )}
             </div>

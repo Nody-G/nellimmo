@@ -20,7 +20,7 @@ export function PigeHeader({ onNewLead, onImport }: PigeHeaderProps) {
                     Pige Immobilière & Détection Vendeurs
                 </h1>
                 <p className="text-xs text-gray-500">
-                    Veille Leboncoin/PAP, comparateur DVF en direct, sparring-partner d{"\u2019"}objections et conversion en mandat en 1 clic.
+                    Veille Leboncoin/PAP, repère €/m² indicatif, sparring-partner d{"\u2019"}objections et conversion en mandat en 1 clic.
                 </p>
             </div>
 

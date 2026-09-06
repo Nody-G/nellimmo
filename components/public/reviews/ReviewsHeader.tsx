@@ -10,7 +10,7 @@ export function ReviewsHeader() {
       <div className="text-center max-w-3xl mx-auto space-y-4">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FDF2F8] text-[#E12B7B] text-xs font-bold uppercase tracking-wider">
           <ShieldCheck className="w-4 h-4 text-emerald-600" />
-          <span>Avis Contrôlés & Certifiés Conformes</span>
+          <span>Retours d’Expérience Clients</span>
         </div>
         <h1 className="text-3xl sm:text-5xl font-serif font-bold text-[#131B26]">
           Avis Clients & Témoignages

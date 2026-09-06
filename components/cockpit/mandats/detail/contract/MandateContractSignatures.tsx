@@ -18,6 +18,8 @@ export function MandateContractSignatures({
 }: MandateContractSignaturesProps) {
   const agencyName = settings.agency_name || "SASU NELL’IMMO";
   const agentName = settings.agent_name || 'Mme Nelly FERNANDEZ';
+  const signatureCity = settings.city || 'Pélissanne';
+  const cardNumber = settings.card_t_number || 'CPI 1310 2019 000 042 974';
 
   return (
     <>
@@ -53,7 +55,7 @@ export function MandateContractSignatures({
       <div className="border-t-2 border-gray-900 pt-4 space-y-4">
         <div className="flex justify-between text-[11px]">
           <p>
-            Fait à <strong>Pélissanne</strong>, le <strong>{startDateFormatted}</strong>
+            Fait à <strong>{signatureCity}</strong>, le <strong>{startDateFormatted}</strong>
           </p>
           <p>En deux exemplaires originaux</p>
         </div>
@@ -81,15 +83,15 @@ export function MandateContractSignatures({
               </span>
             </div>
             <div className="text-center font-serif text-[#131B26] font-bold text-xs pt-4">
-              Nelly FERNANDEZ
+              {agentName}
             </div>
           </div>
         </div>
 
         {/* Empreinte cryptographique d'inaltérabilité */}
         <div className="pt-2 text-[9px] text-gray-400 flex items-center justify-between font-mono">
-          <span>SCELLEMENT HORODATÉ SHA-256 : d4a8f9c2e0b178a9c3d4e5f6... (INALTÉRABLE)</span>
-          <span>SASU NELL’IMMO • CARTE CPI 1310 2019 000 042 974</span>
+          <span>Signature électronique : empreinte SHA-256 calculée et scellée à la signature électronique du mandat</span>
+          <span>{agencyName} • CARTE {cardNumber}</span>
         </div>
       </div>
     </>

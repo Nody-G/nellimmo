@@ -23,7 +23,7 @@ export function SocialSection({ formData, onChange }: SocialSectionProps) {
             badgeClassName="bg-pink-50 text-[#E12B7B] border-pink-200"
         >
             <p className="text-xs text-gray-600">
-                Connectez votre compte Meta Business (Facebook Page & Instagram Professionnel). Lorsque vous rentrez un nouveau mandat exclusif, que vous baissez un prix ou vendez un bien, Cockpit génère et diffuse automatiquement vos publications.
+                Renseignez votre compte Meta Business (Facebook Page & Instagram Professionnel) et votre jeton Graph API pour préparer vos publications. Lorsque vous rentrez un nouveau mandat exclusif, baissez un prix ou vendez un bien, Cockpit vous propose un visuel et un post prêts à publier en 1 clic.
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

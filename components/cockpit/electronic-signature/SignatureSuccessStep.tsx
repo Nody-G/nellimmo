@@ -26,10 +26,10 @@ export function SignatureSuccessStep({
 
             <div className="space-y-1">
                 <h4 className="text-xl font-serif font-bold text-[#131B26]">
-                    Mandat Officiellement Signé & Scellé !
+                    Mandat Signé & Scellé !
                 </h4>
                 <p className="text-xs text-gray-500">
-                    Le contrat a été horodaté, validé par preuve SMS et inscrit immédiatement au Registre Officiel des Mandats Loi Hoguet.
+                    Le contrat a été horodaté, validé par preuve SMS (OTP) et enregistré au Registre des Mandats Loi Hoguet.
                 </p>
             </div>
 
@@ -37,7 +37,7 @@ export function SignatureSuccessStep({
             <div className="p-5 bg-[#FCFAF7] rounded-3xl border border-[#F3E8EE] text-left text-xs space-y-3">
                 <div className="flex items-center justify-between border-b border-gray-200 pb-2">
                     <span className="font-bold text-gray-900 uppercase tracking-widest text-[10px]">
-                        Certificat de Preuve Numérique eIDAS
+                        Certificat de Signature Électronique
                     </span>
                     <span className="font-mono text-[10px] text-[#E12B7B] font-bold">
                         {certificate.id}
@@ -58,13 +58,13 @@ export function SignatureSuccessStep({
                         <span className="font-mono text-gray-800">{certificate.signer_phone}</span>
                     </div>
                     <div>
-                        <span className="text-gray-400 block">Adresse IP certifiée :</span>
+                        <span className="text-gray-400 block">Adresse IP :</span>
                         <span className="font-mono text-gray-800">{certificate.ip_address}</span>
                     </div>
                 </div>
 
                 <div className="pt-2 border-t border-gray-200">
-                    <span className="text-gray-400 block text-[10px]">Empreinte Cryptographique Inviolable SHA-256 :</span>
+                    <span className="text-gray-400 block text-[10px]">Empreinte Cryptographique SHA-256 du contrat :</span>
                     <div className="flex items-center justify-between gap-2 mt-1 p-2 bg-white rounded-xl border border-gray-200 font-mono text-[10px] text-gray-700">
                         <span className="truncate">{certificate.sha256_fingerprint}</span>
                         <button

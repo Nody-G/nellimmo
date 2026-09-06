@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { INITIAL_PROPERTIES, DEFAULT_AGENCY_SETTINGS } from '@/lib/mock-data';
 import { generatePolirisAnnoncesCsv, generateBienIciXmlFeed } from '@/lib/poliris';
 import { Property, AgencySettings } from '@/lib/types';
+import { resolveFeedData } from '@/lib/feed-data';
 
 /**
  * Cycle de multidiffusion portails.
@@ -12,6 +12,11 @@ import { Property, AgencySettings } from '@/lib/types';
  * PRÉTEND PAS les avoir déposés sur les serveurs distants. Les canaux sont
  * marqués `not_configured` au lieu de `success` tant que le dépôt n'est pas
  * branché sur une infrastructure réelle.
+ *
+ * ⚠️ INTÉGRITÉ DES DONNÉES : les fichiers d'export ne sont JAMAIS générés à
+ * partir des annonces de démonstration (`INITIAL_PROPERTIES`). Sans données
+ * réelles lisibles (Supabase configuré + session authentifiée), le cycle est
+ * refusé proprement au lieu de produire un export fictif.
  */
 
 function isCronAuthorized(req: NextRequest): boolean {
@@ -29,8 +34,29 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json().catch(() => ({}));
-    const properties: Property[] = body.properties || INITIAL_PROPERTIES;
-    const settings: AgencySettings = body.settings || DEFAULT_AGENCY_SETTINGS;
+
+    // Résolution des données : le corps de la requête (appel cockpit) prime ;
+    // sinon on lit les données réelles depuis Supabase. Aucun repli sur les
+    // données de démonstration.
+    let properties: Property[] | null = Array.isArray(body.properties) ? body.properties : null;
+    let settings: AgencySettings | null = body.settings || null;
+
+    if (!properties || !settings) {
+      const source = await resolveFeedData();
+      if (!source.live || !source.settings) {
+        return NextResponse.json(
+          {
+            success: false,
+            error:
+              source.reason ||
+              'Aucune donnée réelle accessible. Le cycle de multidiffusion est désactivé pour éviter de générer un export de démonstration.',
+          },
+          { status: 503 }
+        );
+      }
+      properties = source.properties;
+      settings = source.settings;
+    }
 
     const activeProperties = properties.filter((p) => p.status === 'actif' || p.status === 'sous_compromis');
     const selogerCount = activeProperties.filter((p) => p.publish_seloger).length;
@@ -95,13 +121,11 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Accès non autorisé au déclencheur Cron' }, { status: 401 });
   }
 
-  // Exécution par défaut avec les données actives
+  // Exécution par défaut : les données réelles sont résolues côté POST
+  // (aucun corps fourni → lecture Supabase, jamais de données de démo).
   const mockReq = new NextRequest(req.url, {
     method: 'POST',
-    body: JSON.stringify({
-      properties: INITIAL_PROPERTIES,
-      settings: DEFAULT_AGENCY_SETTINGS,
-    }),
+    body: JSON.stringify({}),
   });
 
   return POST(mockReq);

@@ -53,7 +53,7 @@ export function getLocalConciergeAnswer(userText: string): { text: string; actio
 
   if (lower.includes('estim') || lower.includes('valeur') || lower.includes('combien vaut')) {
     return {
-      text: "Nous réalisons des avis de valeur précis et certifiés, croisant les transactions DVF des Notaires de France avec la réalité du marché local. Vous pouvez réaliser une première simulation en ligne en 2 minutes ou planifier une visite sur place avec Nelly.",
+      text: "Nous réalisons des avis de valeur précis, croisant les références de ventes du secteur avec la réalité du marché local. Vous pouvez réaliser une première simulation en ligne en 2 minutes ou planifier une visite sur place avec Nelly.",
       actionLink: { href: '/estimation', label: 'Lancer mon estimation en ligne →' },
     };
   }
@@ -95,8 +95,8 @@ export function saveConciergeLead(name: string, contact: string, message: string
     const newLead = {
       id: `lead-concierge-${Date.now()}`,
       name: name.trim() || 'Visiteur Site Web',
-      email: isEmail ? contact.trim() : 'non-renseigne@client.fr',
-      phone: !isEmail ? contact.trim() : '06 00 00 00 00',
+      email: isEmail ? contact.trim() : 'non renseigné',
+      phone: !isEmail ? contact.trim() : 'non renseigné',
       subject: 'Demande d’information via Concierge Virtuel IA',
       message: `${message}\n\n[Contact fourni : ${contact.trim()}]`,
       status: 'nouveau',

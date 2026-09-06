@@ -10,7 +10,7 @@ export function ReviewsHighlightSection() {
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-[#F3E8EE] pb-4">
         <div>
           <span className="text-xs font-bold uppercase tracking-widest text-[#E12B7B]">
-            Témoignages Vérifiés
+            Témoignages Clients
           </span>
           <h2 className="text-3xl font-serif font-bold text-[#131B26] mt-1">
             Ce que disent nos clients de Nell’Immo
@@ -20,7 +20,7 @@ export function ReviewsHighlightSection() {
           href="/avis-clients"
           className="text-xs font-bold uppercase text-[#E12B7B] hover:text-[#C71B62] flex items-center gap-1"
         >
-          <span>Consulter tous les avis (98%)</span>
+          <span>Consulter tous les témoignages</span>
           <ArrowRight className="w-3.5 h-3.5" />
         </Link>
       </div>

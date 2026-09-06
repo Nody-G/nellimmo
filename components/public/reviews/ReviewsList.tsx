@@ -39,7 +39,7 @@ export function ReviewsList({ reviews }: ReviewsListProps) {
             </div>
             <span className="text-[10px] bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded flex items-center gap-1">
               <CheckCircle2 className="w-3 h-3" />
-              Vérifié
+              Témoignage client
             </span>
           </div>
         </div>

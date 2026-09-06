@@ -108,8 +108,8 @@ export const MandatePortalsTab: React.FC<MandatePortalsTabProps> = ({ property, 
               <span className="font-mono text-[11px]">{settings.leboncoin_sftp_host || 'sftp.leboncoin.fr'}</span>
             </div>
             <div className="flex justify-between">
-              <span>Dernière synchro :</span>
-              <span>Automatique toutes les 6h</span>
+              <span>Synchro :</span>
+              <span>Manuelle (export à déclencher)</span>
             </div>
           </div>
         </Card>
@@ -125,7 +125,7 @@ export const MandatePortalsTab: React.FC<MandatePortalsTabProps> = ({ property, 
             </h3>
             <p className="text-xs text-gray-500 mt-0.5">
               Lien direct sécurisé sans mot de passe à transmettre à vos propriétaires mandants pour
-              le suivi des visites, comptes-rendus et statistiques d&apos;audience en direct.
+              le suivi des visites, comptes-rendus et du dernier bilan d’audience généré.
             </p>
           </div>
         </div>

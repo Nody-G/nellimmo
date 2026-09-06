@@ -79,7 +79,7 @@ export function ContactsHeader({
           type="button"
           onClick={handleSyncActivity}
           disabled={isSyncing}
-          title="Importe automatiquement les acheteurs, mandants et notaires de vos dossiers en cours"
+          title="Importe les acheteurs, mandants et notaires de vos dossiers en cours"
           className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-bold text-gray-700 bg-[#FCFAF7] hover:bg-gray-100 border border-[#F3E8EE] rounded-xl transition cursor-pointer disabled:opacity-50"
         >
           <RefreshCw className={`w-3.5 h-3.5 text-gray-500 ${isSyncing ? 'animate-spin' : ''}`} />

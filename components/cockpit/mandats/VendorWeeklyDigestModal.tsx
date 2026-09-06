@@ -30,7 +30,7 @@ Je reste à votre écoute si vous avez la moindre question !
 
 Bien à vous,
 Nelly Fernandez — Nell'Immo (Pélissanne)
-📞 04 90 55 55 55`;
+📞 07 55 68 61 09`;
 
   const [customMessage, setCustomMessage] = useState<string | null>(null);
   const message = customMessage ?? defaultMessage;

@@ -40,33 +40,36 @@ export function SellerVisitsJournal({ visits }: SellerVisitsJournalProps) {
                       <span className="text-xs font-bold text-gray-900 block">
                         Visite du {new Date(visit.visit_date || visit.created_at).toLocaleDateString('fr-FR')}
                       </span>
-                      <span className="text-[11px] text-gray-500">
-                        Acquéreur : {visit.buyer?.first_name} {visit.buyer?.last_name?.slice(0, 1)}. (Financement validé)
-                      </span>
+                      {visit.buyer && (
+                        <span className="text-[11px] text-gray-500">
+                          Acquéreur : {visit.buyer.first_name} {visit.buyer.last_name?.slice(0, 1)}.
+                        </span>
+                      )}
                     </div>
                   </div>
 
-                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 self-start sm:self-center">
-                    ✓ Bon de visite signé & horodaté
-                  </span>
+                  {visit.signature_data_url ? (
+                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 self-start sm:self-center">
+                      ✓ Bon de visite signé
+                    </span>
+                  ) : (
+                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-600 self-start sm:self-center">
+                      Bon de visite à signer
+                    </span>
+                  )}
                 </div>
 
                 <div className="space-y-2 text-xs">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="p-3 bg-emerald-50/50 rounded-xl border border-emerald-100 text-emerald-900">
-                      <span className="font-bold block text-[11px] mb-0.5">Points forts appréciés :</span>
-                      <p className="leading-relaxed">
-                        Luminosité des pièces de vie, jardin soigné, calme du quartier et état général impeccable.
-                      </p>
-                    </div>
-
+                  {visit.notes ? (
                     <div className="p-3 bg-amber-50/50 rounded-xl border border-amber-100 text-amber-900">
-                      <span className="font-bold block text-[11px] mb-0.5">Remarques & Points à arbitrer :</span>
-                      <p className="leading-relaxed">
-                        {visit.notes || 'Souhaite faire une contre-visite avec son conjoint pour valider l’aménagement du salon.'}
-                      </p>
+                      <span className="font-bold block text-[11px] mb-0.5">Compte-rendu de la visite :</span>
+                      <p className="leading-relaxed">{visit.notes}</p>
                     </div>
-                  </div>
+                  ) : (
+                    <p className="text-[11px] text-gray-400 italic">
+                      Compte-rendu de visite en cours de rédaction par votre agence.
+                    </p>
+                  )}
                 </div>
               </div>
             ))}
@@ -76,7 +79,7 @@ export function SellerVisitsJournal({ visits }: SellerVisitsJournalProps) {
             <Calendar className="w-8 h-8 text-[#C59A45] mx-auto" />
             <h4 className="font-bold text-sm text-[#131B26]">Premières visites en cours de planification</h4>
             <p className="text-xs text-gray-500 max-w-md mx-auto">
-              Les candidats acquéreurs sont en cours de qualification financière. Les comptes-rendus apparaîtront ici automatiquement.
+              Les candidats acquéreurs sont en cours de qualification financière. Les comptes-rendus apparaîtront ici dès la première visite réalisée.
             </p>
           </div>
         )}

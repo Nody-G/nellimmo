@@ -32,7 +32,7 @@ export function BuyerSelectionPrintSheet({
               Sélection Exclusive de Biens Immobiliers • Pays Salonais & Provence
             </span>
             <span className="text-[9px] text-gray-400 block mt-0.5">
-              Carte T CPI 1310 2019 000 042 974 • Garantie GALIAN 120 000 € • RCS Salon B 849 712 345
+              Carte T CPI 1310 2019 000 042 974 • Garantie GALIAN 120 000 € • RCS Salon B 853 807 006
             </span>
           </div>
           <div className="text-right text-[10px] text-gray-500">
@@ -105,7 +105,7 @@ export function BuyerSelectionPrintSheet({
 
         {/* Footer */}
         <div className="border-t border-gray-200 pt-2 text-[10px] text-gray-400 flex items-center justify-between">
-          <span>Nelly Fernandez — Directrice d’Agence • 06 12 34 56 78 • contact@nellimmo.fr</span>
+          <span>Nelly Fernandez — Directrice d’Agence • 07 55 68 61 09 • nellimmo.acte@gmail.com</span>
           <span className="font-mono text-[9px]">Document non contractuel • SASU Nell’Immo</span>
         </div>
       </div>

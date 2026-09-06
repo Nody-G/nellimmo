@@ -335,7 +335,12 @@ function detectSource(text: string): ProspectingSource {
     return 'leboncoin';
 }
 
-/** Prix médians notariés DVF indicatifs par commune (base DGFiP Pays Salonais). */
+/**
+ * Repères €/m² indicatifs par commune (estimation interne de l'agence, à affiner
+ * avec les transactions DVF réelles du secteur). Ces valeurs ne sont PAS des
+ * statistiques notariales officielles : elles servent uniquement d'ordre de
+ * grandeur pour l'argumentaire de prospection.
+ */
 export const DVF_SECTOR_MEDIANS: Record<string, number> = {
     '13330': 3450, // Pélissanne
     '13300': 2950, // Salon-de-Provence
@@ -348,7 +353,7 @@ export const DVF_SECTOR_MEDIANS: Record<string, number> = {
     '13100': 4900, // Aix-en-Provence
 };
 
-/** Calcule l'écart DVF d'une annonce de pige par rapport aux ventes réelles du secteur. */
+/** Calcule l'écart d'une annonce de pige par rapport au repère €/m² indicatif du secteur. */
 export function computePigeDvfGap(price: number, surface: number, cityOrPostal: string): {
     askingM2: number;
     medianM2: number;
@@ -364,8 +369,8 @@ export function computePigeDvfGap(price: number, surface: number, cityOrPostal: 
     const isOverpriced = gapPct > 5;
 
     const argumentPitch = isOverpriced
-        ? `À ${askingM2.toLocaleString('fr-FR')} €/m², ce bien est affiché +${gapPct}% au-dessus du prix médian notarié DVF constaté sur ${cityOrPostal} (${medianM2.toLocaleString('fr-FR')} €/m²). Argument d'appel : risque de surévaluation et d'usure de l'annonce.`
-        : `À ${askingM2.toLocaleString('fr-FR')} €/m², le prix est aligné sur le marché réel DVF (${medianM2.toLocaleString('fr-FR')} €/m²). Argument d'appel : sécuriser un mandat exclusif dès maintenant avec le vivier d'acquéreurs qualifiés de l'agence.`;
+        ? `À ${askingM2.toLocaleString('fr-FR')} €/m², ce bien est affiché +${gapPct}% au-dessus du repère €/m² indicatif de l'agence pour ${cityOrPostal} (${medianM2.toLocaleString('fr-FR')} €/m²). Argument d'appel : risque de surévaluation et d'usure de l'annonce.`
+        : `À ${askingM2.toLocaleString('fr-FR')} €/m², le prix est cohérent avec le repère €/m² indicatif de l'agence (${medianM2.toLocaleString('fr-FR')} €/m²). Argument d'appel : sécuriser un mandat exclusif dès maintenant avec le vivier d'acquéreurs qualifiés de l'agence.`;
 
     return { askingM2, medianM2, gapPct, isOverpriced, argumentPitch };
 }

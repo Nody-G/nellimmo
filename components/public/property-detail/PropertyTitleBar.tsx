@@ -29,9 +29,9 @@ export function PropertyTitleBar({ property }: PropertyTitleBarProps) {
                 <span className="px-3 py-1 bg-[#131B26] text-white text-xs font-semibold uppercase tracking-wider rounded-full capitalize">
                     {property.property_type}
                 </span>
-                <span className="px-3 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold rounded-full flex items-center gap-1">
-                    <Award className="w-3.5 h-3.5 text-emerald-600" />
-                    Certifié Nell’Immo
+                <span className="px-3 py-1 bg-[#FDF2F8] text-[#9F1239] border border-[#F3E8EE] text-xs font-bold rounded-full flex items-center gap-1">
+                    <Award className="w-3.5 h-3.5 text-[#E12B7B]" />
+                    Mandat Nell’Immo
                 </span>
                 <span className="flex items-center gap-1 text-xs text-gray-600 font-semibold ml-1">
                     <MapPin className="w-3.5 h-3.5 text-[#E12B7B]" />

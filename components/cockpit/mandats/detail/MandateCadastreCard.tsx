@@ -15,12 +15,14 @@ interface MandateCadastreCardProps {
 export function MandateCadastreCard({ property, onSaveCadastre }: MandateCadastreCardProps) {
   const [parcel, setParcel] = useState<CadastreParcel | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [notFound, setNotFound] = useState(false);
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
     async function loadCadastre() {
       setIsLoading(true);
+      setNotFound(false);
       try {
         const params = new URLSearchParams();
         if (property.latitude && property.longitude) {
@@ -35,9 +37,12 @@ export function MandateCadastreCard({ property, onSaveCadastre }: MandateCadastr
         const data = await res.json();
         if (isMounted && data.success && data.parcel) {
           setParcel(data.parcel);
+        } else if (isMounted) {
+          setNotFound(true);
         }
       } catch (err) {
         console.error('Erreur chargement cadastre:', err);
+        if (isMounted) setNotFound(true);
       } finally {
         if (isMounted) setIsLoading(false);
       }
@@ -119,7 +124,19 @@ export function MandateCadastreCard({ property, onSaveCadastre }: MandateCadastr
         </div>
       ) : (
         <div className="text-xs text-gray-400 p-8 text-center bg-gray-50/50 rounded-2xl border border-dashed border-gray-200">
-          Recherche des coordonnées cadastrales IGN en cours...
+          {isLoading ? (
+            'Recherche des coordonnées cadastrales IGN en cours...'
+          ) : notFound ? (
+            <>
+              <span className="block font-semibold text-gray-500 mb-1">
+                Parcelle cadastrale introuvable
+              </span>
+              Aucune parcelle IGN n’a pu être localisée pour cette adresse / ces coordonnées.
+              Vérifiez l’adresse du bien ou renseignez la référence cadastrale manuellement.
+            </>
+          ) : (
+            'Aucune donnée cadastrale disponible pour ce bien.'
+          )}
         </div>
       )}
     </div>

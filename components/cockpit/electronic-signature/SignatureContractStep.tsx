@@ -44,8 +44,8 @@ export function SignatureContractStep({
                             type="button"
                             onClick={() => onContractTypeChange('exclusif')}
                             className={`py-2 px-3 rounded-xl text-xs font-bold border transition ${contractType === 'exclusif'
-                                    ? 'bg-[#E12B7B] text-white border-[#E12B7B] shadow-xs'
-                                    : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                                ? 'bg-[#E12B7B] text-white border-[#E12B7B] shadow-xs'
+                                : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
                                 }`}
                         >
                             ★ Exclusif
@@ -54,8 +54,8 @@ export function SignatureContractStep({
                             type="button"
                             onClick={() => onContractTypeChange('simple')}
                             className={`py-2 px-3 rounded-xl text-xs font-bold border transition ${contractType === 'simple'
-                                    ? 'bg-[#131B26] text-white border-[#131B26] shadow-xs'
-                                    : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                                ? 'bg-[#131B26] text-white border-[#131B26] shadow-xs'
+                                : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
                                 }`}
                         >
                             Simple
@@ -133,7 +133,7 @@ export function SignatureContractStep({
             <div className="flex items-center justify-between pt-2">
                 <span className="text-xs text-gray-500 flex items-center gap-1.5">
                     <Lock className="w-3.5 h-3.5 text-emerald-600" />
-                    Certificat cryptographique conforme règlement eIDAS N° 910/2014
+                    Signature électronique locale : preuve SMS (OTP) + empreinte SHA-256 du contrat
                 </span>
 
                 <button

@@ -61,7 +61,7 @@ export function SellerDiscoveryModal({ isOpen, onClose }: SellerDiscoveryModalPr
         living_area: livingArea, land_area: landArea, rooms_count: roomsCount, bedrooms_count: bedroomsCount,
         address: address || 'Adresse à confirmer', city,
         postal_code: city.toLowerCase().includes('salon') ? '13300' : '13330',
-        display_exact_address: false, seller_name: sellerName, seller_phone: sellerPhone, seller_address: address || city,
+        display_exact_address: false, seller_name: sellerName, seller_phone: sellerPhone, seller_address: address || 'Adresse à confirmer',
         publish_website: false, publish_seloger: false, publish_leboncoin: false, publish_bienici: false,
         features: [hasPool ? 'Piscine' : '', hasGarage ? 'Garage' : '', condition].filter(Boolean),
       });
@@ -81,7 +81,7 @@ export function SellerDiscoveryModal({ isOpen, onClose }: SellerDiscoveryModalPr
       title: `RDV R2 Restitution Estimation — ${sellerName || 'Propriétaire'}`,
       location: `${address || ''}, ${city}`.trim(),
       startDate: tomorrow,
-      description: `Propriétaire: ${sellerName} (${sellerPhone})\nProjet: ${propertyType} de ${livingArea} m²\nPrix souhaité: ${desiredPrice.toLocaleString('fr-FR')} €\nEstimation DVF: ${dvfBenchmark.estimatedValue.toLocaleString('fr-FR')} €`,
+      description: `Propriétaire: ${sellerName} (${sellerPhone})\nProjet: ${propertyType} de ${livingArea} m²\nPrix souhaité: ${desiredPrice.toLocaleString('fr-FR')} €\nEstimation indicative: ${dvfBenchmark.estimatedValue.toLocaleString('fr-FR')} €`,
     });
     window.open(url, '_blank', 'noopener,noreferrer');
   };

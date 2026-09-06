@@ -18,7 +18,7 @@ export function ImportSuccessBanner({ injectedCount, onClose }: ImportSuccessBan
                         Importation terminée avec succès !
                     </h3>
                     <p className="text-xs text-emerald-800 mt-0.5">
-                        <strong>{injectedCount} enregistrement(s)</strong> ont été intégrés et synchronisés
+                        <strong>{injectedCount} enregistrement(s)</strong> ont été intégrés
                         dans votre registre Cockpit.
                     </p>
                     <div className="flex items-center gap-3 mt-3">

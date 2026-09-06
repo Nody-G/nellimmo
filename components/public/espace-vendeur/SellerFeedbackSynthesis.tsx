@@ -5,18 +5,23 @@ import { Quote } from 'lucide-react';
 import { AvisDonutChart } from '@/components/cockpit/comptes-rendus/AvisDonutChart';
 
 interface SellerFeedbackSynthesisProps {
-  positiveFeedbacks: number;
-  neutralFeedbacks: number;
-  negativeFeedbacks: number;
+  hasReport: boolean;
+  positiveFeedbacks: number | null;
+  neutralFeedbacks: number | null;
+  negativeFeedbacks: number | null;
   verbatims: string[];
 }
 
 export function SellerFeedbackSynthesis({
+  hasReport,
   positiveFeedbacks,
   neutralFeedbacks,
   negativeFeedbacks,
   verbatims,
 }: SellerFeedbackSynthesisProps) {
+  const hasFeedbackData =
+    positiveFeedbacks !== null && neutralFeedbacks !== null && negativeFeedbacks !== null;
+
   return (
     <section className="space-y-4">
       <div>
@@ -36,11 +41,19 @@ export function SellerFeedbackSynthesis({
           <h3 className="font-serif font-bold text-base text-[#131B26]">
             Répartition des Avis Visiteurs
           </h3>
-          <AvisDonutChart
-            positive={positiveFeedbacks}
-            neutral={neutralFeedbacks}
-            negative={negativeFeedbacks}
-          />
+          {hasFeedbackData && (positiveFeedbacks! + neutralFeedbacks! + negativeFeedbacks!) > 0 ? (
+            <AvisDonutChart
+              positive={positiveFeedbacks!}
+              neutral={neutralFeedbacks!}
+              negative={negativeFeedbacks!}
+            />
+          ) : (
+            <p className="text-xs text-gray-400 font-semibold py-4">
+              {hasReport
+                ? 'Aucun retour visiteur enregistré pour le moment.'
+                : 'Les retours visiteurs seront disponibles dès la génération du premier bilan de commercialisation.'}
+            </p>
+          )}
         </div>
 
         <div className="bg-white rounded-3xl p-6 border border-[#F3E8EE] shadow-xs space-y-4">

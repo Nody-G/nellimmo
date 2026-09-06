@@ -39,13 +39,12 @@ export function StudioHeader({
             Studio Actif
           </span>
           <span
-            className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-              generationSource === 'deepseek'
+            className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${generationSource === 'deepseek'
                 ? 'bg-emerald-100 text-emerald-800'
                 : 'bg-gray-100 text-gray-700'
-            }`}
+              }`}
           >
-            {generationSource === 'deepseek' ? 'IA Active' : 'Moteur Local Certifié'}
+            {generationSource === 'deepseek' ? 'IA Active' : 'Moteur Local'}
           </span>
         </div>
         <h3 className="font-serif font-bold text-lg text-[#131B26] mt-0.5">

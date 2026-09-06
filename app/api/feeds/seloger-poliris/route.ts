@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import { INITIAL_PROPERTIES } from '@/lib/mock-data';
 import { generatePolirisAnnoncesCsv, generatePolirisPhotosCfg, generatePolirisConfigTxt } from '@/lib/poliris';
 import { getPolirisFeedToken, isValidFeedToken } from '@/lib/feed-tokens';
+import { resolveFeedData } from '@/lib/feed-data';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -12,9 +12,21 @@ export async function GET(request: Request) {
     return new NextResponse('Accès non autorisé', { status: 401 });
   }
 
-  const csv = generatePolirisAnnoncesCsv(INITIAL_PROPERTIES, 'NEL13');
-  const photos = generatePolirisPhotosCfg(INITIAL_PROPERTIES);
-  const config = generatePolirisConfigTxt('NEL13');
+  // INTÉGRITÉ DES DONNÉES : on ne sert JAMAIS les annonces de démonstration
+  // comme si elles étaient réelles. On lit les données réelles depuis Supabase ;
+  // si elles ne sont pas accessibles, l'archive est refusée proprement.
+  const source = await resolveFeedData();
+  if (!source.live || !source.settings) {
+    return new NextResponse(
+      `Archive Poliris indisponible : ${source.reason || 'aucune donnée réelle accessible.'}`,
+      { status: 503 }
+    );
+  }
+
+  const agencyCode = source.settings.seloger_agency_code || 'NEL13';
+  const csv = generatePolirisAnnoncesCsv(source.properties, agencyCode);
+  const photos = generatePolirisPhotosCfg(source.properties);
+  const config = generatePolirisConfigTxt(agencyCode);
 
   // Load archiver dynamically for route handler
   const archiverModule = await import('archiver');

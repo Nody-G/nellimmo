@@ -27,15 +27,13 @@ export function auditPropertyCompliance(property: Property): PropertyComplianceR
   let score = 100;
 
   // 1. Diagnostics Énergétiques (DPE / GES) - Obligation d'ordre public
-  if (!property.dpe_letter || property.dpe_letter === 'G' && !property.dpe_value) {
-    if (!property.dpe_letter) {
-      issues.push({
-        severity: 'error',
-        field: 'dpe_letter',
-        message: 'Classe DPE manquante (bloquant SeLoger / LeBonCoin / Loi Climat).',
-      });
-      score -= 30;
-    }
+  if (!property.dpe_letter) {
+    issues.push({
+      severity: 'error',
+      field: 'dpe_letter',
+      message: 'Classe DPE manquante (bloquant SeLoger / LeBonCoin / Loi Climat).',
+    });
+    score -= 30;
   }
 
   if (!property.dpe_value || property.dpe_value <= 0) {

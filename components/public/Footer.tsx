@@ -21,9 +21,9 @@ export function PublicFooter() {
           </div>
 
           <div className="space-y-2">
-            <span className="text-[#C59A45] font-serif font-bold text-base block">Avis 98% Satisfaits</span>
+            <span className="text-[#C59A45] font-serif font-bold text-base block">Avis Clients</span>
             <p className="text-xs text-gray-400">
-              Contrôlés et certifiés conformes ISO 20252 par Opinion System, organisme indépendant.
+              Retours d’expérience de propriétaires vendeurs et acquéreurs accompagnés par Nelly Fernandez.
             </p>
           </div>
 

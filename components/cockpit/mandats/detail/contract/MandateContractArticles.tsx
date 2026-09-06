@@ -22,7 +22,7 @@ export function MandateContractArticles({
   const agencyName = settings.agency_name || "SASU NELL’IMMO";
   const agentName = settings.agent_name || 'Mme Nelly FERNANDEZ';
   const cardTNumber = settings.card_t_number || 'CPI 1310 2019 000 042 974';
-  const cciCity = settings.cci_card_t || 'Aix-Marseille-Provence';
+  const cciCity = settings.cci_card_t || 'CCI Marseille Provence';
   const guaranteeFund = settings.guarantee_fund_name || 'Galian Assurances (Non-détention de fonds)';
   const guaranteeAmount = settings.guarantee_fund_amount || '120 000 €';
   const rcpInsurance = settings.insurance_name
