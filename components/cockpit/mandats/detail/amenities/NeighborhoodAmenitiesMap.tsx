@@ -153,6 +153,10 @@ export function NeighborhoodAmenitiesMap({
     const el = containerRef.current;
     if (!el) return;
     const onWheel = (e: WheelEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (target && target.closest('[data-no-drag], .overflow-y-auto, .overflow-y-scroll, [data-allow-scroll]')) {
+        return; // Let natural scroll happen inside GooglePlaceSheet without zooming the map
+      }
       e.preventDefault();
       const factor = Math.exp(-e.deltaY * 0.0018);
       setZoom((cur) => Math.max(0.04, Math.min(6.0, cur * factor)));

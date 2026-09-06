@@ -4,19 +4,30 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Compass } from 'lucide-react';
 import { CadastreParcel, calculateDistanceMeters, getGeoportailEmbedUrl } from '@/lib/cadastre';
 import { getDaySolarSummary, getSolarPosition } from '@/lib/solar';
-import { AmenityItem } from '@/lib/amenities';
+import { AmenityItem, CATEGORY_CONFIG } from '@/lib/amenities';
 import { ParcelTileOverlaySvg } from './ParcelTileOverlaySvg';
 import { ParcelMapControls, MapMode, ActiveLayers } from './ParcelMapControls';
 import { SolarLocatorPanel } from './SolarLocatorPanel';
+import { GooglePlaceSheet } from '../amenities/GooglePlaceSheet';
 
 interface InteractiveParcelMapProps {
   parcel: CadastreParcel;
   height?: number | string;
+  amenities?: AmenityItem[];
+  selectedAmenityId?: string | null;
+  onSelectAmenity?: (amenity: AmenityItem | null) => void;
+  propertyAddress?: string;
+  initialLayers?: Partial<ActiveLayers>;
 }
 
 export function InteractiveParcelMap({
   parcel,
   height = 850,
+  amenities,
+  selectedAmenityId,
+  onSelectAmenity,
+  propertyAddress,
+  initialLayers,
 }: InteractiveParcelMapProps) {
   const [mode, setMode] = useState<MapMode>('arpenteur');
   const [zoom, setZoom] = useState(1);
@@ -29,13 +40,22 @@ export function InteractiveParcelMap({
     texts: true,
     sun: false,
     radius: false,
-    amenities: false,
+    amenities: true,
+    ...initialLayers,
   });
   const [amenitiesList, setAmenitiesList] = useState<AmenityItem[]>([]);
+  const [internalSelectedAmenityId, setInternalSelectedAmenityId] = useState<string | null>(null);
+  const activeSelectedAmenityId = selectedAmenityId !== undefined ? selectedAmenityId : internalSelectedAmenityId;
+
+  const handleSelectAmenity = (item: AmenityItem | null) => {
+    if (onSelectAmenity) onSelectAmenity(item);
+    else setInternalSelectedAmenityId(item ? item.id : null);
+  };
+
   const [solarSeason, setSolarSeason] = useState<'summer' | 'winter' | 'equinox' | 'today'>('today');
   const [solarHour, setSolarHour] = useState<number>(14);
   const [isMeasuring, setIsMeasuring] = useState(false);
-  const [measurePoints, setMeasurePoints] = useState<{ screenX: number; screenY: number; lon: number; lat: number }[]>([]);
+  const [measurePoints, setMeasurePoints] = useState<{ lon: number; lat: number }[]>([]);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const dragStartRef = useRef({ x: 0, y: 0, panX: 0, panY: 0, moved: false });
@@ -93,9 +113,8 @@ export function InteractiveParcelMap({
   const autoScale = Math.min(5.0, Math.max(1.0, targetPx / Math.max(spanX, spanY)));
   const currentScale = autoScale * zoom;
 
-  // Viewport center in world pixels
-  const viewCenterWorldX = parcelWorldPxX - pan.x / currentScale;
-  const viewCenterWorldY = parcelWorldPxY - pan.y / currentScale;
+  const effectiveAmenities = amenities && amenities.length > 0 ? amenities : amenitiesList;
+  const selectedAmenity = effectiveAmenities.find((a) => a.id === activeSelectedAmenityId);
 
   // Dynamic multi-scale tile calculation: adapts TILEMATRIX from 6 (France/Region) to 19 (High-precision Street)
   // Ensures tile count on screen stays optimal (typically 12-25 tiles) regardless of zoom level
@@ -110,8 +129,23 @@ export function InteractiveParcelMap({
   const tileScale = Math.pow(2, effectiveZoom - tileZoom);
   const tileSize = 256 * tileScale;
 
-  const viewCenterTileX = centerTileX - pan.x / tileSize;
-  const viewCenterTileY = centerTileY - pan.y / tileSize;
+  // Selected amenity auto-pan offset: aligns viewport smoothly when an amenity is chosen
+  const selectedOffsetX = selectedAmenity
+    ? -(((selectedAmenity.lon + 180) / 360) * nTile - centerTileX) * tileSize * 0.45
+    : 0;
+  const selectedOffsetY = selectedAmenity
+    ? -(((1 - Math.asinh(Math.tan((selectedAmenity.lat * Math.PI) / 180)) / Math.PI) / 2) * nTile - centerTileY) * tileSize * 0.45
+    : 0;
+
+  const currentPanX = pan.x + selectedOffsetX;
+  const currentPanY = pan.y + selectedOffsetY;
+
+  // Viewport center in world pixels
+  const viewCenterWorldX = parcelWorldPxX - currentPanX / currentScale;
+  const viewCenterWorldY = parcelWorldPxY - currentPanY / currentScale;
+
+  const viewCenterTileX = centerTileX - currentPanX / tileSize;
+  const viewCenterTileY = centerTileY - currentPanY / tileSize;
 
   const halfWTiles = (containerSize.width / 2) / tileSize;
   const halfHTiles = (containerSize.height / 2) / tileSize;
@@ -159,15 +193,42 @@ export function InteractiveParcelMap({
     return { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2, dist, label: `${dist} m` };
   });
 
-  const measureDistance = measurePoints.length === 2
-    ? calculateDistanceMeters(measurePoints[0].lon, measurePoints[0].lat, measurePoints[1].lon, measurePoints[1].lat)
-    : null;
+  // Dynamic multi-point measurement calculations
+  const measureScreenPoints = measurePoints.map((pt, idx) => {
+    const mWorldX = lonToX(pt.lon) * 256;
+    const mWorldY = latToY(pt.lat) * 256;
+    return {
+      x: (mWorldX - viewCenterWorldX) * currentScale + containerSize.width / 2,
+      y: (mWorldY - viewCenterWorldY) * currentScale + containerSize.height / 2,
+      label: String.fromCharCode(65 + idx),
+    };
+  });
+
+  const measureSegments = measurePoints.slice(0, -1).map((p1, idx) => {
+    const p2 = measurePoints[idx + 1];
+    const dist = calculateDistanceMeters(p1.lon, p1.lat, p2.lon, p2.lat);
+    const s1 = measureScreenPoints[idx];
+    const s2 = measureScreenPoints[idx + 1];
+    return {
+      p1: { x: s1.x, y: s1.y },
+      p2: { x: s2.x, y: s2.y },
+      dist,
+      midX: (s1.x + s2.x) / 2,
+      midY: (s1.y + s2.y) / 2,
+    };
+  });
+
+  const totalMeasureDistance = measureSegments.reduce((acc, seg) => acc + seg.dist, 0);
 
   // Native non-passive wheel listener: PREVENTS PAGE SCROLL WHILE ZOOMING (Multiplicative infinite zoom)
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
     const handleNativeWheel = (e: WheelEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (target && target.closest('[data-no-drag], .overflow-y-auto, .overflow-y-scroll, [data-allow-scroll]')) {
+        return;
+      }
       e.preventDefault();
       e.stopPropagation();
       const factor = Math.exp(-e.deltaY * 0.0018);
@@ -177,8 +238,9 @@ export function InteractiveParcelMap({
     return () => container.removeEventListener('wheel', handleNativeWheel);
   }, []);
 
-  // Fetch amenities when user enables amenities layer
+  // Fetch amenities when user enables amenities layer or default
   useEffect(() => {
+    if (amenities && amenities.length > 0) return;
     if (!layers.amenities || amenitiesList.length > 0) return;
     fetch(`/api/amenities?lat=${centerLat}&lon=${centerLon}&city=${encodeURIComponent(parcel.nom_com || 'Provence')}`)
       .then((r) => r.json())
@@ -188,24 +250,7 @@ export function InteractiveParcelMap({
         }
       })
       .catch(() => {});
-  }, [layers.amenities, amenitiesList.length, centerLat, centerLon, parcel.nom_com]);
-
-  // Transform amenities to screen coordinates
-  const amenityScreenPoints = layers.amenities
-    ? amenitiesList.map((a) => {
-        const aWorldX = lonToX(a.lon) * 256;
-        const aWorldY = latToY(a.lat) * 256;
-        return {
-          id: a.id,
-          name: a.name,
-          category: a.category,
-          subtypeLabel: a.subtypeLabel,
-          distanceMeters: a.distanceMeters,
-          x: (aWorldX - viewCenterWorldX) * currentScale + containerSize.width / 2,
-          y: (aWorldY - viewCenterWorldY) * currentScale + containerSize.height / 2,
-        };
-      })
-    : [];
+  }, [amenities, layers.amenities, amenitiesList.length, centerLat, centerLon, parcel.nom_com]);
 
   // Listen to fullscreen changes
   useEffect(() => {
@@ -260,11 +305,7 @@ export function InteractiveParcelMap({
       const lon = (tileX / n) * 360 - 180;
       const lat = (Math.atan(Math.sinh(Math.PI * (1 - 2 * (tileY / n)))) * 180) / Math.PI;
 
-      if (measurePoints.length === 0 || measurePoints.length === 2) {
-        setMeasurePoints([{ screenX: clickScreenX, screenY: clickScreenY, lon, lat }]);
-      } else if (measurePoints.length === 1) {
-        setMeasurePoints((prev) => [...prev, { screenX: clickScreenX, screenY: clickScreenY, lon, lat }]);
-      }
+      setMeasurePoints((prev) => [...prev, { lon, lat }]);
     }
   };
 
@@ -387,7 +428,7 @@ export function InteractiveParcelMap({
             );
           })}
 
-          {/* SVG Overlay */}
+          {/* SVG Cadastre, Sun & Measurement Overlay */}
           <ParcelTileOverlaySvg
             svgPath={svgPath}
             points={polygonPts}
@@ -397,13 +438,82 @@ export function InteractiveParcelMap({
             centerPos={centerScreenPos}
             scale={1}
             layers={layers}
-            measurePoints={measurePoints.map((m) => ({ x: m.screenX, y: m.screenY }))}
-            measureDistance={measureDistance}
+            measurePoints={measureScreenPoints}
+            measureSegments={measureSegments}
+            totalMeasureDistance={totalMeasureDistance}
             solarPosition={solarPosition}
             solarSummary={solarSummary}
-            amenityPoints={amenityScreenPoints}
+            amenityPoints={[]}
           />
         </div>
+      )}
+
+      {/* Interactive Amenities HTML Pins (Full tooltips, clicks & smooth selection) */}
+      {layers.amenities && (
+        <div className="absolute inset-0 pointer-events-none overflow-hidden z-25">
+          {effectiveAmenities.map((a) => {
+            const aWorldX = lonToX(a.lon) * 256;
+            const aWorldY = latToY(a.lat) * 256;
+            const aScreenX = (aWorldX - viewCenterWorldX) * currentScale + containerSize.width / 2;
+            const aScreenY = (aWorldY - viewCenterWorldY) * currentScale + containerSize.height / 2;
+
+            if (
+              aScreenX < -80 ||
+              aScreenX > containerSize.width + 80 ||
+              aScreenY < -80 ||
+              aScreenY > containerSize.height + 80
+            ) {
+              return null;
+            }
+
+            const isSelected = a.id === activeSelectedAmenityId;
+            const config = CATEGORY_CONFIG[a.category] || { emoji: '📍', color: '#3B82F6' };
+
+            return (
+              <div
+                key={`amenity-marker-${a.id}`}
+                data-no-drag
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleSelectAmenity(a);
+                }}
+                style={{ left: `${aScreenX}px`, top: `${aScreenY}px` }}
+                className="absolute -translate-x-1/2 -translate-y-1/2 pointer-events-auto cursor-pointer group transition-transform duration-150"
+              >
+                <div
+                  className={`p-1.5 rounded-xl border flex items-center gap-1 shadow-lg transition transform group-hover:scale-110 ${
+                    isSelected
+                      ? 'bg-amber-500 text-black border-white ring-4 ring-amber-500/40 font-black scale-110'
+                      : 'bg-[#131B26]/90 text-white border-white/20 hover:bg-[#1C2738]'
+                  }`}
+                  style={{ borderColor: isSelected ? '#FFF' : config.color }}
+                >
+                  <span className="text-xs">{config.emoji}</span>
+                  <span className="text-[10px] font-mono font-bold whitespace-nowrap">
+                    {a.distanceMeters < 1000
+                      ? `${a.distanceMeters}m`
+                      : `${(a.distanceMeters / 1000).toFixed(1)}km`}
+                  </span>
+                </div>
+                {isSelected && (
+                  <span className="mt-1 px-2 py-0.5 rounded-lg bg-black/90 backdrop-blur-md text-white font-bold text-[10px] whitespace-nowrap max-w-[140px] truncate border border-white/20 shadow-md block text-center">
+                    {a.name}
+                  </span>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Google Place Profile Sheet Modal over Map */}
+      {selectedAmenity && (
+        <GooglePlaceSheet
+          key={selectedAmenity.id}
+          item={selectedAmenity}
+          propertyAddress={propertyAddress}
+          onClose={() => handleSelectAmenity(null)}
+        />
       )}
 
       {/* SolarLocator Pro HUD Overlay */}
@@ -419,23 +529,74 @@ export function InteractiveParcelMap({
         />
       )}
 
-      {/* Measurement Tool Guide Banner */}
+      {/* Multi-point Polyline Measurement Tool Guide Banner */}
       {isMeasuring && (
         <div
           onPointerDown={(e) => e.stopPropagation()}
           data-no-drag
-          className="absolute top-16 left-1/2 -translate-x-1/2 z-40 bg-amber-500 text-black px-4 py-1.5 rounded-full text-xs font-black shadow-2xl flex items-center gap-2 border-2 border-black/20 animate-in fade-in"
+          className="absolute top-16 left-1/2 -translate-x-1/2 z-40 bg-[#131B26]/95 backdrop-blur-md text-white px-4 py-2 rounded-2xl text-xs font-medium shadow-2xl flex items-center gap-3 border border-amber-500/50 animate-in fade-in"
         >
-          <span>📐 {measurePoints.length === 0 ? 'Cliquez le 1er point' : measurePoints.length === 1 ? 'Cliquez le 2ème point' : `Distance mesurée : ${measureDistance} m`}</span>
-          {measurePoints.length > 0 && (
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping" />
+            <span className="font-bold text-amber-300">Télémètre Multi-points :</span>
+            {measurePoints.length === 0 && (
+              <span className="text-gray-300">Cliquez n&apos;importe où sur la carte pour poser le point A</span>
+            )}
+            {measurePoints.length === 1 && (
+              <span className="text-gray-300">Point A posé. Cliquez pour poser le point B...</span>
+            )}
+            {measurePoints.length >= 2 && (
+              <div className="flex items-center gap-2">
+                <span className="bg-rose-500 text-white font-mono font-black px-2 py-0.5 rounded-lg">
+                  {totalMeasureDistance >= 1000
+                    ? `${(totalMeasureDistance / 1000).toFixed(2)} km`
+                    : `${totalMeasureDistance} m`}
+                </span>
+                <span className="text-gray-400 text-[11px]">
+                  ({measurePoints.length} points • ~{Math.round((totalMeasureDistance / 1000) * 12)} min à pied)
+                </span>
+              </div>
+            )}
+          </div>
+
+          <div className="flex items-center gap-1.5 border-l border-white/20 pl-2">
+            {measurePoints.length > 0 && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setMeasurePoints((prev) => prev.slice(0, -1));
+                }}
+                className="px-2 py-1 bg-white/10 hover:bg-white/20 text-gray-200 rounded-lg text-[11px] font-bold cursor-pointer transition"
+                title="Annuler le dernier point"
+              >
+                Annuler
+              </button>
+            )}
+            {measurePoints.length > 0 && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setMeasurePoints([]);
+                }}
+                className="px-2 py-1 bg-white/10 hover:bg-white/20 text-rose-300 rounded-lg text-[11px] font-bold cursor-pointer transition"
+                title="Effacer tous les points"
+              >
+                Effacer
+              </button>
+            )}
             <button
               type="button"
-              onClick={(e) => { e.stopPropagation(); setMeasurePoints([]); }}
-              className="ml-2 px-2 py-0.5 bg-black/20 hover:bg-black/40 rounded text-[11px] font-bold cursor-pointer"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsMeasuring(false);
+              }}
+              className="px-2.5 py-1 bg-teal-500 hover:bg-teal-600 text-black rounded-lg text-[11px] font-black cursor-pointer transition shadow-xs"
             >
-              Effacer
+              Terminer
             </button>
-          )}
+          </div>
         </div>
       )}
 

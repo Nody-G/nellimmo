@@ -29,14 +29,18 @@ export function getCanvasContext(canvas: HTMLCanvasElement | null): CanvasRender
     return canvas.getContext('2d');
 }
 
-/** Calcule les coordonnées du pointeur (souris ou tactile) relatives au canvas. */
+/** Calcule les coordonnées du pointeur (souris ou tactile) relatives au canvas avec compensation de l'échelle d'affichage. */
 export function getPointerPosition(
     e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>,
     canvas: HTMLCanvasElement
 ): { x: number; y: number } {
     const rect = canvas.getBoundingClientRect();
-    const x = 'touches' in e ? e.touches[0].clientX - rect.left : e.clientX - rect.left;
-    const y = 'touches' in e ? e.touches[0].clientY - rect.top : e.clientY - rect.top;
+    const scaleX = rect.width > 0 ? canvas.width / rect.width : 1;
+    const scaleY = rect.height > 0 ? canvas.height / rect.height : 1;
+    const clientX = 'touches' in e && e.touches.length > 0 ? e.touches[0].clientX : ('clientX' in e ? e.clientX : 0);
+    const clientY = 'touches' in e && e.touches.length > 0 ? e.touches[0].clientY : ('clientY' in e ? e.clientY : 0);
+    const x = (clientX - rect.left) * scaleX;
+    const y = (clientY - rect.top) * scaleY;
     return { x, y };
 }
 

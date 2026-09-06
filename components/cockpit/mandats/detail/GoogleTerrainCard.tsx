@@ -10,12 +10,14 @@ import {
   ExternalLink,
   Check,
   Edit2,
-  Copy,
+  Download,
+  CheckSquare,
 } from 'lucide-react';
 import {
   createGoogleMapsNavUrl,
   getGoogleDriveUrl,
-  generateMandateDriveTreeText,
+  generateAlurKeepChecklist,
+  downloadAlurBatchScript,
 } from '@/lib/google';
 import { formatMandateRef } from '@/lib/hoguet';
 import { GoogleMapsNeighborhoodModal } from './GoogleMapsNeighborhoodModal';
@@ -30,7 +32,8 @@ export function GoogleTerrainCard({ property, onSaveDriveUrl }: GoogleTerrainCar
   const [driveInput, setDriveInput] = useState(property.google_drive_url || '');
   const [isSaving, setIsSaving] = useState(false);
   const [isNeighborhoodModalOpen, setIsNeighborhoodModalOpen] = useState(false);
-  const [copiedTree, setCopiedTree] = useState(false);
+  const [copiedKeep, setCopiedKeep] = useState(false);
+  const [downloadedBat, setDownloadedBat] = useState(false);
 
   const mandateRef = formatMandateRef(property.mandate_number);
   const mapsUrl = createGoogleMapsNavUrl(property.address, property.city);
@@ -46,11 +49,17 @@ export function GoogleTerrainCard({ property, onSaveDriveUrl }: GoogleTerrainCar
     }
   };
 
-  const handleCopyDriveTree = async () => {
-    const treeText = generateMandateDriveTreeText(mandateRef, property.title);
-    await navigator.clipboard.writeText(treeText);
-    setCopiedTree(true);
-    setTimeout(() => setCopiedTree(false), 2000);
+  const handleCopyKeepChecklist = async () => {
+    const checklist = generateAlurKeepChecklist(mandateRef, property.title);
+    await navigator.clipboard.writeText(checklist);
+    setCopiedKeep(true);
+    setTimeout(() => setCopiedKeep(false), 2500);
+  };
+
+  const handleDownloadBat = () => {
+    downloadAlurBatchScript(mandateRef, property.title);
+    setDownloadedBat(true);
+    setTimeout(() => setDownloadedBat(false), 2500);
   };
 
   return (
@@ -110,15 +119,26 @@ export function GoogleTerrainCard({ property, onSaveDriveUrl }: GoogleTerrainCar
               <ExternalLink className="w-3 h-3 text-gray-400" />
             </a>
 
-            {/* 4. Copy ALUR Drive Tree */}
+            {/* 4. Télécharger Script Dossiers ALUR .bat (Windows / Google Drive) */}
             <button
               type="button"
-              onClick={handleCopyDriveTree}
-              className="px-2.5 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
-              title="Copier la nomenclature officielle des 6 dossiers ALUR Google Drive"
+              onClick={handleDownloadBat}
+              className="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-2xs cursor-pointer"
+              title="Télécharger le script .bat : crée automatiquement les 6 dossiers officiels ALUR sur votre PC ou Google Drive"
             >
-              {copiedTree ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-              <span>{copiedTree ? 'Copié !' : 'Structure ALUR'}</span>
+              {downloadedBat ? <Check className="w-3.5 h-3.5 text-white" /> : <Download className="w-3.5 h-3.5" />}
+              <span>{downloadedBat ? 'Script téléchargé !' : 'Dossiers Auto (.bat)'}</span>
+            </button>
+
+            {/* 5. Copier Checklist Google Keep */}
+            <button
+              type="button"
+              onClick={handleCopyKeepChecklist}
+              className="px-3 py-2 bg-amber-500 hover:bg-amber-600 text-black rounded-xl text-xs font-bold flex items-center gap-1.5 transition shadow-2xs cursor-pointer"
+              title="Copier la checklist à cocher prête à coller dans Google Keep ou WhatsApp"
+            >
+              {copiedKeep ? <Check className="w-3.5 h-3.5 text-black" /> : <CheckSquare className="w-3.5 h-3.5" />}
+              <span>{copiedKeep ? 'Checklist copiée !' : 'Checklist Keep'}</span>
             </button>
 
             {/* Edit Drive Link Button */}

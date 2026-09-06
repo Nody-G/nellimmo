@@ -4,6 +4,7 @@ import React from 'react';
 import type { Property } from '@/lib/types';
 import { Phone, Mail, MapPin } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
+import { openGmailCompose } from '@/lib/gmail';
 
 interface MandateFinancialCardsProps {
   property: Property;
@@ -89,10 +90,18 @@ export function MandateFinancialCards({ property }: MandateFinancialCardsProps) 
           </p>
           {property.seller_email && (
             <p className="flex items-center gap-1.5 text-gray-700 truncate">
-              <Mail className="w-3.5 h-3.5 text-[#C59A45]" />
-              <a href={`mailto:${property.seller_email}`} className="hover:underline">
+              <Mail className="w-3.5 h-3.5 text-[#C59A45] shrink-0" />
+              <button
+                type="button"
+                onClick={() => openGmailCompose({
+                  to: property.seller_email,
+                  subject: `Mandat Nell'Immo ${property.mandate_number} — ${property.title}`,
+                })}
+                className="hover:underline text-left cursor-pointer truncate"
+                title="Rédiger un email via Gmail Pro"
+              >
                 {property.seller_email}
-              </a>
+              </button>
             </p>
           )}
           <p className="flex items-center gap-1.5 text-[11px] text-gray-500">

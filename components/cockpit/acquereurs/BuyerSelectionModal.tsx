@@ -10,6 +10,7 @@ import {
   BuyerSelectionWhatsAppTab,
   BuyerSelectionPrintSheet,
 } from './selection';
+import { openGmailCompose } from '@/lib/gmail';
 
 interface BuyerSelectionModalProps {
   buyer: Buyer;
@@ -81,7 +82,7 @@ Nelly Fernandez — SASU Nell'Immo
     }
     const subject = `Sélection de biens exclusifs pour votre projet — Nell'Immo`;
     const mailBody = whatsappMessage.replace(/[*_#]/g, '');
-    window.open(`mailto:${buyer.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(mailBody)}`);
+    openGmailCompose({ to: buyer.email, subject, body: mailBody });
   };
 
   const handleCopy = () => {

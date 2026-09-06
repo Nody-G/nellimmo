@@ -9,6 +9,7 @@ import {
   InvoiceFactureSection,
   InvoiceSequestreSection,
 } from './invoice';
+import { openGmailCompose } from '@/lib/gmail';
 
 interface InvoicePrintModalProps {
   deal: TransactionDeal;
@@ -78,10 +79,10 @@ export function InvoicePrintModal({
       `Bien cordialement,`,
       `${settings.agent_name || 'Nelly Fernandez'} — ${settings.agency_name || "SASU NELL'IMMO"}`,
     ].join('\n');
-    window.location.href = `mailto:${notaryEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    openGmailCompose({ to: notaryEmail, subject, body });
     setEmailNotice({
       type: 'success',
-      message: `Client email ouvert vers ${notaryEmail}. Pensez à enregistrer le PDF pour le joindre à votre message.`,
+      message: `Gmail Pro ouvert vers ${notaryEmail}. Pensez à joindre votre facture PDF au message.`,
     });
     onInvoiceSent?.(deal.id);
   };

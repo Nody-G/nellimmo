@@ -1,7 +1,7 @@
 import type { ContactItem, ContactRole } from './types';
 
 export interface EmailComposeOptions {
-  to: string;
+  to?: string;
   cc?: string;
   bcc?: string;
   subject?: string;
@@ -28,6 +28,16 @@ export function createGmailComposeUrl({ to, cc, bcc, subject, body }: EmailCompo
 }
 
 /**
+ * Ouvre Gmail Web dans un nouvel onglet avec l'objet et le corps formatés.
+ */
+export function openGmailCompose(options: EmailComposeOptions): void {
+  const url = createGmailComposeUrl(options);
+  if (typeof window !== 'undefined') {
+    window.open(url, '_blank', 'noopener,noreferrer');
+  }
+}
+
+/**
  * Construit un lien mailto: universel (client de messagerie par défaut du système).
  */
 export function createMailtoUrl({ to, cc, bcc, subject, body }: EmailComposeOptions): string {
@@ -38,7 +48,7 @@ export function createMailtoUrl({ to, cc, bcc, subject, body }: EmailComposeOpti
   if (body) params.append('body', body);
 
   const query = params.toString();
-  return `mailto:${encodeURIComponent(to)}${query ? `?${query}` : ''}`;
+  return `mailto:${encodeURIComponent(to || '')}${query ? `?${query}` : ''}`;
 }
 
 /**

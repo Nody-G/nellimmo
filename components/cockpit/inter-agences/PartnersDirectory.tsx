@@ -3,6 +3,7 @@
 import React from 'react';
 import { Building2, PlusCircle, Trash2, Phone, Mail } from 'lucide-react';
 import type { PartnerAgency } from '@/lib/types';
+import { openGmailCompose } from '@/lib/gmail';
 
 interface PartnersDirectoryProps {
   partners: PartnerAgency[];
@@ -81,13 +82,17 @@ export function PartnersDirectory({
                   <span>{p.phone}</span>
                 </a>
                 {p.email && (
-                  <a
-                    href={`mailto:${p.email}`}
-                    title={p.email}
-                    className="text-gray-400 hover:text-[#E12B7B] transition"
+                  <button
+                    type="button"
+                    onClick={() => openGmailCompose({
+                      to: p.email,
+                      subject: `Partenariat inter-agences — Nell'Immo`,
+                    })}
+                    title={`Écrire à ${p.email} via Gmail Pro`}
+                    className="text-gray-400 hover:text-[#E12B7B] transition cursor-pointer"
                   >
                     <Mail className="w-3 h-3" />
-                  </a>
+                  </button>
                 )}
               </div>
               <span className="text-[#E12B7B] font-semibold bg-pink-50 px-2 py-0.5 rounded-md">

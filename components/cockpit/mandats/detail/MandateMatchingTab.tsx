@@ -9,6 +9,7 @@ import {
   MessageCircle
 } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
+import { openGmailCompose } from '@/lib/gmail';
 
 interface MandateMatchingTabProps {
   property: Property;
@@ -109,16 +110,21 @@ export const MandateMatchingTab: React.FC<MandateMatchingTabProps> = ({
                       </a>
                     )}
                     {buyer.email && (
-                      <a
-                        href={`mailto:${buyer.email}?subject=${encodeURIComponent(
-                          `Opportunité Immobilière Nell'Immo - ${property.title}`
-                        )}`}
-                        onClick={() => onCreateProposal(buyer.id, 'email')}
-                        className="p-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl transition"
-                        title="Envoyer par email"
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onCreateProposal(buyer.id, 'email');
+                          openGmailCompose({
+                            to: buyer.email,
+                            subject: `Opportunité Immobilière Nell'Immo — ${property.title}`,
+                            body: `Bonjour ${buyer.first_name},\n\nUn nouveau bien correspondant à vos critères de recherche vient d'entrer en mandat chez Nell'Immo :\n\n- ${property.title}\n- ${property.city} (${property.postal_code || ''})\n- ${property.price_fai.toLocaleString('fr-FR')} € FAI\n- ${property.living_area} m² — ${property.rooms_count} pièces\n\nN'hésitez pas à me contacter pour organiser une visite prioritaire.\n\nBien chaleureusement,\nNelly Fernandez — Nell'Immo\n07 55 68 61 09`,
+                          });
+                        }}
+                        className="p-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl transition cursor-pointer"
+                        title="Rédiger et envoyer via Gmail Pro"
                       >
                         <Mail className="w-3.5 h-3.5" />
-                      </a>
+                      </button>
                     )}
                   </div>
                 </div>

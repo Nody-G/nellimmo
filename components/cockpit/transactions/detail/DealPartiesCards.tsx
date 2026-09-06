@@ -3,6 +3,7 @@
 import React from 'react';
 import { Phone, Mail } from 'lucide-react';
 import { TransactionDeal } from '@/lib/types';
+import { openGmailCompose } from '@/lib/gmail';
 
 interface DealPartiesCardsProps {
   deal: TransactionDeal;
@@ -23,10 +24,18 @@ export const DealPartiesCards: React.FC<DealPartiesCardsProps> = ({ deal }) => {
             <span>{deal.buyer_phone}</span>
           </a>
           {deal.buyer_email && (
-            <a href={`mailto:${deal.buyer_email}`} className="flex items-center gap-1 text-gray-500 hover:underline">
+            <button
+              type="button"
+              onClick={() => openGmailCompose({
+                to: deal.buyer_email,
+                subject: `Transaction Nell'Immo — Mandat & Accord`,
+              })}
+              className="flex items-center gap-1 text-gray-500 hover:underline cursor-pointer"
+              title="Envoyer un email via Gmail Pro"
+            >
               <Mail className="w-3.5 h-3.5" />
               <span>{deal.buyer_email}</span>
-            </a>
+            </button>
           )}
         </div>
         {deal.loan_bank_name && (
@@ -49,10 +58,20 @@ export const DealPartiesCards: React.FC<DealPartiesCardsProps> = ({ deal }) => {
             <Phone className="w-3.5 h-3.5" />
             <span>{deal.seller_notary_phone}</span>
           </a>
-          <a href={`mailto:${deal.seller_notary_email}`} className="flex items-center gap-1 text-gray-500 hover:underline">
-            <Mail className="w-3.5 h-3.5" />
-            <span>{deal.seller_notary_email}</span>
-          </a>
+          {deal.seller_notary_email && (
+            <button
+              type="button"
+              onClick={() => openGmailCompose({
+                to: deal.seller_notary_email,
+                subject: `Dossier de vente Nell'Immo — ${deal.seller_name} / ${deal.buyer_name}`,
+              })}
+              className="flex items-center gap-1 text-gray-500 hover:underline cursor-pointer"
+              title="Envoyer un email au notaire via Gmail Pro"
+            >
+              <Mail className="w-3.5 h-3.5" />
+              <span>{deal.seller_notary_email}</span>
+            </button>
+          )}
         </div>
       </div>
     </div>

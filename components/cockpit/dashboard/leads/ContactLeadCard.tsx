@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { ContactLead } from '@/lib/types';
 import { Mail, MessageCircle, Trash2 } from 'lucide-react';
+import { createGmailComposeUrl } from '@/lib/gmail';
 
 interface ContactLeadCardProps {
   lead: ContactLead;
@@ -22,10 +23,12 @@ export const ContactLeadCard: React.FC<ContactLeadCardProps> = ({
       )}`
     : null;
 
-  const mailtoUrl = lead.email
-    ? `mailto:${lead.email}?subject=${encodeURIComponent("Votre demande auprès de l'agence Nell'Immo")}&body=${encodeURIComponent(
-        `Bonjour ${lead.name},\n\nMerci pour votre message concernant : "${lead.message}".\n\nJe reste à votre entière disposition.\n\nBien cordialement,\nNelly Fernandez — Nell'Immo\n07 55 68 61 09`
-      )}`
+  const gmailUrl = lead.email
+    ? createGmailComposeUrl({
+        to: lead.email,
+        subject: "Votre demande auprès de l'agence Nell'Immo",
+        body: `Bonjour ${lead.name},\n\nMerci pour votre message concernant : "${lead.message}".\n\nJe reste à votre entière disposition.\n\nBien cordialement,\nNelly Fernandez — Nell'Immo\n07 55 68 61 09`,
+      })
     : null;
 
   const agendaUrl = `/cockpit/agenda?newVisit=true&contactName=${encodeURIComponent(lead.name)}&contactPhone=${encodeURIComponent(lead.phone)}&notes=${encodeURIComponent(lead.message)}`;
@@ -70,11 +73,13 @@ export const ContactLeadCard: React.FC<ContactLeadCardProps> = ({
             <MessageCircle className="w-3.5 h-3.5" />
           </a>
         )}
-        {mailtoUrl && (
+        {gmailUrl && (
           <a
-            href={mailtoUrl}
+            href={gmailUrl}
+            target="_blank"
+            rel="noopener noreferrer"
             className="p-1.5 bg-gray-200 text-gray-700 hover:bg-gray-300 rounded-lg transition"
-            title="Envoyer un email pré-rempli"
+            title="Envoyer un email pré-rempli via Gmail Pro"
           >
             <Mail className="w-3.5 h-3.5" />
           </a>

@@ -8,9 +8,8 @@ import { CheckCircle2, FileText } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { DpeBadge } from '@/components/ui/DpeBadge';
 import { MandateFinancialCards } from './MandateFinancialCards';
-import { MandateCadastreCard } from './MandateCadastreCard';
 import { GoogleTerrainCard } from './GoogleTerrainCard';
-import { NeighborhoodAmenitiesAssistant } from './amenities/NeighborhoodAmenitiesAssistant';
+import { MandateUnifiedStudioSection } from './cadastre/MandateUnifiedStudioSection';
 
 interface MandateOverviewTabProps {
   property: Property;
@@ -47,11 +46,8 @@ export const MandateOverviewTab: React.FC<MandateOverviewTabProps> = ({ property
       {/* Financials & Specs Cards */}
       <MandateFinancialCards property={property} />
 
-      {/* Cadastre & IGN Geoportail Parcel Card */}
-      <MandateCadastreCard property={property} onSaveCadastre={handleSaveCadastre} />
-
-      {/* Assistant Quartier & Commodités Haute Précision */}
-      <NeighborhoodAmenitiesAssistant property={property} />
+      {/* Studio Cartographique, Foncier & Quartier Unifié (1 Seule Carte Suprême) */}
+      <MandateUnifiedStudioSection property={property} onSaveCadastre={handleSaveCadastre} />
 
       {/* DPE & Diagnostic preview */}
       <Card className="p-5">

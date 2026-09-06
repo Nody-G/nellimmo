@@ -276,6 +276,71 @@ export const MANDATE_ALUR_FOLDERS = [
 ] as const;
 
 /**
+ * Génère le script .bat exécutable sous Windows / Google Drive pour créer en 1 clic
+ * les 6 dossiers officiels de la loi ALUR pour ce mandat.
+ */
+export function generateAlurBatchScript(mandateRef: string, propertyTitle: string): string {
+  const safeTitle = propertyTitle.replace(/["\r\n]/g, '').trim();
+  const folderName = `Nell'Immo — Mandat ${mandateRef} (${safeTitle})`;
+  return `@echo off
+chcp 65001 > nul
+title Création automatique des dossiers ALUR — Mandat ${mandateRef}
+echo ===================================================================
+echo     Nell'Immo — Création des 6 dossiers officiels ALUR
+echo     Mandat : ${mandateRef} — ${safeTitle}
+echo ===================================================================
+echo.
+
+set "ROOT=${folderName}"
+mkdir "%ROOT%\\01_Mandat_Signe_Hoguet" 2>nul
+mkdir "%ROOT%\\02_Titre_Propriete_Cadastre" 2>nul
+mkdir "%ROOT%\\03_Diagnostics_DDT_DPE_Audit" 2>nul
+mkdir "%ROOT%\\04_Copropriete_PV_AG_PreEtatDate" 2>nul
+mkdir "%ROOT%\\05_Photos_HD_Visite_Virtuelle" 2>nul
+mkdir "%ROOT%\\06_Offres_Achat_Compromis_Notaire" 2>nul
+
+echo [OK] 6 dossiers ALUR créés avec succès dans :
+echo      "%ROOT%"
+echo.
+echo Vous pouvez maintenant glisser vos diagnostics et pièces dans ces dossiers !
+echo.
+pause
+`;
+}
+
+/**
+ * Génère une checklist prête à être collée dans Google Keep ou WhatsApp avec cases à cocher.
+ */
+export function generateAlurKeepChecklist(mandateRef: string, propertyTitle: string): string {
+  return `Mandat Nell'Immo ${mandateRef} — ${propertyTitle}
+Checklist Pièces Loi ALUR & Notaire :
+
+☐ 01_Mandat_Signe_Hoguet (Mandat de vente exclusif/simple signé + registre Hoguet)
+☐ 02_Titre_Propriete_Cadastre (Titre de propriété notarié + plan cadastral + taxes foncières)
+☐ 03_Diagnostics_DDT_DPE_Audit (DPE en cours de validité + amiante, plomb, élec, gaz, ERP + audit si F/G)
+☐ 04_Copropriete_PV_AG_PreEtatDate (3 derniers PV AG + Pré-état daté + carnet d'entretien + fiche synthétique)
+☐ 05_Photos_HD_Visite_Virtuelle (Photos professionnelles HD + lien visite 3D + plans)
+☐ 06_Offres_Achat_Compromis_Notaire (Offre d'achat contresignée + pièce d'identité parties + coordonnées notaires)`;
+}
+
+/**
+ * Déclenche le téléchargement direct du script .bat de création des dossiers ALUR.
+ */
+export function downloadAlurBatchScript(mandateRef: string, propertyTitle: string): void {
+  const content = generateAlurBatchScript(mandateRef, propertyTitle);
+  const blob = new Blob([content], { type: 'application/x-bat;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const safeRef = mandateRef.replace(/[^a-zA-Z0-9_-]/g, '_');
+  a.download = `creer_dossiers_alur_${safeRef}.bat`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+/**
  * Génère le texte d'arborescence Google Drive à copier pour organiser les dossiers du mandat.
  */
 export function generateMandateDriveTreeText(mandateRef: string, propertyTitle: string): string {

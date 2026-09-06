@@ -19,6 +19,20 @@ interface MidpointInfo {
   label: string;
 }
 
+export interface MeasurePointSvg {
+  x: number;
+  y: number;
+  label?: string;
+}
+
+export interface MeasureSegmentSvg {
+  p1: { x: number; y: number };
+  p2: { x: number; y: number };
+  dist: number;
+  midX: number;
+  midY: number;
+}
+
 interface ParcelTileOverlaySvgProps {
   svgPath: string;
   points: PointInfo[];
@@ -28,8 +42,9 @@ interface ParcelTileOverlaySvgProps {
   centerPos?: { x: number; y: number };
   scale?: number;
   layers?: ActiveLayers;
-  measurePoints?: { x: number; y: number }[];
-  measureDistance?: number | null;
+  measurePoints?: MeasurePointSvg[];
+  measureSegments?: MeasureSegmentSvg[];
+  totalMeasureDistance?: number | null;
   solarPosition?: SolarPosition;
   solarSummary?: DaySolarSummary;
   amenityPoints?: { id: string; name: string; category: string; subtypeLabel: string; distanceMeters: number; x: number; y: number }[];
@@ -45,7 +60,8 @@ export function ParcelTileOverlaySvg({
   scale = 1,
   layers = { lines: true, points: true, texts: true },
   measurePoints = [],
-  measureDistance = null,
+  measureSegments = [],
+  totalMeasureDistance = null,
   solarPosition,
   solarSummary,
   amenityPoints = [],
@@ -324,40 +340,72 @@ export function ParcelTileOverlaySvg({
         </g>
       )}
 
-      {/* 7. OUTIL MESURE / TÉLÉMÈTRE */}
+      {/* 7. OUTIL MESURE / TÉLÉMÈTRE MULTI-POINTS */}
       {measurePoints.length > 0 && (
         <g>
+          {/* Segments reliés entre points de mesure consécutifs */}
+          {measureSegments.map((seg, idx) => (
+            <g key={`meas-seg-${idx}`}>
+              <line
+                x1={seg.p1.x}
+                y1={seg.p1.y}
+                x2={seg.p2.x}
+                y2={seg.p2.y}
+                stroke="#E11D48"
+                strokeWidth={3 * invScale}
+                strokeDasharray="6 4"
+              />
+              {/* Badge de cote du segment au milieu */}
+              <g transform={`translate(${seg.midX}, ${seg.midY})`}>
+                <g transform={`scale(${invScale})`}>
+                  <rect
+                    x="-34"
+                    y="-11"
+                    width="68"
+                    height="22"
+                    rx="6"
+                    fill="#E11D48"
+                    stroke="#FFF"
+                    strokeWidth="1.5"
+                    fillOpacity="0.95"
+                  />
+                  <text
+                    y="3.5"
+                    fill="#FFF"
+                    fontSize="9.5"
+                    fontWeight="bold"
+                    textAnchor="middle"
+                    fontFamily="monospace"
+                  >
+                    {seg.dist >= 1000 ? `${(seg.dist / 1000).toFixed(2)} km` : `${seg.dist} m`}
+                  </text>
+                </g>
+              </g>
+            </g>
+          ))}
+
+          {/* Points jalons A, B, C, D... */}
           {measurePoints.map((pt, idx) => (
-            <g key={`meas-${idx}`} transform={`translate(${pt.x}, ${pt.y})`}>
+            <g key={`meas-pt-${idx}`} transform={`translate(${pt.x}, ${pt.y})`}>
               <g transform={`scale(${invScale})`}>
-                <circle r="7" fill="#E11D48" stroke="#FFF" strokeWidth="2" className="animate-pulse" />
-                <text y="4" fill="#FFF" fontSize="9" fontWeight="bold" textAnchor="middle">
-                  {idx === 0 ? 'A' : 'B'}
+                <circle r="9" fill="#E11D48" stroke="#FFF" strokeWidth="2.5" className="animate-pulse" />
+                <text y="3.5" fill="#FFF" fontSize="9" fontWeight="black" textAnchor="middle">
+                  {pt.label || String.fromCharCode(65 + idx)}
                 </text>
               </g>
             </g>
           ))}
 
-          {measurePoints.length === 2 && (
-            <>
-              <line
-                x1={measurePoints[0].x}
-                y1={measurePoints[0].y}
-                x2={measurePoints[1].x}
-                y2={measurePoints[1].y}
-                stroke="#E11D48"
-                strokeWidth={2.5 * invScale}
-                strokeDasharray="6 4"
-              />
-              <g transform={`translate(${(measurePoints[0].x + measurePoints[1].x) / 2}, ${(measurePoints[0].y + measurePoints[1].y) / 2})`}>
-                <g transform={`scale(${invScale})`}>
-                  <rect x="-38" y="-12" width="76" height="24" rx="7" fill="#E11D48" stroke="#FFF" strokeWidth="1.5" />
-                  <text y="4" fill="#FFF" fontSize="10" fontWeight="bold" textAnchor="middle" fontFamily="monospace">
-                    {measureDistance !== null ? `${measureDistance} m` : 'Mesure'}
-                  </text>
-                </g>
+          {/* Badge de distance totale cumulée au dernier point posé */}
+          {measurePoints.length >= 2 && totalMeasureDistance !== null && (
+            <g transform={`translate(${measurePoints[measurePoints.length - 1].x}, ${measurePoints[measurePoints.length - 1].y + 24 * invScale})`}>
+              <g transform={`scale(${invScale})`}>
+                <rect x="-46" y="-11" width="92" height="22" rx="7" fill="#0B132B" stroke="#E11D48" strokeWidth="1.5" fillOpacity="0.95" />
+                <text y="3.5" fill="#FDA4AF" fontSize="9.5" fontWeight="bold" textAnchor="middle" fontFamily="monospace">
+                  Tot. {totalMeasureDistance >= 1000 ? `${(totalMeasureDistance / 1000).toFixed(2)} km` : `${totalMeasureDistance} m`}
+                </text>
               </g>
-            </>
+            </g>
           )}
         </g>
       )}
