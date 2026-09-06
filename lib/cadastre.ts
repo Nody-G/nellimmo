@@ -133,19 +133,19 @@ export function calculateBoundingDimensions(polygon: [number, number][]): {
 } {
   if (!polygon || polygon.length < 2) return { width: 0, depth: 0 };
   let minLon = Infinity;
-  let maxX = -Infinity;
+  let maxLon = -Infinity;
   let minLat = Infinity;
-  let maxY = -Infinity;
+  let maxLat = -Infinity;
   for (const [lon, lat] of polygon) {
     if (lon < minLon) minLon = lon;
-    if (lon > maxX) maxX = lon;
+    if (lon > maxLon) maxLon = lon;
     if (lat < minLat) minLat = lat;
-    if (lat > maxY) maxY = lat;
+    if (lat > maxLat) maxLat = lat;
   }
-  const midLat = (minLat + maxY) / 2;
-  const width = calculateDistanceMeters(minLon, midLat, maxX, midLat);
-  const midLon = (minLon + maxX) / 2;
-  const depth = calculateDistanceMeters(midLon, minLat, midLon, maxY);
+  const midLat = (minLat + maxLat) / 2;
+  const width = Math.abs(calculateDistanceMeters(minLon, midLat, maxLon, midLat));
+  const midLon = (minLon + maxLon) / 2;
+  const depth = Math.abs(calculateDistanceMeters(midLon, minLat, midLon, maxLat));
   return { width: Math.round(width * 10) / 10, depth: Math.round(depth * 10) / 10 };
 }
 

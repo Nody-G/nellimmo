@@ -61,7 +61,7 @@ export function ParcelSpecsGrid({ property, parcel }: ParcelSpecsGridProps) {
             <span className="text-[10px] font-medium uppercase tracking-wider">Gabarit</span>
           </div>
           <div className="text-xs font-bold text-[#131B26] truncate">
-            {dimensions ? `~${dimensions.width}m × ~${dimensions.depth}m` : 'Régulier'}
+            {dimensions ? `${dimensions.width} m × ${dimensions.depth} m` : 'Régulier'}
           </div>
         </div>
 

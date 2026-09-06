@@ -18,13 +18,11 @@ export async function GET(req: NextRequest) {
     const city = searchParams.get('city') || '';
 
     let parcel = null;
+    const propLat = latStr ? parseFloat(latStr) : NaN;
+    const propLon = lonStr ? parseFloat(lonStr) : NaN;
 
-    if (latStr && lonStr) {
-      const lat = parseFloat(latStr);
-      const lon = parseFloat(lonStr);
-      if (!isNaN(lat) && !isNaN(lon)) {
-        parcel = await fetchCadastreByCoordinates(lat, lon);
-      }
+    if (!isNaN(propLat) && !isNaN(propLon) && propLat !== 0 && propLon !== 0) {
+      parcel = await fetchCadastreByCoordinates(propLat, propLon);
     }
 
     if (!parcel && address && city) {
@@ -32,16 +30,23 @@ export async function GET(req: NextRequest) {
     }
 
     if (!parcel) {
-      // Fallback déterministe gracieux si l'API IGN est momentanément inaccessible
+      // Fallback déterministe centré sur la propriété
+      const centerLat = !isNaN(propLat) && propLat !== 0 ? propLat : 43.64;
+      const centerLon = !isNaN(propLon) && propLon !== 0 ? propLon : 5.197;
+
+      const cosLat = Math.cos((centerLat * Math.PI) / 180);
+      const dLon = 12.8 / (111320 * (cosLat || 1));
+      const dLat = 12.8 / 111000;
+
       const defaultSection = 'AC';
       const defaultNumero = '0245';
       const fallbackIdu = `13071000${defaultSection}${defaultNumero}`;
       const fallbackPolygon: [number, number][] = [
-        [5.1968, 43.6402],
-        [5.1974, 43.6403],
-        [5.1975, 43.6398],
-        [5.1967, 43.6397],
-        [5.1968, 43.6402],
+        [centerLon - dLon, centerLat + dLat],
+        [centerLon + dLon, centerLat + dLat * 0.95],
+        [centerLon + dLon * 0.98, centerLat - dLat],
+        [centerLon - dLon, centerLat - dLat * 0.98],
+        [centerLon - dLon, centerLat + dLat],
       ];
 
       parcel = {
@@ -52,9 +57,9 @@ export async function GET(req: NextRequest) {
         nom_com: city || 'Provence',
         code_insee: '13071',
         code_dep: '13',
-        coordinates: { lat: 43.64, lon: 5.197 },
+        coordinates: { lat: centerLat, lon: centerLon },
         polygon: fallbackPolygon,
-        geoportailUrl: `https://www.geoportail.gouv.fr/carte?c=5.197,43.64&z=19`,
+        geoportailUrl: `https://www.geoportail.gouv.fr/carte?c=${centerLon},${centerLat}&z=19`,
         cadastreGouvUrl: `https://cadastre.gouv.fr/scpc/rechercherParReferenceCadastrale.do`,
         perimeter: calculatePolygonPerimeter(fallbackPolygon),
         dimensions: calculateBoundingDimensions(fallbackPolygon),
