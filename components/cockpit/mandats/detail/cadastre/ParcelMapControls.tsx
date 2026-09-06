@@ -71,7 +71,11 @@ export function ParcelMapControls({
     <>
       {/* Top Floating Bar */}
       <div className="absolute top-3 left-3 right-3 z-30 flex flex-wrap items-center justify-between gap-2 pointer-events-none">
-        <div className="pointer-events-auto flex flex-wrap items-center gap-1 bg-[#131B26]/95 backdrop-blur-md p-1 rounded-2xl border border-white/10 shadow-xl">
+        <div
+          onPointerDown={(e) => e.stopPropagation()}
+          data-no-drag
+          className="pointer-events-auto flex flex-wrap items-center gap-1 bg-[#131B26]/95 backdrop-blur-md p-1 rounded-2xl border border-white/10 shadow-xl"
+        >
           {/* Base Map selector */}
           <div className="flex items-center gap-0.5">
             {MODES.map((tab) => {
@@ -192,7 +196,11 @@ export function ParcelMapControls({
         </div>
 
         {/* Action Links & Fullscreen */}
-        <div className="pointer-events-auto flex items-center gap-1.5">
+        <div
+          onPointerDown={(e) => e.stopPropagation()}
+          data-no-drag
+          className="pointer-events-auto flex items-center gap-1.5"
+        >
           <a
             href={streetViewUrl}
             target="_blank"
@@ -241,7 +249,11 @@ export function ParcelMapControls({
       </div>
 
       {/* Bottom Floating Navigation Controls */}
-      <div className="absolute bottom-3 right-3 z-30 flex flex-col gap-1.5">
+      <div
+        onPointerDown={(e) => e.stopPropagation()}
+        data-no-drag
+        className="absolute bottom-3 right-3 z-30 flex flex-col gap-1.5"
+      >
         <button
           type="button"
           onClick={onZoomIn}

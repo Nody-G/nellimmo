@@ -169,6 +169,11 @@ export function InteractiveParcelMap({
   // ROCK-SOLID POINTER EVENTS (Captures all drags even outside container or fast movements)
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     if (e.button !== 0) return;
+    // Don't intercept clicks on buttons, inputs, links, or HUD control elements
+    const target = e.target as HTMLElement | null;
+    if (target && target.closest('button, input, a, select, [data-no-drag]')) {
+      return;
+    }
     e.preventDefault();
     e.currentTarget.setPointerCapture(e.pointerId);
     setIsDragging(true);
@@ -367,7 +372,11 @@ export function InteractiveParcelMap({
 
       {/* Measurement Tool Guide Banner */}
       {isMeasuring && (
-        <div className="absolute top-16 left-1/2 -translate-x-1/2 z-40 bg-amber-500 text-black px-4 py-1.5 rounded-full text-xs font-black shadow-2xl flex items-center gap-2 border-2 border-black/20 animate-in fade-in">
+        <div
+          onPointerDown={(e) => e.stopPropagation()}
+          data-no-drag
+          className="absolute top-16 left-1/2 -translate-x-1/2 z-40 bg-amber-500 text-black px-4 py-1.5 rounded-full text-xs font-black shadow-2xl flex items-center gap-2 border-2 border-black/20 animate-in fade-in"
+        >
           <span>📐 {measurePoints.length === 0 ? 'Cliquez le 1er point' : measurePoints.length === 1 ? 'Cliquez le 2ème point' : `Distance mesurée : ${measureDistance} m`}</span>
           {measurePoints.length > 0 && (
             <button

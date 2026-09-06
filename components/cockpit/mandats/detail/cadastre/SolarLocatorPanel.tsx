@@ -70,7 +70,11 @@ export function SolarLocatorPanel({
   };
 
   return (
-    <div className="absolute top-16 left-3 sm:left-4 z-40 w-[310px] sm:w-[360px] bg-[#0B132B]/95 backdrop-blur-xl border border-white/20 rounded-3xl p-4 shadow-2xl text-white select-none animate-in fade-in duration-200">
+    <div
+      onPointerDown={(e) => e.stopPropagation()}
+      data-no-drag
+      className="absolute top-16 left-3 sm:left-4 z-40 w-[310px] sm:w-[360px] bg-[#0B132B]/95 backdrop-blur-xl border border-white/20 rounded-3xl p-4 shadow-2xl text-white select-none animate-in fade-in duration-200"
+    >
       {/* Header */}
       <div className="flex items-center justify-between pb-2 border-b border-white/10">
         <div className="flex items-center gap-2">
