@@ -38,6 +38,37 @@ export const BuyerSelectionModal: React.FC<BuyerSelectionModalProps> = ({
 
   const [activeTab, setActiveTab] = useState<'whatsapp' | 'print'>('whatsapp');
   const [copiedText, setCopiedText] = useState(false);
+  const [customMessage, setCustomMessage] = useState<string | null>(null);
+  const [isGeneratingAi, setIsGeneratingAi] = useState(false);
+  const [aiSource, setAiSource] = useState<string | null>(null);
+
+  const handleGenerateWithAi = async () => {
+    if (selectedProperties.length === 0 || isGeneratingAi) return;
+    setIsGeneratingAi(true);
+    try {
+      const res = await fetch('/api/ai/copilot', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'buyer_pitch',
+          context: {
+            buyer,
+            property: selectedProperties[0],
+          },
+        }),
+      });
+      const data = await res.json();
+      if (data.success && data.text) {
+        setCustomMessage(data.text);
+        setAiSource(data.source === 'deepseek' ? 'deepseek' : 'local');
+        showToast('Message personnalisé à la plume de Nelly généré !', 'success');
+      }
+    } catch (err) {
+      console.error('Erreur génération pitch acquéreur:', err);
+    } finally {
+      setIsGeneratingAi(false);
+    }
+  };
 
   const toggleProperty = (id: string) => {
     setSelectedPropertyIds((prev) =>
@@ -70,9 +101,11 @@ Bien cordialement,
 Nelly Fernandez — SASU Nell'Immo
 📞 07 55 68 61 09`;
 
+  const effectiveMessage = customMessage || whatsappMessage;
+
   const handleSendWhatsApp = () => {
     const cleanPhone = buyer.phone.replace(/\s+/g, '').replace(/^0/, '33');
-    window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(whatsappMessage)}`, '_blank');
+    window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(effectiveMessage)}`, '_blank');
   };
 
   const handleSendEmail = () => {
@@ -81,12 +114,12 @@ Nelly Fernandez — SASU Nell'Immo
       return;
     }
     const subject = `Sélection de biens exclusifs pour votre projet — Nell'Immo`;
-    const mailBody = whatsappMessage.replace(/[*_#]/g, '');
+    const mailBody = effectiveMessage.replace(/[*_#]/g, '');
     openGmailCompose({ to: buyer.email, subject, body: mailBody });
   };
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(whatsappMessage);
+    navigator.clipboard.writeText(effectiveMessage);
     setCopiedText(true);
     showToast('Message de sélection copié dans le presse-papier !', 'success');
     setTimeout(() => setCopiedText(false), 2000);
@@ -159,11 +192,14 @@ Nelly Fernandez — SASU Nell'Immo
 
             {activeTab === 'whatsapp' ? (
               <BuyerSelectionWhatsAppTab
-                whatsappMessage={whatsappMessage}
+                whatsappMessage={effectiveMessage}
                 copiedText={copiedText}
                 onCopy={handleCopy}
                 onSendEmail={handleSendEmail}
                 onSendWhatsApp={handleSendWhatsApp}
+                onGenerateAi={handleGenerateWithAi}
+                isGeneratingAi={isGeneratingAi}
+                aiSource={aiSource}
               />
             ) : (
               <BuyerSelectionPrintSheet

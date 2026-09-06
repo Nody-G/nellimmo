@@ -28,6 +28,38 @@ export function VisitDebriefWhatsAppModal({
 }: VisitDebriefWhatsAppModalProps) {
   const [copied, setCopied] = useState(false);
   const [customMessage, setCustomMessage] = useState<string | null>(null);
+  const [isGeneratingAi, setIsGeneratingAi] = useState(false);
+  const [aiSource, setAiSource] = useState<'deepseek' | 'local' | null>(null);
+
+  const handleGenerateWithAi = async () => {
+    if (!property || !buyer || isGeneratingAi) return;
+    setIsGeneratingAi(true);
+    try {
+      const res = await fetch('/api/ai/copilot', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'vendor_debrief',
+          context: {
+            property,
+            buyer,
+            sentiment,
+            strengths,
+            weaknesses,
+          },
+        }),
+      });
+      const data = await res.json();
+      if (data.success && data.text) {
+        setCustomMessage(data.text);
+        setAiSource(data.source === 'deepseek' ? 'deepseek' : 'local');
+      }
+    } catch (e) {
+      console.error('Erreur génération débriefing IA:', e);
+    } finally {
+      setIsGeneratingAi(false);
+    }
+  };
 
   const sentimentLabel =
     sentiment === 'coup_de_coeur'
@@ -118,9 +150,32 @@ Nelly Fernandez — Nell'Immo Pélissanne
         </div>
 
         <div>
-          <label className="text-xs font-bold text-gray-700 block mb-1">
-            Message pré-rédigé à votre plume :
-          </label>
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="text-xs font-bold text-gray-700">
+              Message pré-rédigé à votre plume :
+            </label>
+            <button
+              type="button"
+              onClick={handleGenerateWithAi}
+              disabled={isGeneratingAi}
+              className="inline-flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-rose-50 to-pink-50 hover:from-rose-100 hover:to-pink-100 text-[#E12B7B] border border-pink-200 rounded-lg text-xs font-bold transition shadow-2xs cursor-pointer disabled:opacity-50"
+            >
+              <Sparkles className={`w-3.5 h-3.5 text-[#C59A45] ${isGeneratingAi ? 'animate-spin' : ''}`} />
+              <span>{isGeneratingAi ? 'Rédaction IA en cours...' : '🪄 Rédiger à ma plume (DeepSeek IA)'}</span>
+            </button>
+          </div>
+
+          {aiSource && (
+            <div className="mb-2 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200 flex items-center gap-1.5">
+              <Sparkles className="w-3 h-3 text-[#C59A45]" />
+              <span>
+                {aiSource === 'deepseek'
+                  ? 'Message personnalisé généré par l\'IA DeepSeek (Style Nelly Fernandez).'
+                  : 'Message généré via le moteur certifié local.'}
+              </span>
+            </div>
+          )}
+
           <textarea
             rows={7}
             value={message}

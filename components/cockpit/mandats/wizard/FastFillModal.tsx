@@ -43,11 +43,16 @@ export const FastFillModal: React.FC<FastFillModalProps> = ({
             <Wand2 className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="font-serif font-bold text-lg text-[#131B26]">
-              Remplissage Express Intelligent
-            </h3>
+            <div className="flex items-center gap-2">
+              <h3 className="font-serif font-bold text-lg text-[#131B26]">
+                Remplissage Express Intelligent
+              </h3>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-pink-100 text-[#E12B7B] border border-pink-200">
+                DeepSeek IA
+              </span>
+            </div>
             <p className="text-xs text-gray-500">
-              Collez le texte d&apos;une annonce, un email ou des notes de visite.
+              Collez le texte brut d&apos;une annonce, un email ou des notes : l&apos;IA extrait automatiquement les 15 champs.
             </p>
           </div>
         </div>

@@ -143,23 +143,59 @@ export function useNewMandateForm() {
     const dpeLetter = getDpeLetterFromValue(dpeValue);
     const gesLetter = getGesLetterFromValue(gesValue);
 
-    // Smart Fast-Fill text parser
-    const handleProcessFastFill = (text: string) => {
+    // Smart Fast-Fill text parser connecté à DeepSeek IA avec fallback local
+    const handleProcessFastFill = async (text: string) => {
         if (!text.trim()) return;
-        const patch = parseFastFillText(text);
 
-        if (patch.priceNetSeller !== undefined) setPriceNetSeller(patch.priceNetSeller);
-        if (patch.agencyFeesAmount !== undefined) setAgencyFeesAmount(patch.agencyFeesAmount);
-        if (patch.livingArea !== undefined) setLivingArea(patch.livingArea);
-        if (patch.carrezArea !== undefined) setCarrezArea(patch.carrezArea);
-        if (patch.landArea !== undefined) setLandArea(patch.landArea);
-        if (patch.roomsCount !== undefined) setRoomsCount(patch.roomsCount);
-        if (patch.bedroomsCount !== undefined) setBedroomsCount(patch.bedroomsCount);
-        if (patch.city !== undefined) setCity(patch.city);
-        if (patch.postalCode !== undefined) setPostalCode(patch.postalCode);
-        if (patch.propertyType !== undefined) setPropertyType(patch.propertyType);
-        if (patch.description !== undefined) setDescription(patch.description);
-        if (patch.title !== undefined) setTitle(patch.title);
+        const applyLocalPatch = () => {
+            const patch = parseFastFillText(text);
+            if (patch.priceNetSeller !== undefined) setPriceNetSeller(patch.priceNetSeller);
+            if (patch.agencyFeesAmount !== undefined) setAgencyFeesAmount(patch.agencyFeesAmount);
+            if (patch.livingArea !== undefined) setLivingArea(patch.livingArea);
+            if (patch.carrezArea !== undefined) setCarrezArea(patch.carrezArea);
+            if (patch.landArea !== undefined) setLandArea(patch.landArea);
+            if (patch.roomsCount !== undefined) setRoomsCount(patch.roomsCount);
+            if (patch.bedroomsCount !== undefined) setBedroomsCount(patch.bedroomsCount);
+            if (patch.city !== undefined) setCity(patch.city);
+            if (patch.postalCode !== undefined) setPostalCode(patch.postalCode);
+            if (patch.propertyType !== undefined) setPropertyType(patch.propertyType);
+            if (patch.description !== undefined) setDescription(patch.description);
+            if (patch.title !== undefined) setTitle(patch.title);
+        };
+
+        try {
+            const res = await fetch('/api/ai/copilot', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'smart_form_parse',
+                    context: { rawText: text }
+                })
+            });
+            const resData = await res.json();
+            if (resData.success && resData.data) {
+                const ai = resData.data;
+                if (ai.propertyType) setPropertyType(ai.propertyType as PropertyType);
+                if (ai.city) setCity(ai.city);
+                if (ai.postalCode) setPostalCode(ai.postalCode);
+                if (ai.livingArea) setLivingArea(Number(ai.livingArea));
+                if (ai.landArea) setLandArea(Number(ai.landArea));
+                if (ai.roomsCount) setRoomsCount(Number(ai.roomsCount));
+                if (ai.bedroomsCount) setBedroomsCount(Number(ai.bedroomsCount));
+                if (ai.priceNetSeller) setPriceNetSeller(Number(ai.priceNetSeller));
+                else if (ai.priceFai) setPriceNetSeller(Math.round(Number(ai.priceFai) / 1.04));
+                if (ai.title) setTitle(ai.title);
+                if (ai.summary || resData.text) setDescription(ai.summary || resData.text);
+                if (ai.dpeValue) setDpeValue(Number(ai.dpeValue));
+                if (ai.features && Array.isArray(ai.features)) {
+                    setFeaturesInput(ai.features.join(', '));
+                }
+            } else {
+                applyLocalPatch();
+            }
+        } catch {
+            applyLocalPatch();
+        }
 
         setAutoFillSuccess(true);
         setTimeout(() => {
@@ -168,11 +204,11 @@ export function useNewMandateForm() {
         }, 800);
     };
 
-    // AI Copywriting Generator
-    const handleGenerateAiDescription = (mode: AiDescriptionMode) => {
+    // AI Copywriting Generator connecté à DeepSeek (Plume de Nelly)
+    const handleGenerateAiDescription = async (mode: AiDescriptionMode) => {
         setIsAiGenerating(true);
 
-        setTimeout(() => {
+        const generateFallback = () => {
             const generated = generateAiDescription(mode, {
                 propertyType,
                 livingArea,
@@ -192,10 +228,45 @@ export function useNewMandateForm() {
                 feesPaidBy,
                 nextMandateNumber
             });
-
             setDescription(generated);
+        };
+
+        try {
+            const res = await fetch('/api/ai/generate-copy', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    property: {
+                        property_type: propertyType,
+                        living_area: livingArea,
+                        city,
+                        postal_code: postalCode,
+                        rooms_count: roomsCount,
+                        bedrooms_count: bedroomsCount,
+                        bathrooms_count: bathroomsCount,
+                        land_area: landArea,
+                        features: featuresInput.split(',').map((s) => s.trim()).filter(Boolean),
+                        dpe_letter: dpeLetter,
+                        dpe_value: dpeValue,
+                        ges_letter: gesLetter,
+                        ges_value: gesValue,
+                        price_fai: financials.priceFai,
+                        mandate_number: nextMandateNumber
+                    },
+                    style: 'signature_nelly'
+                })
+            });
+            const data = await res.json();
+            if (data.success && data.text) {
+                setDescription(data.text);
+            } else {
+                generateFallback();
+            }
+        } catch {
+            generateFallback();
+        } finally {
             setIsAiGenerating(false);
-        }, 500);
+        }
     };
 
     // Image helpers

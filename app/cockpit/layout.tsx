@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { CockpitSidebar } from '@/components/cockpit/CockpitSidebar';
 import { CommandPalette } from '@/components/cockpit/CommandPalette';
@@ -17,11 +17,25 @@ import { Menu, X, PlusCircle, LogOut, Smartphone, Calculator } from 'lucide-reac
 import { LocalMobileSyncModal } from '@/components/cockpit/sync/LocalMobileSyncModal';
 import { LocalDataHealthPill } from '@/components/cockpit/LocalDataHealthPill';
 import { ThemeSwitcherButton } from '@/components/cockpit/theme/ThemeSwitcherButton';
+import { CopilotDrawer, CopilotFloatingTrigger } from '@/components/cockpit/copilot';
 
 export default function CockpitLayout({ children }: { children: React.ReactNode }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileSyncOpen, setMobileSyncOpen] = useState(false);
+  const [copilotOpen, setCopilotOpen] = useState(false);
   const router = useRouter();
+
+  // Raccourci clavier universel Ctrl+J ou Cmd+J pour le Copilote
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'j') {
+        e.preventDefault();
+        setCopilotOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -166,6 +180,16 @@ export default function CockpitLayout({ children }: { children: React.ReactNode 
           <LocalMobileSyncModal
             isOpen={mobileSyncOpen}
             onClose={() => setMobileSyncOpen(false)}
+          />
+
+          {/* Copilote IA Omniprésent Nell'Immo */}
+          <CopilotFloatingTrigger
+            isOpen={copilotOpen}
+            onOpen={() => setCopilotOpen(true)}
+          />
+          <CopilotDrawer
+            isOpen={copilotOpen}
+            onClose={() => setCopilotOpen(false)}
           />
         </div>
       </AuthGate>
