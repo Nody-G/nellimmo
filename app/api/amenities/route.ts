@@ -48,7 +48,14 @@ export async function GET(req: NextRequest) {
       centerLon = 5.353;
     }
 
-    const cacheKey = `${centerLat.toFixed(3)}_${centerLon.toFixed(3)}`;
+    // Adresse précise du bien pour forcer le départ des itinéraires Google Maps depuis le bien
+    const street = address.trim();
+    const cityAndCode = [postalCode.trim(), city.trim()].filter(Boolean).join(' ');
+    const originAddress = street 
+      ? [street, cityAndCode].filter(Boolean).join(', ')
+      : (cityAndCode ? `${cityAndCode}, France` : undefined);
+
+    const cacheKey = `v2_${centerLat.toFixed(4)}_${centerLon.toFixed(4)}_${originAddress || ''}`;
     const now = Date.now();
     const cached = amenitiesCache.get(cacheKey);
     if (cached && now - cached.timestamp < CACHE_TTL_MS) {
@@ -114,7 +121,7 @@ export async function GET(req: NextRequest) {
             walkingMinutes,
             drivingMinutes,
             address: tags['addr:street'] ? `${tags['addr:housenumber'] || ''} ${tags['addr:street']}, ${city}` : `${Math.round(distanceMeters)}m du bien • ${city}`,
-            googleMapsDirectionsUrl: getDirectionsUrl(elLat, elLon, name),
+            googleMapsDirectionsUrl: getDirectionsUrl(centerLat, centerLon, elLat, elLon, name, originAddress),
             badge: tags.operator || tags.brand || (tags.public ? 'Public' : undefined),
           });
         }
@@ -125,7 +132,7 @@ export async function GET(req: NextRequest) {
 
     // Si OSM n'a retourné que très peu de données (zone rurale ou timeout), fusionner avec le catalogue local garanti
     if (items.length < 8) {
-      const fallbackItems = generateDeterministicAmenities(centerLat, centerLon, city);
+      const fallbackItems = generateDeterministicAmenities(centerLat, centerLon, city, originAddress);
       // Éviter les doublons
       const existingSubtypes = new Set(items.map((i) => i.subtype));
       for (const fb of fallbackItems) {

@@ -421,13 +421,17 @@ export function NeighborhoodAmenitiesMap({
             </div>
 
             <a
-              href={selectedItem.googleMapsDirectionsUrl}
+              href={
+                selectedItem.googleMapsDirectionsUrl ||
+                `https://www.google.com/maps/dir/?api=1&origin=${centerLat},${centerLon}&destination=${selectedItem.lat},${selectedItem.lon}&travelmode=${selectedItem.distanceMeters <= 1200 ? 'walking' : 'driving'}`
+              }
               target="_blank"
               rel="noreferrer"
-              className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold transition shadow-md cursor-pointer"
+              title="Itinéraire Google Maps au départ du bien"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold transition shadow-md cursor-pointer"
             >
               <Navigation className="w-3 h-3" />
-              <span>Itinéraire</span>
+              <span>Itinéraire depuis le bien</span>
               <ExternalLink className="w-2.5 h-2.5 opacity-70" />
             </a>
           </div>

@@ -610,14 +610,18 @@ export function NeighborhoodAmenitiesAssistant({ property }: NeighborhoodAmeniti
                       </span>
 
                       <a
-                        href={item.googleMapsDirectionsUrl}
+                        href={
+                          item.googleMapsDirectionsUrl ||
+                          `https://www.google.com/maps/dir/?api=1&origin=${summary.center.lat},${summary.center.lon}&destination=${item.lat},${item.lon}&travelmode=${item.distanceMeters <= 1200 ? 'walking' : 'driving'}`
+                        }
                         target="_blank"
                         rel="noreferrer"
                         onClick={(e) => e.stopPropagation()}
+                        title="Itinéraire Google Maps au départ de l'adresse du bien"
                         className="flex items-center gap-1 px-3 py-1 rounded-xl bg-[#131B26] hover:bg-gray-800 text-white text-[11px] font-bold transition shadow-xs cursor-pointer"
                       >
                         <Navigation className="w-3 h-3 text-teal-400" />
-                        <span>Itinéraire GPS</span>
+                        <span>Itinéraire depuis le bien</span>
                         <ExternalLink className="w-2.5 h-2.5 opacity-70" />
                       </a>
                     </div>

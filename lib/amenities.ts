@@ -216,10 +216,27 @@ export function classifyOsmElement(tags: Record<string, string> = {}): {
 }
 
 /**
- * Construit l'URL d'itinéraire Google Maps
+ * Construit l'URL d'itinéraire Google Maps avec départ forcé depuis l'adresse ou les coordonnées du bien.
+ * Évite le comportement par défaut de Google Maps qui démarre depuis la position actuelle de l'utilisateur.
  */
-export function getDirectionsUrl(destLat: number, destLon: number, destName: string): string {
-  return `https://www.google.com/maps/dir/?api=1&destination=${destLat},${destLon}&destination_place_id=${encodeURIComponent(destName)}`;
+export function getDirectionsUrl(
+  originLat: number,
+  originLon: number,
+  destLat: number,
+  destLon: number,
+  destName?: string,
+  originAddress?: string
+): string {
+  // Point de départ : adresse textuelle complète du bien si disponible, sinon coordonnées GPS du bien
+  const originParam = originAddress && originAddress.trim().length > 0
+    ? encodeURIComponent(originAddress.trim())
+    : `${originLat},${originLon}`;
+
+  const destParam = `${destLat},${destLon}`;
+  const distance = calculateDistanceMeters(originLon, originLat, destLon, destLat);
+  const travelMode = distance <= 1200 ? 'walking' : 'driving';
+
+  return `https://www.google.com/maps/dir/?api=1&origin=${originParam}&destination=${destParam}&travelmode=${travelMode}`;
 }
 
 /**
@@ -240,7 +257,12 @@ export function getDrivingMinutes(distanceMeters: number): number {
  * Construit un ensemble riche de commodités de secours (fallback) pour Provence / France
  * déterministe par rapport aux coordonnées de la propriété.
  */
-export function generateDeterministicAmenities(centerLat: number, centerLon: number, city: string = 'Provence'): AmenityItem[] {
+export function generateDeterministicAmenities(
+  centerLat: number,
+  centerLon: number,
+  city: string = 'Provence',
+  originAddress?: string
+): AmenityItem[] {
   const cityName = city || 'Provence';
 
   const mockTemplates: {
@@ -297,7 +319,7 @@ export function generateDeterministicAmenities(centerLat: number, centerLon: num
       walkingMinutes,
       drivingMinutes,
       address: `${Math.round(distanceMeters)}m du centre • ${cityName}`,
-      googleMapsDirectionsUrl: getDirectionsUrl(lat, lon, tpl.name),
+      googleMapsDirectionsUrl: getDirectionsUrl(centerLat, centerLon, lat, lon, tpl.name, originAddress),
       badge: tpl.badge,
     };
   });
