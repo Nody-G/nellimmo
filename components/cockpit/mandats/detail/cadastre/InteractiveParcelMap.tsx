@@ -16,7 +16,7 @@ export function InteractiveParcelMap({
   onOpenInspector,
   height = 340,
 }: InteractiveParcelMapProps) {
-  const [mode, setMode] = useState<MapMode>('satellite');
+  const [mode, setMode] = useState<MapMode>('arpenteur');
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
@@ -49,28 +49,35 @@ export function InteractiveParcelMap({
 
   const svgPath = polygonPts.length >= 3 ? `M ${polygonPts.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' L ')} Z` : '';
 
+  // Auto-fit calculation so parcel is prominently sized (approx 62% of viewport height)
+  const minX = polygonPts.length ? Math.min(...polygonPts.map((p) => p.x)) : 300;
+  const maxX = polygonPts.length ? Math.max(...polygonPts.map((p) => p.x)) : 380;
+  const minY = polygonPts.length ? Math.min(...polygonPts.map((p) => p.y)) : 220;
+  const maxY = polygonPts.length ? Math.max(...polygonPts.map((p) => p.y)) : 300;
+  const spanX = Math.max(maxX - minX, 25);
+  const spanY = Math.max(maxY - minY, 25);
+
+  const targetPx = Math.max(130, Math.min(height * 0.62, 260));
+  const autoScale = Math.min(5.0, Math.max(1.2, targetPx / Math.max(spanX, spanY)));
+  const currentScale = autoScale * zoom;
+
   const midpoints = polygonPts.map((p1, i) => {
     const p2 = polygonPts[(i + 1) % polygonPts.length];
     const dist = calculateDistanceMeters(p1.lon, p1.lat, p2.lon, p2.lat);
     return { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2, label: `${dist} m` };
   });
 
-  const handleMouseDown = (e: React.MouseEvent) => {
+  const handleStart = (clientX: number, clientY: number) => {
     setIsDragging(true);
-    dragStartRef.current = { x: e.clientX, y: e.clientY, panX: pan.x, panY: pan.y };
+    dragStartRef.current = { x: clientX, y: clientY, panX: pan.x, panY: pan.y };
   };
 
-  const handleMouseMove = (e: React.MouseEvent) => {
+  const handleMove = (clientX: number, clientY: number) => {
     if (!isDragging) return;
     setPan({
-      x: dragStartRef.current.panX + (e.clientX - dragStartRef.current.x),
-      y: dragStartRef.current.panY + (e.clientY - dragStartRef.current.y),
+      x: dragStartRef.current.panX + (clientX - dragStartRef.current.x),
+      y: dragStartRef.current.panY + (clientY - dragStartRef.current.y),
     });
-  };
-
-  const handleWheel = (e: React.WheelEvent) => {
-    e.preventDefault();
-    setZoom((cur) => Math.max(0.6, Math.min(3.5, cur - e.deltaY * 0.0015)));
   };
 
   const streetViewUrl = `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${centerLat},${centerLon}`;
@@ -79,20 +86,23 @@ export function InteractiveParcelMap({
   return (
     <div
       style={{ height: `${height}px` }}
-      className="relative w-full rounded-2xl overflow-hidden border border-[#F3E8EE] bg-[#0A1017] select-none cursor-grab active:cursor-grabbing"
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
+      className="relative w-full rounded-2xl overflow-hidden border border-[#E2E8F0] dark:border-[#2A374A] bg-[#0B132B] select-none cursor-grab active:cursor-grabbing shadow-inner"
+      onMouseDown={(e) => handleStart(e.clientX, e.clientY)}
+      onMouseMove={(e) => handleMove(e.clientX, e.clientY)}
       onMouseUp={() => setIsDragging(false)}
       onMouseLeave={() => setIsDragging(false)}
-      onWheel={handleWheel}
+      onTouchStart={(e) => e.touches[0] && handleStart(e.touches[0].clientX, e.touches[0].clientY)}
+      onTouchMove={(e) => e.touches[0] && handleMove(e.touches[0].clientX, e.touches[0].clientY)}
+      onTouchEnd={() => setIsDragging(false)}
+      onWheel={(e) => { e.preventDefault(); setZoom((cur) => Math.max(0.5, Math.min(4.0, cur - e.deltaY * 0.0015))); }}
     >
       <ParcelMapControls
         mode={mode}
         onSelectMode={setMode}
         streetViewUrl={streetViewUrl}
         onOpenInspector={onOpenInspector}
-        onZoomIn={() => setZoom((zVal) => Math.min(3.5, zVal + 0.3))}
-        onZoomOut={() => setZoom((zVal) => Math.max(0.6, zVal - 0.3))}
+        onZoomIn={() => setZoom((zVal) => Math.min(4.0, zVal + 0.35))}
+        onZoomOut={() => setZoom((zVal) => Math.max(0.5, zVal - 0.35))}
         onReset={() => { setPan({ x: 0, y: 0 }); setZoom(1); }}
       />
 
@@ -102,13 +112,21 @@ export function InteractiveParcelMap({
         <div
           className="absolute inset-0 flex items-center justify-center pointer-events-none"
           style={{
-            transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+            transform: `translate(${pan.x}px, ${pan.y}px) scale(${currentScale})`,
             transformOrigin: 'center center',
             transition: isDragging ? 'none' : 'transform 0.15s ease-out',
           }}
         >
           <div className="relative w-[768px] h-[768px] shrink-0" style={{ left: `${384 - parcelCenterX}px`, top: `${384 - parcelCenterY}px` }}>
-            {mode !== 'arpenteur' ? (
+            {mode === 'arpenteur' ? (
+              <div
+                className="absolute inset-0 bg-[#0B132B]"
+                style={{
+                  backgroundImage: 'radial-gradient(circle, rgba(20, 184, 166, 0.25) 1.2px, transparent 1.2px)',
+                  backgroundSize: '24px 24px',
+                }}
+              />
+            ) : (
               [-1, 0, 1].map((dy) =>
                 [-1, 0, 1].map((dx) => {
                   const tx = centerTileX + dx;
@@ -116,7 +134,7 @@ export function InteractiveParcelMap({
                   const url =
                     mode === 'satellite'
                       ? `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/18/${ty}/${tx}`
-                      : `https://tile.openstreetmap.org/18/${tx}/${ty}.png`;
+                      : `https://a.basemaps.cartocdn.com/rastertiles/voyager/18/${tx}/${ty}.png`;
                   return (
                     /* eslint-disable-next-line @next/next/no-img-element */
                     <img
@@ -130,14 +148,6 @@ export function InteractiveParcelMap({
                   );
                 })
               )
-            ) : (
-              <div
-                className="absolute inset-0 bg-[#0c1622] opacity-90"
-                style={{
-                  backgroundImage: 'radial-gradient(circle, #0D9488 1.2px, transparent 1.2px)',
-                  backgroundSize: '24px 24px',
-                }}
-              />
             )}
 
             <ParcelTileOverlaySvg
@@ -145,13 +155,19 @@ export function InteractiveParcelMap({
               points={polygonPts}
               midpoints={midpoints}
               isSatellite={mode === 'satellite'}
+              surfaceText={`${parcel.contenance} m²`}
+              centerPos={{ x: parcelCenterX, y: parcelCenterY }}
             />
           </div>
         </div>
       )}
 
-      <div className="absolute bottom-3 left-3 z-30 bg-black/80 backdrop-blur-md px-2.5 py-1 rounded-lg border border-white/10 text-[10px] text-gray-300 font-mono pointer-events-none">
-        Parcelle {parcel.section} N°{parcel.numero} • {parcel.contenance} m² • Zoom {zoom.toFixed(1)}x
+      {/* Cadastral live badge */}
+      <div className="absolute bottom-3 left-3 z-30 bg-[#0B132B]/90 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10 text-[11px] text-gray-200 font-mono pointer-events-none flex items-center gap-2 shadow-lg">
+        <span className="w-2 h-2 rounded-full bg-teal-400 animate-pulse" />
+        <span>Section <strong>{parcel.section}</strong> N°<strong>{parcel.numero}</strong></span>
+        <span className="text-teal-400 font-bold">• {parcel.contenance} m²</span>
+        <span className="text-gray-400 text-[10px]">({(currentScale).toFixed(1)}x)</span>
       </div>
     </div>
   );

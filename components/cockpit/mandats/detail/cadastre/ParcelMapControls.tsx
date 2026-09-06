@@ -16,9 +16,9 @@ interface ParcelMapControlsProps {
 }
 
 const MODES = [
+  { id: 'arpenteur' as const, label: 'Plan Cadastre', icon: Ruler },
   { id: 'satellite' as const, label: 'Satellite HD', icon: Satellite },
   { id: 'plan' as const, label: 'Plan & Rues', icon: Map },
-  { id: 'arpenteur' as const, label: 'Arpenteur', icon: Ruler },
   { id: 'ign' as const, label: 'IGN Live', icon: Globe },
 ];
 

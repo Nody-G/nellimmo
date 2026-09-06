@@ -21,6 +21,8 @@ interface ParcelTileOverlaySvgProps {
   points: PointInfo[];
   midpoints: MidpointInfo[];
   isSatellite: boolean;
+  surfaceText?: string;
+  centerPos?: { x: number; y: number };
 }
 
 export function ParcelTileOverlaySvg({
@@ -28,6 +30,8 @@ export function ParcelTileOverlaySvg({
   points,
   midpoints,
   isSatellite,
+  surfaceText,
+  centerPos,
 }: ParcelTileOverlaySvgProps) {
   const [hoveredPoint, setHoveredPoint] = useState<number | null>(null);
 
@@ -39,11 +43,39 @@ export function ParcelTileOverlaySvg({
       <path
         d={svgPath}
         fill="#0D9488"
-        fillOpacity={isSatellite ? 0.32 : 0.22}
+        fillOpacity={isSatellite ? 0.35 : 0.25}
         stroke="#14B8A6"
         strokeWidth="3.5"
         strokeLinejoin="round"
       />
+
+      {/* Badge central de surface */}
+      {surfaceText && centerPos && (
+        <g>
+          <rect
+            x={centerPos.x - 42}
+            y={centerPos.y - 12}
+            width="84"
+            height="24"
+            rx="8"
+            fill="#0B132B"
+            stroke="#14B8A6"
+            strokeWidth="1.5"
+            fillOpacity="0.92"
+          />
+          <text
+            x={centerPos.x}
+            y={centerPos.y + 4}
+            fill="#5EEAD4"
+            fontSize="10"
+            fontWeight="bold"
+            textAnchor="middle"
+            fontFamily="monospace"
+          >
+            {surfaceText}
+          </text>
+        </g>
+      )}
 
       {/* Cotes métriques le long de chaque bord */}
       {midpoints.map((mid, i) => (
