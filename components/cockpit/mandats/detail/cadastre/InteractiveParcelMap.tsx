@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Compass } from 'lucide-react';
+import { Compass, FileText } from 'lucide-react';
 import { CadastreParcel, calculateDistanceMeters, getGeoportailEmbedUrl } from '@/lib/cadastre';
 import { getDaySolarSummary, getSolarPosition } from '@/lib/solar';
 import { AmenityItem, CATEGORY_CONFIG } from '@/lib/amenities';
@@ -20,6 +20,8 @@ interface InteractiveParcelMapProps {
   initialLayers?: Partial<ActiveLayers>;
   showAmenitiesLayer?: boolean;
   onToggleAmenitiesLayer?: (show: boolean) => void;
+  /** Rappel déclenché par le bouton « Générer une fiche » (plein écran). */
+  onGenerateSheet?: () => void;
 }
 
 export function InteractiveParcelMap({
@@ -32,6 +34,7 @@ export function InteractiveParcelMap({
   initialLayers,
   showAmenitiesLayer,
   onToggleAmenitiesLayer,
+  onGenerateSheet,
 }: InteractiveParcelMapProps) {
   const [mode, setMode] = useState<MapMode>('arpenteur');
   const [zoom, setZoom] = useState(1);
@@ -266,7 +269,7 @@ export function InteractiveParcelMap({
           setAmenitiesList(d.data.amenities);
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   }, [amenities, layers.amenities, amenitiesList.length, centerLat, centerLon, parcel.nom_com]);
 
   // Listen to fullscreen changes
@@ -306,7 +309,7 @@ export function InteractiveParcelMap({
     setIsDragging(false);
     try {
       e.currentTarget.releasePointerCapture(e.pointerId);
-    } catch {}
+    } catch { }
 
     // Measuring click
     if (isMeasuring && !dragStartRef.current.moved && containerRef.current) {
@@ -329,9 +332,9 @@ export function InteractiveParcelMap({
   const toggleFullscreen = () => {
     if (!containerRef.current) return;
     if (!document.fullscreenElement) {
-      containerRef.current.requestFullscreen().catch(() => {});
+      containerRef.current.requestFullscreen().catch(() => { });
     } else {
-      document.exitFullscreen().catch(() => {});
+      document.exitFullscreen().catch(() => { });
     }
   };
 
@@ -353,9 +356,8 @@ export function InteractiveParcelMap({
     <div
       ref={containerRef}
       style={{ height: typeof height === 'number' ? `${height}px` : height }}
-      className={`relative w-full rounded-3xl overflow-hidden border border-[#E2E8F0] dark:border-[#2A374A] bg-[#070D1B] select-none shadow-2xl touch-none ${
-        isMeasuring ? 'cursor-crosshair' : 'cursor-grab active:cursor-grabbing'
-      }`}
+      className={`relative w-full rounded-3xl overflow-hidden border border-[#E2E8F0] dark:border-[#2A374A] bg-[#070D1B] select-none shadow-2xl touch-none ${isMeasuring ? 'cursor-crosshair' : 'cursor-grab active:cursor-grabbing'
+        }`}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
@@ -504,11 +506,10 @@ export function InteractiveParcelMap({
                 className="absolute -translate-x-1/2 -translate-y-1/2 pointer-events-auto cursor-pointer group transition-transform duration-150"
               >
                 <div
-                  className={`p-1.5 rounded-xl border flex items-center gap-1 shadow-lg transition transform group-hover:scale-110 ${
-                    isSelected
-                      ? 'bg-amber-500 text-black border-white ring-4 ring-amber-500/40 font-black scale-110'
-                      : 'bg-[#131B26]/90 text-white border-white/20 hover:bg-[#1C2738]'
-                  }`}
+                  className={`p-1.5 rounded-xl border flex items-center gap-1 shadow-lg transition transform group-hover:scale-110 ${isSelected
+                    ? 'bg-amber-500 text-black border-white ring-4 ring-amber-500/40 font-black scale-110'
+                    : 'bg-[#131B26]/90 text-white border-white/20 hover:bg-[#1C2738]'
+                    }`}
                   style={{ borderColor: isSelected ? '#FFF' : config.color }}
                 >
                   <span className="text-xs">{config.emoji}</span>
@@ -660,6 +661,35 @@ export function InteractiveParcelMap({
           ({currentScale >= 1 ? `${currentScale.toFixed(1)}x` : `1/${Math.round(1 / currentScale)}x`} • Z{tileZoom})
         </span>
       </div>
+
+      {/* Générer une fiche — bouton proéminent en plein écran */}
+      {isFullscreen && onGenerateSheet && (
+        <div
+          data-overlay-container
+          onPointerEnter={() => {
+            isHoveringOverlayRef.current = true;
+          }}
+          onPointerLeave={() => {
+            isHoveringOverlayRef.current = false;
+          }}
+          data-no-drag
+          className="absolute top-4 left-1/2 -translate-x-1/2 z-40 pointer-events-auto"
+        >
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onGenerateSheet();
+            }}
+            className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-400 hover:to-emerald-500 text-white text-sm font-black shadow-2xl border border-white/20 transition cursor-pointer animate-in fade-in"
+            title="Créer une Fiche Quartier carrée haute résolution (métriques, cadre légal & points d'intérêt) pour le dossier client"
+          >
+            <FileText className="w-4 h-4" />
+            <span>Générer une Fiche Quartier</span>
+            <span className="text-[10px] font-bold bg-black/20 px-1.5 py-0.5 rounded-md">1600×1600</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 }

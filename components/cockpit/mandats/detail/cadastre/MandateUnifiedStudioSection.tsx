@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Compass,
   Save,
@@ -16,6 +16,7 @@ import {
   CheckCircle2,
   Navigation,
   MapPin,
+  FileText,
 } from 'lucide-react';
 import type { Property } from '@/lib/types';
 import { CadastreParcel } from '@/lib/cadastre';
@@ -28,6 +29,9 @@ import {
 } from '@/lib/amenities';
 import { InteractiveParcelMap } from './InteractiveParcelMap';
 import { ParcelSpecsGrid } from './ParcelSpecsGrid';
+import { SheetGeneratorModal } from '../sheets/SheetGeneratorModal';
+import { SheetsLibrary } from '../sheets/SheetsLibrary';
+import type { NeighborhoodSheet } from '@/lib/neighborhood-sheets';
 
 interface MandateUnifiedStudioSectionProps {
   property: Property;
@@ -55,6 +59,12 @@ export function MandateUnifiedStudioSection({
   // Copy states
   const [copiedPitch, setCopiedPitch] = useState(false);
   const [copiedSynthesis, setCopiedSynthesis] = useState(false);
+
+  // Fiches Quartier (générateur + bibliothèque)
+  const [sheetModalOpen, setSheetModalOpen] = useState(false);
+  const [editingSheet, setEditingSheet] = useState<NeighborhoodSheet | null>(null);
+  const [sheetResetKey, setSheetResetKey] = useState(0);
+  const [libraryVersion, setLibraryVersion] = useState(0);
 
   // 1. Charger les données du Cadastre officiel
   useEffect(() => {
@@ -193,6 +203,23 @@ export function MandateUnifiedStudioSection({
     setSelectedAmenityId(item.id);
   };
 
+  // ---- Fiches Quartier : ouverture du générateur ----
+  const openNewSheet = useCallback(() => {
+    setEditingSheet(null);
+    setSheetResetKey((k) => k + 1);
+    setSheetModalOpen(true);
+  }, []);
+
+  const openRegenerateSheet = useCallback((sheet: NeighborhoodSheet) => {
+    setEditingSheet(sheet);
+    setSheetResetKey((k) => k + 1);
+    setSheetModalOpen(true);
+  }, []);
+
+  const handleSheetSaved = useCallback(() => {
+    setLibraryVersion((v) => v + 1);
+  }, []);
+
   const propertyFullAddress = property.address
     ? `${property.address}, ${property.postal_code || ''} ${property.city || ''}`.trim()
     : undefined;
@@ -255,6 +282,17 @@ export function MandateUnifiedStudioSection({
             </div>
           )}
 
+          {/* Fiches Quartier — générateur & bibliothèque */}
+          <button
+            type="button"
+            onClick={openNewSheet}
+            className="px-3.5 py-2.5 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white rounded-xl text-xs font-bold flex items-center gap-2 transition cursor-pointer shadow-md"
+            title="Créer / retrouver les Fiches Quartier carrées haute résolution (PNG/PDF) pour le dossier client"
+          >
+            <FileText className="w-3.5 h-3.5" />
+            <span>Fiches Quartier</span>
+          </button>
+
           {parcel && (
             <button
               type="button"
@@ -296,6 +334,7 @@ export function MandateUnifiedStudioSection({
             propertyAddress={propertyFullAddress}
             showAmenitiesLayer={showAmenitiesOnMap}
             onToggleAmenitiesLayer={setShowAmenitiesOnMap}
+            onGenerateSheet={openNewSheet}
           />
         </div>
       ) : (
@@ -790,6 +829,31 @@ export function MandateUnifiedStudioSection({
           </div>
         </div>
       </div>
+
+      {/* 6. Fiches Quartier — Bibliothèque par bien (générateur carré haute résolution) */}
+      <div className="border-t border-gray-100 pt-5">
+        <SheetsLibrary
+          key={`lib-${property.id}-${libraryVersion}`}
+          property={property}
+          onRegenerate={openRegenerateSheet}
+          onNew={openNewSheet}
+        />
+      </div>
+
+      {/* Générateur de Fiche Quartier (modal) — key force le remontage à chaque ouverture */}
+      <SheetGeneratorModal
+        key={sheetResetKey}
+        isOpen={sheetModalOpen}
+        onClose={() => setSheetModalOpen(false)}
+        property={property}
+        parcel={parcel}
+        summary={summary}
+        amenities={summary?.amenities ?? []}
+        onSaved={handleSheetSaved}
+        initialOptions={editingSheet?.options ?? null}
+        initialTitle={editingSheet?.title}
+        initialSubtitle={editingSheet?.subtitle}
+      />
     </div>
   );
 }
