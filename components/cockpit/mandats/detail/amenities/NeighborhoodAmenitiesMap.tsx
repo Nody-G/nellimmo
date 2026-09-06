@@ -142,23 +142,23 @@ export function NeighborhoodAmenitiesMap({
 
       {/* SVG Canvas for Isochrone circles and Markers */}
       <svg className="absolute inset-0 w-full h-full pointer-events-none">
-        {/* Isochrone Walking Rings around property */}
+        {/* Isochrone Walking Rings around property (Rayons HUD fixes et stables, indépendants du zoom) */}
         <g transform={`translate(${centerPos.x}, ${centerPos.y})`}>
-          {/* 300m = ~4 min à pied */}
-          <circle r={300 * pxPerMeter} fill="#14B8A6" fillOpacity="0.04" stroke="#14B8A6" strokeWidth="1" strokeDasharray="4 3" />
-          <text y={-300 * pxPerMeter - 5} fill="#14B8A6" fontSize="10" fontWeight="bold" textAnchor="middle" opacity="0.8">
-            300m (4 min à pied)
+          {/* 300m = ~4 min à pied (Rayon fixe 110px) */}
+          <circle r={110} fill="#14B8A6" fillOpacity="0.04" stroke="#14B8A6" strokeWidth="1.5" strokeDasharray="4 3" />
+          <text y={-116} fill="#14B8A6" fontSize="10" fontWeight="bold" textAnchor="middle" opacity="0.9">
+            Rayon 300m (4 min à pied)
           </text>
 
-          {/* 600m = ~8 min à pied */}
-          <circle r={600 * pxPerMeter} fill="#3B82F6" fillOpacity="0.025" stroke="#3B82F6" strokeWidth="1" strokeDasharray="4 3" />
-          <text y={-600 * pxPerMeter - 5} fill="#60A5FA" fontSize="10" fontWeight="bold" textAnchor="middle" opacity="0.8">
-            600m (8 min à pied)
+          {/* 500m = ~7 min à pied (Rayon fixe 190px) */}
+          <circle r={190} fill="#3B82F6" fillOpacity="0.03" stroke="#3B82F6" strokeWidth="1.5" strokeDasharray="4 3" />
+          <text y={-196} fill="#60A5FA" fontSize={10} fontWeight="bold" textAnchor="middle" opacity="0.9">
+            Rayon 500m (7 min à pied)
           </text>
 
-          {/* 1000m = ~13 min à pied */}
-          <circle r={1000 * pxPerMeter} fill="none" stroke="#64748B" strokeWidth="1" strokeDasharray="6 4" opacity="0.6" />
-          <text y={-1000 * pxPerMeter - 5} fill="#94A3B8" fontSize="10" fontWeight="bold" textAnchor="middle" opacity="0.8">
+          {/* 1000m = ~13 min à pied (Rayon fixe 270px) */}
+          <circle r={270} fill="none" stroke="#64748B" strokeWidth="1.2" strokeDasharray="6 4" opacity="0.6" />
+          <text y={-276} fill="#94A3B8" fontSize={10} fontWeight="bold" textAnchor="middle" opacity="0.8">
             1.0 km (13 min)
           </text>
 

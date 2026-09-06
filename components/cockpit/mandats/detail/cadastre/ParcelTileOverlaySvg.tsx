@@ -314,13 +314,13 @@ export function ParcelTileOverlaySvg({
         </g>
       )}
 
-      {/* 6. CALQUE RAYONS: Iso-distances 300m et 500m */}
+      {/* 6. CALQUE RAYONS: Iso-distances 300m et 500m (Taille fixe HUD constante, stable au zoom) */}
       {layers.radius && centerPos && (
         <g transform={`translate(${centerPos.x}, ${centerPos.y})`}>
-          <circle r={150 * invScale} fill="none" stroke="#10B981" strokeWidth={1.5 * invScale} strokeDasharray="6 4" opacity="0.75" />
-          <text y={-155 * invScale} fill="#34D399" fontSize={10 * invScale} fontWeight="bold" textAnchor="middle">Rayon ~300m (4 min à pied)</text>
-          <circle r={250 * invScale} fill="none" stroke="#3B82F6" strokeWidth={1.5 * invScale} strokeDasharray="6 4" opacity="0.6" />
-          <text y={-255 * invScale} fill="#60A5FA" fontSize={10 * invScale} fontWeight="bold" textAnchor="middle">Rayon ~500m (7 min à pied)</text>
+          <circle r={140} fill="#10B981" fillOpacity="0.04" stroke="#10B981" strokeWidth={1.5} strokeDasharray="6 4" opacity="0.8" />
+          <text y={-146} fill="#34D399" fontSize={10} fontWeight="bold" textAnchor="middle">Rayon ~300m (4 min à pied)</text>
+          <circle r={230} fill="#3B82F6" fillOpacity="0.03" stroke="#3B82F6" strokeWidth={1.5} strokeDasharray="6 4" opacity="0.7" />
+          <text y={-236} fill="#60A5FA" fontSize={10} fontWeight="bold" textAnchor="middle">Rayon ~500m (7 min à pied)</text>
         </g>
       )}
 
