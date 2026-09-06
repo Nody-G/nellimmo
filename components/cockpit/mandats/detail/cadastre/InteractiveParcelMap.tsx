@@ -39,6 +39,16 @@ export function InteractiveParcelMap({
   const [mode, setMode] = useState<MapMode>('arpenteur');
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
+  const zoomRef = useRef(zoom);
+  const panRef = useRef(pan);
+
+  useEffect(() => {
+    zoomRef.current = zoom;
+  }, [zoom]);
+
+  useEffect(() => {
+    panRef.current = pan;
+  }, [pan]);
   const [isDragging, setIsDragging] = useState(false);
   const [containerSize, setContainerSize] = useState({ width: 1200, height: 700 });
   const [internalLayers, setInternalLayers] = useState<ActiveLayers>({
@@ -72,7 +82,6 @@ export function InteractiveParcelMap({
   const [measurePoints, setMeasurePoints] = useState<{ lon: number; lat: number }[]>([]);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const isHoveringOverlayRef = useRef(false);
   const dragStartRef = useRef({ x: 0, y: 0, panX: 0, panY: 0, moved: false });
 
   const centerLat = parcel.coordinates?.lat || 43.64;
@@ -235,24 +244,46 @@ export function InteractiveParcelMap({
 
   const totalMeasureDistance = measureSegments.reduce((acc, seg) => acc + seg.dist, 0);
 
-  // Native non-passive wheel listener: PREVENTS PAGE SCROLL WHILE ZOOMING (Multiplicative infinite zoom)
+  // Native non-passive wheel listener: PREVENTS PAGE SCROLL & ZOOMS TOWARDS MOUSE CURSOR
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
     const handleNativeWheel = (e: WheelEvent) => {
-      // 1. If mouse pointer is over an overlay sheet or panel, NEVER zoom the map!
-      if (isHoveringOverlayRef.current) {
-        return;
-      }
       const target = e.target as (HTMLElement | SVGElement | null);
       const element = target?.nodeType === 3 ? (target.parentElement as HTMLElement | null) : (target as HTMLElement | null);
-      if (element && element.closest('[data-no-drag], [data-overlay-container], [data-sheet-container], .overflow-y-auto, .overflow-y-scroll, [data-allow-scroll]')) {
+      // Let natural scroll happen only inside actual scrollable sheet modals or form fields
+      if (element && element.closest('[data-sheet-container], input, textarea, select')) {
         return;
       }
+
+      const rect = container.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+
+      // Ignore wheel events outside container bounds
+      if (mouseX < 0 || mouseX > rect.width || mouseY < 0 || mouseY > rect.height) {
+        return;
+      }
+
       e.preventDefault();
       e.stopPropagation();
+
       const factor = Math.exp(-e.deltaY * 0.0018);
-      setZoom((cur) => Math.max(0.0005, Math.min(8.0, cur * factor)));
+      const curZoom = zoomRef.current;
+      const nextZoom = Math.max(0.0005, Math.min(8.0, curZoom * factor));
+      if (Math.abs(nextZoom - curZoom) < 1e-6) return;
+
+      const r = nextZoom / curZoom;
+      const curPan = panRef.current;
+      const nextPan = {
+        x: curPan.x * r + (mouseX - rect.width / 2) * (1 - r),
+        y: curPan.y * r + (mouseY - rect.height / 2) * (1 - r),
+      };
+
+      zoomRef.current = nextZoom;
+      panRef.current = nextPan;
+      setZoom(nextZoom);
+      setPan(nextPan);
     };
     container.addEventListener('wheel', handleNativeWheel, { passive: false });
     return () => container.removeEventListener('wheel', handleNativeWheel);
@@ -377,9 +408,35 @@ export function InteractiveParcelMap({
         }}
         isFullscreen={isFullscreen}
         onToggleFullscreen={toggleFullscreen}
-        onZoomIn={() => setZoom((zVal) => Math.min(8.0, zVal * 1.4))}
-        onZoomOut={() => setZoom((zVal) => Math.max(0.0005, zVal / 1.4))}
-        onReset={() => { setPan({ x: 0, y: 0 }); setZoom(1); setMeasurePoints([]); }}
+        onZoomIn={() => {
+          const curZoom = zoomRef.current;
+          const nextZoom = Math.min(8.0, curZoom * 1.4);
+          const r = nextZoom / curZoom;
+          const curPan = panRef.current;
+          const nextPan = { x: curPan.x * r, y: curPan.y * r };
+          zoomRef.current = nextZoom;
+          panRef.current = nextPan;
+          setZoom(nextZoom);
+          setPan(nextPan);
+        }}
+        onZoomOut={() => {
+          const curZoom = zoomRef.current;
+          const nextZoom = Math.max(0.0005, curZoom / 1.4);
+          const r = nextZoom / curZoom;
+          const curPan = panRef.current;
+          const nextPan = { x: curPan.x * r, y: curPan.y * r };
+          zoomRef.current = nextZoom;
+          panRef.current = nextPan;
+          setZoom(nextZoom);
+          setPan(nextPan);
+        }}
+        onReset={() => {
+          zoomRef.current = 1;
+          panRef.current = { x: 0, y: 0 };
+          setPan({ x: 0, y: 0 });
+          setZoom(1);
+          setMeasurePoints([]);
+        }}
       />
 
       {mode === 'ign' ? (
@@ -532,16 +589,7 @@ export function InteractiveParcelMap({
 
       {/* Google Place Profile Sheet Modal over Map */}
       {selectedAmenity && (
-        <div
-          data-overlay-container
-          onPointerEnter={() => {
-            isHoveringOverlayRef.current = true;
-          }}
-          onPointerLeave={() => {
-            isHoveringOverlayRef.current = false;
-          }}
-          className="z-50 pointer-events-auto"
-        >
+        <div className="z-50 pointer-events-auto">
           <GooglePlaceSheet
             key={selectedAmenity.id}
             item={selectedAmenity}
@@ -553,16 +601,7 @@ export function InteractiveParcelMap({
 
       {/* SolarLocator Pro HUD Overlay */}
       {layers.sun && (
-        <div
-          data-overlay-container
-          onPointerEnter={() => {
-            isHoveringOverlayRef.current = true;
-          }}
-          onPointerLeave={() => {
-            isHoveringOverlayRef.current = false;
-          }}
-          className="z-50 pointer-events-auto"
-        >
+        <div className="z-50 pointer-events-auto">
           <SolarLocatorPanel
             lat={centerLat}
             lon={centerLon}
@@ -665,13 +704,6 @@ export function InteractiveParcelMap({
       {/* Générer une fiche — bouton proéminent en plein écran */}
       {isFullscreen && onGenerateSheet && (
         <div
-          data-overlay-container
-          onPointerEnter={() => {
-            isHoveringOverlayRef.current = true;
-          }}
-          onPointerLeave={() => {
-            isHoveringOverlayRef.current = false;
-          }}
           data-no-drag
           className="absolute top-4 left-1/2 -translate-x-1/2 z-40 pointer-events-auto"
         >

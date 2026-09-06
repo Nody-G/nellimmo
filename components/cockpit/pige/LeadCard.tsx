@@ -12,12 +12,13 @@ import {
 
 interface LeadCardProps {
     lead: ProspectingLead;
+    rankIndex?: number;
     onConvertToMandate: (lead: ProspectingLead) => void;
     onStatusChange?: (leadId: string, newStatus: ProspectingStatus) => void;
 }
 
 /** A single prospecting lead card with DVF gap analyzer and action buttons. */
-export function LeadCard({ lead, onConvertToMandate, onStatusChange }: LeadCardProps) {
+export function LeadCard({ lead, rankIndex, onConvertToMandate, onStatusChange }: LeadCardProps) {
     const { priceM2, benchmarkDvf, diffPct } = computeDvfGap(lead);
     const whatsappMessage = buildWhatsAppMessage(lead);
     const cleanPhoneNumber = cleanPhone(lead.seller_phone);
@@ -28,6 +29,21 @@ export function LeadCard({ lead, onConvertToMandate, onStatusChange }: LeadCardP
                 <div className="flex items-start justify-between gap-2">
                     <div>
                         <div className="flex items-center gap-2 flex-wrap">
+                            {rankIndex !== undefined && (
+                                <span
+                                    className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
+                                        rankIndex === 1
+                                            ? 'bg-amber-100 text-amber-900 border border-amber-300'
+                                            : rankIndex === 2
+                                            ? 'bg-slate-200 text-slate-800'
+                                            : rankIndex === 3
+                                            ? 'bg-amber-50 text-amber-800'
+                                            : 'bg-gray-100 text-gray-600'
+                                    }`}
+                                >
+                                    #{rankIndex}
+                                </span>
+                            )}
                             <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-gray-100 text-gray-700">
                                 {lead.source.replace(/_/g, ' ').toUpperCase()}
                             </span>

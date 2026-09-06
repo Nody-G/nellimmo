@@ -6,6 +6,15 @@ import { useNellimoStore } from '@/lib/store';
 
 export type RoleFilterOption = 'all' | ContactRole;
 
+export type ContactsSortOption =
+  | 'favorites_first'
+  | 'name_asc'
+  | 'name_desc'
+  | 'recent'
+  | 'role'
+  | 'company'
+  | 'city';
+
 export function useContactsState(initialContactId?: string) {
   const { contacts } = useNellimoStore();
 
@@ -13,6 +22,7 @@ export function useContactsState(initialContactId?: string) {
   const [activeRole, setActiveRole] = useState<RoleFilterOption>('all');
   const [onlyFavorites, setOnlyFavorites] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
+  const [sortBy, setSortBy] = useState<ContactsSortOption>('favorites_first');
 
   // Modals state
   const [selectedContactForDetail, setSelectedContactForDetail] = useState<ContactItem | null>(() => {
@@ -38,11 +48,11 @@ export function useContactsState(initialContactId?: string) {
     return counts;
   }, [contacts]);
 
-  // Filtered contacts
+  // Filtered and sorted contacts
   const filteredContacts = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
 
-    return contacts.filter((c) => {
+    const filtered = contacts.filter((c) => {
       // Role filter
       if (activeRole !== 'all' && c.role !== activeRole) {
         return false;
@@ -73,7 +83,46 @@ export function useContactsState(initialContactId?: string) {
         specialty.includes(q)
       );
     });
-  }, [contacts, activeRole, onlyFavorites, searchQuery]);
+
+    return [...filtered].sort((a, b) => {
+      switch (sortBy) {
+        case 'favorites_first': {
+          if (a.is_favorite && !b.is_favorite) return -1;
+          if (!a.is_favorite && b.is_favorite) return 1;
+          return a.last_name.localeCompare(b.last_name, 'fr', { sensitivity: 'base' });
+        }
+        case 'name_asc': {
+          const comp = a.last_name.localeCompare(b.last_name, 'fr', { sensitivity: 'base' });
+          return comp !== 0 ? comp : a.first_name.localeCompare(b.first_name, 'fr', { sensitivity: 'base' });
+        }
+        case 'name_desc': {
+          const comp = b.last_name.localeCompare(a.last_name, 'fr', { sensitivity: 'base' });
+          return comp !== 0 ? comp : b.first_name.localeCompare(a.first_name, 'fr', { sensitivity: 'base' });
+        }
+        case 'recent': {
+          const timeA = new Date(a.updated_at || a.created_at || 0).getTime();
+          const timeB = new Date(b.updated_at || b.created_at || 0).getTime();
+          return timeB - timeA;
+        }
+        case 'role': {
+          const roleComp = a.role.localeCompare(b.role, 'fr');
+          return roleComp !== 0 ? roleComp : a.last_name.localeCompare(b.last_name, 'fr');
+        }
+        case 'company': {
+          const compA = a.company || 'zzz';
+          const compB = b.company || 'zzz';
+          return compA.localeCompare(compB, 'fr', { sensitivity: 'base' });
+        }
+        case 'city': {
+          const cityA = a.city || 'zzz';
+          const cityB = b.city || 'zzz';
+          return cityA.localeCompare(cityB, 'fr', { sensitivity: 'base' });
+        }
+        default:
+          return 0;
+      }
+    });
+  }, [contacts, activeRole, onlyFavorites, searchQuery, sortBy]);
 
   return {
     contacts,
@@ -87,6 +136,8 @@ export function useContactsState(initialContactId?: string) {
     setOnlyFavorites,
     viewMode,
     setViewMode,
+    sortBy,
+    setSortBy,
     selectedContactForDetail,
     setSelectedContactForDetail,
     contactForEmailCompose,

@@ -2,6 +2,7 @@ export * from './AcquereursHeader';
 export * from './AcquereursFilterBar';
 export * from './BuyersGrid';
 export * from './BuyerCard';
+export * from './BuyersTable';
 export * from './NewBuyerModal';
 export * from './BroadcastCampaignModal';
 export * from './BuyerSelectionModal';

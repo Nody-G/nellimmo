@@ -56,11 +56,41 @@ Guide d'exécution : `supabase/MIGRATION_GUIDE.md`. Le site public devra lire vi
 
 ## État de vérification
 
-- `npm run build` : ✅ passe (46 routes, TypeScript propre).
+- `npm run build` : ✅ passe (47 routes, TypeScript propre).
 - `npm run lint` : ✅ **0 erreur, 0 warning** (nettoyage lint terminé).
 - `npx tsc --noEmit` : ✅ 0 erreur.
 - Convention apostrophes dans le texte JSX : utiliser l'entité HTML `'` (apostrophe) ou l'apostrophe typographique `’` (U+2019) — jamais l'apostrophe ASCII nue `'` (règle `react/no-unescaped-entities`).
   - ⚠️ **Piège outil** : `apply_diff` et `write_to_file` **normalisent** `'` ↔ `'` (renvoient « Search and replace content are identical »). Pour échapper une apostrophe, préférer l'apostrophe typographique `’` (U+2019), qui n'est PAS normalisée et est typographiquement correcte en français.
+
+## Chantier livré — Cartographie & Cadastre : Zoom Focalisé à la Molette
+
+> `tsc`, `eslint` (0 erreur, 0 warning) et `build` au vert.
+
+- **Zoom fluide à la molette sur toutes les cartes (`InteractiveParcelMap`, `NeighborhoodAmenitiesMap`)** :
+  - Détection optimisée : suppression du blocage parasite par `data-no-drag` au survol des marqueurs d'intérêt (écoles, commerces, transports, etc.) et bandeaux HUD.
+  - Calcul focalisé standard SIG/Google Maps : zoom centré sur la position exacte du curseur souris (maintien du point géographique sous le curseur).
+  - Écouteur natif non passif avec `preventDefault()` pour empêcher le défilement de la page pendant le zoom.
+  - Synchronisation via `useRef` garantissant fluidité et zéro latence sans violation de règles React 19.
+
+## Chantier livré — Vue Format Grille Moderne & Système de Tri / Classement Avancé (Biens, Contacts, Acquéreurs, Pige)
+
+> `tsc`, `eslint` (0 erreur, 0 warning) et `build` (47 routes) au vert.
+
+- **Biens & Mandats (`/cockpit/mandats`)** :
+  - Vraie Grille Moderne de Cartes Immobilières (`MandatePropertyCard.tsx` & `MandatesModernGrid.tsx`) : photo HD avec zoom au survol, badge de classement visuel interactif (`#1`, `#2`, `#3` dorés), statut ALUR temps réel, écusson exclusivité joaillerie, prix FAI & net vendeur, calcul en direct du prix au m² (`€/m²`), specs m²/pièces/chambres, étiquettes officielles DPE/GES, coordonnées mandant, canaux de diffusion et actions rapides 1-clic (Fiche, Vitrine A4, Partager, Éditer).
+  - Commutateur de vue Grille Moderne (`LayoutGrid`) vs Tableau ALUR (`Table`) dans `MandatesFilterBar.tsx`.
+  - Moteur de tri et classement multi-critères : date de mandat (récents/anciens), prix FAI (croissant/décroissant), surface m², prix au m² (€/m² attractif/haut de gamme), commune (A-Z), n° de mandat.
+- **Carnet de Contacts (`/cockpit/contacts`)** :
+  - Modernisation de `ContactCard.tsx` : badge de classement (#1, #2...), avatar initiales stylisé avec pastille de rôle, raccourcis 1-clic (Appel direct, WhatsApp direct, Email Gmail), prévisualisation des notes et compteur de mandats associés.
+  - Sélecteur de tri complet : Pertinence & Favoris en tête, Nom A-Z/Z-A, Dernière activité / Récents, Rôle, Entreprise, Commune.
+- **Acquéreurs & Rapprochement (`/cockpit/acquereurs`)** :
+  - Commutateur de vue Grille de cartes vs Tableau CRM (`BuyersTable.tsx`).
+  - Cartes acquéreurs modernisées (`BuyerCard.tsx`) avec badges de classement, statut de financement, rapprochement des mandats en direct avec score de matching %.
+  - Moteur de tri : Meilleur matching d'abord, budget max (décroissant/croissant), surface min, date d'inscription, nom, financement validé en priorité.
+- **Pige & Prospection (`/cockpit/pige`)** :
+  - Commutateur de vue Grille de prospection vs Tableau CRM de négociation (`PigeTable.tsx`).
+  - Cartes de pige (`LeadCard.tsx`) avec badges de rang et écart DVF calculé.
+  - Moteur de tri : date de détection, opportunité / écart DVF, prix demandé, surface m², jours en ligne.
 
 ## Chantier livré — Supériorité Hektor & Expérience Vitrine (DVF Live, Relances Proactives, Concierge IA, RGPD)
 

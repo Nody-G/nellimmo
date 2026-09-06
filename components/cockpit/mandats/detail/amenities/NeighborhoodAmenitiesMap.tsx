@@ -32,9 +32,18 @@ export function NeighborhoodAmenitiesMap({
   propertyAddress,
 }: NeighborhoodAmenitiesMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const isHoveringOverlayRef = useRef(false);
   const [zoom, setZoom] = useState(1); // 1 = ~1.5km radius
   const [pan, setPan] = useState({ x: 0, y: 0 });
+  const zoomRef = useRef(zoom);
+  const panRef = useRef(pan);
+
+  useEffect(() => {
+    zoomRef.current = zoom;
+  }, [zoom]);
+
+  useEffect(() => {
+    panRef.current = pan;
+  }, [pan]);
   const [isDragging, setIsDragging] = useState(false);
   const dragStartRef = useRef({ x: 0, y: 0, panX: 0, panY: 0, moved: false });
   const [containerSize, setContainerSize] = useState({ width: 600, height: 560 });
@@ -149,22 +158,44 @@ export function NeighborhoodAmenitiesMap({
     } catch {}
   };
 
-  // Prevent wheel scroll & enable smooth multiplicative zoom with wide dezoom
+  // Prevent wheel scroll & enable smooth focal zoom towards cursor
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
     const onWheel = (e: WheelEvent) => {
-      if (isHoveringOverlayRef.current) {
-        return;
-      }
       const target = e.target as (HTMLElement | SVGElement | null);
       const element = target?.nodeType === 3 ? (target.parentElement as HTMLElement | null) : (target as HTMLElement | null);
-      if (element && element.closest('[data-no-drag], [data-overlay-container], [data-sheet-container], .overflow-y-auto, .overflow-y-scroll, [data-allow-scroll]')) {
+      if (element && element.closest('[data-sheet-container], input, textarea, select')) {
         return; // Let natural scroll happen inside GooglePlaceSheet without zooming the map
       }
+
+      const rect = el.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+
+      if (mouseX < 0 || mouseX > rect.width || mouseY < 0 || mouseY > rect.height) {
+        return;
+      }
+
       e.preventDefault();
+      e.stopPropagation();
+
       const factor = Math.exp(-e.deltaY * 0.0018);
-      setZoom((cur) => Math.max(0.04, Math.min(6.0, cur * factor)));
+      const curZoom = zoomRef.current;
+      const nextZoom = Math.max(0.04, Math.min(6.0, curZoom * factor));
+      if (Math.abs(nextZoom - curZoom) < 1e-6) return;
+
+      const r = nextZoom / curZoom;
+      const curPan = panRef.current;
+      const nextPan = {
+        x: curPan.x * r + (mouseX - rect.width / 2) * (1 - r),
+        y: curPan.y * r + (mouseY - rect.height / 2) * (1 - r),
+      };
+
+      zoomRef.current = nextZoom;
+      panRef.current = nextPan;
+      setZoom(nextZoom);
+      setPan(nextPan);
     };
     el.addEventListener('wheel', onWheel, { passive: false });
     return () => el.removeEventListener('wheel', onWheel);
@@ -372,7 +403,17 @@ export function NeighborhoodAmenitiesMap({
 
           <button
             type="button"
-            onClick={() => setZoom((z) => Math.min(6.0, z * 1.35))}
+            onClick={() => {
+              const curZoom = zoomRef.current;
+              const nextZoom = Math.min(6.0, curZoom * 1.35);
+              const r = nextZoom / curZoom;
+              const curPan = panRef.current;
+              const nextPan = { x: curPan.x * r, y: curPan.y * r };
+              zoomRef.current = nextZoom;
+              panRef.current = nextPan;
+              setZoom(nextZoom);
+              setPan(nextPan);
+            }}
             className="p-2 rounded-xl bg-[#131B26]/90 backdrop-blur-md text-white border border-white/10 hover:bg-teal-600 transition shadow-lg cursor-pointer"
             title="Zoomer (+)"
           >
@@ -380,7 +421,17 @@ export function NeighborhoodAmenitiesMap({
           </button>
           <button
             type="button"
-            onClick={() => setZoom((z) => Math.max(0.04, z / 1.35))}
+            onClick={() => {
+              const curZoom = zoomRef.current;
+              const nextZoom = Math.max(0.04, curZoom / 1.35);
+              const r = nextZoom / curZoom;
+              const curPan = panRef.current;
+              const nextPan = { x: curPan.x * r, y: curPan.y * r };
+              zoomRef.current = nextZoom;
+              panRef.current = nextPan;
+              setZoom(nextZoom);
+              setPan(nextPan);
+            }}
             className="p-2 rounded-xl bg-[#131B26]/90 backdrop-blur-md text-white border border-white/10 hover:bg-teal-600 transition shadow-lg cursor-pointer"
             title="Dézoomer (-)"
           >
@@ -389,6 +440,8 @@ export function NeighborhoodAmenitiesMap({
           <button
             type="button"
             onClick={() => {
+              zoomRef.current = 1;
+              panRef.current = { x: 0, y: 0 };
               setPan({ x: 0, y: 0 });
               setZoom(1);
             }}
@@ -402,16 +455,7 @@ export function NeighborhoodAmenitiesMap({
 
       {/* Fiche Google Maps Intégrée (Google Business Profile) */}
       {selectedItem && (
-        <div
-          data-overlay-container
-          onPointerEnter={() => {
-            isHoveringOverlayRef.current = true;
-          }}
-          onPointerLeave={() => {
-            isHoveringOverlayRef.current = false;
-          }}
-          className="z-50 pointer-events-auto"
-        >
+        <div className="z-50 pointer-events-auto">
           <GooglePlaceSheet
             key={selectedItem.id}
             item={selectedItem}

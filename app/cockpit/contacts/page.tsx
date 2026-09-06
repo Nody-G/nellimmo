@@ -33,6 +33,8 @@ function ContactsPageContent() {
     setOnlyFavorites,
     viewMode,
     setViewMode,
+    sortBy,
+    setSortBy,
     selectedContactForDetail,
     setSelectedContactForDetail,
     contactForEmailCompose,
@@ -75,7 +77,11 @@ function ContactsPageContent() {
         onToggleFavorites={() => setOnlyFavorites(!onlyFavorites)}
         viewMode={viewMode}
         onViewModeChange={setViewMode}
+        sortBy={sortBy}
+        onSortByChange={setSortBy}
         roleCounts={roleCounts}
+        totalCount={contacts.length}
+        filteredCount={filteredContacts.length}
       />
 
       {/* Grid or Table display */}
@@ -86,10 +92,11 @@ function ContactsPageContent() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {filteredContacts.map((contact) => (
+            {filteredContacts.map((contact, idx) => (
               <ContactCard
                 key={contact.id}
                 contact={contact}
+                rankIndex={idx + 1}
                 onOpenDetail={setSelectedContactForDetail}
                 onOpenEmailCompose={setContactForEmailCompose}
                 onToggleFavorite={handleToggleFavorite}

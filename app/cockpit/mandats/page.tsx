@@ -7,7 +7,9 @@ import { formatMandateRef } from '@/lib/hoguet';
 import {
   MandatesListHeader,
   MandatesFilterBar,
-  MandatesCardsGrid,
+  MandatesModernGrid,
+  MandatesTableView,
+  MandatesSortOption,
 } from '@/components/cockpit/mandats/list';
 
 export default function MandatesListPage() {
@@ -16,9 +18,12 @@ export default function MandatesListPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<string>('tous');
   const [selectedType, setSelectedType] = useState<string>('tous');
+  const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
+  const [sortBy, setSortBy] = useState<MandatesSortOption>('recent');
 
-  const filteredProperties = useMemo(() => {
-    return properties.filter((p) => {
+  const filteredAndSortedProperties = useMemo(() => {
+    // 1. Filtering
+    const filtered = properties.filter((p) => {
       const matchSearch =
         p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         p.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -30,7 +35,47 @@ export default function MandatesListPage() {
 
       return matchSearch && matchStatus && matchType;
     });
-  }, [properties, searchQuery, selectedStatus, selectedType]);
+
+    // 2. Sorting & Ranking
+    return [...filtered].sort((a, b) => {
+      switch (sortBy) {
+        case 'recent': {
+          const dateA = new Date(a.mandate_date).getTime() || 0;
+          const dateB = new Date(b.mandate_date).getTime() || 0;
+          return dateB - dateA;
+        }
+        case 'oldest': {
+          const dateA = new Date(a.mandate_date).getTime() || 0;
+          const dateB = new Date(b.mandate_date).getTime() || 0;
+          return dateA - dateB;
+        }
+        case 'price_desc':
+          return b.price_fai - a.price_fai;
+        case 'price_asc':
+          return a.price_fai - b.price_fai;
+        case 'area_desc':
+          return b.living_area - a.living_area;
+        case 'area_asc':
+          return a.living_area - b.living_area;
+        case 'sqm_desc': {
+          const sqmA = a.living_area > 0 ? a.price_fai / a.living_area : 0;
+          const sqmB = b.living_area > 0 ? b.price_fai / b.living_area : 0;
+          return sqmB - sqmA;
+        }
+        case 'sqm_asc': {
+          const sqmA = a.living_area > 0 ? a.price_fai / a.living_area : 0;
+          const sqmB = b.living_area > 0 ? b.price_fai / b.living_area : 0;
+          return sqmA - sqmB;
+        }
+        case 'city_asc':
+          return a.city.localeCompare(b.city, 'fr', { sensitivity: 'base' });
+        case 'ref_desc':
+          return b.mandate_number - a.mandate_number;
+        default:
+          return 0;
+      }
+    });
+  }, [properties, searchQuery, selectedStatus, selectedType, sortBy]);
 
   const handleExportCsv = () => {
     const headers = [
@@ -46,7 +91,7 @@ export default function MandatesListPage() {
       'Date_Debut',
       'Date_Fin',
     ];
-    const rows = filteredProperties.map((p) => [
+    const rows = filteredAndSortedProperties.map((p) => [
       formatMandateRef(p.mandate_number),
       `"${p.title.replace(/"/g, '""')}"`,
       p.property_type,
@@ -75,11 +120,11 @@ export default function MandatesListPage() {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6 animate-fade-in pb-16">
       {/* Top Header */}
       <MandatesListHeader onExportCsv={handleExportCsv} />
 
-      {/* Filter & Search Bar */}
+      {/* Filter & Search Bar with View Mode & Sort Controls */}
       <MandatesFilterBar
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
@@ -87,10 +132,20 @@ export default function MandatesListPage() {
         onStatusChange={setSelectedStatus}
         selectedType={selectedType}
         onTypeChange={setSelectedType}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+        sortBy={sortBy}
+        onSortByChange={setSortBy}
+        totalCount={properties.length}
+        filteredCount={filteredAndSortedProperties.length}
       />
 
-      {/* Main Table */}
-      <MandatesCardsGrid properties={filteredProperties} />
+      {/* Main View Display: Modern Grid or CRM Table */}
+      {viewMode === 'grid' ? (
+        <MandatesModernGrid properties={filteredAndSortedProperties} />
+      ) : (
+        <MandatesTableView properties={filteredAndSortedProperties} />
+      )}
     </div>
   );
 }
