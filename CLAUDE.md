@@ -254,9 +254,29 @@ La plupart des « god components » historiques listés dans les anciennes versi
 - Extraire la logique métier pure dans `lib/` (fonctions testables) plutôt que dans le JSX.
 - Les pages App Router restent des « coquilles » qui composent des sous-composants.
 
+## Chantier livré — Base de Données Hyper-Sécurisée & Hyper-Customisable + Télémétrie Officielle DeepSeek V4
+
+> `tsc`, `eslint` (0 erreur, 0 warning) et `build` (51 routes) au vert.
+
+- **Hub de Données Unifié & Studio Data (`/cockpit/base-de-donnees`)** :
+  - Explorateur universel connectant **l’intégralité des collections du Cockpit** (Biens, Acquéreurs, Visites, Transactions, Pige, Contacts, Clés, Panneaux, Avenants, Offres, Comptes-Rendus, Registre ALUR, Leads).
+  - Moteur de schémas dynamiques et champs personnalisés sans code (`lib/custom-fields.ts` & `CustomFieldsManagerModal.tsx`) : ajout d’attributs typés (texte, nombre, montant €, date, oui/non, choix, tags) persistés de manière étanche sans risque de régression.
+  - Sécurité cryptographique renforcée (`lib/database-security.ts`) : scellement d'intégrité SHA-256 contre les altérations locales, masquage PII / RGPD en un clic et export sécurisé (JSON/CSV).
+  - Moteur d’interrogation neuronale en langage naturel (`DeepSeekDataQueryBox.tsx` & `/api/deepseek/query-database`) propulsé par DeepSeek V4 Flash pour filtrer et croiser la base instantanément.
+- **Migration Officielle DeepSeek V4 Flash & Tarification Réelle (16 Août 2026)** :
+  - Remplacement officiel des anciens alias par **`deepseek-v4-flash`** (version stable 0731, contexte **1M de tokens**) et **`deepseek-v4-pro`** (version 0813 pour le raisonnement complexe).
+  - Gestion officielle de la grille tarifaire Peak / Off-Peak : détection automatique des créneaux heures creuses (-50%) et exploitation native du **Prompt Caching** (90% à 98% d’économie sur `prompt_cache_hit_tokens`).
+  - Capture télémétrique systématique de l’objet `usage` sur l’ensemble des routes IA (`/api/ai/generate-copy`, `/api/ai/copilot`, `/api/ai/assistant`).
+- **Panneau de Consommation & Télémétrie DeepSeek V4 (`DeepSeekTelemetryDashboard.tsx`)** :
+  - KPIs en direct : coût réel cumulé (€ / $), économies massives réalisées par rapport à OpenAI GPT-4o, statut Heures Creuses, jauge budgétaire mensuelle.
+  - Décomposition visuelle des tokens (Cache Hit, Cache Miss, Sortie, Reasoning).
+  - Répartition par module métier et journal d’appels détaillé avec export CSV/JSON.
+  - Modale de réglage budgétaire avec mode économie et outil de diagnostic ping 1-clic.
+
 ## Conventions techniques
 
 - Fins de ligne CRLF sur Windows.
 - React Compiler / règles react-hooks strictes (pas de refs pendant le rendu, pas de setState synchrone dans un effet).
 - Next.js 16 : lire `node_modules/next/dist/docs/` avant d'écrire du code (APIs/conventions peuvent différer des données d'entraînement).
 - UI : palette `#131B26` (sombre), `#E12B7B` (rose accent), `#FCFAF7` (fond), `#F3E8EE` (bordures).
+

@@ -53,18 +53,21 @@ export function CopilotDrawer({ isOpen, onClose }: CopilotDrawerProps) {
     chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, busy]);
 
-  const handleSend = async (customPrompt?: string, actionType: string = 'chat') => {
+  const handleSend = React.useCallback(async (customPrompt?: string, actionType: string = 'chat') => {
     const textToSend = (customPrompt || input).trim();
     if (!textToSend || busy) return;
 
     setError(null);
     setInput('');
 
+    const now = new Date();
+    const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
     const userMsg: ChatMessage = {
-      id: `msg-${Date.now()}-user`,
+      id: `msg-${now.getTime()}-user`,
       role: 'user',
       content: textToSend,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      timestamp: timeString,
     };
 
     setMessages((prev) => [...prev, userMsg]);
@@ -93,7 +96,7 @@ export function CopilotDrawer({ isOpen, onClose }: CopilotDrawerProps) {
       }
 
       const assistantMsg: ChatMessage = {
-        id: `msg-${Date.now()}-ai`,
+        id: `msg-${new Date().getTime()}-ai`,
         role: 'assistant',
         content: data.text || 'Réponse reçue sans texte.',
         source: data.source,
@@ -101,12 +104,12 @@ export function CopilotDrawer({ isOpen, onClose }: CopilotDrawerProps) {
       };
 
       setMessages((prev) => [...prev, assistantMsg]);
-    } catch (err: any) {
-      setError(err?.message || 'Impossible de joindre le copilote IA.');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Impossible de joindre le copilote IA.');
     } finally {
       setBusy(false);
     }
-  };
+  }, [busy, context, input]);
 
   const handleCopy = async (id: string, text: string) => {
     try {

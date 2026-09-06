@@ -69,45 +69,38 @@ ${NELLY_FEW_SHOT_CORPUS}`;
 - Particularités & Notes de Nelly : ${customNotes || 'Aucune note supplémentaire'}
 - Format / Style demandé : ${style} (si réseaux sociaux ou pitch whatsapp, adapte la longueur tout en conservant les coordonnées de Nelly).`;
 
-    // Appel direct à l'API DeepSeek Chat
-    const deepseekRes = await fetch('https://api.deepseek.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${effectiveApiKey}`,
-      },
-      body: JSON.stringify({
-        model: 'deepseek-chat',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt },
-        ],
-        temperature: 0.7,
-        max_tokens: 2048,
-      }),
+    // Appel unifié officiel DeepSeek V4 Flash
+    const { executeDeepSeekCall } = await import('@/lib/deepseek/server');
+    const result = await executeDeepSeekCall({
+      feature: 'redacteur',
+      featureLabel: `Annonce mandat ${property.mandate_number || 'Nouveau'} (${style})`,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt },
+      ],
+      model: 'deepseek-v4-flash',
+      temperature: 0.7,
+      maxTokens: 2048,
     });
 
-    if (!deepseekRes.ok) {
-      const errText = await deepseekRes.text();
-      console.error('DeepSeek API Error:', errText);
-      // Fallback local en cas d'erreur de clé ou quota
+    if (!result.success || !result.content) {
+      console.warn('DeepSeek V4 Flash fallback:', result.error);
       const fallbackText = generateListingCopy(property, style, customNotes);
       return NextResponse.json({
         success: true,
         text: fallbackText,
         source: 'local_template',
-        message: `Erreur API DeepSeek (${deepseekRes.status}). Annonce générée via le moteur de secours.`,
+        log: result.log,
+        message: 'Génération via moteur local de secours suite à indisponibilité réseau.',
       });
     }
 
-    const data = await deepseekRes.json();
-    const generatedContent = data.choices?.[0]?.message?.content || '';
-
     return NextResponse.json({
       success: true,
-      text: generatedContent,
+      text: result.content,
       source: 'deepseek',
-      message: 'Généré avec succès via DeepSeek AI (Style Nelly Fernandez).',
+      log: result.log,
+      message: 'Généré avec succès via DeepSeek V4 Flash (Style signature Nelly Fernandez).',
     });
   } catch (error: unknown) {
     console.error('AI Generation Route Error:', error);

@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ success: true, result });
         }
 
-        // Appel DeepSeek.
+        // Appel officiel DeepSeek V4 Flash
         const systemPrompt = buildAssistantSystemPrompt();
         const userPrompt = JSON.stringify({
             kind: ctx.kind,
@@ -52,38 +52,32 @@ export async function POST(req: NextRequest) {
             message: ctx.message,
         });
 
-        const deepseekRes = await fetch('https://api.deepseek.com/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${effectiveApiKey}`,
-            },
-            body: JSON.stringify({
-                model: 'deepseek-chat',
-                messages: [
-                    { role: 'system', content: systemPrompt },
-                    { role: 'user', content: userPrompt },
-                ],
-                temperature: 0.6,
-                max_tokens: 1200,
-                response_format: { type: 'json_object' },
-            }),
+        const { executeDeepSeekCall } = await import('@/lib/deepseek/server');
+        const dsResult = await executeDeepSeekCall({
+            feature: 'assistant',
+            featureLabel: `Qualification lead (${ctx.kind} - ${ctx.name || 'Anonyme'})`,
+            messages: [
+                { role: 'system', content: systemPrompt },
+                { role: 'user', content: userPrompt },
+            ],
+            model: 'deepseek-v4-flash',
+            temperature: 0.6,
+            maxTokens: 1200,
+            responseFormat: { type: 'json_object' },
         });
 
-        if (!deepseekRes.ok) {
-            const errText = await deepseekRes.text();
-            console.error('DeepSeek Assistant API Error:', errText);
-            // Fallback local en cas d'erreur de clé ou quota.
+        if (!dsResult.success || !dsResult.content) {
+            console.warn('DeepSeek V4 Flash Assistant fallback:', dsResult.error);
             const result = qualifyLeadLocally(ctx);
             return NextResponse.json({
                 success: true,
                 result: { ...result, source: 'local' },
-                message: `Erreur API DeepSeek (${deepseekRes.status}). Qualification via le moteur local.`,
+                log: dsResult.log,
+                message: 'Qualification via le moteur local certifié.',
             });
         }
 
-        const data = await deepseekRes.json();
-        const content = data.choices?.[0]?.message?.content || '';
+        const content = dsResult.content;
 
         // Tenter de parser le JSON retourné par l'IA.
         let parsed: Partial<QualificationResult> = {};
@@ -95,6 +89,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({
                 success: true,
                 result: { ...result, source: 'local' },
+                log: dsResult.log,
                 message: 'Réponse IA non structurée. Qualification via le moteur local.',
             });
         }
@@ -112,7 +107,7 @@ export async function POST(req: NextRequest) {
             source: 'deepseek',
         };
 
-        return NextResponse.json({ success: true, result });
+        return NextResponse.json({ success: true, result, log: dsResult.log });
     } catch (error: unknown) {
         console.error('Assistant Route Error:', error);
         return NextResponse.json(

@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
       const fallbackText = generateLocalCopilotFallback({
         action,
         message: sanitizedUserMessage,
-        context: sanitizedContext as any,
+        context: sanitizedContext as unknown as CopilotPayload['context'],
       });
 
       let parsedData = null;
@@ -108,44 +108,38 @@ Page : ${sanitizedContext.pathname || ''}]
 Demande de Nelly : ${sanitizedUserMessage}`;
     }
 
-    // 4. Appel de l'API DeepSeek Chat
-    const deepseekRes = await fetch('https://api.deepseek.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: 'deepseek-chat',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: promptContent },
-        ],
-        temperature: action === 'smart_form_parse' ? 0.1 : 0.7,
-        max_tokens: 1500,
-      }),
+    // 4. Appel unifié officiel DeepSeek V4 Flash
+    const { executeDeepSeekCall } = await import('@/lib/deepseek/server');
+    const result = await executeDeepSeekCall({
+      feature: 'copilot',
+      featureLabel: `Copilote action ${action}`,
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: promptContent },
+      ],
+      model: 'deepseek-v4-flash',
+      temperature: action === 'smart_form_parse' ? 0.1 : 0.7,
+      maxTokens: 1500,
     });
 
-    if (!deepseekRes.ok) {
-      const errText = await deepseekRes.text();
-      console.error('DeepSeek Copilot API Error:', deepseekRes.status, errText);
+    if (!result.success || !result.content) {
+      console.warn('DeepSeek V4 Flash Copilot fallback:', result.error);
       const fallbackText = generateLocalCopilotFallback({
         action,
         message: sanitizedUserMessage,
-        context: sanitizedContext as any,
+        context: sanitizedContext as unknown as CopilotPayload['context'],
       });
 
       return NextResponse.json({
         success: true,
         text: fallbackText,
         source: 'local_fallback',
-        message: `Erreur API DeepSeek (${deepseekRes.status}). Réponse fournie par le moteur local certifié.`,
+        log: result.log,
+        message: 'Réponse fournie par le moteur local certifié.',
       });
     }
 
-    const data = await deepseekRes.json();
-    const rawAiResponse = data.choices?.[0]?.message?.content || '';
-
+    const rawAiResponse = result.content;
     let structuredData = null;
     if (action === 'smart_form_parse') {
       try {
@@ -161,7 +155,8 @@ Demande de Nelly : ${sanitizedUserMessage}`;
       text: rawAiResponse,
       data: structuredData,
       source: 'deepseek',
-      message: 'Généré avec succès via DeepSeek AI à la plume de Nelly Fernandez.',
+      log: result.log,
+      message: 'Généré avec succès via DeepSeek V4 Flash à la plume de Nelly Fernandez.',
     });
   } catch (error) {
     console.error('Erreur interne copilot route:', error);

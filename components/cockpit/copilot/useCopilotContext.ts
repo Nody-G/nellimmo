@@ -23,8 +23,8 @@ export function useCopilotContext(): CopilotContextData {
     let contextTitle = 'Espace Général Cockpit';
     let contextSubtitle = 'Gestion globale de votre agence';
     let activeProperty: Property | null = null;
-    let activeBuyer: Buyer | null = null;
-    let activeVisit: VisitSheet | null = null;
+    const activeBuyer: Buyer | null = null;
+    const activeVisit: VisitSheet | null = null;
     let suggestedPrompts = [
       {
         label: '✨ Réécrire à ma plume',

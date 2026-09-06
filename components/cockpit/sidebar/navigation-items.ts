@@ -17,6 +17,7 @@ import {
   Calendar,
   BellRing,
   BookUser,
+  Database,
 } from 'lucide-react';
 
 export interface NavItem {
@@ -76,8 +77,9 @@ export function getNavSections(pendingRelancesCount: number): NavSection[] {
       ],
     },
     {
-      title: 'Gestion & Terrain',
+      title: 'Gestion & Données',
       items: [
+        { name: 'Base de Données & Studio Data', href: '/cockpit/base-de-donnees', icon: Database, highlight: true },
         { name: 'Registre DGCCRF Mandats', href: '/cockpit/registre-dgccrf', icon: ShieldCheck },
         { name: 'Clés & Panneaux Terrain', href: '/cockpit/cles-panneaux', icon: KeyRound },
         { name: 'Paramètres & Connexions', href: '/cockpit/parametres', icon: Settings },
@@ -85,3 +87,4 @@ export function getNavSections(pendingRelancesCount: number): NavSection[] {
     },
   ];
 }
+

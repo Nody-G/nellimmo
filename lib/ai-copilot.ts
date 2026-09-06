@@ -8,7 +8,6 @@
 
 import { Property, Buyer, VisitSheet } from './types';
 import { sanitizeTextForLlm, pseudonymizeName } from './ai-privacy-guard';
-import { formatMandateRef } from './hoguet';
 
 export type CopilotAction =
   | 'chat'
