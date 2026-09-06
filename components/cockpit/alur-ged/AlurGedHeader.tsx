@@ -6,9 +6,11 @@ import {
     MessageCircle,
     PlusCircle,
     ShieldCheck,
+    FolderOpen,
 } from 'lucide-react';
 import type { Property } from '@/lib/types';
 import { formatMandateRef } from '@/lib/hoguet';
+import { getGoogleDriveUrl } from '@/lib/google';
 import type { AlurDocumentCategory } from '@/lib/types';
 
 interface AlurGedHeaderProps {
@@ -116,13 +118,25 @@ export function AlurGedHeader({
                     </div>
 
                     <div className="flex flex-col gap-2">
-                        <button
-                            onClick={onOpenNotarySlip}
-                            className="px-4 py-2 bg-[#131B26] hover:bg-gray-800 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-xs transition cursor-pointer"
-                        >
-                            <FileCheck2 className="w-4 h-4 text-[#C59A45]" />
-                            Bordereau Notaire
-                        </button>
+                        <div className="grid grid-cols-2 gap-1.5">
+                            <button
+                                onClick={onOpenNotarySlip}
+                                className="px-3 py-2 bg-[#131B26] hover:bg-gray-800 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-xs transition cursor-pointer"
+                            >
+                                <FileCheck2 className="w-3.5 h-3.5 text-[#C59A45]" />
+                                <span>Bordereau</span>
+                            </button>
+                            <a
+                                href={getGoogleDriveUrl(property.google_drive_url, formatMandateRef(property.mandate_number))}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="px-3 py-2 bg-white hover:bg-emerald-50 border border-emerald-200 text-emerald-900 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 shadow-xs transition"
+                                title="Ouvrir le dossier Google Drive pour ce mandat"
+                            >
+                                <FolderOpen className="w-3.5 h-3.5 text-emerald-600" />
+                                <span>Drive</span>
+                            </a>
+                        </div>
 
                         {missingCount > 0 && (
                             <div className="grid grid-cols-2 gap-1.5">

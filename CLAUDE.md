@@ -93,6 +93,27 @@ Guide d'exécution : `supabase/MIGRATION_GUIDE.md`. Le site public devra lire vi
   - Double affichage Grille de cartes pro & Tableau CRM dense avec recherche instantanée et filtres à facettes.
   - Intégration native dans la Command Palette (`Ctrl+K`), la navigation latérale et le système de sauvegarde Master JSON (`nellimo_contacts_v1`).
 
+## Chantier livré — Hub Google Workspace & Google Maps Pro (Terrain, Drive ALUR, Meet, Trajets & Radar)
+
+> `tsc`, `eslint` (0 erreur, 0 warning) et `build` (46 routes) au vert.
+
+- **Centre de Contrôle Google Workspace dans les Paramètres (`GoogleSection.tsx`)** :
+  - Profil de compte connecté de Nelly (`GoogleAccountStatusCard.tsx`) avec statut temps réel, avatar Google, email pro (`nellimmo.acte@gmail.com`), date de synchronisation et test rapide de connectivité.
+  - Matrice des 7 services Google Workspace (`GoogleServicesGrid.tsx`) : Agenda, Gmail, Drive, Meet, Maps, Contacts, Fiche Google My Business avec liens Web 1-clic et interrupteurs d'activation.
+  - Modale de connexion et gestion des autorisations (`GoogleConnectModal.tsx`).
+- **Google Maps Pro & Exploration Terrain pour Agent Immobilier** :
+  - Radar des Commodités (`GoogleMapsNeighborhoodModal.tsx`) : requêtes directes Google Places pour les Écoles/Crèches, Gares/Bus, Commerces/Marchés et Santé/Médecins autour de l'adresse du bien.
+  - Calculateur de Temps de Trajet Quotidien (`PROVENCE_COMMUTE_PRESETS` dans `lib/google.ts`) : calcul d'itinéraire instantané pour répondre aux acquéreurs (Aix La Duranne / Rotonde, Marseille St-Charles, Salon-de-Provence Centre / BA 701, Aéroport Marignane, Cadarache ITER, Aix TGV).
+  - Vue Satellite HD & Ensoleillement Solaire (`getGoogleMapsSatelliteUrl`) : inspection visuelle de la parcelle, de l'exposition du jardin et du vis-à-vis.
+  - Hub Terrain sur la fiche mandat (`GoogleTerrainCard.tsx`) : accès 1-clic au radar quartier, guidage GPS Waze/Maps, Street View et copie de l'arborescence ALUR.
+- **Google Drive & GED ALUR** :
+  - Nomenclature officielle des 6 sous-dossiers ALUR (`MANDATE_ALUR_FOLDERS`, `generateMandateDriveTreeText`).
+  - Liaison du dossier Google Drive dans l'édition de mandat (`EditMandateForm.tsx` & `EditDpeMediaSection.tsx`).
+  - Bouton direct d'accès Drive dans le gestionnaire ALUR (`AlurGedHeader.tsx`).
+- **Google Calendar & Google Meet dans tout le Cockpit** :
+  - Bouton d'ajout 1-clic à Google Agenda étendu à la vue Semaine (`WeekView.tsx`) et à la découverte vendeur en pige (`SellerDiscoveryModal.tsx`).
+  - Générateur de visio Google Meet 1-clic (`createGoogleMeetUrl`) intégré dans l'agenda (`NewEventModal.tsx`) pour les rendez-vous d'estimation et débriefs à distance.
+
 ## Règle d'architecture : PAS de god components (IMPORTANTE)
 
 **L'utilisateur ne veut AUCUN « god component »** (composant monolithique géant qui gère trop de responsabilités : données + logique métier + multiples sections UI + modales dans une seule fonction). Raison : c'est **peu pratique pour ses IA** (difficile à lire/modifier par un agent, gros fichiers dépassant les fenêtres de contexte). Toute nouvelle feature ou refactor doit **décomposer en petits composants ciblés** (un fichier = une responsabilité), extraire les sous-sections UI, les modales et la logique métier dans des fichiers séparés.

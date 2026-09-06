@@ -385,6 +385,9 @@ export interface AgencySettings {
   social_autopost_sold?: boolean;
 
   // Écosystème Google
+  google_account_email?: string;
+  google_account_name?: string;
+  google_connected_at?: string;
   google_client_id?: string;
   google_client_secret?: string;
   google_calendar_id?: string;
@@ -392,6 +395,15 @@ export interface AgencySettings {
   google_my_business_url?: string;
   google_drive_folder_id?: string;
   google_contacts_sync_enabled?: boolean;
+  google_services_enabled?: {
+    calendar?: boolean;
+    gmail?: boolean;
+    drive?: boolean;
+    meet?: boolean;
+    maps?: boolean;
+    contacts?: boolean;
+    reviews?: boolean;
+  };
 }
 
 export interface ContactLead {

@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { X, FilePlus2, Compass } from 'lucide-react';
+import { X, FilePlus2, Compass, Calendar } from 'lucide-react';
 import { useNellimoStore } from '@/lib/store';
 import { useToast } from '@/components/ui/Toast';
 import type { PropertyType } from '@/lib/types';
+import { createGoogleCalendarUrl } from '@/lib/google';
 import { SellerDiscoveryDvfCard } from './SellerDiscoveryDvfCard';
 import { SellerDiscoverySpecsCard } from './SellerDiscoverySpecsCard';
 
@@ -71,6 +72,18 @@ export function SellerDiscoveryModal({ isOpen, onClose }: SellerDiscoveryModalPr
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleScheduleGoogleAgenda = () => {
+    const tomorrow = new Date(Date.now() + 24 * 3600 * 1000);
+    tomorrow.setHours(14, 0, 0, 0);
+    const url = createGoogleCalendarUrl({
+      title: `RDV R2 Restitution Estimation — ${sellerName || 'Propriétaire'}`,
+      location: `${address || ''}, ${city}`.trim(),
+      startDate: tomorrow,
+      description: `Propriétaire: ${sellerName} (${sellerPhone})\nProjet: ${propertyType} de ${livingArea} m²\nPrix souhaité: ${desiredPrice.toLocaleString('fr-FR')} €\nEstimation DVF: ${dvfBenchmark.estimatedValue.toLocaleString('fr-FR')} €`,
+    });
+    window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   return (
@@ -153,19 +166,31 @@ export function SellerDiscoveryModal({ isOpen, onClose }: SellerDiscoveryModalPr
         />
 
         {/* Actions */}
-        <div className="flex items-center justify-end gap-2 pt-2">
-          <button type="button" onClick={onClose} className="px-4 py-2 text-xs font-bold text-gray-600">
-            Annuler
-          </button>
+        <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-gray-100">
           <button
             type="button"
-            onClick={handleCreateDraftMandate}
-            disabled={isSubmitting}
-            className="px-5 py-2.5 rounded-xl bg-[#E12B7B] hover:bg-[#C71B62] text-white text-xs font-bold flex items-center gap-1.5 shadow-md transition"
+            onClick={handleScheduleGoogleAgenda}
+            className="px-3.5 py-2.5 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-900 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
+            title="Bloquer le rendez-vous de restitution R2 dans Google Agenda"
           >
-            <FilePlus2 className="w-4 h-4" />
-            <span>Enregistrer en Mandat Brouillon</span>
+            <Calendar className="w-4 h-4 text-blue-600" />
+            <span>R2 Google Agenda</span>
           </button>
+
+          <div className="flex items-center gap-2">
+            <button type="button" onClick={onClose} className="px-4 py-2 text-xs font-bold text-gray-600 cursor-pointer">
+              Annuler
+            </button>
+            <button
+              type="button"
+              onClick={handleCreateDraftMandate}
+              disabled={isSubmitting}
+              className="px-5 py-2.5 rounded-xl bg-[#E12B7B] hover:bg-[#C71B62] text-white text-xs font-bold flex items-center gap-1.5 shadow-md transition cursor-pointer"
+            >
+              <FilePlus2 className="w-4 h-4" />
+              <span>Enregistrer en Mandat Brouillon</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>

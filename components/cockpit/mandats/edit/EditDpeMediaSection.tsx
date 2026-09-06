@@ -14,6 +14,8 @@ interface EditDpeMediaSectionProps {
   onVideoUrlChange: (val: string) => void;
   virtualTourUrl: string;
   onVirtualTourUrlChange: (val: string) => void;
+  googleDriveUrl?: string;
+  onGoogleDriveUrlChange?: (val: string) => void;
 }
 
 export function EditDpeMediaSection({
@@ -27,6 +29,8 @@ export function EditDpeMediaSection({
   onVideoUrlChange,
   virtualTourUrl,
   onVirtualTourUrlChange,
+  googleDriveUrl = '',
+  onGoogleDriveUrlChange,
 }: EditDpeMediaSectionProps) {
   const dpeLetter = getDpeLetterFromValue(dpeValue);
   const gesLetter = getGesLetterFromValue(gesValue);
@@ -93,6 +97,22 @@ export function EditDpeMediaSection({
           />
         </div>
       </div>
+
+      {onGoogleDriveUrlChange && (
+        <div>
+          <label className="block text-xs font-bold uppercase text-gray-700 mb-1 flex items-center justify-between">
+            <span>Dossier Cloud Google Drive (Photos HD &amp; Pièces ALUR)</span>
+            <span className="text-[10px] text-gray-400 lowercase font-normal">ex: https://drive.google.com/drive/folders/...</span>
+          </label>
+          <input
+            type="url"
+            value={googleDriveUrl}
+            onChange={(e) => onGoogleDriveUrlChange(e.target.value)}
+            placeholder="https://drive.google.com/drive/folders/..."
+            className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs font-semibold focus:outline-[#E12B7B]"
+          />
+        </div>
+      )}
     </div>
   );
 }

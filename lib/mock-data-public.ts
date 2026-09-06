@@ -58,11 +58,23 @@ export const INITIAL_AGENCY_SETTINGS: AgencySettings = {
   social_autopost_sold: true,
 
   // Écosystème Google
+  google_account_email: "nellimmo.acte@gmail.com",
+  google_account_name: "Nelly Fernandez (Nell'Immo)",
+  google_connected_at: "2026-09-01T08:00:00.000Z",
   google_calendar_id: "nellimmo.acte@gmail.com",
   google_maps_api_key: "",
   google_my_business_url: "https://g.page/r/nellimmo/review",
   google_drive_folder_id: "drive_nellimmo_mandates_2026",
-  google_contacts_sync_enabled: true
+  google_contacts_sync_enabled: true,
+  google_services_enabled: {
+    calendar: true,
+    gmail: true,
+    drive: true,
+    meet: true,
+    maps: true,
+    contacts: true,
+    reviews: true,
+  },
 };
 
 export const INITIAL_PROPERTIES: Property[] = [

@@ -1,8 +1,9 @@
 'use client';
 
-import { Clock, MapPin, MessageCircle, Navigation } from 'lucide-react';
+import { Clock, MapPin, MessageCircle, Navigation, Calendar } from 'lucide-react';
 import type { AgendaEvent, WeekDay } from './agenda-types';
 import { EventBadge } from './EventBadge';
+import { createGoogleCalendarUrl } from '@/lib/google';
 
 interface WeekViewProps {
     weekDays: WeekDay[];
@@ -93,6 +94,22 @@ export function WeekView({ weekDays, events, onWhatsApp }: WeekViewProps) {
                                                         <MessageCircle className="w-3 h-3" />
                                                     </button>
                                                 )}
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        const url = createGoogleCalendarUrl({
+                                                            title: ev.title,
+                                                            location: ev.location,
+                                                            startDate: `${ev.date}T${ev.time || '10:00'}:00`,
+                                                            description: `Contact: ${ev.contactName} (${ev.contactPhone})\nNotes: ${ev.notes || 'Rendez-vous agence Nell\'Immo'}`,
+                                                        });
+                                                        window.open(url, '_blank', 'noopener,noreferrer');
+                                                    }}
+                                                    className="p-1 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg transition cursor-pointer"
+                                                    title="Ajouter dans Google Agenda"
+                                                >
+                                                    <Calendar className="w-3 h-3" />
+                                                </button>
                                                 <a
                                                     href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(ev.location)}`}
                                                     target="_blank"

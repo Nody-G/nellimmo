@@ -37,6 +37,7 @@ export function EditMandateForm({ property, onSave }: EditMandateFormProps) {
   const [featuresInput, setFeaturesInput] = useState(property.features.join(', '));
   const [videoUrl, setVideoUrl] = useState(property.video_url || '');
   const [virtualTourUrl, setVirtualTourUrl] = useState(property.virtual_tour_url || '');
+  const [googleDriveUrl, setGoogleDriveUrl] = useState(property.google_drive_url || '');
   const [images] = useState<PropertyImage[]>(property.images || []);
 
   const financials = calculateFinancials({
@@ -90,6 +91,7 @@ export function EditMandateForm({ property, onSave }: EditMandateFormProps) {
         features: featuresList,
         video_url: videoUrl || undefined,
         virtual_tour_url: virtualTourUrl || undefined,
+        google_drive_url: googleDriveUrl || undefined,
         images,
       });
     } finally {
@@ -144,6 +146,8 @@ export function EditMandateForm({ property, onSave }: EditMandateFormProps) {
         onVideoUrlChange={setVideoUrl}
         virtualTourUrl={virtualTourUrl}
         onVirtualTourUrlChange={setVirtualTourUrl}
+        googleDriveUrl={googleDriveUrl}
+        onGoogleDriveUrlChange={setGoogleDriveUrl}
       />
 
       <div className="flex justify-between items-center pt-4">

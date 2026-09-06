@@ -1,6 +1,6 @@
 'use client';
 
-import { Calendar as CalendarIcon, X } from 'lucide-react';
+import { Calendar as CalendarIcon, X, Video } from 'lucide-react';
 import type { EventCategory } from './agenda-types';
 
 interface NewEventModalProps {
@@ -106,6 +106,27 @@ export function NewEventModal({
                                 className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl font-medium focus:outline-[#E12B7B]"
                             />
                         </div>
+                    </div>
+
+                    <div className="flex items-center justify-between p-2.5 bg-blue-50/60 rounded-xl border border-blue-100">
+                        <div className="flex items-center gap-2">
+                            <Video className="w-4 h-4 text-blue-600 shrink-0" />
+                            <div>
+                                <span className="text-xs font-bold text-gray-800 block">Visioconférence Google Meet</span>
+                                <span className="text-[10px] text-gray-500">Générer une salle Meet pour rendez-vous à distance</span>
+                            </div>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                if (!location.includes('meet.google.com')) {
+                                    onLocationChange(location ? `${location} (Google Meet : https://meet.google.com/new)` : 'Google Meet : https://meet.google.com/new');
+                                }
+                            }}
+                            className="px-2.5 py-1 bg-white hover:bg-blue-100 border border-blue-200 text-blue-800 rounded-lg text-[11px] font-bold transition cursor-pointer shrink-0"
+                        >
+                            {location.includes('meet.google.com') ? '✓ Meet Ajouté' : '+ Visio Meet'}
+                        </button>
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
