@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Send, Star, Printer, X, Mail, Calendar } from 'lucide-react';
+import { Send, Star, Printer, X, Mail, Calendar, Landmark } from 'lucide-react';
 import { TransactionDeal } from '@/lib/types';
 import { openGmailCompose, createGoogleCalendarUrl } from '@/lib/google';
 
@@ -10,6 +10,7 @@ interface DealActionButtonsProps {
   onSendLoanReminder: (deal: TransactionDeal) => void;
   onSendReviewRequest: (deal: TransactionDeal) => void;
   onOpenInvoice: () => void;
+  onOpenNotaryPack?: () => void;
   onClose: () => void;
 }
 
@@ -18,6 +19,7 @@ export const DealActionButtons: React.FC<DealActionButtonsProps> = ({
   onSendLoanReminder,
   onSendReviewRequest,
   onOpenInvoice,
+  onOpenNotaryPack = () => {},
   onClose,
 }) => {
   const handleEmailNotary = () => {
@@ -63,15 +65,26 @@ export const DealActionButtons: React.FC<DealActionButtonsProps> = ({
           <span>Relance Prêt (WhatsApp)</span>
         </button>
 
+        {/* Dossier Compromis Notaire en 1 Clic */}
+        <button
+          type="button"
+          onClick={onOpenNotaryPack}
+          className="px-3.5 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition cursor-pointer shadow-xs"
+          title="Générer le dossier ALUR et le courrier pour le notaire"
+        >
+          <Landmark className="w-3.5 h-3.5" />
+          <span>Dossier Notaire 1 Clic</span>
+        </button>
+
         {/* Email Notary via Gmail */}
         <button
           type="button"
           onClick={handleEmailNotary}
-          className="px-3.5 py-2 bg-blue-50 hover:bg-blue-100 text-blue-800 rounded-xl text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
+          className="px-3 py-2 bg-blue-50 hover:bg-blue-100 text-blue-800 rounded-xl text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
           title="Écrire au notaire directement via Gmail"
         >
           <Mail className="w-3.5 h-3.5 text-blue-600" />
-          <span>Email Notaire (Gmail)</span>
+          <span>Email Notaire</span>
         </button>
 
         {/* Google Calendar Milestone */}

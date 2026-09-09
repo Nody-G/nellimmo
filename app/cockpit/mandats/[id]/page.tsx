@@ -37,6 +37,8 @@ export default function MandateDetailPage({ params }: { params: Promise<{ id: st
   const [isContractModalOpen, setIsContractModalOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isWeeklyDigestOpen, setIsWeeklyDigestOpen] = useState(false);
+  const [isLaunchPackOpen, setIsLaunchPackOpen] = useState(false);
+  const [isMonthlyReportOpen, setIsMonthlyReportOpen] = useState(false);
 
   const property = properties.find((p) => p.id === resolvedParams.id);
 
@@ -82,6 +84,8 @@ export default function MandateDetailPage({ params }: { params: Promise<{ id: st
         onOpenContractModal={() => setIsContractModalOpen(true)}
         onOpenShareModal={() => setIsShareModalOpen(true)}
         onOpenWeeklyDigestModal={() => setIsWeeklyDigestOpen(true)}
+        onOpenLaunchPackModal={() => setIsLaunchPackOpen(true)}
+        onOpenMonthlyReportModal={() => setIsMonthlyReportOpen(true)}
       />
 
       {/* Tabs Navigation */}
@@ -165,6 +169,10 @@ export default function MandateDetailPage({ params }: { params: Promise<{ id: st
         onCloseShareModal={() => setIsShareModalOpen(false)}
         isWeeklyDigestOpen={isWeeklyDigestOpen}
         onCloseWeeklyDigest={() => setIsWeeklyDigestOpen(false)}
+        isLaunchPackOpen={isLaunchPackOpen}
+        onCloseLaunchPack={() => setIsLaunchPackOpen(false)}
+        isMonthlyReportOpen={isMonthlyReportOpen}
+        onCloseMonthlyReport={() => setIsMonthlyReportOpen(false)}
       />
     </div>
   );

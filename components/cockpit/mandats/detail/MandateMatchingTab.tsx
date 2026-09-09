@@ -1,15 +1,17 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Property, Buyer, ProposalHistory, ProposalStatus } from '@/lib/types';
 import {
   Users,
   CheckCircle2,
   Mail,
-  MessageCircle
+  MessageCircle,
+  Send
 } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { openGmailCompose } from '@/lib/gmail';
+import { BatchBuyerPushModal } from '@/components/cockpit/mandats/BatchBuyerPushModal';
 
 interface MandateMatchingTabProps {
   property: Property;
@@ -38,9 +40,11 @@ export const MandateMatchingTab: React.FC<MandateMatchingTabProps> = ({
   onCreateProposal,
   onUpdateProposalStatus
 }) => {
+  const [isPushOpen, setIsPushOpen] = useState(false);
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h3 className="text-sm font-bold text-[#131B26] flex items-center gap-2">
             <Users className="w-4 h-4 text-[#E12B7B]" />
@@ -50,10 +54,26 @@ export const MandateMatchingTab: React.FC<MandateMatchingTabProps> = ({
             Calcul en temps réel de compatibilité multi-critères sur la base des profils de recherche actifs.
           </p>
         </div>
-        <span className="text-xs font-bold text-[#E12B7B] bg-[#FDF2F8] px-3 py-1 rounded-full">
-          {matchedBuyers.length} acquéreurs qualifiés
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-bold text-[#E12B7B] bg-[#FDF2F8] px-3 py-1 rounded-full">
+            {matchedBuyers.length} qualifiés
+          </span>
+          <button
+            type="button"
+            onClick={() => setIsPushOpen(true)}
+            className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-xs transition cursor-pointer"
+          >
+            <Send className="w-3.5 h-3.5" />
+            Push WhatsApp Groupé
+          </button>
+        </div>
       </div>
+
+      <BatchBuyerPushModal
+        isOpen={isPushOpen}
+        onClose={() => setIsPushOpen(false)}
+        property={property}
+      />
 
       <div className="space-y-3">
         {matchedBuyers.length === 0 ? (

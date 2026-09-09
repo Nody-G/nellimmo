@@ -7,6 +7,8 @@ import { MandateAvenantModal } from '@/components/cockpit/MandateAvenantModal';
 import { MandateLegalContractModal } from './MandateLegalContractModal';
 import { PropertyShareModal } from '@/components/cockpit/mandats/PropertyShareModal';
 import { VendorWeeklyDigestModal } from '@/components/cockpit/mandats/VendorWeeklyDigestModal';
+import { MandateLaunchPackModal } from '@/components/cockpit/mandats/MandateLaunchPackModal';
+import { MonthlyVendorReportModal } from '@/components/cockpit/mandats/MonthlyVendorReportModal';
 
 interface MandateDetailModalsProps {
   property: Property;
@@ -26,6 +28,12 @@ interface MandateDetailModalsProps {
 
   isWeeklyDigestOpen: boolean;
   onCloseWeeklyDigest: () => void;
+
+  isLaunchPackOpen?: boolean;
+  onCloseLaunchPack?: () => void;
+
+  isMonthlyReportOpen?: boolean;
+  onCloseMonthlyReport?: () => void;
 }
 
 export function MandateDetailModals({
@@ -42,6 +50,10 @@ export function MandateDetailModals({
   onCloseShareModal,
   isWeeklyDigestOpen,
   onCloseWeeklyDigest,
+  isLaunchPackOpen = false,
+  onCloseLaunchPack = () => {},
+  isMonthlyReportOpen = false,
+  onCloseMonthlyReport = () => {},
 }: MandateDetailModalsProps) {
   return (
     <>
@@ -75,6 +87,18 @@ export function MandateDetailModals({
       <VendorWeeklyDigestModal
         isOpen={isWeeklyDigestOpen}
         onClose={onCloseWeeklyDigest}
+        property={property}
+      />
+
+      <MandateLaunchPackModal
+        isOpen={isLaunchPackOpen}
+        onClose={onCloseLaunchPack}
+        property={property}
+      />
+
+      <MonthlyVendorReportModal
+        isOpen={isMonthlyReportOpen}
+        onClose={onCloseMonthlyReport}
         property={property}
       />
     </>

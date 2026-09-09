@@ -10,6 +10,7 @@ import { LeadCard } from '@/components/cockpit/pige/LeadCard';
 import { PigeTable } from '@/components/cockpit/pige/PigeTable';
 import { NewLeadModal } from '@/components/cockpit/pige/NewLeadModal';
 import { PigeImportModal } from '@/components/cockpit/pige/PigeImportModal';
+import { PigeScannerModal } from '@/components/cockpit/pige/PigeScannerModal';
 import { usePigeActions } from '@/components/cockpit/pige/usePigeActions';
 
 export default function ProspectingPage() {
@@ -20,6 +21,7 @@ export default function ProspectingPage() {
   const [searchKeyword, setSearchKeyword] = useState<string>('');
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
   const [sortBy, setSortBy] = useState<PigeSortOption>('recent');
+  const [isScannerModalOpen, setIsScannerModalOpen] = useState(false);
 
   // Sparring partner modal / active script
   const [activeObjectionIndex, setActiveObjectionIndex] = useState<number>(0);
@@ -103,6 +105,7 @@ export default function ProspectingPage() {
       <PigeHeader
         onNewLead={() => setIsNewLeadModalOpen(true)}
         onImport={() => setIsImportModalOpen(true)}
+        onScanner={() => setIsScannerModalOpen(true)}
       />
 
       <SparringPartnerPanel
@@ -168,6 +171,11 @@ export default function ProspectingPage() {
         isOpen={isImportModalOpen}
         onClose={() => setIsImportModalOpen(false)}
         onImport={handleImportLeads}
+      />
+
+      <PigeScannerModal
+        isOpen={isScannerModalOpen}
+        onClose={() => setIsScannerModalOpen(false)}
       />
     </div>
   );

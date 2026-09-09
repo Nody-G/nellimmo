@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import type { Property, TransactionDeal } from '@/lib/types';
 import { Portal } from '@/components/ui/Portal';
 import {
@@ -10,6 +10,7 @@ import {
   DealAlurChecklist,
   DealActionButtons
 } from './detail';
+import { NotaryCompromisPackModal } from './NotaryCompromisPackModal';
 
 interface DealDetailModalProps {
   deal: TransactionDeal;
@@ -32,6 +33,7 @@ export function DealDetailModal({
   onSendReviewRequest,
   onOpenInvoice
 }: DealDetailModalProps) {
+  const [isNotaryPackOpen, setIsNotaryPackOpen] = useState(false);
   const prop = properties.find((p) => p.id === deal.property_id);
 
   // Écouteur touche Échap et verrouillage du défilement d'arrière-plan
@@ -118,10 +120,19 @@ export function DealDetailModal({
               onSendLoanReminder={onSendLoanReminder}
               onSendReviewRequest={onSendReviewRequest}
               onOpenInvoice={onOpenInvoice}
+              onOpenNotaryPack={() => setIsNotaryPackOpen(true)}
               onClose={onClose}
             />
           </div>
         </div>
+
+        {/* Modal Pack Notaire ALUR */}
+        <NotaryCompromisPackModal
+          isOpen={isNotaryPackOpen}
+          onClose={() => setIsNotaryPackOpen(false)}
+          transaction={deal}
+          property={prop}
+        />
       </div>
     </Portal>
   );
