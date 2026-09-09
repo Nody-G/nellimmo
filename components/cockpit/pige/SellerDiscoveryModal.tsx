@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { X, FilePlus2, Compass, Calendar } from 'lucide-react';
 import { useNellimoStore } from '@/lib/store';
 import { useToast } from '@/components/ui/Toast';
+import { Portal } from '@/components/ui/Portal';
 import type { PropertyType } from '@/lib/types';
 import { createGoogleCalendarUrl } from '@/lib/google';
 import { SellerDiscoveryDvfCard } from './SellerDiscoveryDvfCard';
@@ -39,6 +40,20 @@ export function SellerDiscoveryModal({ isOpen, onClose }: SellerDiscoveryModalPr
     const estimatedValue = Math.round(livingArea * basePricePerM2 * conditionMult + (hasPool ? 25000 : 0) + (hasGarage ? 15000 : 0));
     return { estimatedValue, gap: desiredPrice > 0 ? desiredPrice - estimatedValue : 0 };
   }, [city, livingArea, condition, hasPool, hasGarage, desiredPrice]);
+
+  // Escape key handler + body scroll lock
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.body.style.overflow = '';
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -87,8 +102,15 @@ export function SellerDiscoveryModal({ isOpen, onClose }: SellerDiscoveryModalPr
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fade-in">
-      <div className="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl border border-gray-100 max-h-[92vh] overflow-y-auto space-y-4">
+    <Portal>
+      <div
+        onClick={onClose}
+        className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fade-in"
+      >
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl border border-gray-100 max-h-[92vh] overflow-y-auto space-y-4"
+        >
         <div className="flex items-center justify-between border-b border-gray-100 pb-3">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl bg-[#C59A45]/20 text-[#967026] flex items-center justify-center">
@@ -194,5 +216,6 @@ export function SellerDiscoveryModal({ isOpen, onClose }: SellerDiscoveryModalPr
         </div>
       </div>
     </div>
-  );
+  </Portal>
+);
 }
