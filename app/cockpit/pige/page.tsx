@@ -4,7 +4,6 @@ import React, { useState, useMemo } from 'react';
 import { useNellimoStore } from '@/lib/store';
 import { filterLeads, computeDvfGap } from '@/components/cockpit/pige/pige-types';
 import { PigeHeader } from '@/components/cockpit/pige/PigeHeader';
-import { SparringPartnerPanel } from '@/components/cockpit/pige/SparringPartnerPanel';
 import { PigeFilterBar, PigeSortOption } from '@/components/cockpit/pige/PigeFilterBar';
 import { LeadCard } from '@/components/cockpit/pige/LeadCard';
 import { PigeTable } from '@/components/cockpit/pige/PigeTable';
@@ -22,10 +21,6 @@ export default function ProspectingPage() {
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
   const [sortBy, setSortBy] = useState<PigeSortOption>('recent');
   const [isScannerModalOpen, setIsScannerModalOpen] = useState(false);
-
-  // Sparring partner modal / active script
-  const [activeObjectionIndex, setActiveObjectionIndex] = useState<number>(0);
-  const [copiedPitch, setCopiedPitch] = useState(false);
 
   const {
     isNewLeadModalOpen,
@@ -94,25 +89,12 @@ export default function ProspectingPage() {
     });
   }, [prospectingLeads, selectedSourceFilter, selectedStatusFilter, searchKeyword, sortBy]);
 
-  const copyPitchText = (text: string) => {
-    navigator.clipboard.writeText(text);
-    setCopiedPitch(true);
-    setTimeout(() => setCopiedPitch(false), 2000);
-  };
-
   return (
-    <div className="space-y-8 animate-fade-in pb-16">
+    <div className="space-y-6 animate-fade-in pb-16">
       <PigeHeader
         onNewLead={() => setIsNewLeadModalOpen(true)}
         onImport={() => setIsImportModalOpen(true)}
         onScanner={() => setIsScannerModalOpen(true)}
-      />
-
-      <SparringPartnerPanel
-        activeObjectionIndex={activeObjectionIndex}
-        copiedPitch={copiedPitch}
-        onSelectObjection={setActiveObjectionIndex}
-        onCopyPitch={copyPitchText}
       />
 
       <PigeFilterBar

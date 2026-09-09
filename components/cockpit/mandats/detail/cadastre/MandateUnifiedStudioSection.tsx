@@ -6,8 +6,6 @@ import {
   Save,
   Check,
   RefreshCw,
-  Sparkles,
-  Copy,
   ExternalLink,
   GraduationCap,
   ShoppingCart,
@@ -23,7 +21,6 @@ import { CadastreParcel } from '@/lib/cadastre';
 import {
   AmenityCategory,
   AmenityItem,
-  ClientProfileKey,
   NeighborhoodSummary,
   CATEGORY_CONFIG,
 } from '@/lib/amenities';
@@ -51,14 +48,9 @@ export function MandateUnifiedStudioSection({
   // Amenities state
   const [summary, setSummary] = useState<NeighborhoodSummary | null>(null);
   const [loadingAmenities, setLoadingAmenities] = useState(true);
-  const [selectedProfile, setSelectedProfile] = useState<ClientProfileKey>('famille');
   const [selectedCategory, setSelectedCategory] = useState<'all' | AmenityCategory>('all');
   const [selectedAmenityId, setSelectedAmenityId] = useState<string | null>(null);
   const [showAmenitiesOnMap, setShowAmenitiesOnMap] = useState(true);
-
-  // Copy states
-  const [copiedPitch, setCopiedPitch] = useState(false);
-  const [copiedSynthesis, setCopiedSynthesis] = useState(false);
 
   // Fiches Quartier (générateur + bibliothèque)
   const [sheetModalOpen, setSheetModalOpen] = useState(false);
@@ -149,53 +141,12 @@ export function MandateUnifiedStudioSection({
     setTimeout(() => setSavedCadastre(false), 2500);
   };
 
-  const currentProfile = summary ? summary.profiles[selectedProfile] : null;
-
   // Filtrer les commodités selon la catégorie sélectionnée
   const filteredAmenities = summary
     ? selectedCategory === 'all'
       ? summary.amenities
       : summary.byCategory[selectedCategory] || []
     : [];
-
-  const handleCopyPitch = async () => {
-    if (!currentProfile) return;
-    await navigator.clipboard.writeText(currentProfile.pitch);
-    setCopiedPitch(true);
-    setTimeout(() => setCopiedPitch(false), 2500);
-  };
-
-  const handleCopySynthesis = async () => {
-    if (!summary || !currentProfile) return;
-    const lines = [
-      `📍 *FICHE SYNTHÈSE QUARTIER & COMMODITÉS*`,
-      `Bien : ${property.title} (${property.city})`,
-      `Score de commodités : ${summary.walkabilityScore}/100 (${summary.scoreLabel})`,
-      ``,
-      `🎒 *Scolarité :*`,
-      summary.minDistances.maternelle ? `• Maternelle : ${summary.minDistances.maternelle.name} à ${summary.minDistances.maternelle.distanceMeters}m (${summary.minDistances.maternelle.walkingMinutes} min à pied)` : null,
-      summary.minDistances.primaire ? `• Primaire : ${summary.minDistances.primaire.name} à ${summary.minDistances.primaire.distanceMeters}m (${summary.minDistances.primaire.walkingMinutes} min à pied)` : null,
-      summary.minDistances.college ? `• Collège : ${summary.minDistances.college.name} à ${(summary.minDistances.college.distanceMeters / 1000).toFixed(1)} km (${summary.minDistances.college.drivingMinutes} min)` : null,
-      ``,
-      `🛒 *Commerces :*`,
-      summary.minDistances.boulangerie ? `• Boulangerie : ${summary.minDistances.boulangerie.name} à ${summary.minDistances.boulangerie.distanceMeters}m` : null,
-      summary.minDistances.superette ? `• Supérette : ${summary.minDistances.superette.name} à ${summary.minDistances.superette.distanceMeters}m` : null,
-      summary.minDistances.supermarche ? `• Supermarché : ${summary.minDistances.supermarche.name} à ${(summary.minDistances.supermarche.distanceMeters / 1000).toFixed(1)} km` : null,
-      ``,
-      `⚽ *Sport & Santé :*`,
-      summary.minDistances.sport ? `• Sport : ${summary.minDistances.sport.name} à ${summary.minDistances.sport.distanceMeters}m` : null,
-      summary.minDistances.pharmacie ? `• Pharmacie : ${summary.minDistances.pharmacie.name} à ${summary.minDistances.pharmacie.distanceMeters}m` : null,
-      ``,
-      `💡 *Conseil de l'agent :*`,
-      currentProfile.pitch,
-    ]
-      .filter(Boolean)
-      .join('\n');
-
-    await navigator.clipboard.writeText(lines);
-    setCopiedSynthesis(true);
-    setTimeout(() => setCopiedSynthesis(false), 2500);
-  };
 
   const handleSelectKeyAmenity = (item?: AmenityItem) => {
     if (!item) return;
@@ -355,77 +306,6 @@ export function MandateUnifiedStudioSection({
           ) : (
             <p className="text-xs font-medium">Aucune donnée cadastrale disponible pour ce bien.</p>
           )}
-        </div>
-      )}
-
-      {/* 3. Client Profiles Pitch Box & WhatsApp Generator */}
-      {summary && currentProfile && (
-        <div className="bg-gradient-to-br from-[#0B132B] via-[#131B26] to-[#1F293D] p-5 rounded-3xl text-white shadow-xl space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <span className="p-1.5 rounded-xl bg-amber-400/20 text-amber-300">
-                <Sparkles className="w-4 h-4" />
-              </span>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-amber-300">
-                Argumentaire de Visite selon le Profil Acquéreur
-              </h4>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-1.5 bg-white/10 p-1 rounded-2xl border border-white/10">
-              {(['famille', 'actif', 'senior', 'investisseur'] as ClientProfileKey[]).map((key) => {
-                const prof = summary.profiles[key];
-                const isSelected = selectedProfile === key;
-                return (
-                  <button
-                    key={key}
-                    type="button"
-                    onClick={() => setSelectedProfile(key)}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${isSelected
-                      ? 'bg-teal-500 text-white shadow-md font-black'
-                      : 'text-gray-300 hover:text-white hover:bg-white/10'
-                      }`}
-                  >
-                    <span>{prof.emoji}</span>
-                    <span>{prof.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="bg-white/5 border border-white/10 p-4 rounded-2xl space-y-3">
-            <p className="text-xs text-amber-100 font-serif italic leading-relaxed">
-              {currentProfile.pitch}
-            </p>
-
-            <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-white/10 text-[11px]">
-              <span className="text-gray-400">
-                🎯 <strong>Cible :</strong> {currentProfile.targetDescription}
-              </span>
-
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={handleCopyPitch}
-                  className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold flex items-center gap-1.5 transition cursor-pointer"
-                  title="Copier pour vos notes de visite"
-                >
-                  {copiedPitch ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                  <span>{copiedPitch ? 'Pitch copié !' : 'Copier le pitch'}</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleCopySynthesis}
-                  className="px-3 py-1.5 rounded-xl bg-teal-500 hover:bg-teal-600 text-white font-bold flex items-center gap-1.5 transition cursor-pointer shadow-md"
-                  title="Générer un résumé WhatsApp/SMS pour l'acquéreur"
-                >
-                  {copiedSynthesis ? <Check className="w-3.5 h-3.5 text-white" /> : <ExternalLink className="w-3.5 h-3.5" />}
-                  <span>{copiedSynthesis ? 'Synthèse copiée !' : 'Fiche WhatsApp / Client'}</span>
-                </button>
-              </div>
-            </div>
-          </div>
         </div>
       )}
 
