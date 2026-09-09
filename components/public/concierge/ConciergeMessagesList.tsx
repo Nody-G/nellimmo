@@ -46,7 +46,7 @@ export function ConciergeMessagesList({
               {isAssistant && (
                 <div className="flex items-center gap-1 text-[10px] text-[#E12B7B] font-bold mb-1">
                   <Sparkles className="w-3 h-3" />
-                  Nelly Fernandez
+                  Nell’IA
                 </div>
               )}
               <p className="whitespace-pre-line">{msg.text}</p>

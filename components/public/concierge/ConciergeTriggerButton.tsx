@@ -15,7 +15,7 @@ export function ConciergeTriggerButton({ isOpen, onToggle, unreadCount }: Concie
   return (
     <button
       onClick={onToggle}
-      aria-label="Discuter avec Nelly IA"
+      aria-label="Discuter avec Nell’IA"
       className="fixed bottom-6 right-6 z-50 flex items-center gap-3 px-4 py-3 bg-[#131B26] hover:bg-[#1E293B] text-white rounded-full shadow-2xl border border-white/20 backdrop-blur-md transition-all duration-300 hover:scale-105 group cursor-pointer"
     >
       <div className="relative">
@@ -27,7 +27,7 @@ export function ConciergeTriggerButton({ isOpen, onToggle, unreadCount }: Concie
 
       <div className="text-left hidden sm:block">
         <span className="text-[10px] uppercase font-bold text-[#E12B7B] tracking-wider block">
-          Concierge IA 24/7
+          Nell’IA 24/7
         </span>
         <span className="text-xs font-semibold text-gray-200">
           Une question ? Échangez ici

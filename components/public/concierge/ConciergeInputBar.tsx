@@ -97,7 +97,7 @@ export function ConciergeInputBar({ onSendMessage, onSaveLead, disabled }: Conci
           type="text"
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
-          placeholder="Posez votre question à Nelly..."
+          placeholder="Posez votre question à Nell’IA..."
           disabled={disabled}
           className="flex-1 px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-2xl text-xs text-gray-800 placeholder-gray-400 focus:outline-hidden focus:ring-1 focus:ring-[#E12B7B] focus:bg-white transition"
         />

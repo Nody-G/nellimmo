@@ -109,7 +109,7 @@ Guide d'exécution : `supabase/MIGRATION_GUIDE.md`. Le site public devra lire vi
 
 > `tsc`, `eslint` (0 erreur, 0 warning) et `build` (41 routes) au vert.
 
-- **Concierge Virtuel IA 24/7 sur le Site Vitrine** : Assistant conversationnel élégant (`components/public/concierge/`) intégré dans `app/(public)/layout.tsx` répondant instantanément aux visiteurs (biens, estimations, honoraires, prise de RDV) avec qualification et enregistrement direct dans les leads du Cockpit (`nellimo_contact_leads_v4`).
+- **Concierge Virtuel 24/7 « Nell’IA » sur le Site Vitrine** : Assistant conversationnel élégant (`components/public/concierge/`) intégré dans `app/(public)/layout.tsx` répondant instantanément aux visiteurs (biens, estimations, honoraires, prise de RDV) avec qualification et enregistrement direct dans les leads du Cockpit (`nellimo_contact_leads_v4`).
 - **Portabilité Totale & Purge RGPD 3 Ans** : Sauvegarde Master JSON étendue aux 17 collections du store (`exportMasterBackup` / `restoreMasterBackup`) + bouton de purge légale des acquéreurs inactifs sans contact depuis plus de 3 ans conforme CNIL / ALUR dans `BackupSection.tsx`.
 - **DVF Officiel en direct** : Route serveur `/api/dvf` (`app/api/dvf/route.ts`) connectée à l'API publique ouverte (DGFiP / data.gouv / Notaires de France) avec normalisation, détection de commune/code postal et repli automatique transparent sur les données locales (`lib/dvf.ts`).
 - **Badge Dynamique Relances & Widget Dashboard** : Pastille temps réel vibrante sur le menu "Relances & Notifications" (`CockpitSidebar.tsx`) avec décompte des actions à traiter aujourd'hui, et bandeau d'alerte proactive dans `UrgentAlertsWidget.tsx`.

@@ -19,7 +19,7 @@ export const INITIAL_MESSAGES: ChatMessage[] = [
   {
     id: 'm-welcome',
     sender: 'assistant',
-    text: "Bonjour et bienvenue chez Nell'Immo ! Je suis l'assistante virtuelle de Nelly Fernandez. Comment puis-je vous accompagner aujourd'hui dans votre projet immobilier ?",
+    text: "Bonjour et bienvenue chez Nell'Immo ! Je suis Nell'IA, l'assistante virtuelle de Nelly Fernandez. Comment puis-je vous accompagner aujourd'hui dans votre projet immobilier ?",
     timestamp: 'À l’instant',
   },
 ];
@@ -97,7 +97,7 @@ export function saveConciergeLead(name: string, contact: string, message: string
       name: name.trim() || 'Visiteur Site Web',
       email: isEmail ? contact.trim() : 'non renseigné',
       phone: !isEmail ? contact.trim() : 'non renseigné',
-      subject: 'Demande d’information via Concierge Virtuel IA',
+      subject: 'Demande d’information via Nell’IA',
       message: `${message}\n\n[Contact fourni : ${contact.trim()}]`,
       status: 'nouveau',
       created_at: new Date().toISOString(),

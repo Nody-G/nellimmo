@@ -21,13 +21,13 @@ export function ConciergeHeader({ onClose }: ConciergeHeaderProps) {
         <div>
           <div className="flex items-center gap-1.5">
             <span className="text-sm font-bold font-serif text-white tracking-wide">
-              Nelly Fernandez
+              Nell’IA
             </span>
             <Sparkles className="w-3.5 h-3.5 text-[#E12B7B]" />
           </div>
           <p className="text-[10px] text-gray-300 flex items-center gap-1">
             <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            Conciergerie Digitale & Ancrage Local
+            Concierge Virtuel • Nelly Fernandez
           </p>
         </div>
       </div>
@@ -43,7 +43,7 @@ export function ConciergeHeader({ onClose }: ConciergeHeaderProps) {
         <button
           onClick={onClose}
           className="p-2 text-gray-300 hover:text-white rounded-full hover:bg-white/10 transition cursor-pointer"
-          title="Fermer le concierge"
+          title="Fermer Nell’IA"
         >
           <X className="w-4 h-4" />
         </button>
