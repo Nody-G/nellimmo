@@ -20,6 +20,7 @@ import { DayView } from '@/components/cockpit/agenda/DayView';
 import { ListView } from '@/components/cockpit/agenda/ListView';
 import { NewEventModal } from '@/components/cockpit/agenda/NewEventModal';
 import { useAgendaNewEvent } from '@/components/cockpit/agenda/useAgendaNewEvent';
+import { useGoogleCalendar } from '@/components/cockpit/agenda/useGoogleCalendar';
 
 function AgendaContent() {
   const searchParams = useSearchParams();
@@ -39,6 +40,7 @@ function AgendaContent() {
   } = useNellimoStore();
 
   const { showToast } = useToast();
+  const { createEvent, isSyncing: isSyncingGoogle } = useGoogleCalendar();
 
   const [viewMode, setViewMode] = useState<AgendaViewMode>('week');
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -135,6 +137,21 @@ function AgendaContent() {
     showToast('Fichier iCalendar exporté pour votre smartphone !', 'success');
   };
 
+  const handleSyncGoogleCalendar = async () => {
+    if (filteredEvents.length === 0) {
+      showToast('Aucun événement à synchroniser sur cette période.', 'info');
+      return;
+    }
+    let synced = 0;
+    for (const event of filteredEvents) {
+      const created = await createEvent(event);
+      if (created) synced++;
+    }
+    if (synced > 0) {
+      showToast(`${synced} événement(s) synchronisé(s) avec Google Agenda.`, 'success');
+    }
+  };
+
   const tourStops = useMemo(() => {
     const stops: string[] = [];
     filteredEvents.forEach((e) => {
@@ -154,6 +171,8 @@ function AgendaContent() {
         onNewEvent={() => setIsNewEventModalOpen(true)}
         onExportICal={handleDownloadICal}
         tourStops={tourStops}
+        onSyncGoogleCalendar={handleSyncGoogleCalendar}
+        isSyncingGoogle={isSyncingGoogle}
       />
 
       <AgendaControlBar

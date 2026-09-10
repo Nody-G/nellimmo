@@ -24,6 +24,8 @@ interface MandateDetailHeaderProps {
   onOpenWeeklyDigestModal: () => void;
   onOpenLaunchPackModal?: () => void;
   onOpenMonthlyReportModal?: () => void;
+  onCreateDriveTree?: () => void;
+  isCreatingDriveTree?: boolean;
 }
 
 export const MandateDetailHeader: React.FC<MandateDetailHeaderProps> = ({
@@ -34,8 +36,10 @@ export const MandateDetailHeader: React.FC<MandateDetailHeaderProps> = ({
   onOpenContractModal,
   onOpenShareModal,
   onOpenWeeklyDigestModal,
-  onOpenLaunchPackModal = () => {},
-  onOpenMonthlyReportModal = () => {},
+  onOpenLaunchPackModal = () => { },
+  onOpenMonthlyReportModal = () => { },
+  onCreateDriveTree,
+  isCreatingDriveTree = false,
 }) => {
   const mandateRef = formatMandateRef(property.mandate_number);
   const [toolsOpen, setToolsOpen] = useState(false);
@@ -56,20 +60,18 @@ export const MandateDetailHeader: React.FC<MandateDetailHeaderProps> = ({
               {mandateRef}
             </span>
             <span
-              className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wide ${
-                property.mandate_type === 'exclusif'
-                  ? 'bg-amber-50 text-amber-900 border border-amber-200/60'
-                  : 'bg-gray-100 text-gray-700'
-              }`}
+              className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wide ${property.mandate_type === 'exclusif'
+                ? 'bg-amber-50 text-amber-900 border border-amber-200/60'
+                : 'bg-gray-100 text-gray-700'
+                }`}
             >
               {property.mandate_type}
             </span>
             <span
-              className={`px-2 py-0.5 rounded-md text-[10px] font-bold capitalize ${
-                property.status === 'actif'
-                  ? 'bg-emerald-50 text-emerald-800 border border-emerald-200/60'
-                  : 'bg-gray-100 text-gray-700'
-              }`}
+              className={`px-2 py-0.5 rounded-md text-[10px] font-bold capitalize ${property.status === 'actif'
+                ? 'bg-emerald-50 text-emerald-800 border border-emerald-200/60'
+                : 'bg-gray-100 text-gray-700'
+                }`}
             >
               {property.status}
             </span>
@@ -144,6 +146,8 @@ export const MandateDetailHeader: React.FC<MandateDetailHeaderProps> = ({
               onOpenAvenantModal={onOpenAvenantModal}
               onOpenShareModal={onOpenShareModal}
               onOpenWeeklyDigestModal={onOpenWeeklyDigestModal}
+              onCreateDriveTree={onCreateDriveTree}
+              isCreatingDriveTree={isCreatingDriveTree}
             />
           )}
         </div>

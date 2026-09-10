@@ -15,11 +15,13 @@ import type { RelanceAction, RelanceCategory } from '@/lib/relances';
 import { RelancesHeader } from '@/components/cockpit/relances/RelancesHeader';
 import { RelancesSummary } from '@/components/cockpit/relances/RelancesSummary';
 import { RelancesList } from '@/components/cockpit/relances/RelancesList';
+import { useGoogleTasks } from '@/components/cockpit/relances/useGoogleTasks';
 
 export default function RelancesPage() {
     const { properties, buyers, visits, transactions, settings } = useNellimoStore();
     const { relanceStatuses, setRelanceStatus, resetRelanceStatuses } = useRelances();
     const { showToast } = useToast();
+    const { syncRelance, isSyncing: isSyncingGoogle } = useGoogleTasks();
 
     const [activeCategory, setActiveCategory] = useState<RelanceCategory | ''>('');
 
@@ -76,12 +78,29 @@ export default function RelancesPage() {
         showToast('Historique des relances r\u00e9initialis\u00e9', 'success');
     };
 
+    const handleSyncGoogleTasks = async () => {
+        if (pendingActions.length === 0) {
+            showToast('Aucune relance en attente \u00e0 synchroniser.', 'info');
+            return;
+        }
+        let synced = 0;
+        for (const action of pendingActions) {
+            const taskId = await syncRelance(action);
+            if (taskId) synced++;
+        }
+        if (synced > 0) {
+            showToast(`${synced} relance(s) synchronis\u00e9e(s) avec Google Tasks.`, 'success');
+        }
+    };
+
     return (
         <div className="space-y-6 animate-fade-in pb-16">
             <RelancesHeader
                 pendingCount={pendingActions.length}
                 doneCount={doneCount}
                 onReset={handleReset}
+                onSyncGoogleTasks={handleSyncGoogleTasks}
+                isSyncingGoogle={isSyncingGoogle}
             />
 
             <RelancesSummary

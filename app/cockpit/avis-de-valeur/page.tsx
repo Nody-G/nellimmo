@@ -12,6 +12,8 @@ import { MethodologyPanel } from '@/components/cockpit/avis-de-valeur/Methodolog
 import { TriangulationPanel } from '@/components/cockpit/avis-de-valeur/TriangulationPanel';
 import { DvfTransactionsTable } from '@/components/cockpit/avis-de-valeur/DvfTransactionsTable';
 import { ExpertiseDossier } from '@/components/cockpit/avis-de-valeur/ExpertiseDossier';
+import { useGoogleReviews } from '@/components/cockpit/parametres/google/useGoogleReviews';
+import { starRatingToNumber } from '@/lib/google/services/reviews';
 
 function ValuationDvfContent() {
   const searchParams = useSearchParams();
@@ -44,6 +46,14 @@ function ValuationDvfContent() {
   const [transactions, setTransactions] = useState<DVFTransaction[]>([]);
   const [isDossierGenerated, setIsDossierGenerated] = useState(false);
   const [activeMethodTab, setActiveMethodTab] = useState<MethodTab>('dvf');
+
+  const {
+    loadReviews,
+    isLoading: isLoadingReviews,
+    reviews: googleReviews,
+    averageRating,
+    totalReviewCount,
+  } = useGoogleReviews();
 
   // Load DVF references through the provider seam (currently the local simulation source).
   useEffect(() => {
@@ -83,7 +93,48 @@ function ValuationDvfContent() {
 
   return (
     <div className="space-y-8 animate-fade-in pb-16">
-      <ValuationHeader onGenerate={() => setIsDossierGenerated(true)} />
+      <ValuationHeader
+        onGenerate={() => setIsDossierGenerated(true)}
+        onLoadGoogleReviews={loadReviews}
+        isLoadingReviews={isLoadingReviews}
+      />
+
+      {googleReviews.length > 0 && (
+        <div className="bg-white rounded-2xl border border-[#F3E8EE] p-5 shadow-2xs space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-bold uppercase tracking-wider text-gray-500 flex items-center gap-2">
+              <span className="text-amber-500">★</span>
+              Avis Google de l&rsquo;agence
+            </h2>
+            <span className="text-xs font-semibold text-gray-500">
+              {averageRating !== null ? `${averageRating.toFixed(1)}/5` : '—'}
+              {totalReviewCount !== null ? ` · ${totalReviewCount} avis` : ''}
+            </span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {googleReviews.slice(0, 6).map((review, idx) => (
+              <div
+                key={idx}
+                className="border border-gray-100 rounded-xl p-3 space-y-1.5 bg-[#FAF5F8]/40"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-[#131B26]">
+                    {review.reviewer?.displayName || 'Client Google'}
+                  </span>
+                  <span className="text-[11px] text-amber-500">
+                    {'★'.repeat(starRatingToNumber(review.starRating))}
+                  </span>
+                </div>
+                {review.comment && (
+                  <p className="text-xs text-gray-600 leading-relaxed line-clamp-4">
+                    {review.comment}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <PropertyForm inputs={inputs} onChange={handleFieldChange} onSubmit={handleSearch} />
 

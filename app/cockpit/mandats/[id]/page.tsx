@@ -14,6 +14,7 @@ import { MandateMatchingTab } from '@/components/cockpit/mandats/detail/MandateM
 import { MandateCopywritingTab } from '@/components/cockpit/mandats/detail/MandateCopywritingTab';
 import { MandateDetailTabs, MandateTabId } from '@/components/cockpit/mandats/detail/MandateDetailTabs';
 import { MandateDetailModals } from '@/components/cockpit/mandats/detail/MandateDetailModals';
+import { useGoogleDrive } from '@/components/cockpit/mandats/useGoogleDrive';
 import { useToast } from '@/components/ui/Toast';
 
 export default function MandateDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -30,6 +31,7 @@ export default function MandateDetailPage({ params }: { params: Promise<{ id: st
   } = useNellimoStore();
 
   const { showToast } = useToast();
+  const { createMandateTree, isWorking: isCreatingDriveTree } = useGoogleDrive();
 
   const [activeTab, setActiveTab] = useState<MandateTabId>('details');
   const [isSignatureModalOpen, setIsSignatureModalOpen] = useState(false);
@@ -73,6 +75,13 @@ export default function MandateDetailPage({ params }: { params: Promise<{ id: st
     showToast('Descriptif de l\'annonce mis à jour avec succès.', 'success');
   };
 
+  const handleCreateDriveTree = async () => {
+    const root = await createMandateTree(String(property.mandate_number), property.title);
+    if (root?.webViewLink) {
+      window.open(root.webViewLink, '_blank', 'noopener,noreferrer');
+    }
+  };
+
   return (
     <div className="space-y-6 animate-fade-in pb-16">
       {/* Top Header & Quick Actions */}
@@ -86,6 +95,8 @@ export default function MandateDetailPage({ params }: { params: Promise<{ id: st
         onOpenWeeklyDigestModal={() => setIsWeeklyDigestOpen(true)}
         onOpenLaunchPackModal={() => setIsLaunchPackOpen(true)}
         onOpenMonthlyReportModal={() => setIsMonthlyReportOpen(true)}
+        onCreateDriveTree={handleCreateDriveTree}
+        isCreatingDriveTree={isCreatingDriveTree}
       />
 
       {/* Tabs Navigation */}

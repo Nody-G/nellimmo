@@ -9,6 +9,8 @@ import {
   FileBarChart,
   Edit,
   ExternalLink,
+  FolderPlus,
+  Loader2,
 } from 'lucide-react';
 import type { Property } from '@/lib/types';
 
@@ -19,6 +21,8 @@ interface MandateHeaderToolsMenuProps {
   onOpenAvenantModal: () => void;
   onOpenShareModal: () => void;
   onOpenWeeklyDigestModal: () => void;
+  onCreateDriveTree?: () => void;
+  isCreatingDriveTree?: boolean;
 }
 
 export function MandateHeaderToolsMenu({
@@ -28,6 +32,8 @@ export function MandateHeaderToolsMenu({
   onOpenAvenantModal,
   onOpenShareModal,
   onOpenWeeklyDigestModal,
+  onCreateDriveTree,
+  isCreatingDriveTree = false,
 }: MandateHeaderToolsMenuProps) {
   return (
     <div className="absolute right-0 mt-2 w-52 bg-white rounded-2xl shadow-xl border border-gray-100 p-2 z-30 space-y-1 text-xs animate-fade-in">
@@ -78,6 +84,25 @@ export function MandateHeaderToolsMenu({
         <FileBarChart className="w-3.5 h-3.5 text-[#C59A45]" />
         <span>Point Hebdo Vendeur</span>
       </button>
+
+      {onCreateDriveTree && (
+        <button
+          type="button"
+          disabled={isCreatingDriveTree}
+          onClick={() => {
+            onClose();
+            onCreateDriveTree();
+          }}
+          className="w-full text-left px-3 py-2 rounded-xl hover:bg-gray-50 flex items-center gap-2 font-medium text-gray-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isCreatingDriveTree ? (
+            <Loader2 className="w-3.5 h-3.5 text-gray-400 animate-spin" />
+          ) : (
+            <FolderPlus className="w-3.5 h-3.5 text-blue-600" />
+          )}
+          <span>{isCreatingDriveTree ? 'Création…' : 'Arborescence Google Drive'}</span>
+        </button>
+      )}
 
       <div className="border-t border-gray-100 my-1" />
 

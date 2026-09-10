@@ -1,15 +1,31 @@
 'use client';
 
-import { Calendar as CalendarIcon, Download, PlusCircle, Map, ExternalLink } from 'lucide-react';
+import {
+    Calendar as CalendarIcon,
+    Download,
+    PlusCircle,
+    Map,
+    ExternalLink,
+    RefreshCw,
+    Loader2,
+} from 'lucide-react';
 import { createGoogleMapsTourUrl } from '@/lib/google';
 
 interface AgendaHeaderProps {
     onExportICal: () => void;
     onNewEvent: () => void;
     tourStops?: string[];
+    onSyncGoogleCalendar?: () => void;
+    isSyncingGoogle?: boolean;
 }
 
-export function AgendaHeader({ onExportICal, onNewEvent, tourStops = [] }: AgendaHeaderProps) {
+export function AgendaHeader({
+    onExportICal,
+    onNewEvent,
+    tourStops = [],
+    onSyncGoogleCalendar,
+    isSyncingGoogle = false,
+}: AgendaHeaderProps) {
     const handleOpenTour = () => {
         if (tourStops.length === 0) return;
         const url = createGoogleMapsTourUrl(tourStops);
@@ -41,6 +57,23 @@ export function AgendaHeader({ onExportICal, onNewEvent, tourStops = [] }: Agend
                     >
                         <Map className="w-3.5 h-3.5 text-blue-600" />
                         <span>Tournée Maps ({tourStops.length})</span>
+                    </button>
+                )}
+
+                {onSyncGoogleCalendar && (
+                    <button
+                        type="button"
+                        onClick={onSyncGoogleCalendar}
+                        disabled={isSyncingGoogle}
+                        className="px-3 py-2 bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-2xs transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="Pousser les événements de la semaine vers votre Google Agenda"
+                    >
+                        {isSyncingGoogle ? (
+                            <Loader2 className="w-3.5 h-3.5 text-gray-500 animate-spin" />
+                        ) : (
+                            <RefreshCw className="w-3.5 h-3.5 text-gray-500" />
+                        )}
+                        <span>{isSyncingGoogle ? 'Sync…' : 'Sync Google'}</span>
                     </button>
                 )}
 

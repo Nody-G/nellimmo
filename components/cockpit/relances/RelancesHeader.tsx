@@ -1,14 +1,22 @@
 'use client';
 
-import { BellRing, CheckCircle2 } from 'lucide-react';
+import { BellRing, CheckCircle2, ListChecks, Loader2 } from 'lucide-react';
 
 interface RelancesHeaderProps {
     pendingCount: number;
     doneCount: number;
     onReset: () => void;
+    onSyncGoogleTasks?: () => void;
+    isSyncingGoogle?: boolean;
 }
 
-export function RelancesHeader({ pendingCount, doneCount, onReset }: RelancesHeaderProps) {
+export function RelancesHeader({
+    pendingCount,
+    doneCount,
+    onReset,
+    onSyncGoogleTasks,
+    isSyncingGoogle = false,
+}: RelancesHeaderProps) {
     return (
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#F3E8EE] pb-4">
             <div>
@@ -33,6 +41,21 @@ export function RelancesHeader({ pendingCount, doneCount, onReset }: RelancesHea
                     <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
                     <span>{doneCount} traitées</span>
                 </div>
+                {onSyncGoogleTasks && (
+                    <button
+                        onClick={onSyncGoogleTasks}
+                        disabled={isSyncingGoogle}
+                        className="px-3 py-2 bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 rounded-xl text-xs font-bold shadow-2xs transition cursor-pointer flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                        title="Pousser les relances en attente vers Google Tasks"
+                    >
+                        {isSyncingGoogle ? (
+                            <Loader2 className="w-3.5 h-3.5 text-gray-500 animate-spin" />
+                        ) : (
+                            <ListChecks className="w-3.5 h-3.5 text-gray-500" />
+                        )}
+                        <span>{isSyncingGoogle ? 'Sync…' : 'Sync Tasks'}</span>
+                    </button>
+                )}
                 <button
                     onClick={onReset}
                     className="px-3 py-2 bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 rounded-xl text-xs font-bold shadow-2xs transition cursor-pointer"
