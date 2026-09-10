@@ -36,6 +36,7 @@ export function useContactsState(initialContactId?: string) {
     return null;
   });
   const [contactForEmailCompose, setContactForEmailCompose] = useState<ContactItem | null>(null);
+  const [isEmailHubOpen, setIsEmailHubOpen] = useState(false);
   const [contactForEdit, setContactForEdit] = useState<ContactItem | null>(null);
   const [isNewContactModalOpen, setIsNewContactModalOpen] = useState(false);
   const [isGoogleSyncModalOpen, setIsGoogleSyncModalOpen] = useState(false);
@@ -165,6 +166,8 @@ export function useContactsState(initialContactId?: string) {
     setSelectedContactForDetail,
     contactForEmailCompose,
     setContactForEmailCompose,
+    isEmailHubOpen,
+    setIsEmailHubOpen,
     contactForEdit,
     setContactForEdit,
     isNewContactModalOpen,

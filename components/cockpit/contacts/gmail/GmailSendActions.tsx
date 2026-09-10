@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Mail, Copy, Check, ExternalLink } from 'lucide-react';
+import { Mail, Copy, Check, ExternalLink, Send, Loader2 } from 'lucide-react';
 import { createMailtoUrl } from '@/lib/gmail';
 
 interface GmailSendActionsProps {
@@ -9,9 +9,11 @@ interface GmailSendActionsProps {
   recipientEmail: string;
   subject: string;
   body: string;
+  isSending?: boolean;
   onCopy: () => void;
   onClose: () => void;
   onOpenGmail: () => void;
+  onSendViaGmail?: () => void;
 }
 
 export function GmailSendActions({
@@ -19,9 +21,11 @@ export function GmailSendActions({
   recipientEmail,
   subject,
   body,
+  isSending = false,
   onCopy,
   onClose,
   onOpenGmail,
+  onSendViaGmail,
 }: GmailSendActionsProps) {
   return (
     <div className="pt-2 border-t border-gray-100 flex flex-wrap items-center justify-between gap-3">
@@ -54,11 +58,26 @@ export function GmailSendActions({
         <button
           type="button"
           onClick={onOpenGmail}
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold uppercase tracking-wider text-xs shadow-md transition cursor-pointer"
+          className="inline-flex items-center gap-2 px-4 py-2.5 bg-white hover:bg-gray-50 text-gray-700 border border-gray-200 rounded-xl font-bold text-xs transition cursor-pointer"
         >
           <ExternalLink className="w-4 h-4" />
           <span>Ouvrir dans Gmail</span>
         </button>
+        {onSendViaGmail && (
+          <button
+            type="button"
+            onClick={onSendViaGmail}
+            disabled={isSending || !recipientEmail.trim()}
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold uppercase tracking-wider text-xs shadow-md transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isSending ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Send className="w-4 h-4" />
+            )}
+            <span>{isSending ? 'Envoi…' : 'Envoyer via Gmail'}</span>
+          </button>
+        )}
       </div>
     </div>
   );

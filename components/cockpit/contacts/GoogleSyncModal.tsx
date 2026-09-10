@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
-import { X, Share2, Download, CheckCircle2, ExternalLink } from 'lucide-react';
+import { X, Share2, Download, CheckCircle2, ExternalLink, CloudUpload, Loader2, AlertTriangle } from 'lucide-react';
 import type { ContactItem } from '@/lib/types';
 import { useNellimoStore } from '@/lib/store';
 import { exportGoogleContactsCsv, parseContactsCsv } from '@/lib/gmail';
 import { GoogleCsvUploadBox } from './google/GoogleCsvUploadBox';
+import { useGoogleContacts } from './useGoogleContacts';
 
 interface GoogleSyncModalProps {
   contacts: ContactItem[];
@@ -13,12 +14,55 @@ interface GoogleSyncModalProps {
 }
 
 export function GoogleSyncModal({ contacts, onClose }: GoogleSyncModalProps) {
-  const { createContact } = useNellimoStore();
+  const { createContact, updateContact } = useNellimoStore();
+  const { syncContact, isSyncing, needsConnection } = useGoogleContacts();
   const [importStatus, setImportStatus] = useState<string | null>(null);
   const [isImporting, setIsImporting] = useState(false);
+  const [pushStatus, setPushStatus] = useState<string | null>(null);
+  const [pushError, setPushError] = useState<string | null>(null);
+  const [isPushing, setIsPushing] = useState(false);
 
   const handleExportGoogleCsv = () => {
     exportGoogleContactsCsv(contacts);
+  };
+
+  /** Pousse tous les contacts Nellimmo vers Google Contacts (création/mise à jour idempotente). */
+  const handlePushToGoogle = async () => {
+    if (contacts.length === 0) {
+      setPushError('Aucun contact à synchroniser.');
+      return;
+    }
+    setIsPushing(true);
+    setPushStatus(null);
+    setPushError(null);
+
+    let synced = 0;
+    let failed = 0;
+    for (const contact of contacts) {
+      const resourceName = await syncContact(contact);
+      if (resourceName) {
+        synced++;
+        // Persiste le resourceName pour les prochaines mises à jour idempotentes.
+        if (resourceName !== contact.google_resource_name) {
+          await updateContact(contact.id, { google_resource_name: resourceName });
+        }
+      } else {
+        failed++;
+      }
+    }
+
+    if (failed === 0) {
+      setPushStatus(`${synced} contact(s) synchronisé(s) avec Google Contacts.`);
+    } else if (synced === 0) {
+      setPushError(
+        needsConnection
+          ? 'Compte Google non connecté. Connectez-le depuis Paramètres → Google.'
+          : `Échec de la synchronisation (${failed} contact(s)).`
+      );
+    } else {
+      setPushStatus(`${synced} synchronisé(s), ${failed} en échec.`);
+    }
+    setIsPushing(false);
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -74,7 +118,7 @@ export function GoogleSyncModal({ contacts, onClose }: GoogleSyncModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in">
-      <div className="bg-white rounded-3xl border border-[#F3E8EE] shadow-2xl w-full max-w-xl overflow-hidden flex flex-col">
+      <div className="bg-white rounded-3xl border border-[#F3E8EE] shadow-2xl w-full max-w-xl overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
         <div className="p-6 pb-4 border-b border-gray-100 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -83,10 +127,10 @@ export function GoogleSyncModal({ contacts, onClose }: GoogleSyncModalProps) {
             </div>
             <div>
               <h2 className="text-lg font-serif font-bold text-[#131B26]">
-                Google Contacts &amp; Synchronisation
+                Google Contacts & Synchronisation
               </h2>
               <p className="text-xs text-gray-500">
-                Liaison bidirectionnelle Google Workspace, Gmail, iPhone &amp; Android.
+                Liaison bidirectionnelle Google Workspace, Gmail, iPhone & Android.
               </p>
             </div>
           </div>
@@ -100,7 +144,7 @@ export function GoogleSyncModal({ contacts, onClose }: GoogleSyncModalProps) {
         </div>
 
         {/* Content */}
-        <div className="p-6 space-y-5 text-xs">
+        <div className="p-6 space-y-5 text-xs overflow-y-auto">
           {/* Status info box */}
           <div className="p-4 bg-[#FCFAF7] rounded-2xl border border-gray-100 space-y-2">
             <div className="flex items-center gap-2 text-emerald-700 font-bold">
@@ -108,14 +152,55 @@ export function GoogleSyncModal({ contacts, onClose }: GoogleSyncModalProps) {
               <span>Format officiel Google Contacts 100% compatible</span>
             </div>
             <p className="text-gray-600 text-[11px] leading-relaxed">
-              Exportez vos contacts Nell’Immo pour les retrouver instantanément dans votre application Gmail sur mobile, ou importez un carnet existant depuis Google Contacts.
+              Synchronisez directement votre carnet avec votre compte Google connecté, ou exportez/importez un fichier CSV compatible Gmail, iPhone et Android.
             </p>
+          </div>
+
+          {/* Direct Google sync section */}
+          <div className="space-y-2">
+            <span className="text-[11px] font-black uppercase tracking-wider text-gray-400">
+              1. Synchroniser avec votre compte Google
+            </span>
+            <button
+              type="button"
+              onClick={handlePushToGoogle}
+              disabled={isPushing || isSyncing || contacts.length === 0}
+              className="w-full p-3.5 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl text-left transition flex items-center justify-between cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <div>
+                <div className="font-bold flex items-center gap-2">
+                  {isPushing || isSyncing ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <CloudUpload className="w-4 h-4" />
+                  )}
+                  <span>{isPushing || isSyncing ? 'Synchronisation…' : 'Pousser vers Google Contacts'}</span>
+                </div>
+                <div className="text-[10px] text-blue-100 mt-1">
+                  Crée ou met à jour {contacts.length} fiche(s) dans votre compte Google.
+                </div>
+              </div>
+              <ExternalLink className="w-4 h-4 text-blue-100" />
+            </button>
+
+            {pushStatus && (
+              <div className="p-3 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-xl font-medium text-xs flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>{pushStatus}</span>
+              </div>
+            )}
+            {pushError && (
+              <div className="p-3 bg-amber-50 text-amber-800 border border-amber-200 rounded-xl font-medium text-xs flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+                <span>{pushError}</span>
+              </div>
+            )}
           </div>
 
           {/* Export section */}
           <div className="space-y-2">
             <span className="text-[11px] font-black uppercase tracking-wider text-gray-400">
-              1. Exporter vers Google &amp; Mobile
+              2. Exporter vers Google & Mobile
             </span>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <button

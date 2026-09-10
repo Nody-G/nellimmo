@@ -9,6 +9,7 @@ import { GmailTemplateBar } from './gmail/GmailTemplateBar';
 import { GmailAiCopilotBar } from './gmail/GmailAiCopilotBar';
 import { GmailSendActions } from './gmail/GmailSendActions';
 import { computeTemplateContent } from './gmail/gmail-template-utils';
+import { useGmailSender } from './useGmailSender';
 
 interface GmailComposeModalProps {
   contact: ContactItem | null;
@@ -17,6 +18,7 @@ interface GmailComposeModalProps {
 
 export function GmailComposeModal({ contact, onClose }: GmailComposeModalProps) {
   const { properties, settings, addContactInteraction } = useNellimoStore();
+  const { send, isSending } = useGmailSender();
 
   const initialPropId = contact?.associated_property_ids?.[0] || properties[0]?.id || '';
   const initialTmpl = EMAIL_TEMPLATES.find((t) => t.role === contact?.role) || EMAIL_TEMPLATES[0];
@@ -45,16 +47,34 @@ export function GmailComposeModal({ contact, onClose }: GmailComposeModalProps) 
     setBody(updated.body);
   };
 
+  const logInteraction = async (channel: string) => {
+    if (!contact) return;
+    await addContactInteraction(contact.id, {
+      type: 'email_gmail',
+      title: `Email envoyé via ${channel} : ${subject.slice(0, 45)}...`,
+      description: body.slice(0, 180) + '...',
+      author: settings.agent_name || 'Nelly',
+    });
+  };
+
+  /** Envoi réel via l'API Gmail (repli automatique vers Gmail Web si non connecté). */
+  const handleSendViaGmail = async () => {
+    if (!recipientEmail.trim()) return;
+    const result = await send({
+      to: recipientEmail,
+      subject,
+      body,
+      fromName: settings.agent_name || undefined,
+    });
+    await logInteraction('Gmail');
+    onClose();
+    return result;
+  };
+
+  /** Repli : ouvre Gmail Web en composition. */
   const handleOpenGmail = async () => {
     const url = createGmailComposeUrl({ to: recipientEmail, subject, body });
-    if (contact) {
-      await addContactInteraction(contact.id, {
-        type: 'email_gmail',
-        title: `Email envoyé via Gmail : ${subject.slice(0, 45)}...`,
-        description: body.slice(0, 180) + '...',
-        author: settings.agent_name || 'Nelly',
-      });
-    }
+    await logInteraction('Gmail Web');
     window.open(url, '_blank', 'noopener,noreferrer');
     onClose();
   };
@@ -159,9 +179,11 @@ export function GmailComposeModal({ contact, onClose }: GmailComposeModalProps) 
             recipientEmail={recipientEmail}
             subject={subject}
             body={body}
+            isSending={isSending}
             onCopy={handleCopyText}
             onClose={onClose}
             onOpenGmail={handleOpenGmail}
+            onSendViaGmail={handleSendViaGmail}
           />
         </div>
       </div>

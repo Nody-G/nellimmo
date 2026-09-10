@@ -39,6 +39,8 @@ function ContactsPageContent() {
     setSelectedContactForDetail,
     contactForEmailCompose,
     setContactForEmailCompose,
+    isEmailHubOpen,
+    setIsEmailHubOpen,
     contactForEdit,
     setContactForEdit,
     isNewContactModalOpen,
@@ -64,7 +66,10 @@ function ContactsPageContent() {
         totalCount={contacts.length}
         onOpenNewContact={() => setIsNewContactModalOpen(true)}
         onOpenGoogleSync={() => setIsGoogleSyncModalOpen(true)}
-        onOpenEmailHub={() => setContactForEmailCompose(contacts[0] || null)}
+        onOpenEmailHub={() => {
+          setContactForEmailCompose(contacts[0] || null);
+          setIsEmailHubOpen(true);
+        }}
       />
 
       {/* Filter bar */}
@@ -134,10 +139,13 @@ function ContactsPageContent() {
         />
       )}
 
-      {contactForEmailCompose && (
+      {(contactForEmailCompose || isEmailHubOpen) && (
         <GmailComposeModal
           contact={contactForEmailCompose}
-          onClose={() => setContactForEmailCompose(null)}
+          onClose={() => {
+            setContactForEmailCompose(null);
+            setIsEmailHubOpen(false);
+          }}
         />
       )}
 
