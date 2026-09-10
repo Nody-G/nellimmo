@@ -12,7 +12,6 @@ import {
   Check,
   X,
   Clock,
-  Sparkles,
   Map as MapIcon,
   CheckCircle2,
   Minimize2,
@@ -606,16 +605,6 @@ export function GooglePlaceSheet({
             </div>
           </div>
 
-          {/* Visite Real Estate Pitch Card */}
-          <div className="p-3.5 bg-amber-50/70 dark:bg-amber-950/30 border-t border-amber-200/60 dark:border-amber-800/30">
-            <div className="flex items-center gap-1.5 text-[11px] font-bold text-amber-900 dark:text-amber-200 mb-1">
-              <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-              <span>Argumentaire de visite (Cockpit Nell’Immo)</span>
-            </div>
-            <p className="text-xs text-amber-950 dark:text-amber-100 leading-relaxed italic">
-              « {preset.visitPitch} »
-            </p>
-          </div>
 
           {/* Footer Action Bar */}
           <div className="p-3 bg-gray-50/90 dark:bg-[#1A2433] flex items-center justify-between gap-2 shrink-0">

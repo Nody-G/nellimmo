@@ -152,33 +152,91 @@ export function classifyOsmElement(tags: Record<string, string> = {}): {
   const leisure = (tags.leisure || '').toLowerCase();
   const highway = (tags.highway || '').toLowerCase();
   const railway = (tags.railway || '').toLowerCase();
+  const schoolFr = (tags['school:FR'] || '').toLowerCase();
+  const publicTransport = (tags.public_transport || '').toLowerCase();
+  const building = (tags.building || '').toLowerCase();
   const name = (tags.name || '').toLowerCase();
 
   // 1. Éducation
-  if (amenity === 'kindergarten' || name.includes('maternelle')) {
+  if (
+    schoolFr === 'maternelle' ||
+    amenity === 'kindergarten' ||
+    name.includes('maternelle') ||
+    name.includes('enfantine')
+  ) {
     return { category: 'education', subtype: 'maternelle', subtypeLabel: SUBTYPE_LABELS.maternelle.label };
   }
-  if (amenity === 'school' || name.includes('primaire') || name.includes('élémentaire') || name.includes('ecole')) {
-    if (name.includes('collège') || name.includes('college')) {
-      return { category: 'education', subtype: 'college', subtypeLabel: SUBTYPE_LABELS.college.label };
-    }
-    if (name.includes('lycée') || name.includes('lycee')) {
-      return { category: 'education', subtype: 'lycee', subtypeLabel: SUBTYPE_LABELS.lycee.label };
-    }
+  if (
+    schoolFr === 'college' ||
+    amenity === 'college' ||
+    name.includes('collège') ||
+    name.includes('college')
+  ) {
+    return { category: 'education', subtype: 'college', subtypeLabel: SUBTYPE_LABELS.college.label };
+  }
+  if (
+    schoolFr === 'lycee' ||
+    name.includes('lycée') ||
+    name.includes('lycee')
+  ) {
+    return { category: 'education', subtype: 'lycee', subtypeLabel: SUBTYPE_LABELS.lycee.label };
+  }
+  if (
+    schoolFr === 'elementaire' ||
+    schoolFr === 'primaire' ||
+    amenity === 'school' ||
+    name.includes('primaire') ||
+    name.includes('élémentaire') ||
+    name.includes('elementaire') ||
+    name.includes('ecole') ||
+    name.includes('école')
+  ) {
     return { category: 'education', subtype: 'primaire', subtypeLabel: SUBTYPE_LABELS.primaire.label };
   }
-  if (amenity === 'college' || name.includes('collège') || name.includes('college')) {
-    return { category: 'education', subtype: 'college', subtypeLabel: SUBTYPE_LABELS.college.label };
+  if (amenity === 'creche' || name.includes('crèche') || name.includes('creche') || name.includes('garderie')) {
+    return { category: 'education', subtype: 'creche', subtypeLabel: SUBTYPE_LABELS.creche.label };
   }
 
   // 2. Commerces
-  if (shop === 'supermarket' || name.includes('intermarch') || name.includes('carrefour market') || name.includes('super u') || name.includes('leclerc') || name.includes('lidl') || name.includes('aldi')) {
+  if (
+    shop === 'supermarket' ||
+    building === 'supermarket' ||
+    name.includes('intermarch') ||
+    name.includes('carrefour market') ||
+    name.includes('carrefour hyper') ||
+    name.includes('leclerc') ||
+    name.includes('super u') ||
+    name.includes('hyper u') ||
+    name.includes('lidl') ||
+    name.includes('aldi') ||
+    name.includes('monoprix') ||
+    name.includes('grand frais') ||
+    name.includes('biocoop') ||
+    name.includes('netto') ||
+    name.includes('auchan')
+  ) {
     return { category: 'commerce', subtype: 'supermarche', subtypeLabel: SUBTYPE_LABELS.supermarche.label };
   }
-  if (shop === 'convenience' || name.includes('spar') || name.includes('utile') || name.includes('u express') || name.includes('proxi') || name.includes('vival')) {
+  if (
+    shop === 'convenience' ||
+    shop === 'general' ||
+    shop === 'greengrocer' ||
+    name.includes('spar') ||
+    name.includes('utile') ||
+    name.includes('u express') ||
+    name.includes('proxi') ||
+    name.includes('vival') ||
+    name.includes('carrefour city') ||
+    name.includes('carrefour express') ||
+    name.includes('carrefour contact') ||
+    name.includes('petit casino') ||
+    name.includes('casino shop') ||
+    name.includes('épicerie') ||
+    name.includes('epicerie')
+  ) {
     return { category: 'commerce', subtype: 'superette', subtypeLabel: SUBTYPE_LABELS.superette.label };
   }
-  if (shop === 'bakery' || name.includes('boulanger') || name.includes('pain')) {
+  if (shop === 'bakery' || shop === 'pastry' || name.includes('boulanger') || name.includes('fournil') || name.includes('pain')) {
     return { category: 'commerce', subtype: 'boulangerie', subtypeLabel: SUBTYPE_LABELS.boulangerie.label };
   }
   if (amenity === 'marketplace' || name.includes('marché') || name.includes('marche')) {
@@ -189,29 +247,37 @@ export function classifyOsmElement(tags: Record<string, string> = {}): {
   if (amenity === 'pharmacy' || shop === 'chemist' || name.includes('pharmac')) {
     return { category: 'sante', subtype: 'pharmacie', subtypeLabel: SUBTYPE_LABELS.pharmacie.label };
   }
-  if (amenity === 'doctors' || amenity === 'clinic' || name.includes('médic') || name.includes('docteur')) {
+  if (amenity === 'doctors' || amenity === 'clinic' || name.includes('médic') || name.includes('medic') || name.includes('docteur') || name.includes('cabinet médical')) {
     return { category: 'sante', subtype: 'medecin', subtypeLabel: SUBTYPE_LABELS.medecin.label };
   }
-  if (amenity === 'hospital' || name.includes('hôpital') || name.includes('hopital') || name.includes('clinique')) {
+  if (amenity === 'hospital' || name.includes('hôpital') || name.includes('hopital') || name.includes('clinique') || name.includes('centre hospitalier')) {
     return { category: 'sante', subtype: 'hopital', subtypeLabel: SUBTYPE_LABELS.hopital.label };
   }
 
   // 4. Sport & Loisirs
-  if (leisure === 'pitch' || leisure === 'track' || name.includes('stade') || name.includes('terrain de foot') || name.includes('terrain de tennis') || name.includes('city stade')) {
+  if (leisure === 'pitch' || leisure === 'track' || name.includes('stade') || name.includes('terrain de foot') || name.includes('terrain de tennis') || name.includes('city stade') || name.includes('skatepark')) {
     return { category: 'sport', subtype: 'terrain_sport', subtypeLabel: SUBTYPE_LABELS.terrain_sport.label };
   }
-  if (leisure === 'sports_centre' || name.includes('complexe sportif') || name.includes('centre sportif')) {
+  if (leisure === 'sports_centre' || name.includes('complexe sportif') || name.includes('centre sportif') || name.includes('piscine') || name.includes('centre nautique')) {
     return { category: 'sport', subtype: 'complexe_sportif', subtypeLabel: SUBTYPE_LABELS.complexe_sportif.label };
   }
   if (leisure === 'fitness_centre' || name.includes('gymnase') || name.includes('fitness') || name.includes('crossfit') || name.includes('keep cool')) {
     return { category: 'sport', subtype: 'gymnase', subtypeLabel: SUBTYPE_LABELS.gymnase.label };
   }
-  if (leisure === 'park' || leisure === 'garden' || name.includes('parc') || name.includes('jardin')) {
+  if (leisure === 'park' || leisure === 'garden' || name.includes('parc') || name.includes('jardin') || name.includes('promenade')) {
     return { category: 'sport', subtype: 'parc', subtypeLabel: SUBTYPE_LABELS.parc.label };
   }
 
   // 5. Transports
-  if (highway === 'bus_stop' || amenity === 'bus_station' || name.includes('arrêt') || name.includes('bus')) {
+  if (
+    highway === 'bus_stop' ||
+    amenity === 'bus_station' ||
+    publicTransport === 'platform' ||
+    publicTransport === 'stop_position' ||
+    name.includes('arrêt') ||
+    name.includes('arret') ||
+    name.includes('bus')
+  ) {
     return { category: 'transport', subtype: 'bus', subtypeLabel: SUBTYPE_LABELS.bus.label };
   }
   if (railway === 'station' || railway === 'halt' || name.includes('gare')) {
