@@ -25,7 +25,12 @@ export function ContactTableRow({
 }: ContactTableRowProps) {
   const roleConfig = ROLE_CONFIGS[contact.role] || ROLE_CONFIGS.autre;
   const RoleIcon = roleConfig.icon;
-  const cleanPhone = contact.phone.replace(/[^0-9+]/g, '');
+  const firstName = (contact.first_name || '').trim();
+  const lastName = (contact.last_name || '').trim();
+  const fullName = [firstName, lastName].filter(Boolean).join(' ') || 'Contact sans nom';
+  const initials = `${firstName[0] || ''}${lastName[0] || ''}`.toUpperCase();
+  const phone = (contact.phone || '').trim();
+  const cleanPhone = phone.replace(/[^0-9+]/g, '');
   const waNumber = cleanPhone.startsWith('0') ? `33${cleanPhone.slice(1)}` : cleanPhone;
 
   return (
@@ -38,11 +43,10 @@ export function ContactTableRow({
           className="cursor-pointer"
         >
           <Star
-            className={`w-3.5 h-3.5 ${
-              contact.is_favorite
-                ? 'fill-amber-400 text-amber-400'
-                : 'text-gray-200 hover:text-amber-400'
-            }`}
+            className={`w-3.5 h-3.5 ${contact.is_favorite
+              ? 'fill-amber-400 text-amber-400'
+              : 'text-gray-200 hover:text-amber-400'
+              }`}
           />
         </button>
       </td>
@@ -55,12 +59,11 @@ export function ContactTableRow({
           className="hover:text-[#E12B7B] text-left transition flex items-center gap-2 cursor-pointer"
         >
           <span className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center font-bold text-[10px] text-gray-700 shrink-0">
-            {contact.first_name?.[0]}
-            {contact.last_name?.[0]}
+            {initials}
           </span>
           <span>
             {contact.civility ? `${contact.civility} ` : ''}
-            {contact.first_name} {contact.last_name}
+            {fullName}
           </span>
         </button>
       </td>
@@ -87,9 +90,9 @@ export function ContactTableRow({
 
       {/* Phone */}
       <td className="py-3 px-4 font-mono text-gray-700">
-        {contact.phone ? (
-          <a href={`tel:${contact.phone}`} className="hover:text-[#E12B7B] transition">
-            {contact.phone}
+        {phone ? (
+          <a href={`tel:${phone}`} className="hover:text-[#E12B7B] transition">
+            {phone}
           </a>
         ) : (
           '—'

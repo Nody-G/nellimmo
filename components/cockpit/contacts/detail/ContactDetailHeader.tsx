@@ -20,12 +20,16 @@ export function ContactDetailHeader({
 }: ContactDetailHeaderProps) {
   const roleConfig = ROLE_CONFIGS[contact.role] || ROLE_CONFIGS.autre;
 
+  const firstName = (contact.first_name || '').trim();
+  const lastName = (contact.last_name || '').trim();
+  const fullName = [firstName, lastName].filter(Boolean).join(' ') || 'Contact sans nom';
+  const initials = `${firstName[0] || ''}${lastName[0] || ''}`.toUpperCase();
+
   return (
     <div className="p-6 pb-4 border-b border-gray-100 flex items-start justify-between gap-4">
       <div className="flex items-center gap-4">
         <div className="w-14 h-14 rounded-2xl bg-[#FCFAF7] border-2 border-gray-100 flex items-center justify-center font-bold text-lg text-[#131B26]">
-          {contact.first_name?.[0]}
-          {contact.last_name?.[0]}
+          {initials}
         </div>
         <div>
           <div className="flex items-center gap-2">
@@ -40,17 +44,16 @@ export function ContactDetailHeader({
               className="cursor-pointer"
             >
               <Star
-                className={`w-4 h-4 ${
-                  contact.is_favorite
-                    ? 'fill-amber-400 text-amber-400'
-                    : 'text-gray-300 hover:text-amber-400'
-                }`}
+                className={`w-4 h-4 ${contact.is_favorite
+                  ? 'fill-amber-400 text-amber-400'
+                  : 'text-gray-300 hover:text-amber-400'
+                  }`}
               />
             </button>
           </div>
           <h2 className="text-xl font-serif font-bold text-[#131B26] mt-1">
             {contact.civility ? `${contact.civility} ` : ''}
-            {contact.first_name} {contact.last_name}
+            {fullName}
           </h2>
           <p className="text-xs text-gray-500">
             {contact.company ? `${contact.company} — ` : ''}

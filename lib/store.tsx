@@ -1359,8 +1359,9 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
       return Boolean(samePhone || sameEmail);
     });
 
-    const [firstName, ...rest] = (lead.name || 'Prospect').trim().split(/\s+/);
-    const lastName = rest.join(' ');
+    const nameParts = (lead.name || 'Prospect').trim().split(/\s+/).filter(Boolean);
+    const firstName = nameParts[0] || 'Prospect';
+    const lastName = nameParts.slice(1).join(' ');
 
     const interactionTitle =
       lead.interactionTitle ||
@@ -1407,11 +1408,11 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
       id: newContactId,
       role: lead.role || 'acquereur',
       status: 'actif',
-      first_name: firstName || 'Prospect',
+      first_name: firstName,
       last_name: lastName,
-      email: lead.email || '',
-      phone: lead.phone || '',
-      city: lead.city || '',
+      email: (lead.email || '').trim(),
+      phone: (lead.phone || '').trim(),
+      city: (lead.city || '').trim(),
       associated_property_ids: lead.propertyId ? [lead.propertyId] : [],
       notes: lead.message || '',
       tags: lead.source ? [lead.source] : [],

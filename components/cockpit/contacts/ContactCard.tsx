@@ -24,8 +24,12 @@ export function ContactCard({
   const roleConfig = ROLE_CONFIGS[contact.role] || ROLE_CONFIGS.autre;
   const RoleIcon = roleConfig.icon;
 
-  const initials = `${contact.first_name?.[0] || ''}${contact.last_name?.[0] || ''}`.toUpperCase();
-  const cleanPhone = contact.phone.replace(/[^0-9+]/g, '');
+  const firstName = (contact.first_name || '').trim();
+  const lastName = (contact.last_name || '').trim();
+  const fullName = [firstName, lastName].filter(Boolean).join(' ') || 'Contact sans nom';
+  const initials = `${firstName[0] || ''}${lastName[0] || ''}`.toUpperCase();
+  const phone = (contact.phone || '').trim();
+  const cleanPhone = phone.replace(/[^0-9+]/g, '');
   const waNumber = cleanPhone.startsWith('0') ? `33${cleanPhone.slice(1)}` : cleanPhone;
 
   // Rank styling
@@ -84,7 +88,7 @@ export function ContactCard({
                 className="text-base font-bold font-serif text-[#131B26] mt-1 group-hover:text-[#E12B7B] transition-colors cursor-pointer"
               >
                 {contact.civility ? `${contact.civility} ` : ''}
-                {contact.first_name} {contact.last_name}
+                {fullName}
               </h3>
             </div>
           </div>
@@ -97,9 +101,8 @@ export function ContactCard({
             className="text-gray-300 hover:text-amber-500 p-1.5 transition-transform hover:scale-110 cursor-pointer"
           >
             <Star
-              className={`w-4 h-4 ${
-                contact.is_favorite ? 'fill-amber-400 text-amber-400 drop-shadow-xs' : 'text-gray-300'
-              }`}
+              className={`w-4 h-4 ${contact.is_favorite ? 'fill-amber-400 text-amber-400 drop-shadow-xs' : 'text-gray-300'
+                }`}
             />
           </button>
         </div>
@@ -130,13 +133,13 @@ export function ContactCard({
 
         {/* Contact direct coordinates */}
         <div className="mt-3 pt-3 border-t border-gray-100 flex flex-col gap-1.5 text-xs">
-          {contact.phone && (
+          {phone && (
             <a
-              href={`tel:${contact.phone}`}
+              href={`tel:${phone}`}
               className="flex items-center gap-2 text-gray-800 hover:text-[#E12B7B] font-medium transition-colors"
             >
               <Phone className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-              <span>{contact.phone}</span>
+              <span>{phone}</span>
             </a>
           )}
           {contact.email && (
