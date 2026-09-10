@@ -21,7 +21,9 @@ import {
   PartnerAgency,
   DelegationAgreement,
   ContactItem,
-  ContactInteraction
+  ContactInteraction,
+  ContactRole,
+  ContactInteractionType
 } from './types';
 import type { RelanceStatusMap } from './relances';
 import {
@@ -172,6 +174,16 @@ interface NellimoContextType {
     reference?: string;
     propertyId?: string;
     propertyTitle?: string;
+    /** Rôle attribué à la fiche si elle est créée (défaut : acquereur). */
+    role?: ContactRole;
+    /** Ville de rattachement, stockée dans les notes si la fiche est créée. */
+    city?: string;
+    /** Type d'interaction journalisée (défaut : note). */
+    interactionType?: ContactInteractionType;
+    /** Titre personnalisé de l'interaction (sinon généré depuis la source). */
+    interactionTitle?: string;
+    /** Description personnalisée de l'interaction (sinon message/bien). */
+    interactionDescription?: string;
   }) => Promise<ContactItem>;
   syncContactsFromActivity: () => Promise<number>;
   setRelanceStatus: (actionId: string, status: RelanceStatusMap[string]) => void;
@@ -332,6 +344,7 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
           { data: auditData },
           { data: contactsData },
           { data: estData },
+          { data: transactionsData },
           { data: settingsData },
         ] = await Promise.all([
           supabase.from('properties').select('*, images:property_images(*)').order('mandate_number', { ascending: false }),
@@ -340,6 +353,7 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
           supabase.from('mandate_audit_logs').select('*').order('logged_at', { ascending: false }),
           supabase.from('contact_leads').select('*').order('created_at', { ascending: false }),
           supabase.from('estimation_leads').select('*').order('created_at', { ascending: false }),
+          supabase.from('transaction_deals').select('*').order('created_at', { ascending: false }),
           supabase.from('agency_settings').select('*').single(),
         ]);
 
@@ -349,6 +363,7 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
         if (auditData && auditData.length > 0) updateAudit(auditData as MandateAuditLog[]);
         if (contactsData) updateContactLeads(contactsData as ContactLead[]);
         if (estData) updateEstimationLeads(estData as EstimationLead[]);
+        if (transactionsData) updateTransactions(transactionsData as TransactionDeal[]);
         if (settingsData) updateSettingsHandler(settingsData as AgencySettings);
       } catch (err) {
         console.warn('Supabase fetch error, fallback to local storage:', err);
@@ -377,12 +392,15 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'estimation_leads' }, () => {
         loadSupabaseData();
       })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'transaction_deals' }, () => {
+        loadSupabaseData();
+      })
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [updateProperties, updateBuyers, updateVisits, updateAudit, updateContactLeads, updateEstimationLeads, updateSettingsHandler]);
+  }, [updateProperties, updateBuyers, updateVisits, updateAudit, updateContactLeads, updateEstimationLeads, updateTransactions, updateSettingsHandler]);
 
   // --- ACTIONS MANDATS HOGUET ---
 
@@ -746,8 +764,37 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
   // --- ACTIONS ESTIMATIONS ---
 
   const addEstimationLead = async (leadData: Omit<EstimationLead, 'id' | 'created_at' | 'status'>) => {
+    // Interconnexion : on crée/relie la fiche contact du carnet pro pour
+    // conserver l'historique complet de la relation (demande d'estimation).
+    let contactId = leadData.contact_id;
+    const estimationName = `${leadData.first_name || ''} ${leadData.last_name || ''}`.trim();
+    if (!contactId && estimationName) {
+      try {
+        const contact = await upsertContactFromLead({
+          name: estimationName,
+          email: leadData.email,
+          phone: leadData.phone,
+          city: leadData.city,
+          source: "Demande d'estimation",
+          role: 'vendeur',
+          interactionTitle: "Demande d'estimation",
+          interactionDescription: [
+            leadData.property_type ? `Type de bien : ${leadData.property_type}` : '',
+            leadData.living_area ? `Surface : ${leadData.living_area} m²` : '',
+            leadData.address ? `Adresse : ${leadData.address}` : '',
+          ]
+            .filter(Boolean)
+            .join('\n'),
+        });
+        contactId = contact.id;
+      } catch (e) {
+        console.error('Error upserting contact from estimation lead:', e);
+      }
+    }
+
     const newLead: EstimationLead = {
       ...leadData,
+      contact_id: contactId,
       id: `est-${Date.now()}`,
       status: 'nouveau',
       created_at: new Date().toISOString(),
@@ -804,8 +851,34 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
   // --- TRANSACTIONS & PIPELINE NOTAIRE ---
 
   const createTransaction = async (dealData: Omit<TransactionDeal, 'id' | 'created_at' | 'updated_at'>): Promise<TransactionDeal> => {
+    // Interconnexion : le notaire vendeur devient une fiche contact (rôle notaire)
+    // afin de centraliser l'historique des échanges dans le carnet pro.
+    let sellerNotaryContactId = dealData.seller_notary_contact_id;
+    if (!sellerNotaryContactId && dealData.seller_notary_name) {
+      try {
+        const notaryContact = await upsertContactFromLead({
+          name: dealData.seller_notary_name,
+          email: dealData.seller_notary_email,
+          phone: dealData.seller_notary_phone,
+          source: 'Transaction — Notaire vendeur',
+          role: 'notaire',
+          interactionTitle: 'Ouverture de dossier notaire',
+          interactionDescription: [
+            dealData.seller_notary_office ? `Étude : ${dealData.seller_notary_office}` : '',
+            dealData.property_id ? `Dossier bien : ${dealData.property_id}` : '',
+          ]
+            .filter(Boolean)
+            .join('\n'),
+        });
+        sellerNotaryContactId = notaryContact.id;
+      } catch (e) {
+        console.error('Error upserting notary contact from transaction:', e);
+      }
+    }
+
     const newDeal: TransactionDeal = {
       ...dealData,
+      seller_notary_contact_id: sellerNotaryContactId,
       id: `trans-${Date.now()}`,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
@@ -880,8 +953,36 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const createProspectingLead = async (data: Omit<ProspectingLead, 'id' | 'created_at'>): Promise<ProspectingLead> => {
+    // Interconnexion : la pige (prospect vendeur) alimente le carnet de contacts.
+    let contactId = data.contact_id;
+    if (!contactId && data.seller_name) {
+      try {
+        const contact = await upsertContactFromLead({
+          name: data.seller_name,
+          email: data.seller_email,
+          phone: data.seller_phone,
+          city: data.city,
+          source: `Pige ${data.source || ''}`.trim(),
+          role: 'vendeur',
+          interactionTitle: `Pige ${data.source || ''} — ${data.city || ''}`.trim(),
+          interactionDescription: [
+            data.title ? `Annonce : ${data.title}` : '',
+            data.property_type ? `Type : ${data.property_type}` : '',
+            data.price_asked ? `Prix demandé : ${data.price_asked} €` : '',
+            data.notes ? `Notes : ${data.notes}` : '',
+          ]
+            .filter(Boolean)
+            .join('\n'),
+        });
+        contactId = contact.id;
+      } catch (e) {
+        console.error('Error upserting contact from prospecting lead:', e);
+      }
+    }
+
     const newLead: ProspectingLead = {
       ...data,
+      contact_id: contactId,
       id: `pige-${Date.now()}`,
       created_at: new Date().toISOString(),
     };
@@ -955,8 +1056,44 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
   };
 
   const borrowKey = async (keyId: string, loanData: Omit<KeyLoanRecord, 'id'>): Promise<void> => {
+    // Interconnexion : l'emprunteur de clé (artisan, diagnostiqueur, confrère…)
+    // est rattaché au carnet de contacts pour tracer les passages sur le bien.
+    let borrowerContactId = loanData.borrower_contact_id;
+    if (!borrowerContactId && loanData.borrower_name) {
+      try {
+        const borrowerContact = await upsertContactFromLead({
+          name: loanData.borrower_name,
+          phone: loanData.borrower_phone,
+          source: 'Prêt de clé',
+          role:
+            loanData.borrower_role === 'confrere'
+              ? 'confrere'
+              : loanData.borrower_role === 'diagnostiqueur'
+                ? 'diagnostiqueur'
+                : loanData.borrower_role === 'proprietaire'
+                  ? 'vendeur'
+                  : loanData.borrower_role === 'acquereur'
+                    ? 'acquereur'
+                    : 'artisan',
+          interactionTitle: `Prêt de clé — ${loanData.purpose || 'intervention'}`,
+          interactionDescription: [
+            loanData.borrower_company ? `Société : ${loanData.borrower_company}` : '',
+            loanData.expected_return_at
+              ? `Retour prévu : ${new Date(loanData.expected_return_at).toLocaleDateString('fr-FR')}`
+              : '',
+          ]
+            .filter(Boolean)
+            .join('\n'),
+        });
+        borrowerContactId = borrowerContact.id;
+      } catch (e) {
+        console.error('Error upserting borrower contact from key loan:', e);
+      }
+    }
+
     const loanRecord: KeyLoanRecord = {
       ...loanData,
+      borrower_contact_id: borrowerContactId,
       id: `loan-${Date.now()}`,
     };
     const updated = keys.map((k) => {
@@ -995,8 +1132,27 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
   // --- PARC DE PANNEAUX D'AGENCE ---
 
   const createSignboard = async (data: Omit<AgencySignboard, 'id' | 'created_at'>): Promise<AgencySignboard> => {
+    // Interconnexion : le poseur de panneau est rattaché au carnet de contacts
+    // (rôle artisan) pour tracer les interventions sur le parc de panneaux.
+    let installerContactId = data.installer_contact_id;
+    if (!installerContactId && data.location_details) {
+      try {
+        const installerContact = await upsertContactFromLead({
+          name: data.location_details,
+          source: 'Pose de panneau',
+          role: 'artisan',
+          interactionTitle: `Pose de panneau — ${data.signboard_type}`,
+          interactionDescription: data.notes || undefined,
+        });
+        installerContactId = installerContact.id;
+      } catch (e) {
+        console.error('Error upserting installer contact from signboard:', e);
+      }
+    }
+
     const newSign: AgencySignboard = {
       ...data,
+      installer_contact_id: installerContactId,
       id: `sign-${Date.now()}`,
       created_at: new Date().toISOString(),
     };
@@ -1180,6 +1336,11 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
     reference?: string;
     propertyId?: string;
     propertyTitle?: string;
+    role?: ContactRole;
+    city?: string;
+    interactionType?: ContactInteractionType;
+    interactionTitle?: string;
+    interactionDescription?: string;
   }): Promise<ContactItem> => {
     const cleanPhone = (v?: string) => (v || '').replace(/[^0-9]/g, '');
     const cleanEmail = (v?: string) => (v || '').trim().toLowerCase();
@@ -1196,21 +1357,25 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
     const [firstName, ...rest] = (lead.name || 'Prospect').trim().split(/\s+/);
     const lastName = rest.join(' ');
 
-    const interactionTitle = lead.reference
-      ? `Lead entrant ${lead.source || 'portail'} — Réf. ${lead.reference}`
-      : `Lead entrant ${lead.source || 'portail'}`;
-    const interactionDescription = [
-      lead.propertyTitle ? `Bien concerné : ${lead.propertyTitle}` : '',
-      lead.message ? `Message : ${lead.message}` : '',
-    ]
-      .filter(Boolean)
-      .join('\n');
+    const interactionTitle =
+      lead.interactionTitle ||
+      (lead.reference
+        ? `Lead entrant ${lead.source || 'portail'} — Réf. ${lead.reference}`
+        : `Lead entrant ${lead.source || 'portail'}`);
+    const interactionDescription =
+      lead.interactionDescription ||
+      [
+        lead.propertyTitle ? `Bien concerné : ${lead.propertyTitle}` : '',
+        lead.message ? `Message : ${lead.message}` : '',
+      ]
+        .filter(Boolean)
+        .join('\n');
 
     if (existing) {
       const newInteraction: ContactInteraction = {
         id: `inter-${Date.now()}`,
         contact_id: existing.id,
-        type: 'note',
+        type: lead.interactionType || 'note',
         title: interactionTitle,
         description: interactionDescription || undefined,
         date: new Date().toISOString(),
@@ -1232,22 +1397,24 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
       return updatedContact;
     }
 
+    const newContactId = `cont-${Date.now()}`;
     const newContact: ContactItem = {
-      id: `cont-${Date.now()}`,
-      role: 'acquereur',
+      id: newContactId,
+      role: lead.role || 'acquereur',
       status: 'actif',
       first_name: firstName || 'Prospect',
       last_name: lastName,
       email: lead.email || '',
       phone: lead.phone || '',
+      city: lead.city || '',
       associated_property_ids: lead.propertyId ? [lead.propertyId] : [],
       notes: lead.message || '',
       tags: lead.source ? [lead.source] : [],
       interactions: [
         {
           id: `inter-${Date.now()}`,
-          contact_id: `cont-${Date.now()}`,
-          type: 'note',
+          contact_id: newContactId,
+          type: lead.interactionType || 'note',
           title: interactionTitle,
           description: interactionDescription || undefined,
           date: new Date().toISOString(),
@@ -1542,12 +1709,13 @@ export function useNellimoStore(): NellimoContextType {
       addContactInteraction: async () => { },
       upsertContactFromLead: async (lead) => ({
         id: 'cont-temp',
-        role: 'acquereur',
+        role: lead.role ?? 'acquereur',
         status: 'actif',
         first_name: lead.name,
         last_name: '',
         email: lead.email ?? '',
         phone: lead.phone ?? '',
+        city: lead.city ?? '',
         associated_property_ids: lead.propertyId ? [lead.propertyId] : [],
         notes: lead.message ?? '',
         tags: [],

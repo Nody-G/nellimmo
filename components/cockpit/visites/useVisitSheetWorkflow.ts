@@ -15,7 +15,7 @@ import type { PrintableVisitData } from './PrintableVisitModal';
 export function useVisitSheetWorkflow() {
   const searchParams = useSearchParams();
   const initialPropertyId = searchParams.get('propertyId');
-  const { properties, buyers, visits, createVisitSheet } = useNellimoStore();
+  const { properties, buyers, visits, createVisitSheet, upsertContactFromLead } = useNellimoStore();
   const { showToast } = useToast();
 
   const [selectedPropertyId, setSelectedPropertyId] = useState(() => {
@@ -75,6 +75,30 @@ export function useVisitSheetWorkflow() {
         notes: compiledNotes,
         signature_data_url: signatureUrl,
       });
+
+      // Interconnexion : on journalise la visite dans l'historique du contact
+      // acquéreur (création de la fiche si elle n'existe pas encore).
+      if (selectedBuyer) {
+        const buyerName =
+          `${selectedBuyer.first_name || ''} ${selectedBuyer.last_name || ''}`.trim() ||
+          'Acquéreur';
+        try {
+          await upsertContactFromLead({
+            name: buyerName,
+            email: selectedBuyer.email,
+            phone: selectedBuyer.phone,
+            source: 'Bon de visite',
+            role: 'acquereur',
+            propertyId: selectedProperty?.id,
+            propertyTitle: selectedProperty?.title,
+            interactionType: 'rdv',
+            interactionTitle: `Visite — ${selectedProperty?.title || 'Bien'}`,
+            interactionDescription: compiledNotes || undefined,
+          });
+        } catch (e) {
+          console.error('Error logging visit in contact timeline:', e);
+        }
+      }
 
       setIsSigned(true);
       showToast('Bon de visite horodaté et archivé avec succès !', 'success');

@@ -10,6 +10,7 @@ import { ContactProfileTab } from './detail/ContactProfileTab';
 import { ContactPropertiesTab } from './detail/ContactPropertiesTab';
 import { ContactTimelineTab } from './detail/ContactTimelineTab';
 import { ContactDocumentsTab } from './detail/ContactDocumentsTab';
+import { ContactRelancesTab } from './detail/ContactRelancesTab';
 
 interface ContactDetailModalProps {
   contact: ContactItem;
@@ -27,7 +28,7 @@ export function ContactDetailModal({
   onToggleFavorite,
 }: ContactDetailModalProps) {
   const { properties, addContactInteraction } = useNellimoStore();
-  const [activeTab, setActiveTab] = useState<'profil' | 'biens' | 'timeline' | 'docs'>('profil');
+  const [activeTab, setActiveTab] = useState<'profil' | 'biens' | 'timeline' | 'relances' | 'docs'>('profil');
 
   const linkedProps = properties.filter((p) =>
     contact.associated_property_ids?.includes(p.id)
@@ -90,44 +91,50 @@ export function ContactDetailModal({
             <button
               type="button"
               onClick={() => setActiveTab('profil')}
-              className={`py-3 px-4 text-xs font-bold border-b-2 transition cursor-pointer whitespace-nowrap ${
-                activeTab === 'profil'
-                  ? 'border-[#E12B7B] text-[#E12B7B]'
-                  : 'border-transparent text-gray-500 hover:text-gray-900'
-              }`}
+              className={`py-3 px-4 text-xs font-bold border-b-2 transition cursor-pointer whitespace-nowrap ${activeTab === 'profil'
+                ? 'border-[#E12B7B] text-[#E12B7B]'
+                : 'border-transparent text-gray-500 hover:text-gray-900'
+                }`}
             >
               Coordonnées &amp; Fiche
             </button>
             <button
               type="button"
               onClick={() => setActiveTab('biens')}
-              className={`py-3 px-4 text-xs font-bold border-b-2 transition cursor-pointer whitespace-nowrap ${
-                activeTab === 'biens'
-                  ? 'border-[#E12B7B] text-[#E12B7B]'
-                  : 'border-transparent text-gray-500 hover:text-gray-900'
-              }`}
+              className={`py-3 px-4 text-xs font-bold border-b-2 transition cursor-pointer whitespace-nowrap ${activeTab === 'biens'
+                ? 'border-[#E12B7B] text-[#E12B7B]'
+                : 'border-transparent text-gray-500 hover:text-gray-900'
+                }`}
             >
               Biens &amp; Dossiers ({linkedProps.length})
             </button>
             <button
               type="button"
               onClick={() => setActiveTab('timeline')}
-              className={`py-3 px-4 text-xs font-bold border-b-2 transition cursor-pointer whitespace-nowrap ${
-                activeTab === 'timeline'
-                  ? 'border-[#E12B7B] text-[#E12B7B]'
-                  : 'border-transparent text-gray-500 hover:text-gray-900'
-              }`}
+              className={`py-3 px-4 text-xs font-bold border-b-2 transition cursor-pointer whitespace-nowrap ${activeTab === 'timeline'
+                ? 'border-[#E12B7B] text-[#E12B7B]'
+                : 'border-transparent text-gray-500 hover:text-gray-900'
+                }`}
             >
               Timeline &amp; Échanges ({contact.interactions?.length || 0})
             </button>
             <button
               type="button"
+              onClick={() => setActiveTab('relances')}
+              className={`py-3 px-4 text-xs font-bold border-b-2 transition cursor-pointer whitespace-nowrap ${activeTab === 'relances'
+                ? 'border-[#E12B7B] text-[#E12B7B]'
+                : 'border-transparent text-gray-500 hover:text-gray-900'
+                }`}
+            >
+              Relances
+            </button>
+            <button
+              type="button"
               onClick={() => setActiveTab('docs')}
-              className={`py-3 px-4 text-xs font-bold border-b-2 transition cursor-pointer whitespace-nowrap ${
-                activeTab === 'docs'
-                  ? 'border-[#E12B7B] text-[#E12B7B]'
-                  : 'border-transparent text-gray-500 hover:text-gray-900'
-              }`}
+              className={`py-3 px-4 text-xs font-bold border-b-2 transition cursor-pointer whitespace-nowrap ${activeTab === 'docs'
+                ? 'border-[#E12B7B] text-[#E12B7B]'
+                : 'border-transparent text-gray-500 hover:text-gray-900'
+                }`}
             >
               Documents &amp; Légal ({contact.documents?.length || 0})
             </button>
@@ -143,6 +150,7 @@ export function ContactDetailModal({
                 onSaveInteraction={handleSaveInteraction}
               />
             )}
+            {activeTab === 'relances' && <ContactRelancesTab contact={contact} />}
             {activeTab === 'docs' && <ContactDocumentsTab contact={contact} />}
           </div>
         </div>

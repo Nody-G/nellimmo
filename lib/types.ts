@@ -276,11 +276,13 @@ export interface TransactionDeal {
   seller_notary_email: string;
   seller_notary_phone: string;
   seller_notary_office: string;
+  seller_notary_contact_id?: string;
 
   buyer_notary_name?: string;
   buyer_notary_email?: string;
   buyer_notary_phone?: string;
   buyer_notary_office?: string;
+  buyer_notary_contact_id?: string;
 
   // Deadlines & Dates
   offer_date: string;
@@ -450,6 +452,8 @@ export interface EstimationLead {
   rooms_count?: number;
   has_pool: boolean;
   status: 'nouveau' | 'en_cours' | 'avis_envoye' | 'archive';
+  /** Identifiant du contact du carnet pro rattaché (historique complet). */
+  contact_id?: string;
   created_at: string;
 }
 
@@ -485,6 +489,8 @@ export interface ProspectingLead {
   estimated_dvf_m2?: number;
   estimated_dvf_price?: number;
   days_online: number;
+  /** Identifiant du contact du carnet pro rattaché (historique complet). */
+  contact_id?: string;
   created_at: string;
 }
 
@@ -527,6 +533,7 @@ export interface KeyLoanRecord {
   borrower_phone: string;
   borrower_company?: string;
   borrower_role: KeyBorrowerRole;
+  borrower_contact_id?: string;
   borrowed_at: string;
   expected_return_at: string;
   returned_at?: string;
@@ -562,6 +569,7 @@ export interface AgencySignboard {
   removal_deadline?: string;
   location_details?: string;
   photo_url?: string;
+  installer_contact_id?: string;
   notes?: string;
   created_at: string;
   property?: Property;

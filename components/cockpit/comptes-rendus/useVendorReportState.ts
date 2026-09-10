@@ -10,7 +10,7 @@ import { useToast } from '@/components/ui/Toast';
 export function useVendorReportState() {
   const searchParams = useSearchParams();
   const initialPropertyId = searchParams.get('propertyId');
-  const { properties, vendorReports, createVendorReport, updateVendorReport } = useNellimoStore();
+  const { properties, vendorReports, createVendorReport, updateVendorReport, upsertContactFromLead } = useNellimoStore();
   const { showToast } = useToast();
 
   const initialProperty = (initialPropertyId && properties.find((p) => p.id === initialPropertyId)) || properties[0];
@@ -75,8 +75,8 @@ export function useVendorReportState() {
     const periodLabel = reportPeriod === 'hebdomadaire'
       ? 'cette semaine'
       : reportPeriod === 'mensuel'
-      ? 'ce mois-ci'
-      : 'sur les 30 premiers jours';
+        ? 'ce mois-ci'
+        : 'sur les 30 premiers jours';
 
     const summary = `Votre bien bénéficie d'une visibilité optimale avec ${totalViews.toLocaleString('fr-FR')} consultations cumulées ${periodLabel} (dont ${viewsLeboncoin} sur LeBonCoin et ${viewsSeloger} sur SeLoger). Nous avons qualifié ${leadsCount} contacts acquéreurs sérieux et organisé ${visitsCount} visites sur place. Les retours soulignent unanimement la luminosité et l'emplacement recherché.`;
 
@@ -113,6 +113,28 @@ export function useVendorReportState() {
     if (newReport?.id) {
       setActiveReportId(newReport.id);
     }
+
+    // Interconnexion : on trace la génération du compte-rendu dans l'historique
+    // du contact vendeur (fiche créée si nécessaire).
+    if (currentProperty.seller_name) {
+      try {
+        await upsertContactFromLead({
+          name: currentProperty.seller_name,
+          email: currentProperty.seller_email,
+          phone: currentProperty.seller_phone,
+          city: currentProperty.city,
+          source: 'Compte-rendu vendeur',
+          role: 'vendeur',
+          propertyId: currentProperty.id,
+          propertyTitle: currentProperty.title,
+          interactionTitle: `Compte-rendu ${reportPeriod === 'hebdomadaire' ? 'hebdomadaire' : reportPeriod === 'mensuel' ? 'mensuel' : 'bilan 30 jours'}`,
+          interactionDescription: summary,
+        });
+      } catch (e) {
+        console.error('Error logging vendor report in contact timeline:', e);
+      }
+    }
+
     setIsGenerating(false);
     showToast('Compte-rendu vendeur généré avec succès !', 'success');
   };
@@ -154,6 +176,23 @@ Nelly FERNANDEZ — SASU Nell'Immo (07 55 68 61 09)`;
     const cleanPhone = currentProperty.seller_phone.replace(/\s+/g, '').replace(/^0/, '33');
     updateVendorReport(report.id, { shared_via_whatsapp: true });
     window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(text)}`, '_blank');
+
+    // Interconnexion : on journalise l'envoi WhatsApp dans l'historique du vendeur.
+    if (currentProperty.seller_name) {
+      upsertContactFromLead({
+        name: currentProperty.seller_name,
+        email: currentProperty.seller_email,
+        phone: currentProperty.seller_phone,
+        city: currentProperty.city,
+        source: 'Compte-rendu vendeur',
+        role: 'vendeur',
+        propertyId: currentProperty.id,
+        propertyTitle: currentProperty.title,
+        interactionType: 'whatsapp',
+        interactionTitle: 'Envoi du compte-rendu par WhatsApp',
+        interactionDescription: `Compte-rendu ${report.report_period} transmis au vendeur.`,
+      }).catch((e) => console.error('Error logging WhatsApp report in contact timeline:', e));
+    }
   };
 
   const handleCopyWhatsapp = (report: VendorReport) => {

@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useNellimoStore } from '@/lib/store';
 import { getSessionUser } from '@/lib/auth';
@@ -27,11 +27,36 @@ export default function CockpitDashboard() {
     deleteContactLead,
     updateEstimationLeadStatus,
     deleteEstimationLead,
+    syncContactsFromActivity,
   } = useNellimoStore();
 
   const { showToast } = useToast();
   const currentUser = getSessionUser();
   const greetingName = currentUser?.first_name || '';
+
+  // Interconnexion : une seule synchronisation du carnet de contacts par session
+  // (évite tout polling et toute surcharge, conformément aux garde-fous).
+  const hasSyncedRef = useRef(false);
+  useEffect(() => {
+    if (hasSyncedRef.current) return;
+    hasSyncedRef.current = true;
+
+    const SESSION_FLAG = 'nellimo_contacts_synced_session';
+    try {
+      if (sessionStorage.getItem(SESSION_FLAG)) return;
+      sessionStorage.setItem(SESSION_FLAG, '1');
+    } catch {
+      // sessionStorage indisponible : on continue sans bloquer.
+    }
+
+    syncContactsFromActivity()
+      .then((count) => {
+        if (count > 0) {
+          showToast(`${count} contact(s) synchronisé(s) depuis votre activité.`, 'success');
+        }
+      })
+      .catch((e) => console.error('Error syncing contacts from activity:', e));
+  }, [syncContactsFromActivity, showToast]);
 
   const activeTransactions = transactions.filter(
     (t) => t.status !== 'acte_signe' && t.status !== 'annule'
