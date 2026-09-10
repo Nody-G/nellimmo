@@ -24,13 +24,18 @@ const VAULT_KEY = 'nellimo_settings_vault_v1';
 const VAULT_SESSION_KEY = 'nellimo_vault_session_v1';
 const PBKDF2_ITERATIONS = 150_000;
 
-/** Champs sensibles de AgencySettings à chiffrer au repos. */
+/**
+ * Champs sensibles de AgencySettings à chiffrer au repos.
+ *
+ * ⚠️ `google_client_secret` a été retiré : un secret OAuth ne doit jamais
+ * transiter par le navigateur. Il est désormais lu côté serveur uniquement
+ * (`process.env.GOOGLE_CLIENT_SECRET`). Voir `plans/integration-google-oauth.md`.
+ */
 export const SENSITIVE_SETTINGS_FIELDS: (keyof AgencySettings)[] = [
     'sftp_password',
     'meta_app_secret',
     'facebook_page_access_token',
     'linkedin_client_secret',
-    'google_client_secret',
     'google_maps_api_key',
 ];
 

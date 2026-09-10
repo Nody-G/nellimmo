@@ -54,6 +54,11 @@ export interface RelanceAction {
     /** Libellé source (ex. titre du bien). */
     sourceLabel: string;
     status: RelanceStatus;
+    /**
+     * Identifiant de la tâche Google Tasks associée, lorsque la relance a été
+     * poussée vers Google. Permet les mises à jour idempotentes.
+     */
+    google_task_id?: string;
 }
 
 export interface RelanceEngineInput {

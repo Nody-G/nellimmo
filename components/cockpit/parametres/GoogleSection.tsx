@@ -9,6 +9,7 @@ import type { SettingsChange } from './parametres-types';
 import { GoogleAccountStatusCard } from './google/GoogleAccountStatusCard';
 import { GoogleServicesGrid } from './google/GoogleServicesGrid';
 import { GoogleConnectModal } from './google/GoogleConnectModal';
+import { useGoogleConnection } from './google/useGoogleConnection';
 
 interface GoogleSectionProps {
   formData: AgencySettings;
@@ -25,20 +26,33 @@ export function GoogleSection({ formData, onChange, copiedLink, onCopy }: Google
   const [isConnectModalOpen, setIsConnectModalOpen] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncMessage, setSyncMessage] = useState<string | null>(null);
+  const { status, refreshStatus } = useGoogleConnection();
 
   /**
-   * Vérification réelle de la configuration Google : on contrôle que le compte
-   * est renseigné et que les passerelles configurées (Drive, Maps, My Business)
-   * sont cohérentes. Aucun faux succès simulé.
+   * Vérification réelle de la connexion Google : interroge la route `status`
+   * (source de vérité = Google) et contrôle la cohérence des passerelles
+   * configurées. Aucun faux succès simulé.
    */
-  const handleQuickSync = () => {
+  const handleQuickSync = async () => {
     setIsSyncing(true);
     setSyncMessage(null);
-    setTimeout(() => {
-      setIsSyncing(false);
-      const account = formData.google_account_email || formData.google_calendar_id || '';
+    try {
+      await refreshStatus();
+      const res = await fetch('/api/google/oauth/status', { cache: 'no-store' });
+      const live = await res.json();
+
+      if (!live.configured) {
+        setSyncMessage(
+          'Configuration OAuth serveur incomplète : renseignez GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET et GOOGLE_REDIRECT_URI.'
+        );
+        return;
+      }
+      if (!live.connected) {
+        setSyncMessage('Aucun compte Google connecté. Cliquez sur « Connecter le Compte ».');
+        return;
+      }
+
       const issues: string[] = [];
-      if (!account) issues.push('compte Google non renseigné');
       if (formData.google_drive_folder_id && !/^[\w-]+$/.test(formData.google_drive_folder_id)) {
         issues.push('identifiant de dossier Drive invalide');
       }
@@ -49,13 +63,25 @@ export function GoogleSection({ formData, onChange, copiedLink, onCopy }: Google
         issues.push('clé API Maps suspecte (doit commencer par AIza)');
       }
 
+      const authorized = Object.values(live.services || {}).filter(Boolean).length;
+
       if (issues.length === 0) {
-        setSyncMessage('Configuration Google vérifiée : tous les paramètres sont cohérents.');
-        onChange({ google_connected_at: new Date().toISOString() });
+        setSyncMessage(
+          `Compte ${live.email} connecté • ${authorized} service(s) autorisé(s). Configuration cohérente.`
+        );
+        onChange({
+          google_account_email: live.email,
+          google_account_name: live.name || live.email,
+          google_connected_at: new Date().toISOString(),
+        });
       } else {
         setSyncMessage(`À corriger : ${issues.join(', ')}.`);
       }
-    }, 500);
+    } catch {
+      setSyncMessage('Impossible de vérifier la connexion Google.');
+    } finally {
+      setIsSyncing(false);
+    }
   };
 
   const handleToggleService = (serviceKey: keyof NonNullable<AgencySettings['google_services_enabled']>) => {

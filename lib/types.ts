@@ -399,6 +399,12 @@ export interface AgencySettings {
   google_account_name?: string;
   google_connected_at?: string;
   google_client_id?: string;
+  /**
+   * @deprecated Le `client_secret` OAuth ne doit JAMAIS transiter par le
+   * navigateur. Il vit exclusivement côté serveur via la variable
+   * d'environnement `GOOGLE_CLIENT_SECRET`. Ce champ est conservé uniquement
+   * pour la migration/purge des données héritées et n'est plus lu ni écrit.
+   */
   google_client_secret?: string;
   google_calendar_id?: string;
   google_maps_api_key?: string;
@@ -749,5 +755,10 @@ export interface ContactItem {
   created_at: string;
   updated_at: string;
   last_contact_at?: string;
+  /**
+   * Nom de ressource Google People (`people/c123…`) lorsque le contact a été
+   * synchronisé avec Google Contacts. Permet les mises à jour idempotentes.
+   */
+  google_resource_name?: string;
 }
 

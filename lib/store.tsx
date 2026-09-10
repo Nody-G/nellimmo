@@ -671,7 +671,12 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
       const supabase = getSupabaseClient();
       if (supabase) {
         try {
-          await supabase.from('agency_settings').upsert({ id: 'default', ...newSettings });
+          // Sécurité : le client_secret OAuth ne doit JAMAIS être poussé en base
+          // depuis le navigateur. Il vit exclusivement côté serveur
+          // (process.env.GOOGLE_CLIENT_SECRET). On le retire explicitement ici.
+          const { google_client_secret: _omitSecret, ...safeSettings } = newSettings;
+          void _omitSecret;
+          await supabase.from('agency_settings').upsert({ id: 'default', ...safeSettings });
         } catch (e) {
           console.error('Error saving settings to Supabase:', e);
         }
