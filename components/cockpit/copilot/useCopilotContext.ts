@@ -4,6 +4,11 @@ import { useMemo } from 'react';
 import { usePathname } from 'next/navigation';
 import { useNellimo } from '@/lib/store';
 import type { Property, Buyer, VisitSheet } from '@/lib/types';
+import { computeRelances } from '@/lib/relances';
+import {
+  buildAgencyDataSnapshot,
+  type AgencyDataSnapshot,
+} from '@/lib/ai-data-snapshot';
 
 export interface CopilotContextData {
   pathname: string;
@@ -13,11 +18,42 @@ export interface CopilotContextData {
   activeBuyer: Buyer | null;
   activeVisit: VisitSheet | null;
   suggestedPrompts: { label: string; action: string; prompt: string }[];
+  /** Instantané anonymisé des données de l'agence pour le copilote IA. */
+  dataSnapshot: AgencyDataSnapshot;
 }
 
 export function useCopilotContext(): CopilotContextData {
   const pathname = usePathname() || '';
-  const { properties, buyers, visits } = useNellimo();
+  const {
+    properties,
+    buyers,
+    visits,
+    contacts,
+    transactions,
+    prospectingLeads,
+    settings,
+  } = useNellimo();
+
+  // Instantané des données de l'agence (mémoïsé sur les données sources).
+  const dataSnapshot = useMemo(
+    () =>
+      buildAgencyDataSnapshot({
+        properties,
+        buyers,
+        contacts,
+        relances: computeRelances({
+          properties,
+          buyers,
+          visits,
+          transactions,
+          settings,
+        }),
+        transactions,
+        leads: prospectingLeads,
+        visits,
+      }),
+    [properties, buyers, contacts, visits, transactions, prospectingLeads, settings]
+  );
 
   return useMemo(() => {
     let contextTitle = 'Espace Général Cockpit';
@@ -25,16 +61,31 @@ export function useCopilotContext(): CopilotContextData {
     let activeProperty: Property | null = null;
     const activeBuyer: Buyer | null = null;
     const activeVisit: VisitSheet | null = null;
+    const pendingRelances = dataSnapshot.totals.relances_pending;
+    const portfolioValue = dataSnapshot.portfolio_value;
+
     let suggestedPrompts = [
+      {
+        label: '📊 Fais le point sur mon agence',
+        action: 'chat',
+        prompt:
+          `Fais-moi une synthèse complète de mon agence : ${dataSnapshot.totals.properties} biens ` +
+          `(valeur ${portfolioValue}), ${dataSnapshot.totals.buyers} acquéreurs, ` +
+          `${dataSnapshot.totals.contacts} contacts, ${pendingRelances} relances en attente, ` +
+          `${dataSnapshot.totals.transactions} transactions et ${dataSnapshot.totals.leads} leads. ` +
+          `Quelles sont mes 3 priorités d'action aujourd'hui ?`,
+      },
+      {
+        label: '🔔 Mes relances en attente',
+        action: 'chat',
+        prompt:
+          `Liste-moi les ${pendingRelances} relances en attente et propose pour chacune ` +
+          `un message court et chaleureux adapté à son échéance.`,
+      },
       {
         label: '✨ Réécrire à ma plume',
         action: 'rewrite_nelly',
         prompt: 'Peux-tu reformuler ce texte pour lui donner mon ton chaleureux, bienveillant et provençal ?',
-      },
-      {
-        label: '💬 Préparer un SMS client',
-        action: 'chat',
-        prompt: 'Rédige-moi un SMS court et chaleureux pour prendre des nouvelles d’un client.',
       },
       {
         label: '📸 Idée de post Instagram',
@@ -79,17 +130,27 @@ export function useCopilotContext(): CopilotContextData {
         ];
       } else {
         contextTitle = 'Portefeuille de Mandats';
-        contextSubtitle = `${properties.length} biens sous mandat actifs`;
+        contextSubtitle = `${properties.length} biens sous mandat actifs • ${portfolioValue}`;
         suggestedPrompts = [
+          {
+            label: '📊 Synthèse du Portefeuille',
+            action: 'chat',
+            prompt:
+              `Analyse mon portefeuille de ${dataSnapshot.totals.properties} biens (valeur ${portfolioValue}) : ` +
+              `quels mandats sont les plus anciens ou les plus chers, et quelles actions concrètes ` +
+              `pour accélérer leur vente ?`,
+          },
+          {
+            label: '🎯 Biens sans acquéreur',
+            action: 'chat',
+            prompt:
+              `Parmi mes ${dataSnapshot.totals.properties} biens et ${dataSnapshot.totals.buyers} acquéreurs, ` +
+              `identifie les biens qui n'ont pas d'acquéreur correspondant et propose des pistes de mise en relation.`,
+          },
           {
             label: '⚡ Saisie Express d’un Mandat',
             action: 'smart_form_parse',
             prompt: 'Je colle ici le texte d’un bien reçu pour que tu m’en extraies toutes les caractéristiques.',
-          },
-          {
-            label: '📊 Synthèse du Portefeuille',
-            action: 'chat',
-            prompt: 'Donne-moi 3 idées d’actions prioritaires pour accélérer la vente des mandats en portefeuille.',
           },
         ];
       }
@@ -100,6 +161,13 @@ export function useCopilotContext(): CopilotContextData {
       contextTitle = 'Visites & Retours Acquéreurs';
       contextSubtitle = `${visits.length} visites enregistrées`;
       suggestedPrompts = [
+        {
+          label: '📋 Bilan de mes visites',
+          action: 'chat',
+          prompt:
+            `Fais le bilan de mes ${dataSnapshot.totals.visits} visites enregistrées : ` +
+            `quels biens suscitent le plus d'intérêt et quels acquéreurs semblent les plus chauds ?`,
+        },
         {
           label: '🎤 Débriefing Visite Vendeur',
           action: 'vendor_debrief',
@@ -119,6 +187,13 @@ export function useCopilotContext(): CopilotContextData {
       contextSubtitle = `${buyers.length} profils acquéreurs suivis`;
       suggestedPrompts = [
         {
+          label: '🎯 Matching biens / acquéreurs',
+          action: 'chat',
+          prompt:
+            `Avec mes ${dataSnapshot.totals.buyers} acquéreurs et ${dataSnapshot.totals.properties} biens, ` +
+            `propose-moi les meilleures mises en relation (acquéreur ↔ bien) en expliquant pourquoi.`,
+        },
+        {
           label: '💌 Email Coup de Cœur',
           action: 'buyer_pitch',
           prompt: 'Rédige un email personnalisé "J’ai pensé à vous" pour proposer une opportunité à un acquéreur.',
@@ -134,8 +209,15 @@ export function useCopilotContext(): CopilotContextData {
     // Détection de la page Relances
     else if (pathname.includes('/relances')) {
       contextTitle = 'Centre de Relances & Suivi';
-      contextSubtitle = 'Nurturing et maintien du lien client';
+      contextSubtitle = `${pendingRelances} relances en attente • nurturing client`;
       suggestedPrompts = [
+        {
+          label: '🔔 Détail de mes relances',
+          action: 'chat',
+          prompt:
+            `Détaille mes ${pendingRelances} relances en attente : classe-les par urgence ` +
+            `et indique pour chacune le contact concerné et l'action à mener.`,
+        },
         {
           label: '⚡ Optimiser les relances du jour',
           action: 'relance_boost',
@@ -152,6 +234,7 @@ export function useCopilotContext(): CopilotContextData {
       activeBuyer,
       activeVisit,
       suggestedPrompts,
+      dataSnapshot,
     };
-  }, [pathname, properties, buyers, visits]);
+  }, [pathname, properties, buyers, visits, dataSnapshot]);
 }

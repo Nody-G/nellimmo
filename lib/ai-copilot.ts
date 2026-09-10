@@ -8,6 +8,7 @@
 
 import { Property, Buyer, VisitSheet } from './types';
 import { sanitizeTextForLlm, pseudonymizeName } from './ai-privacy-guard';
+import type { AgencyDataSnapshot } from './ai-data-snapshot';
 
 export type CopilotAction =
   | 'chat'
@@ -32,6 +33,12 @@ export interface CopilotPayload {
     weaknesses?: string[];
     channel?: 'whatsapp' | 'email' | 'instagram' | 'sms';
     rawText?: string;
+    /**
+     * Instantané anonymisé des données de l'agence (biens, acquéreurs, contacts,
+     * relances, transactions, leads, visites) issu du localStorage. Permet au
+     * copilote de répondre à des questions concrètes sur le portefeuille réel.
+     */
+    dataSnapshot?: AgencyDataSnapshot | null;
   };
 }
 

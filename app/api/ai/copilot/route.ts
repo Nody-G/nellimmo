@@ -9,6 +9,10 @@ import {
   sanitizePropertyForLlm,
   pseudonymizeName,
 } from '@/lib/ai-privacy-guard';
+import {
+  formatSnapshotForPrompt,
+  type AgencyDataSnapshot,
+} from '@/lib/ai-data-snapshot';
 
 import { resolveDeepSeekApiKey, executeDeepSeekCall } from '@/lib/deepseek/server';
 
@@ -49,6 +53,39 @@ export async function POST(req: NextRequest) {
     }
 
     const sanitizedUserMessage = sanitizeTextForLlm(message);
+
+    // 1bis. Instantané des données de l'agence (déjà anonymisé côté client).
+    //       On re-caviarde défensivement les champs texte libres côté serveur.
+    let snapshotBlock = '';
+    if (context.dataSnapshot) {
+      const snap = context.dataSnapshot as AgencyDataSnapshot;
+      const safeSnapshot: AgencyDataSnapshot = {
+        ...snap,
+        properties: (snap.properties || []).map((p) => ({
+          ...p,
+          title: sanitizeTextForLlm(p.title),
+        })),
+        relances: (snap.relances || []).map((r) => ({
+          ...r,
+          title: sanitizeTextForLlm(r.title),
+          message: sanitizeTextForLlm(r.message),
+        })),
+        leads: (snap.leads || []).map((l) => ({
+          ...l,
+          title: sanitizeTextForLlm(l.title),
+        })),
+        transactions: (snap.transactions || []).map((t) => ({
+          ...t,
+          property: sanitizeTextForLlm(t.property),
+        })),
+        visits: (snap.visits || []).map((v) => ({
+          ...v,
+          property: sanitizeTextForLlm(v.property),
+          feedback: sanitizeTextForLlm(v.feedback),
+        })),
+      };
+      snapshotBlock = formatSnapshotForPrompt(safeSnapshot);
+    }
 
     // 2. Si aucune clé n'est configurée, retour immédiat via le moteur local certifié
     if (!apiKey) {
@@ -108,6 +145,17 @@ Acquéreur sélectionné : ${JSON.stringify(sanitizedContext.buyer || 'aucun')}
 Page : ${sanitizedContext.pathname || ''}]
 
 Demande de Nelly : ${sanitizedUserMessage}`;
+    }
+
+    // 3bis. Injection de l'instantané des données de l'agence (localStorage).
+    //       Le copilote peut ainsi répondre sur le portefeuille réel, les
+    //       acquéreurs, les contacts et les relances en attente.
+    if (snapshotBlock) {
+      promptContent = `${snapshotBlock}
+
+${promptContent}
+
+CONSIGNE : Appuie-toi sur l'INSTANTANÉ DES DONNÉES DE L'AGENCE ci-dessus pour répondre de façon concrète et chiffrée (cite les références de mandat, les villes, les budgets, les échéances de relance). Si une information demandée n'y figure pas, indique-le honnêtement sans l'inventer.`;
     }
 
     // 4. Appel unifié officiel DeepSeek V4 Flash

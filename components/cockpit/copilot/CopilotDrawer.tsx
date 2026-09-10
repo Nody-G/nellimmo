@@ -85,6 +85,7 @@ export function CopilotDrawer({ isOpen, onClose }: CopilotDrawerProps) {
             property: context.activeProperty,
             buyer: context.activeBuyer,
             visit: context.activeVisit,
+            dataSnapshot: context.dataSnapshot,
           },
         }),
       });
@@ -249,9 +250,8 @@ export function CopilotDrawer({ isOpen, onClose }: CopilotDrawerProps) {
             messages.map((msg) => (
               <div
                 key={msg.id}
-                className={`flex gap-2.5 ${
-                  msg.role === 'user' ? 'justify-end' : 'justify-start'
-                }`}
+                className={`flex gap-2.5 ${msg.role === 'user' ? 'justify-end' : 'justify-start'
+                  }`}
               >
                 {msg.role === 'assistant' && (
                   <div className="w-7 h-7 rounded-lg bg-[#131B26] text-white flex items-center justify-center shrink-0 mt-0.5">
@@ -260,11 +260,10 @@ export function CopilotDrawer({ isOpen, onClose }: CopilotDrawerProps) {
                 )}
 
                 <div
-                  className={`max-w-[85%] rounded-2xl p-3.5 text-xs leading-relaxed space-y-2 shadow-2xs ${
-                    msg.role === 'user'
+                  className={`max-w-[85%] rounded-2xl p-3.5 text-xs leading-relaxed space-y-2 shadow-2xs ${msg.role === 'user'
                       ? 'bg-[#131B26] text-white rounded-br-none'
                       : 'bg-white border border-gray-200 text-gray-800 rounded-bl-none'
-                  }`}
+                    }`}
                 >
                   <p className="whitespace-pre-wrap">{msg.content}</p>
 
