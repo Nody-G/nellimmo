@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
           content: 'Réponds uniquement par le mot OK en un seul token.',
         },
       ],
-      model: 'deepseek-v4-flash',
+      model: 'deepseek-chat',
       maxTokens: 5,
       req,
     });
@@ -34,7 +34,7 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({
     status: 'ready',
     hasServerApiKey: hasApiKey,
-    defaultModel: 'deepseek-v4-flash',
-    contextWindow: '1M tokens',
+    defaultModel: 'deepseek-chat',
+    contextWindow: '128k tokens',
   });
 }

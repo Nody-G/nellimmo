@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Landmark, X, Copy, Check, Printer, Send, ShieldCheck } from 'lucide-react';
 import { useToast } from '@/components/ui/Toast';
 import { Portal } from '@/components/ui/Portal';
+import { useNellimoStore } from '@/lib/store';
 import type { TransactionDeal, Property } from '@/lib/types';
 
 interface NotaryCompromisPackModalProps {
@@ -20,6 +21,7 @@ export function NotaryCompromisPackModal({
   property,
 }: NotaryCompromisPackModalProps) {
   const { showToast } = useToast();
+  const { settings } = useNellimoStore();
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -60,7 +62,7 @@ export function NotaryCompromisPackModal({
     `4. Titre de propriété et avis de taxe foncière\n` +
     `5. Pièce d’identité et attestation de financement de l’acquéreur\n\n` +
     `Je reste à votre entière disposition pour fixer la date de signature du compromis.\n\n` +
-    `Bien confraternellement,\nNelly • Nell’Immo Pélissanne (06 12 34 56 78)`;
+    `Bien confraternellement,\n${settings.agent_name || 'Nelly'} • ${settings.agency_name || "Nell’Immo"} ${settings.city || 'Pélissanne'} (${settings.phone || '07 55 68 61 09'})`;
 
   const handleCopy = async () => {
     try {

@@ -62,7 +62,7 @@ export function DeepSeekCostKpis({ summary, budget, onOpenBudgetModal }: DeepSee
           <span className="text-[11px] font-bold text-emerald-600">économisés</span>
         </div>
         <p className="mt-2 text-[11px] text-gray-500">
-          DeepSeek V4 Flash est ~18x plus abordable qu’OpenAI
+          Estimation indicative par rapport à un modèle haut de gamme
         </p>
       </div>
 
@@ -85,7 +85,7 @@ export function DeepSeekCostKpis({ summary, budget, onOpenBudgetModal }: DeepSee
           </span>
         </div>
         <p className="mt-2 text-[11px] text-gray-500">
-          Remise de 90% à 98% appliquée sur les contextes répétés
+          Réduction appliquée sur les contextes répétés (prompt caching)
         </p>
       </div>
 
@@ -118,13 +118,12 @@ export function DeepSeekCostKpis({ summary, budget, onOpenBudgetModal }: DeepSee
           </div>
           <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
             <div
-              className={`h-full rounded-full transition-all duration-300 ${
-                summary.isBudgetExceeded
+              className={`h-full rounded-full transition-all duration-300 ${summary.isBudgetExceeded
                   ? 'bg-red-500'
                   : summary.isBudgetNearLimit
-                  ? 'bg-amber-500'
-                  : 'bg-emerald-500'
-              }`}
+                    ? 'bg-amber-500'
+                    : 'bg-emerald-500'
+                }`}
               style={{ width: `${Math.min(100, summary.budgetUsedPercent)}%` }}
             />
           </div>

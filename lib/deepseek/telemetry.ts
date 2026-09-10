@@ -29,7 +29,7 @@ export interface DeepSeekCallLog {
 export interface BudgetConfig {
   monthlyLimitEur: number;
   alertThresholdPercent: number; // e.g. 80
-  economyModeEnabled: boolean; // if true, forces deepseek-v4-flash or local fallback when over budget
+  economyModeEnabled: boolean; // if true, forces deepseek-chat or local fallback when over budget
 }
 
 export const DEFAULT_BUDGET_CONFIG: BudgetConfig = {

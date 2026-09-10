@@ -28,7 +28,7 @@ export function DeepSeekTokenBreakdown({ summary }: DeepSeekTokenBreakdownProps)
           </p>
         </div>
         <span className="text-xs px-2.5 py-1 rounded-full bg-pink-50 text-[#E12B7B] font-bold">
-          DeepSeek V4 Architecture
+          Architecture DeepSeek
         </span>
       </div>
 

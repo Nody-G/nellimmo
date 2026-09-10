@@ -20,8 +20,8 @@ interface AiSectionProps {
 }
 
 /**
- * Section 4 : Centre Unique de Gestion de la Clé API DeepSeek V4.1 Flash
- * Répercute la clé automatiquement et instantanément sur l'ensemble de l'application.
+ * Section 4 : Centre unique de gestion de la clé API DeepSeek.
+ * Répercute la clé automatiquement sur l'ensemble de l'application.
  */
 export function AiSection({ formData, onChange, onOpenTelemetry }: AiSectionProps) {
   const isPeak = isPeakHour();
@@ -47,7 +47,7 @@ export function AiSection({ formData, onChange, onOpenTelemetry }: AiSectionProp
   return (
     <SectionCard
       icon={<Sparkles className="w-5 h-5 text-[#E12B7B]" />}
-      title="4. Intelligence Artificielle & Moteur Officiel DeepSeek V4.1 Flash"
+      title="4. Intelligence Artificielle & Moteur DeepSeek"
     >
       <div className="space-y-4">
         {/* Statut Global & Indicateur de Tarification */}
@@ -56,7 +56,7 @@ export function AiSection({ formData, onChange, onOpenTelemetry }: AiSectionProp
             <span className="text-base">⚡</span>
             <div>
               <div className="text-xs font-bold text-gray-900 flex items-center gap-2">
-                <span>Modèle IA Actif : DeepSeek V4.1 Flash</span>
+                <span>Modèle IA Actif : DeepSeek Chat</span>
                 {isConnected ? (
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
                     <CheckCircle2 className="w-3 h-3 text-emerald-600" />
@@ -91,7 +91,7 @@ export function AiSection({ formData, onChange, onOpenTelemetry }: AiSectionProp
         <div className="flex items-start gap-2 text-[11px] text-gray-500 bg-teal-50/60 p-2.5 rounded-xl border border-teal-100">
           <ShieldCheck className="w-4 h-4 text-teal-700 shrink-0 mt-0.5" />
           <span>
-            <strong>Sécurité & Confidentialité RGPD :</strong> Votre clé est stockée de manière chiffrée côté serveur. Elle n&apos;est jamais exposée publiquement. Vos requêtes bénéficient du <strong>Prompt Caching officiel DeepSeek (réduction de coût de 90% à 98%)</strong>.
+            <strong>Sécurité & Confidentialité RGPD :</strong> Votre clé est stockée de manière chiffrée côté serveur et reste strictement privée. Vos requêtes bénéficient du <strong>Prompt Caching DeepSeek</strong>, qui réduit le coût des contextes répétés.
           </span>
         </div>
 
@@ -103,7 +103,7 @@ export function AiSection({ formData, onChange, onOpenTelemetry }: AiSectionProp
               Centre de Télémétrie & Coûts Réels
             </div>
             <p className="text-[11px] text-gray-500 mt-0.5">
-              Suivez en temps réel les jetons consommés, vos économies comparées à GPT-4o et ajustez votre budget mensuel.
+              Suivez les jetons consommés, le coût estimé et ajustez votre budget mensuel.
             </p>
           </div>
 

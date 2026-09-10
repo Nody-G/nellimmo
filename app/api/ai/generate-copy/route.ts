@@ -76,7 +76,7 @@ ${NELLY_FEW_SHOT_CORPUS}`;
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt },
       ],
-      model: 'deepseek-v4-flash',
+      model: 'deepseek-chat',
       temperature: 0.7,
       maxTokens: 2048,
       req,

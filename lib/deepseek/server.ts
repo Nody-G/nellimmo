@@ -69,7 +69,7 @@ export async function executeDeepSeekCall({
   feature,
   featureLabel,
   messages,
-  model = 'deepseek-v4-flash',
+  model = 'deepseek-chat',
   temperature = 0.7,
   maxTokens = 2048,
   responseFormat,

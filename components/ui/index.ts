@@ -10,3 +10,4 @@ export * from './StatCard';
 export * from './EmptyState';
 export * from './Toast';
 export * from './DpeBadge';
+export * from './BrandLogo';

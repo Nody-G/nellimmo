@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
                 { role: 'system', content: systemPrompt },
                 { role: 'user', content: userPrompt },
             ],
-            model: 'deepseek-v4-flash',
+            model: 'deepseek-chat',
             temperature: 0.6,
             maxTokens: 1200,
             responseFormat: { type: 'json_object' },

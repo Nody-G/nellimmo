@@ -21,7 +21,7 @@ interface MatchedBuyer {
 }
 
 export function BatchBuyerPushModal({ isOpen, onClose, property }: BatchBuyerPushModalProps) {
-  const { buyers } = useNellimoStore();
+  const { buyers, settings } = useNellimoStore();
   const { showToast } = useToast();
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
@@ -51,13 +51,13 @@ export function BatchBuyerPushModal({ isOpen, onClose, property }: BatchBuyerPus
           `🏡 ${property.title}\n` +
           `📐 ${property.living_area || 0} m² • ${property.bedrooms_count || 0} ch • ${priceFmt} € FAI\n\n` +
           `Souhaitez-vous organiser une visite privée cette semaine ?\n\n` +
-          `Nelly • Nell’Immo Pélissanne\n📞 06 12 34 56 78`;
+          `${settings.agent_name || 'Nelly'} • ${settings.agency_name || "Nell’Immo"} ${settings.city || 'Pélissanne'}\n📞 ${settings.phone || '07 55 68 61 09'}`;
 
         return { buyer: b, score, message };
       })
       .filter((m) => m.score >= 60)
       .sort((a, b) => b.score - a.score);
-  }, [buyers, property]);
+  }, [buyers, property, settings.agent_name, settings.agency_name, settings.city, settings.phone]);
 
   if (!isOpen) return null;
 
@@ -112,11 +112,10 @@ export function BatchBuyerPushModal({ isOpen, onClose, property }: BatchBuyerPus
                         {buyer.first_name} {buyer.last_name}
                       </span>
                       <span
-                        className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
-                          score >= 85
-                            ? 'bg-emerald-100 text-emerald-800'
-                            : 'bg-blue-100 text-blue-800'
-                        }`}
+                        className={`text-[10px] font-black px-2 py-0.5 rounded-full ${score >= 85
+                          ? 'bg-emerald-100 text-emerald-800'
+                          : 'bg-blue-100 text-blue-800'
+                          }`}
                       >
                         {score}% Match
                       </span>

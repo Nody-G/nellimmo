@@ -45,7 +45,7 @@ export function DeepSeekBudgetSettingsModal({
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-5 h-5 text-[#E12B7B]" />
             <h3 className="font-bold text-gray-900 text-sm">
-              Paramètres du Budget DeepSeek V4
+              Paramètres du Budget DeepSeek
             </h3>
           </div>
           <button
@@ -71,7 +71,7 @@ export function DeepSeekBudgetSettingsModal({
               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm font-semibold focus:outline-none focus:ring-1 focus:ring-[#E12B7B]"
             />
             <p className="text-[11px] text-gray-400 mt-1">
-              Recommandation : 15,00 € / mois couvre ~30 000 rédactions en DeepSeek V4 Flash.
+              Recommandation : 15,00 € / mois couvre un usage intensif de rédaction.
             </p>
           </div>
 

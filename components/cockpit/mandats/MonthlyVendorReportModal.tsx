@@ -15,7 +15,7 @@ interface MonthlyVendorReportModalProps {
 }
 
 export function MonthlyVendorReportModal({ isOpen, onClose, property }: MonthlyVendorReportModalProps) {
-  const { visits, createVendorReport } = useNellimoStore();
+  const { visits, createVendorReport, settings } = useNellimoStore();
   const { showToast } = useToast();
   const [copied, setCopied] = useState(false);
 
@@ -46,7 +46,7 @@ export function MonthlyVendorReportModal({ isOpen, onClose, property }: MonthlyV
     `Les visiteurs plébiscitent l’emplacement et le calme. Le positionnement à ${priceM2.toLocaleString('fr-FR')} €/m² se situe dans la moyenne des transactions du secteur.\n\n` +
     `🎯 RECOMMANDATION DE VOTRE CONSEILLÈRE :\n` +
     `Maintenir l’exclusivité et organiser une opération 'Visite Privée' ciblée auprès de notre fichier acquéreurs avec accord bancaire préalable.\n\n` +
-    `Nelly • Nell’Immo Pélissanne (06 12 34 56 78)`;
+    `${settings.agent_name || 'Nelly'} • ${settings.agency_name || "Nell’Immo"} ${settings.city || 'Pélissanne'} (${settings.phone || '07 55 68 61 09'})`;
 
   const handleCopy = async () => {
     try {

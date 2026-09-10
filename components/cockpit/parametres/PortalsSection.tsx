@@ -2,6 +2,7 @@
 
 import { Radio, ShieldCheck } from 'lucide-react';
 import type { AgencySettings } from '@/lib/types';
+import { BrandLogo } from '@/components/ui/BrandLogo';
 import { SectionCard } from './SectionCard';
 import type { SettingsChange } from './parametres-types';
 
@@ -22,7 +23,10 @@ export function PortalsSection({ formData, onChange }: PortalsSectionProps) {
         >
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                    <label className="block text-xs font-bold uppercase text-gray-700 mb-1">Code Agence Poliris</label>
+                    <label className="text-xs font-bold uppercase text-gray-700 mb-1 flex items-center gap-1.5">
+                        <BrandLogo brand="seloger" size={14} />
+                        <span>Code Agence Poliris</span>
+                    </label>
                     <input
                         type="text"
                         value={formData.seloger_agency_code}
@@ -32,7 +36,10 @@ export function PortalsSection({ formData, onChange }: PortalsSectionProps) {
                 </div>
 
                 <div>
-                    <label className="block text-xs font-bold uppercase text-gray-700 mb-1">Serveur SFTP SeLoger / Poliris</label>
+                    <label className="text-xs font-bold uppercase text-gray-700 mb-1 flex items-center gap-1.5">
+                        <BrandLogo brand="seloger" size={14} />
+                        <span>Serveur SFTP SeLoger / Poliris</span>
+                    </label>
                     <input
                         type="text"
                         value={formData.seloger_sftp_host}
@@ -42,7 +49,10 @@ export function PortalsSection({ formData, onChange }: PortalsSectionProps) {
                 </div>
 
                 <div>
-                    <label className="block text-xs font-bold uppercase text-gray-700 mb-1">Serveur SFTP LeBonCoin</label>
+                    <label className="text-xs font-bold uppercase text-gray-700 mb-1 flex items-center gap-1.5">
+                        <BrandLogo brand="leboncoin" size={14} />
+                        <span>Serveur SFTP LeBonCoin</span>
+                    </label>
                     <input
                         type="text"
                         value={formData.leboncoin_sftp_host}
@@ -53,7 +63,10 @@ export function PortalsSection({ formData, onChange }: PortalsSectionProps) {
             </div>
 
             <div>
-                <label className="block text-xs font-bold uppercase text-gray-700 mb-1">Jeton d{"\u2019"}API Flux XML Bien{"\u2019"}ici</label>
+                <label className="text-xs font-bold uppercase text-gray-700 mb-1 flex items-center gap-1.5">
+                    <BrandLogo brand="bienici" size={14} />
+                    <span>Jeton d{"\u2019"}API Flux XML Bien{"\u2019"}ici</span>
+                </label>
                 <div className="flex items-start gap-2 text-xs text-gray-600">
                     <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                     <span>
@@ -70,7 +83,10 @@ export function PortalsSection({ formData, onChange }: PortalsSectionProps) {
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
-                        <label className="block text-xs font-bold uppercase text-gray-700 mb-1">Code Agence Figaro Immo</label>
+                        <label className="text-xs font-bold uppercase text-gray-700 mb-1 flex items-center gap-1.5">
+                            <BrandLogo brand="figaro" size={14} />
+                            <span>Code Agence Figaro Immo</span>
+                        </label>
                         <input
                             type="text"
                             value={formData.figaro_agency_code || ''}
@@ -81,7 +97,10 @@ export function PortalsSection({ formData, onChange }: PortalsSectionProps) {
                     </div>
 
                     <div>
-                        <label className="block text-xs font-bold uppercase text-gray-700 mb-1">Code Agence Green-Acres</label>
+                        <label className="text-xs font-bold uppercase text-gray-700 mb-1 flex items-center gap-1.5">
+                            <BrandLogo brand="greenacres" size={14} />
+                            <span>Code Agence Green-Acres</span>
+                        </label>
                         <input
                             type="text"
                             value={formData.greenacres_agency_code || ''}
@@ -92,7 +111,10 @@ export function PortalsSection({ formData, onChange }: PortalsSectionProps) {
                     </div>
 
                     <div>
-                        <label className="block text-xs font-bold uppercase text-gray-700 mb-1">Code Agence PAP</label>
+                        <label className="text-xs font-bold uppercase text-gray-700 mb-1 flex items-center gap-1.5">
+                            <BrandLogo brand="pap" size={14} />
+                            <span>Code Agence PAP</span>
+                        </label>
                         <input
                             type="text"
                             value={formData.pap_agency_code || ''}

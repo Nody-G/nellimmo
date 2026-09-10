@@ -33,7 +33,7 @@ export function DeepSeekLogsTable({ logs, onClearLogs }: DeepSeekLogsTableProps)
       <div className="p-4 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h3 className="text-sm font-bold text-gray-900">
-            Journal Télémétrique des Requêtes DeepSeek V4
+            Journal Télémétrique des Requêtes DeepSeek
           </h3>
           <p className="text-xs text-gray-500">
             {logs.length} appel{logs.length > 1 ? 's' : ''} tracé{logs.length > 1 ? 's' : ''} (500 max en mémoire locale)

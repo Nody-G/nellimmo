@@ -59,7 +59,7 @@ Réponds UNIQUEMENT avec un JSON valide :
         { role: 'system', content: systemPrompt },
         { role: 'user', content: query },
       ],
-      model: 'deepseek-v4-flash',
+      model: 'deepseek-chat',
       temperature: 0.2,
       maxTokens: 1000,
       responseFormat: { type: 'json_object' },

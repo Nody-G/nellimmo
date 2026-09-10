@@ -118,7 +118,7 @@ Demande de Nelly : ${sanitizedUserMessage}`;
         { role: 'system', content: systemPrompt },
         { role: 'user', content: promptContent },
       ],
-      model: 'deepseek-v4-flash',
+      model: 'deepseek-chat',
       temperature: action === 'smart_form_parse' ? 0.1 : 0.7,
       maxTokens: 1500,
       req,

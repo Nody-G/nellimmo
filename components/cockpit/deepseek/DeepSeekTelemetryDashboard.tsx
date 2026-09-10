@@ -65,11 +65,11 @@ export function DeepSeekTelemetryDashboard() {
               <Sparkles className="w-5 h-5" />
             </span>
             <h2 className="text-lg font-bold text-gray-900">
-              Centre de Télémétrie & Consommation DeepSeek V4
+              Centre de Télémétrie & Consommation DeepSeek
             </h2>
           </div>
           <p className="text-xs text-gray-500 mt-1">
-            Modèles officiels <code className="font-mono text-gray-800">deepseek-v4-flash</code> (1M) & <code className="font-mono text-gray-800">deepseek-v4-pro</code> • Tarification Peak / Off-Peak d’août 2026.
+            Modèles <code className="font-mono text-gray-800">deepseek-chat</code> & <code className="font-mono text-gray-800">deepseek-reasoner</code> • Estimation locale des coûts.
           </p>
         </div>
 

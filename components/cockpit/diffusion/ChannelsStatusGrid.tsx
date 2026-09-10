@@ -1,9 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
-import { AlertTriangle, XCircle, Download, Loader2 } from 'lucide-react';
+import { AlertTriangle, XCircle, Download, Loader2, Globe } from 'lucide-react';
 import type { AgencySettings, Property } from '@/lib/types';
 import { downloadFeed, type FeedKey } from '@/lib/feed-download-client';
+import { BrandLogo } from '@/components/ui/BrandLogo';
+import type { BrandKey } from '@/lib/brand-logos';
 
 interface ChannelsStatusGridProps {
   activeProperties: Property[];
@@ -16,6 +18,8 @@ interface ChannelConfig {
   id: string;
   feed: FeedKey;
   name: string;
+  /** Clé du logo officiel affiché en tête de carte (absent = repli textuel). */
+  brand?: BrandKey;
   count: number;
   subtitle: string;
   info: string;
@@ -71,6 +75,7 @@ export function ChannelsStatusGrid({ activeProperties, settings }: ChannelsStatu
       id: 'seloger',
       feed: 'poliris',
       name: 'SeLoger & Logic-Immo',
+      brand: 'seloger',
       count: selogerProperties.length,
       subtitle: 'Passerelle Poliris 4.08',
       info: selogerConfigured
@@ -86,6 +91,7 @@ export function ChannelsStatusGrid({ activeProperties, settings }: ChannelsStatu
       id: 'leboncoin',
       feed: 'leboncoin',
       name: 'LeBonCoin (LBC Pro)',
+      brand: 'leboncoin',
       count: lbcProperties.length,
       subtitle: 'Import CSV LBC Pro',
       info: lbcConfigured
@@ -102,6 +108,7 @@ export function ChannelsStatusGrid({ activeProperties, settings }: ChannelsStatu
       id: 'bienici',
       feed: 'bienici',
       name: 'Bien’ici (FNAIM / Carto)',
+      brand: 'bienici',
       count: bieniciProperties.length,
       subtitle: 'Flux XML 3D Géolocalisé',
       info: bieniciConfigured ? 'Flux XML disponible' : 'Code agence manquant',
@@ -115,6 +122,7 @@ export function ChannelsStatusGrid({ activeProperties, settings }: ChannelsStatu
       id: 'figaro',
       feed: 'figaro',
       name: 'Figaro Immo & Belles Demeures',
+      brand: 'figaro',
       count: figaroProperties.length,
       subtitle: 'Portail Prestige & Cadres',
       info: figaroConfigured
@@ -147,6 +155,7 @@ export function ChannelsStatusGrid({ activeProperties, settings }: ChannelsStatu
       id: 'pap',
       feed: 'pap',
       name: 'PAP (De Particulier à Particulier)',
+      brand: 'pap',
       count: papProperties.length,
       subtitle: 'Portail Grand Public',
       info: papConfigured ? `Code : ${settings.pap_agency_code}` : 'Audience nationale',
@@ -160,6 +169,7 @@ export function ChannelsStatusGrid({ activeProperties, settings }: ChannelsStatu
       id: 'facebook',
       feed: 'facebook',
       name: 'Facebook & Instagram Shop',
+      brand: 'facebook',
       count: facebookProperties.length,
       subtitle: 'Catalogue Meta Marketplace',
       info: facebookConfigured
@@ -202,11 +212,20 @@ export function ChannelsStatusGrid({ activeProperties, settings }: ChannelsStatu
               key={ch.id}
               className="bg-white rounded-3xl p-5 sm:p-6 border border-[#F3E8EE] shadow-xs space-y-3 relative overflow-hidden transition-all hover:shadow-md"
             >
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wider text-gray-600 truncate max-w-[190px]">
-                  {ch.name}
-                </span>
-                <div className="flex items-center gap-1.5">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <span className="w-9 h-9 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0">
+                    {ch.brand ? (
+                      <BrandLogo brand={ch.brand} size={20} />
+                    ) : (
+                      <Globe className="w-4 h-4 text-gray-400" />
+                    )}
+                  </span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-gray-600 truncate">
+                    {ch.name}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5 shrink-0">
                   {ch.badge && (
                     <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider bg-amber-50 text-amber-800 border border-amber-200">
                       {ch.badge}

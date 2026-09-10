@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { useNellimoStore } from '@/lib/store';
+import { getSessionUser } from '@/lib/auth';
 import { ArrowUpRight } from 'lucide-react';
 import { DailyBriefingWidget } from '@/components/cockpit/dashboard/DailyBriefingWidget';
 import { DashboardKpis } from '@/components/cockpit/dashboard/DashboardKpis';
@@ -29,6 +30,8 @@ export default function CockpitDashboard() {
   } = useNellimoStore();
 
   const { showToast } = useToast();
+  const currentUser = getSessionUser();
+  const greetingName = currentUser?.first_name || '';
 
   const activeTransactions = transactions.filter(
     (t) => t.status !== 'acte_signe' && t.status !== 'annule'
@@ -46,7 +49,7 @@ export default function CockpitDashboard() {
             </span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#131B26] tracking-tight">
-            Bonjour Nelly
+            Bonjour{greetingName ? ` ${greetingName}` : ''}
           </h1>
           <p className="text-xs text-gray-500 mt-1">
             Pélissanne & Pays Salonais • Agence autonome • {activeTransactions.length} vente(s) en cours

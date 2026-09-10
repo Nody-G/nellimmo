@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Calendar, Star, MapPin, Folder, Copy, Check } from 'lucide-react';
 import type { AgencySettings } from '@/lib/types';
+import { BrandLogo } from '@/components/ui/BrandLogo';
 import { SectionCard } from './SectionCard';
 import type { SettingsChange } from './parametres-types';
 import { GoogleAccountStatusCard } from './google/GoogleAccountStatusCard';
@@ -70,7 +71,8 @@ export function GoogleSection({ formData, onChange, copiedLink, onCopy }: Google
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
-            <label className="block text-xs font-bold uppercase text-gray-700 mb-1 flex items-center gap-1.5">
+            <label className="text-xs font-bold uppercase text-gray-700 mb-1 flex items-center gap-1.5">
+              <BrandLogo brand="google" size={14} />
               <Star className="w-3.5 h-3.5 text-amber-500" />
               <span>Lien Avis Google My Business</span>
             </label>
@@ -102,7 +104,8 @@ export function GoogleSection({ formData, onChange, copiedLink, onCopy }: Google
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase text-gray-700 mb-1 flex items-center gap-1.5">
+            <label className="text-xs font-bold uppercase text-gray-700 mb-1 flex items-center gap-1.5">
+              <BrandLogo brand="google" size={14} />
               <Folder className="w-3.5 h-3.5 text-emerald-600" />
               <span>Dossier Racine Google Drive</span>
             </label>
@@ -120,6 +123,7 @@ export function GoogleSection({ formData, onChange, copiedLink, onCopy }: Google
 
           <div>
             <label className="block text-xs font-bold uppercase text-gray-700 mb-1 flex items-center gap-1.5">
+              <BrandLogo brand="google" size={14} />
               <MapPin className="w-3.5 h-3.5 text-red-500" />
               <span>Clé API Google Maps &amp; Places</span>
             </label>

@@ -4,6 +4,24 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Phone, Mail, MapPin, ShieldCheck, Clock } from 'lucide-react';
+import { BrandLogo } from '@/components/ui/BrandLogo';
+import type { BrandKey } from '@/lib/brand-logos';
+
+/** Portails de diffusion officiels sur lesquels les biens de l'agence sont publiés. */
+const DIFFUSION_PORTALS: { brand: BrandKey; label: string }[] = [
+  { brand: 'seloger', label: 'SeLoger' },
+  { brand: 'leboncoin', label: 'leboncoin' },
+  { brand: 'bienici', label: "Bien'ici" },
+  { brand: 'figaro', label: 'Figaro Immobilier' },
+  { brand: 'pap', label: 'PAP' },
+];
+
+/** Réseaux sociaux officiels de l'agence. */
+const SOCIAL_LINKS: { brand: BrandKey; label: string; href: string }[] = [
+  { brand: 'facebook', label: 'Facebook', href: 'https://www.facebook.com/' },
+  { brand: 'instagram', label: 'Instagram', href: 'https://www.instagram.com/' },
+  { brand: 'linkedin', label: 'LinkedIn', href: 'https://www.linkedin.com/' },
+];
 
 export function PublicFooter() {
   return (
@@ -172,6 +190,41 @@ export function PublicFooter() {
             </div>
           </div>
 
+        </div>
+      </div>
+
+      {/* Portails de diffusion officiels */}
+      <div className="bg-[#0E141D] border-t border-gray-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <p className="text-center text-[10px] uppercase font-bold tracking-widest text-gray-500 mb-5">
+            Vos biens diffusés sur les portails leaders
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-5">
+            {DIFFUSION_PORTALS.map((portal) => (
+              <div key={portal.brand} className="flex items-center gap-2.5 opacity-80 hover:opacity-100 transition">
+                <span className="w-8 h-8 rounded-lg bg-white/95 flex items-center justify-center shrink-0">
+                  <BrandLogo brand={portal.brand} size={18} />
+                </span>
+                <span className="text-[11px] font-bold text-gray-300 whitespace-nowrap">{portal.label}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-8 pt-6 border-t border-gray-800 flex flex-wrap items-center justify-center gap-4">
+            {SOCIAL_LINKS.map((social) => (
+              <a
+                key={social.brand}
+                href={social.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-gray-800 transition"
+                aria-label={social.label}
+              >
+                <BrandLogo brand={social.brand} size={16} />
+                <span className="text-[11px] font-semibold text-gray-300">{social.label}</span>
+              </a>
+            ))}
+          </div>
         </div>
       </div>
 

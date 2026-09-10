@@ -2,6 +2,7 @@
 
 import { Share2 } from 'lucide-react';
 import type { AgencySettings } from '@/lib/types';
+import { BrandLogo } from '@/components/ui/BrandLogo';
 import { SectionCard } from './SectionCard';
 import type { SettingsChange } from './parametres-types';
 
@@ -28,8 +29,9 @@ export function SocialSection({ formData, onChange }: SocialSectionProps) {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <label className="block text-xs font-bold uppercase text-gray-700 mb-1">
-                        Identifiant de Page Facebook (Page ID)
+                    <label className="text-xs font-bold uppercase text-gray-700 mb-1 flex items-center gap-1.5">
+                        <BrandLogo brand="facebook" size={14} />
+                        <span>Identifiant de Page Facebook (Page ID)</span>
                     </label>
                     <input
                         type="text"
@@ -40,8 +42,9 @@ export function SocialSection({ formData, onChange }: SocialSectionProps) {
                     />
                 </div>
                 <div>
-                    <label className="block text-xs font-bold uppercase text-gray-700 mb-1">
-                        Compte Instagram Professionnel (ID / Handle)
+                    <label className="text-xs font-bold uppercase text-gray-700 mb-1 flex items-center gap-1.5">
+                        <BrandLogo brand="instagram" size={14} />
+                        <span>Compte Instagram Professionnel (ID / Handle)</span>
                     </label>
                     <input
                         type="text"
@@ -54,8 +57,12 @@ export function SocialSection({ formData, onChange }: SocialSectionProps) {
             </div>
 
             <div>
-                <label className="block text-xs font-bold uppercase text-gray-700 mb-1 flex items-center justify-between">
-                    <span>Jeton d{"\u2019"}accès Meta Graph API (Page Access Token)</span>
+                <label className="text-xs font-bold uppercase text-gray-700 mb-1 flex items-center justify-between gap-2">
+                    <span className="flex items-center gap-1.5">
+                        <BrandLogo brand="facebook" size={14} />
+                        <BrandLogo brand="instagram" size={14} />
+                        <span>Jeton d{"\u2019"}accès Meta Graph API (Page Access Token)</span>
+                    </span>
                     <span className="text-[11px] text-gray-400 font-normal">Chiffré localement (AES-256) et déchiffré à la connexion — chiffrement serveur à venir avec Supabase</span>
                 </label>
                 <input
@@ -80,8 +87,10 @@ export function SocialSection({ formData, onChange }: SocialSectionProps) {
                             onChange={(e) => onChange({ social_autopost_new_mandate: e.target.checked })}
                             className="w-4 h-4 text-[#E12B7B] rounded focus:ring-[#E12B7B]"
                         />
-                        <span className="text-xs text-gray-700 font-semibold">
-                            Proposer la publication carrousel Instagram & Facebook dès l{"\u2019"}activation d{"\u2019"}un nouveau mandat exclusif
+                        <span className="text-xs text-gray-700 font-semibold flex items-center gap-1.5 flex-wrap">
+                            <BrandLogo brand="instagram" size={13} />
+                            <BrandLogo brand="facebook" size={13} />
+                            <span>Proposer la publication carrousel Instagram & Facebook dès l{"\u2019"}activation d{"\u2019"}un nouveau mandat exclusif</span>
                         </span>
                     </label>
                     <label className="flex items-center gap-3 cursor-pointer">
@@ -102,8 +111,9 @@ export function SocialSection({ formData, onChange }: SocialSectionProps) {
                             onChange={(e) => onChange({ social_autopost_sold: e.target.checked })}
                             className="w-4 h-4 text-[#E12B7B] rounded focus:ring-[#E12B7B]"
                         />
-                        <span className="text-xs text-gray-700 font-semibold">
-                            Publier la story {"\u201C"}Vendu par Nell{"\u2019"}Immo{"\u201D"} le jour de la réitération de l{"\u2019"}acte authentique
+                        <span className="text-xs text-gray-700 font-semibold flex items-center gap-1.5 flex-wrap">
+                            <BrandLogo brand="instagram" size={13} />
+                            <span>Publier la story {"\u201C"}Vendu par Nell{"\u2019"}Immo{"\u201D"} le jour de la réitération de l{"\u2019"}acte authentique</span>
                         </span>
                     </label>
                 </div>

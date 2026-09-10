@@ -1,7 +1,8 @@
 'use client';
 
 import React from 'react';
-import { Copy, Check, MessageCircle, Mail, QrCode } from 'lucide-react';
+import { Copy, Check, QrCode } from 'lucide-react';
+import { BrandLogo } from '@/components/ui/BrandLogo';
 
 interface ShareChannelsListProps {
   currentUrl: string;
@@ -29,8 +30,8 @@ export function ShareChannelsList({
         className="w-full p-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-2xl flex items-center justify-between text-xs font-bold transition group cursor-pointer"
       >
         <div className="flex items-center gap-3">
-          <div className="w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center">
-            <MessageCircle className="w-4 h-4" />
+          <div className="w-7 h-7 rounded-full bg-white border border-emerald-200 flex items-center justify-center">
+            <BrandLogo brand="whatsapp" size={16} />
           </div>
           <span>Partager sur WhatsApp</span>
         </div>
@@ -44,8 +45,8 @@ export function ShareChannelsList({
         className="w-full p-3 bg-sky-50 hover:bg-sky-100 text-sky-800 border border-sky-200 rounded-2xl flex items-center justify-between text-xs font-bold transition group cursor-pointer"
       >
         <div className="flex items-center gap-3">
-          <div className="w-7 h-7 rounded-full bg-sky-600 text-white flex items-center justify-center">
-            <Mail className="w-4 h-4" />
+          <div className="w-7 h-7 rounded-full bg-white border border-sky-200 flex items-center justify-center">
+            <BrandLogo brand="gmail" size={16} />
           </div>
           <span>Envoyer par Email</span>
         </div>

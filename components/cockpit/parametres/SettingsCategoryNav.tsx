@@ -24,7 +24,7 @@ export function SettingsCategoryNav({
     },
     {
       id: 'ia' as const,
-      label: 'IA DeepSeek V4.1',
+      label: 'Intelligence Artificielle',
       icon: <Sparkles className="w-4 h-4" />,
       badge: hasAiKey ? 'Actif' : 'Clé requise',
       badgeColor: hasAiKey ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800',

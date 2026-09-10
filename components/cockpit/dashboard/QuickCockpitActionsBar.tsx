@@ -25,7 +25,7 @@ export function QuickCockpitActionsBar() {
           Actions Express Terrain • Pélissanne & Provence
         </span>
         <span className="text-[10px] text-gray-400 hidden sm:inline">
-          Gagnez jusqu’à 1h30 par jour
+          Raccourcis du quotidien
         </span>
       </div>
 

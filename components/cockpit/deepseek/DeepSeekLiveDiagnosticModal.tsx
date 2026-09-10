@@ -45,7 +45,7 @@ export function DeepSeekLiveDiagnosticModal({
         setTestResult({
           status: 'success',
           latencyMs: data.latencyMs,
-          message: 'Connecté avec succès à l’API officielle DeepSeek V4 Flash !',
+          message: 'Connecté avec succès à l’API DeepSeek !',
         });
         if (data.log && onLogGenerated) {
           onLogGenerated(data.log);
@@ -73,7 +73,7 @@ export function DeepSeekLiveDiagnosticModal({
           <div className="flex items-center gap-2">
             <Activity className="w-5 h-5 text-emerald-600" />
             <h3 className="font-bold text-gray-900 text-sm">
-              Diagnostic & Ping DeepSeek V4 Flash
+              Diagnostic & Ping DeepSeek
             </h3>
           </div>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 p-1">
@@ -83,7 +83,7 @@ export function DeepSeekLiveDiagnosticModal({
 
         <div className="space-y-3 text-xs">
           <p className="text-gray-600">
-            Ce test effectue un ping officiel ultra-léger (1 token) vers l’API DeepSeek V4 pour vérifier la validité de la clé et mesurer la latence réseau.
+            Ce test effectue un ping ultra-léger (1 token) vers l’API DeepSeek pour vérifier la validité de la clé et mesurer la latence réseau.
           </p>
 
           <div>

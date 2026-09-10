@@ -1,12 +1,14 @@
 /**
- * Tarification Officielle DeepSeek V4 & Grille Tarifaire (16 Août 2026)
- * Source officielle : api-docs.deepseek.com
+ * Tarification DeepSeek — modèles réellement exposés par l'API officielle.
+ * Source : api-docs.deepseek.com (deepseek-chat = V3, deepseek-reasoner = R1).
+ *
+ * Les tarifs ci-dessous sont des ordres de grandeur indicatifs destinés à
+ * l'estimation locale des coûts. Ils ne remplacent pas la facturation officielle.
  */
 
 export type DeepSeekModelId =
-  | 'deepseek-v4-flash'
-  | 'deepseek-v4-pro'
-  | 'deepseek-v4-flash-vision-exp';
+  | 'deepseek-chat'
+  | 'deepseek-reasoner';
 
 export interface ModelPricing {
   model: DeepSeekModelId;
@@ -24,53 +26,41 @@ export interface ModelPricing {
   };
 }
 
-export const DEEPSEEK_V4_PRICING: Record<DeepSeekModelId, ModelPricing> = {
-  'deepseek-v4-flash': {
-    model: 'deepseek-v4-flash',
-    label: 'DeepSeek V4 Flash (0731)',
-    contextWindow: 1_048_576,
+export const DEEPSEEK_PRICING: Record<DeepSeekModelId, ModelPricing> = {
+  'deepseek-chat': {
+    model: 'deepseek-chat',
+    label: 'DeepSeek Chat (V3)',
+    contextWindow: 131_072,
     offPeak: {
-      cacheHitPerMillion: 0.007,
-      cacheMissPerMillion: 0.22,
-      outputPerMillion: 0.66,
+      cacheHitPerMillion: 0.07,
+      cacheMissPerMillion: 0.27,
+      outputPerMillion: 1.1,
     },
     peak: {
-      cacheHitPerMillion: 0.014,
-      cacheMissPerMillion: 0.44,
-      outputPerMillion: 1.32,
+      cacheHitPerMillion: 0.07,
+      cacheMissPerMillion: 0.27,
+      outputPerMillion: 1.1,
     },
   },
-  'deepseek-v4-pro': {
-    model: 'deepseek-v4-pro',
-    label: 'DeepSeek V4 Pro (0813 Reasoning)',
-    contextWindow: 1_048_576,
+  'deepseek-reasoner': {
+    model: 'deepseek-reasoner',
+    label: 'DeepSeek Reasoner (R1)',
+    contextWindow: 131_072,
     offPeak: {
-      cacheHitPerMillion: 0.022,
-      cacheMissPerMillion: 0.66,
-      outputPerMillion: 1.98,
+      cacheHitPerMillion: 0.14,
+      cacheMissPerMillion: 0.55,
+      outputPerMillion: 2.19,
     },
     peak: {
-      cacheHitPerMillion: 0.044,
-      cacheMissPerMillion: 1.32,
-      outputPerMillion: 3.96,
-    },
-  },
-  'deepseek-v4-flash-vision-exp': {
-    model: 'deepseek-v4-flash-vision-exp',
-    label: 'DeepSeek V4 Flash Vision',
-    contextWindow: 1_048_576,
-    offPeak: {
-      cacheHitPerMillion: 0.007,
-      cacheMissPerMillion: 0.22,
-      outputPerMillion: 0.66,
-    },
-    peak: {
-      cacheHitPerMillion: 0.014,
-      cacheMissPerMillion: 0.44,
-      outputPerMillion: 1.32,
+      cacheHitPerMillion: 0.14,
+      cacheMissPerMillion: 0.55,
+      outputPerMillion: 2.19,
     },
   },
 };
+
+/** @deprecated Conservé pour compatibilité — utiliser DEEPSEEK_PRICING. */
+export const DEEPSEEK_V4_PRICING = DEEPSEEK_PRICING;
 
 export const USD_TO_EUR_RATE = 0.92;
 
@@ -116,7 +106,7 @@ export function calculateCallCost({
   outputTokens,
   date = new Date(),
 }: CostCalculationParams): CostCalculationResult {
-  const pricing = DEEPSEEK_V4_PRICING[model] || DEEPSEEK_V4_PRICING['deepseek-v4-flash'];
+  const pricing = DEEPSEEK_PRICING[model] || DEEPSEEK_PRICING['deepseek-chat'];
   const isPeak = isPeakHour(date);
   const tier = isPeak ? pricing.peak : pricing.offPeak;
 
