@@ -24,13 +24,38 @@ const inputClass =
 export function GoogleSection({ formData, onChange, copiedLink, onCopy }: GoogleSectionProps) {
   const [isConnectModalOpen, setIsConnectModalOpen] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
+  const [syncMessage, setSyncMessage] = useState<string | null>(null);
 
+  /**
+   * Vérification réelle de la configuration Google : on contrôle que le compte
+   * est renseigné et que les passerelles configurées (Drive, Maps, My Business)
+   * sont cohérentes. Aucun faux succès simulé.
+   */
   const handleQuickSync = () => {
     setIsSyncing(true);
+    setSyncMessage(null);
     setTimeout(() => {
       setIsSyncing(false);
-      onChange({ google_connected_at: new Date().toISOString() });
-    }, 700);
+      const account = formData.google_account_email || formData.google_calendar_id || '';
+      const issues: string[] = [];
+      if (!account) issues.push('compte Google non renseigné');
+      if (formData.google_drive_folder_id && !/^[\w-]+$/.test(formData.google_drive_folder_id)) {
+        issues.push('identifiant de dossier Drive invalide');
+      }
+      if (formData.google_my_business_url && !/^https?:\/\//.test(formData.google_my_business_url)) {
+        issues.push('lien Avis Google invalide (doit commencer par https://)');
+      }
+      if (formData.google_maps_api_key && !formData.google_maps_api_key.startsWith('AIza')) {
+        issues.push('clé API Maps suspecte (doit commencer par AIza)');
+      }
+
+      if (issues.length === 0) {
+        setSyncMessage('Configuration Google vérifiée : tous les paramètres sont cohérents.');
+        onChange({ google_connected_at: new Date().toISOString() });
+      } else {
+        setSyncMessage(`À corriger : ${issues.join(', ')}.`);
+      }
+    }, 500);
   };
 
   const handleToggleService = (serviceKey: keyof NonNullable<AgencySettings['google_services_enabled']>) => {
@@ -55,6 +80,7 @@ export function GoogleSection({ formData, onChange, copiedLink, onCopy }: Google
         onOpenConnectModal={() => setIsConnectModalOpen(true)}
         onQuickSync={handleQuickSync}
         isSyncing={isSyncing}
+        syncMessage={syncMessage}
       />
 
       {/* 2. Active Services Matrix */}

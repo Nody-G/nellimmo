@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { CheckCircle2, ShieldCheck, Mail, User, RefreshCw } from 'lucide-react';
+import { CheckCircle2, ShieldCheck, Mail, User, RefreshCw, AlertTriangle, ExternalLink } from 'lucide-react';
 import type { AgencySettings } from '@/lib/types';
 import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
@@ -26,15 +26,36 @@ export function GoogleConnectModal({
     formData.google_account_name || "Nelly Fernandez (Nell'Immo)"
   );
   const [isTesting, setIsTesting] = useState(false);
-  const [testSuccess, setTestSuccess] = useState(false);
+  const [testResult, setTestResult] = useState<{ ok: boolean; message: string } | null>(null);
 
+  const isValidEmail = (value: string) =>
+    /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value.trim());
+
+  /**
+   * Vérification réelle et locale : on valide le format de l'adresse Google
+   * et on confirme que le compte est bien renseigné. Aucun faux succès simulé.
+   */
   const handleTestConnection = () => {
     setIsTesting(true);
-    setTestSuccess(false);
+    setTestResult(null);
     setTimeout(() => {
       setIsTesting(false);
-      setTestSuccess(true);
-    }, 900);
+      if (!emailInput.trim()) {
+        setTestResult({ ok: false, message: 'Renseignez une adresse email Google avant de tester.' });
+        return;
+      }
+      if (!isValidEmail(emailInput)) {
+        setTestResult({
+          ok: false,
+          message: `« ${emailInput.trim()} » n'est pas une adresse email valide.`,
+        });
+        return;
+      }
+      setTestResult({
+        ok: true,
+        message: `Adresse valide : ${emailInput.trim()}. Enregistrez pour lier ce compte à l'agence.`,
+      });
+    }, 400);
   };
 
   const handleConfirm = () => {
@@ -112,12 +133,32 @@ export function GoogleConnectModal({
         </div>
 
         {/* Test connection results */}
-        {testSuccess && (
-          <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-200 flex items-center gap-2 text-emerald-900 text-xs font-semibold animate-fade-in">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-            <span>Tous les services Google répondent parfaitement (Agenda, Gmail, Drive, Maps, Meet) !</span>
+        {testResult && (
+          <div
+            className={`p-3 rounded-xl border flex items-center gap-2 text-xs font-semibold animate-fade-in ${testResult.ok
+                ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
+                : 'bg-amber-50 border-amber-200 text-amber-900'
+              }`}
+          >
+            {testResult.ok ? (
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+            ) : (
+              <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+            )}
+            <span>{testResult.message}</span>
           </div>
         )}
+
+        {/* Lien réel vers la connexion Google */}
+        <a
+          href="https://accounts.google.com/AccountChooser"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-center gap-1.5 text-[11px] font-bold text-blue-700 hover:text-blue-900 hover:underline"
+        >
+          <ExternalLink className="w-3.5 h-3.5" />
+          <span>Ouvrir la page de connexion Google pour vérifier le compte</span>
+        </a>
 
         {/* Actions */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 border-t border-gray-100">

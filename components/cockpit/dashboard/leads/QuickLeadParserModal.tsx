@@ -36,18 +36,55 @@ function parseRawLeadText(raw: string) {
     if (civMatch && civMatch[1]) name = civMatch[0].trim();
   }
 
+  // Détection de la ville (code postal + ville, ou "à <Ville>")
+  let city = '';
+  const postalCityMatch = raw.match(/\b(\d{5})\s+([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ\s-]{2,})/);
+  if (postalCityMatch) {
+    city = postalCityMatch[2].trim();
+  } else {
+    const cityMatch = raw.match(/\b(?:à|sur|secteur|ville de)\s+([A-ZÀ-ÿ][A-Za-zÀ-ÿ-]{2,})/);
+    if (cityMatch) city = cityMatch[1].trim();
+  }
+
+  // Détection du code postal
+  const postalMatch = raw.match(/\b(\d{5})\b/);
+
+  // Détection de l'adresse (numéro + type de voie + nom de voie)
+  const addressMatch = raw.match(
+    /\b(\d{1,4}\s+(?:rue|avenue|av\.|boulevard|bd|chemin|impasse|allée|allee|place|route|rte|lotissement|résidence|residence)\s+[A-Za-zÀ-ÿ0-9\s'’-]{2,60})/i
+  );
+
+  // Détection du type de bien recherché
+  let propertyType = '';
+  const typeMatch = raw.match(
+    /\b(appartement|maison|villa|studio|terrain|local commercial|garage|parking|propriété|propriete|duplex|loft|mas|bastide)\b/i
+  );
+  if (typeMatch) propertyType = typeMatch[1].toLowerCase();
+
+  // Détection d'un budget (ex: "budget 350 000 €", "jusqu'à 400000€")
+  let budget = '';
+  const budgetMatch = raw.match(
+    /(?:budget|jusqu'?à|max(?:imum)?|environ|prix)\s*[:de]*\s*([\d\s.,]{4,})\s*€/i
+  );
+  if (budgetMatch) budget = budgetMatch[1].replace(/[\s.]/g, '').replace(',', '');
+
   return {
     name: name || 'Prospect Portail',
     phone: phoneMatch ? phoneMatch[0].replace(/\s+/g, '') : '',
     email: emailMatch ? emailMatch[0] : '',
     reference: refMatch ? refMatch[1] : '',
     source,
+    city,
+    postalCode: postalMatch ? postalMatch[1] : '',
+    address: addressMatch ? addressMatch[1].trim() : '',
+    propertyType,
+    budget,
     message: raw.trim(),
   };
 }
 
 export function QuickLeadParserModal({ isOpen, onClose }: QuickLeadParserModalProps) {
-  const { addContactLead, properties } = useNellimoStore();
+  const { addContactLead, upsertContactFromLead, properties } = useNellimoStore();
   const { showToast } = useToast();
 
   const [rawText, setRawText] = useState('');
@@ -80,14 +117,41 @@ export function QuickLeadParserModal({ isOpen, onClose }: QuickLeadParserModalPr
     if (!parsed) return;
     setIsSubmitting(true);
     try {
+      // On retrouve le bien sélectionné (via sa référence = n° de mandat).
+      const matchedProperty = properties.find(
+        (p) => String(p.mandate_number) === parsed.reference
+      );
+
+      // 1) On crée / met à jour la fiche contact du carnet pro avec tout l'historique.
+      const contact = await upsertContactFromLead({
+        name: parsed.name,
+        email: parsed.email,
+        phone: parsed.phone,
+        message: parsed.message,
+        source: parsed.source,
+        reference: parsed.reference,
+        propertyId: matchedProperty?.id,
+        propertyTitle: matchedProperty?.title,
+      });
+
+      // 2) On archive le lead dans la boîte de réception en le rattachant au contact.
       await addContactLead({
         name: parsed.name,
         phone: parsed.phone || 'Non renseigné',
         email: parsed.email || 'lead@portail.fr',
         message: `[Source: ${parsed.source}${parsed.reference ? ` | Réf: ${parsed.reference}` : ''}]\n${parsed.message}`,
         subject: `Lead entrant ${parsed.source}${parsed.reference ? ` (${parsed.reference})` : ''}`,
+        reference: parsed.reference || undefined,
+        source: parsed.source,
+        contact_id: contact.id,
+        property_id: matchedProperty?.id,
+        property_title: matchedProperty?.title,
       });
-      showToast(`Lead de ${parsed.name} importé dans la boîte de réception !`, 'success');
+
+      showToast(
+        `Lead de ${parsed.name} enregistré — fiche contact et historique créés !`,
+        'success'
+      );
       onClose();
       setRawText('');
       setParsed(null);
@@ -204,6 +268,51 @@ export function QuickLeadParserModal({ isOpen, onClose }: QuickLeadParserModalPr
                       </option>
                     ))}
                   </select>
+                </div>
+                <div>
+                  <span className="text-gray-500 text-[10px] block">Ville :</span>
+                  <input
+                    type="text"
+                    value={parsed.city}
+                    onChange={(e) => setParsed({ ...parsed, city: e.target.value })}
+                    className="w-full p-1.5 bg-white border border-purple-200 rounded-lg text-gray-900"
+                  />
+                </div>
+                <div>
+                  <span className="text-gray-500 text-[10px] block">Code postal :</span>
+                  <input
+                    type="text"
+                    value={parsed.postalCode}
+                    onChange={(e) => setParsed({ ...parsed, postalCode: e.target.value })}
+                    className="w-full p-1.5 bg-white border border-purple-200 rounded-lg text-gray-900"
+                  />
+                </div>
+                <div>
+                  <span className="text-gray-500 text-[10px] block">Type de bien :</span>
+                  <input
+                    type="text"
+                    value={parsed.propertyType}
+                    onChange={(e) => setParsed({ ...parsed, propertyType: e.target.value })}
+                    className="w-full p-1.5 bg-white border border-purple-200 rounded-lg text-gray-900"
+                  />
+                </div>
+                <div>
+                  <span className="text-gray-500 text-[10px] block">Budget (€) :</span>
+                  <input
+                    type="text"
+                    value={parsed.budget}
+                    onChange={(e) => setParsed({ ...parsed, budget: e.target.value })}
+                    className="w-full p-1.5 bg-white border border-purple-200 rounded-lg text-gray-900"
+                  />
+                </div>
+                <div className="sm:col-span-2">
+                  <span className="text-gray-500 text-[10px] block">Adresse :</span>
+                  <input
+                    type="text"
+                    value={parsed.address}
+                    onChange={(e) => setParsed({ ...parsed, address: e.target.value })}
+                    className="w-full p-1.5 bg-white border border-purple-200 rounded-lg text-gray-900"
+                  />
                 </div>
               </div>
 

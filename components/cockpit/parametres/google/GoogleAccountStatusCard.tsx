@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { CheckCircle2, RefreshCw, LogIn, ExternalLink, Circle } from 'lucide-react';
+import { CheckCircle2, RefreshCw, LogIn, ExternalLink, Circle, AlertTriangle } from 'lucide-react';
 import type { AgencySettings } from '@/lib/types';
 
 interface GoogleAccountStatusCardProps {
@@ -9,6 +9,7 @@ interface GoogleAccountStatusCardProps {
   onOpenConnectModal: () => void;
   onQuickSync: () => void;
   isSyncing: boolean;
+  syncMessage?: string | null;
 }
 
 export function GoogleAccountStatusCard({
@@ -16,6 +17,7 @@ export function GoogleAccountStatusCard({
   onOpenConnectModal,
   onQuickSync,
   isSyncing,
+  syncMessage,
 }: GoogleAccountStatusCardProps) {
   const accountEmail = formData.google_account_email || formData.google_calendar_id || '';
   const connectedAt = formData.google_connected_at;
@@ -67,9 +69,16 @@ export function GoogleAccountStatusCard({
 
           <p className="text-[10px] text-gray-400">
             {isConnected
-              ? `Dernière connexion le ${connectedDate}${enabledCount > 0 ? ` &bull; ${enabledCount} service(s) activé(s)` : ''}`
+              ? `Dernière connexion le ${connectedDate}${enabledCount > 0 ? ` • ${enabledCount} service(s) activé(s)` : ''}`
               : 'Connectez votre compte Google pour activer la synchronisation des services.'}
           </p>
+
+          {syncMessage && (
+            <p className="text-[10px] font-semibold text-blue-800 flex items-center gap-1 pt-0.5">
+              <AlertTriangle className="w-3 h-3 text-blue-500 shrink-0" />
+              <span>{syncMessage}</span>
+            </p>
+          )}
         </div>
       </div>
 

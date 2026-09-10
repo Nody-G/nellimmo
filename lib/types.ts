@@ -426,6 +426,12 @@ export interface ContactLead {
   subject?: string;
   property_id?: string;
   property_title?: string;
+  /** Référence du bien concerné (n° de mandat ou réf. portail). */
+  reference?: string;
+  /** Identifiant du contact du carnet pro rattaché (historique complet). */
+  contact_id?: string;
+  /** Source d'origine du lead (SeLoger, LeBonCoin, SMS, site...). */
+  source?: string;
   status: 'nouveau' | 'traite' | 'archive';
   created_at: string;
 }

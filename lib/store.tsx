@@ -158,6 +158,21 @@ interface NellimoContextType {
   updateContact: (id: string, updates: Partial<ContactItem>) => Promise<ContactItem | null>;
   deleteContact: (id: string) => Promise<void>;
   addContactInteraction: (contactId: string, interaction: Omit<ContactInteraction, 'id' | 'contact_id' | 'date'>) => Promise<void>;
+  /**
+   * Crée ou met à jour une fiche contact du carnet pro à partir d'un lead entrant.
+   * Déduplique par téléphone/email, rattache le bien concerné et journalise
+   * l'interaction d'origine afin de conserver l'historique complet de la relation.
+   */
+  upsertContactFromLead: (lead: {
+    name: string;
+    email?: string;
+    phone?: string;
+    message?: string;
+    source?: string;
+    reference?: string;
+    propertyId?: string;
+    propertyTitle?: string;
+  }) => Promise<ContactItem>;
   syncContactsFromActivity: () => Promise<number>;
   setRelanceStatus: (actionId: string, status: RelanceStatusMap[string]) => void;
   resetRelanceStatuses: () => void;
@@ -1156,6 +1171,97 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
     updateContacts(updated);
   };
 
+  const upsertContactFromLead = async (lead: {
+    name: string;
+    email?: string;
+    phone?: string;
+    message?: string;
+    source?: string;
+    reference?: string;
+    propertyId?: string;
+    propertyTitle?: string;
+  }): Promise<ContactItem> => {
+    const cleanPhone = (v?: string) => (v || '').replace(/[^0-9]/g, '');
+    const cleanEmail = (v?: string) => (v || '').trim().toLowerCase();
+    const leadPhone = cleanPhone(lead.phone);
+    const leadEmail = cleanEmail(lead.email);
+
+    // Déduplication : on cherche une fiche existante par téléphone OU email.
+    const existing = contacts.find((c) => {
+      const samePhone = leadPhone && cleanPhone(c.phone) === leadPhone;
+      const sameEmail = leadEmail && cleanEmail(c.email) === leadEmail;
+      return Boolean(samePhone || sameEmail);
+    });
+
+    const [firstName, ...rest] = (lead.name || 'Prospect').trim().split(/\s+/);
+    const lastName = rest.join(' ');
+
+    const interactionTitle = lead.reference
+      ? `Lead entrant ${lead.source || 'portail'} — Réf. ${lead.reference}`
+      : `Lead entrant ${lead.source || 'portail'}`;
+    const interactionDescription = [
+      lead.propertyTitle ? `Bien concerné : ${lead.propertyTitle}` : '',
+      lead.message ? `Message : ${lead.message}` : '',
+    ]
+      .filter(Boolean)
+      .join('\n');
+
+    if (existing) {
+      const newInteraction: ContactInteraction = {
+        id: `inter-${Date.now()}`,
+        contact_id: existing.id,
+        type: 'note',
+        title: interactionTitle,
+        description: interactionDescription || undefined,
+        date: new Date().toISOString(),
+      };
+      const associated = new Set(existing.associated_property_ids || []);
+      if (lead.propertyId) associated.add(lead.propertyId);
+
+      const updatedContact: ContactItem = {
+        ...existing,
+        // On complète les coordonnées manquantes sans écraser l'existant.
+        email: existing.email || lead.email || '',
+        phone: existing.phone || lead.phone || '',
+        associated_property_ids: Array.from(associated),
+        interactions: [newInteraction, ...(existing.interactions || [])],
+        last_contact_at: newInteraction.date,
+        updated_at: new Date().toISOString(),
+      };
+      updateContacts(contacts.map((c) => (c.id === existing.id ? updatedContact : c)));
+      return updatedContact;
+    }
+
+    const newContact: ContactItem = {
+      id: `cont-${Date.now()}`,
+      role: 'acquereur',
+      status: 'actif',
+      first_name: firstName || 'Prospect',
+      last_name: lastName,
+      email: lead.email || '',
+      phone: lead.phone || '',
+      associated_property_ids: lead.propertyId ? [lead.propertyId] : [],
+      notes: lead.message || '',
+      tags: lead.source ? [lead.source] : [],
+      interactions: [
+        {
+          id: `inter-${Date.now()}`,
+          contact_id: `cont-${Date.now()}`,
+          type: 'note',
+          title: interactionTitle,
+          description: interactionDescription || undefined,
+          date: new Date().toISOString(),
+        },
+      ],
+      documents: [],
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      last_contact_at: new Date().toISOString(),
+    };
+    updateContacts([newContact, ...contacts]);
+    return newContact;
+  };
+
   const syncContactsFromActivity = async (): Promise<number> => {
     let countAdded = 0;
     const newContactsList = [...contacts];
@@ -1356,6 +1462,7 @@ export function NellimoProvider({ children }: { children: ReactNode }) {
     updateContact,
     deleteContact,
     addContactInteraction,
+    upsertContactFromLead,
     syncContactsFromActivity,
     setRelanceStatus,
     resetRelanceStatuses,
@@ -1433,6 +1540,23 @@ export function useNellimoStore(): NellimoContextType {
       updateContact: async () => null,
       deleteContact: async () => { },
       addContactInteraction: async () => { },
+      upsertContactFromLead: async (lead) => ({
+        id: 'cont-temp',
+        role: 'acquereur',
+        status: 'actif',
+        first_name: lead.name,
+        last_name: '',
+        email: lead.email ?? '',
+        phone: lead.phone ?? '',
+        associated_property_ids: lead.propertyId ? [lead.propertyId] : [],
+        notes: lead.message ?? '',
+        tags: [],
+        interactions: [],
+        documents: [],
+        is_favorite: false,
+        created_at: '',
+        updated_at: '',
+      }),
       syncContactsFromActivity: async () => 0,
       setRelanceStatus: () => { },
       resetRelanceStatuses: () => { },

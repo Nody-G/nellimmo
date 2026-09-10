@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { ContactLead } from '@/lib/types';
-import { Mail, MessageCircle, Trash2 } from 'lucide-react';
+import { Mail, MessageCircle, Trash2, History } from 'lucide-react';
 import { createGmailComposeUrl } from '@/lib/gmail';
 
 interface ContactLeadCardProps {
@@ -19,16 +19,16 @@ export const ContactLeadCard: React.FC<ContactLeadCardProps> = ({
 }) => {
   const whatsappUrl = lead.phone
     ? `https://wa.me/${lead.phone.replace(/\s+/g, '').replace(/^0/, '33')}?text=${encodeURIComponent(
-        `Bonjour ${lead.name.split(' ')[0]}, c'est Nelly Fernandez de l'agence Nell'Immo à Pélissanne. J'ai bien reçu votre demande sur notre site. Quand seriez-vous disponible pour que nous en discutions ?`
-      )}`
+      `Bonjour ${lead.name.split(' ')[0]}, c'est Nelly Fernandez de l'agence Nell'Immo à Pélissanne. J'ai bien reçu votre demande sur notre site. Quand seriez-vous disponible pour que nous en discutions ?`
+    )}`
     : null;
 
   const gmailUrl = lead.email
     ? createGmailComposeUrl({
-        to: lead.email,
-        subject: "Votre demande auprès de l'agence Nell'Immo",
-        body: `Bonjour ${lead.name},\n\nMerci pour votre message concernant : "${lead.message}".\n\nJe reste à votre entière disposition.\n\nBien cordialement,\nNelly Fernandez — Nell'Immo\n07 55 68 61 09`,
-      })
+      to: lead.email,
+      subject: "Votre demande auprès de l'agence Nell'Immo",
+      body: `Bonjour ${lead.name},\n\nMerci pour votre message concernant : "${lead.message}".\n\nJe reste à votre entière disposition.\n\nBien cordialement,\nNelly Fernandez — Nell'Immo\n07 55 68 61 09`,
+    })
     : null;
 
   const agendaUrl = `/cockpit/agenda?newVisit=true&contactName=${encodeURIComponent(lead.name)}&contactPhone=${encodeURIComponent(lead.phone)}&notes=${encodeURIComponent(lead.message)}`;
@@ -40,13 +40,12 @@ export const ContactLeadCard: React.FC<ContactLeadCardProps> = ({
         <div className="flex items-center gap-2">
           <span className="font-bold text-gray-900">{lead.name}</span>
           <span
-            className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
-              lead.status === 'nouveau'
-                ? 'bg-rose-100 text-rose-800'
-                : lead.status === 'traite'
+            className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${lead.status === 'nouveau'
+              ? 'bg-rose-100 text-rose-800'
+              : lead.status === 'traite'
                 ? 'bg-emerald-100 text-emerald-800'
                 : 'bg-gray-100 text-gray-600'
-            }`}
+              }`}
           >
             {lead.status}
           </span>
@@ -62,6 +61,16 @@ export const ContactLeadCard: React.FC<ContactLeadCardProps> = ({
       </div>
 
       <div className="flex items-center gap-1.5 shrink-0 flex-wrap">
+        {lead.contact_id && (
+          <Link
+            href={`/cockpit/contacts?id=${lead.contact_id}`}
+            className="px-2 py-1 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded-lg text-[11px] font-bold transition flex items-center gap-1"
+            title="Ouvrir la fiche contact et tout l'historique de la relation"
+          >
+            <History className="w-3.5 h-3.5" />
+            <span>Historique</span>
+          </Link>
+        )}
         {whatsappUrl && (
           <a
             href={whatsappUrl}
