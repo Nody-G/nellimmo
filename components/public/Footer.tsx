@@ -175,6 +175,43 @@ export function PublicFooter() {
         </div>
       </div>
 
+      {/* Trust Badges : logos officiels des partenaires et garanties */}
+      <div className="bg-[#0E141D] border-t border-gray-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-12">
+            <div className="flex items-center gap-3">
+              <Image
+                src="/fnaim.png"
+                alt="FNAIM — Fédération Nationale de l'Immobilier"
+                width={134}
+                height={99}
+                className="h-10 w-auto object-contain"
+              />
+              <span className="text-[10px] uppercase font-bold tracking-widest text-gray-400 leading-tight">
+                Membre FNAIM<br />
+                <span className="text-gray-500 normal-case font-normal tracking-normal">Médiation de la consommation</span>
+              </span>
+            </div>
+
+            <div className="hidden sm:block w-px h-10 bg-gray-800" />
+
+            <div className="flex items-center gap-3">
+              <Image
+                src="/galian.png"
+                alt="GALIAN — Garantie financière"
+                width={1141}
+                height={187}
+                className="h-7 w-auto object-contain"
+              />
+              <span className="text-[10px] uppercase font-bold tracking-widest text-gray-400 leading-tight">
+                Garantie financière<br />
+                <span className="text-gray-500 normal-case font-normal tracking-normal">120 000 € — Sans maniement de fonds</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Bottom Legal Bar */}
       <div className="bg-[#0E141D] py-6 px-4 text-xs text-gray-500 border-t border-gray-800">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left text-[11px]">

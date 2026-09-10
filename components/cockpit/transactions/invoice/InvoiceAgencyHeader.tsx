@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import type { AgencySettings, TransactionDeal } from '@/lib/types';
 
 interface InvoiceAgencyHeaderProps {
@@ -27,6 +28,22 @@ export function InvoiceAgencyHeader({ settings, deal }: InvoiceAgencyHeaderProps
         <p className="text-[10px] text-gray-500">
           Garantie Financière : {settings.guarantee_fund_name || 'GALIAN Assurances (120 000 €)'} — Sans maniement de fonds
         </p>
+        <div className="flex items-center gap-4 mt-3">
+          <Image
+            src="/fnaim.png"
+            alt="FNAIM"
+            width={134}
+            height={99}
+            className="h-8 w-auto object-contain"
+          />
+          <Image
+            src="/galian.png"
+            alt="GALIAN — Garantie financière"
+            width={1141}
+            height={187}
+            className="h-5 w-auto object-contain"
+          />
+        </div>
       </div>
 
       <div className="text-right">
