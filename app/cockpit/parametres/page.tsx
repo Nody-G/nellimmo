@@ -64,7 +64,7 @@ export default function AgencySettingsPage() {
           copiedLink={copiedLink}
           onCopy={handleCopy}
         />
-        <AiSection />
+        <AiSection formData={formData} onChange={handleFieldChange} />
         <PortalsSection formData={formData} onChange={handleFieldChange} />
         <BackupSection formData={formData} showToast={showToast} />
         <UsersSection showToast={showToast} />

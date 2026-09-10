@@ -60,7 +60,8 @@ export function GuaranteeBankingCard({ formData, onChange }: GuaranteeBankingCar
           </label>
           <input
             type="text"
-            value={formData.agency_rib_iban || 'FR76 3000 4000 5000 6000 7000 123'}
+            value={formData.agency_rib_iban || ''}
+            placeholder="FR76 ... (À renseigner pour les notaires)"
             onChange={(e) => onChange({ agency_rib_iban: e.target.value })}
             className={`${subInputClass} font-mono text-[#131B26]`}
           />
@@ -71,7 +72,8 @@ export function GuaranteeBankingCard({ formData, onChange }: GuaranteeBankingCar
           </label>
           <input
             type="text"
-            value={formData.agency_rib_bic || 'BNPAFRPP'}
+            value={formData.agency_rib_bic || ''}
+            placeholder="Ex: BNPAFRPPXXX"
             onChange={(e) => onChange({ agency_rib_bic: e.target.value })}
             className={`${subInputClass} font-mono`}
           />

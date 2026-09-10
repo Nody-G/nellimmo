@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { Property } from '@/lib/types';
 import { generateListingCopy, CopywritingStyle } from '@/lib/copywriting';
 import { INITIAL_PROPERTIES } from '@/lib/mock-data';
+import { resolveDeepSeekApiKey, executeDeepSeekCall } from '@/lib/deepseek/server';
 
 // Exemples réels authentiques de Nelly Fernandez extraits de la base
 const NELLY_FEW_SHOT_CORPUS = INITIAL_PROPERTIES
@@ -22,9 +23,7 @@ export async function POST(req: NextRequest) {
       customNotes?: string;
     } = body;
 
-    // Sécurité : la clé DeepSeek est exclusivement gérée côté serveur.
-    // Elle n'est jamais acceptée depuis le client (évite l'abus de crédits).
-    const effectiveApiKey = process.env.DEEPSEEK_API_KEY || '';
+    const effectiveApiKey = resolveDeepSeekApiKey(req);
 
     // Si aucune clé DeepSeek n'est disponible, bascule automatique sur le moteur local haute fidélité
     if (!effectiveApiKey) {
@@ -70,7 +69,6 @@ ${NELLY_FEW_SHOT_CORPUS}`;
 - Format / Style demandé : ${style} (si réseaux sociaux ou pitch whatsapp, adapte la longueur tout en conservant les coordonnées de Nelly).`;
 
     // Appel unifié officiel DeepSeek V4 Flash
-    const { executeDeepSeekCall } = await import('@/lib/deepseek/server');
     const result = await executeDeepSeekCall({
       feature: 'redacteur',
       featureLabel: `Annonce mandat ${property.mandate_number || 'Nouveau'} (${style})`,
@@ -81,6 +79,7 @@ ${NELLY_FEW_SHOT_CORPUS}`;
       model: 'deepseek-v4-flash',
       temperature: 0.7,
       maxTokens: 2048,
+      req,
     });
 
     if (!result.success || !result.content) {

@@ -3,6 +3,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Calculator, X, Send, Copy, Check, Landmark, Coins } from 'lucide-react';
 import { computeLoanSimulation } from '@/components/cockpit/acquereurs/acquereurs-types';
+import { useNellimoStore } from '@/lib/store';
 import { Portal } from '@/components/ui/Portal';
 
 interface QuickFinanceModalProps {
@@ -18,6 +19,7 @@ export function QuickFinanceModal({
   initialPrice = 450000,
   initialPropertyTitle,
 }: QuickFinanceModalProps) {
+  const { settings } = useNellimoStore();
   const [prevInitialPrice, setPrevInitialPrice] = useState(initialPrice);
   const [price, setPrice] = useState<number>(initialPrice);
   const [downPayment, setDownPayment] = useState<number>(Math.round(initialPrice * 0.15));
@@ -55,7 +57,8 @@ export function QuickFinanceModal({
   const cleanPhone = buyerPhone.replace(/[^0-9+]/g, '');
   const formattedPhone = cleanPhone.startsWith('0') ? `33${cleanPhone.slice(1)}` : cleanPhone;
 
-  const summaryText = `🏦 Simulation Financement & Notaire — Nell'Immo\n${initialPropertyTitle ? `Projet : ${initialPropertyTitle}\n` : ''}• Prix FAI : ${price.toLocaleString('fr-FR')} € | Apport : ${downPayment.toLocaleString('fr-FR')} €\n• Frais de notaire estimés (~7.5%) : ${sim.notaryFees.toLocaleString('fr-FR')} €\n• Coût total : ${sim.totalCost.toLocaleString('fr-FR')} €\n• Crédit : ${sim.loanAmount.toLocaleString('fr-FR')} € sur ${durationYears} ans (${interestRate}%)\n👉 Mensualité globale : ${sim.totalMonthlyPayment.toLocaleString('fr-FR')} € / mois\n👉 Revenus nets foyer requis (35%) : ${sim.minRequiredHouseholdIncome.toLocaleString('fr-FR')} € / mois\nNelly Fernandez — Nell'Immo Pélissanne (04 90 55 55 55)`;
+  const agentSignature = `${settings.agent_name || 'Nelly Fernandez'} — ${settings.agency_name || "Nell'Immo"} ${settings.city || 'Pélissanne'} (${settings.phone || '07 55 68 61 09'}`;
+  const summaryText = `🏦 Simulation Financement & Notaire — Nell'Immo\n${initialPropertyTitle ? `Projet : ${initialPropertyTitle}\n` : ''}• Prix FAI : ${price.toLocaleString('fr-FR')} € | Apport : ${downPayment.toLocaleString('fr-FR')} €\n• Frais de notaire estimés (~7.5%) : ${sim.notaryFees.toLocaleString('fr-FR')} €\n• Coût total : ${sim.totalCost.toLocaleString('fr-FR')} €\n• Crédit : ${sim.loanAmount.toLocaleString('fr-FR')} € sur ${durationYears} ans (${interestRate}%)\n👉 Mensualité globale : ${sim.totalMonthlyPayment.toLocaleString('fr-FR')} € / mois\n👉 Revenus nets foyer requis (35%) : ${sim.minRequiredHouseholdIncome.toLocaleString('fr-FR')} € / mois\n${agentSignature}`;
   const whatsappUrl = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(summaryText)}`;
 
   const handleCopy = async () => {

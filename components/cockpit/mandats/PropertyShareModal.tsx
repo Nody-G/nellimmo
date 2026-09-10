@@ -13,7 +13,7 @@ interface PropertyShareModalProps {
 }
 
 export function PropertyShareModal({ isOpen, onClose, property }: PropertyShareModalProps) {
-  const { buyers } = useNellimoStore();
+  const { buyers, settings } = useNellimoStore();
   const [selectedBuyerId, setSelectedBuyerId] = useState<string>('');
   const [customPhone, setCustomPhone] = useState('');
   const [customName, setCustomName] = useState('');
@@ -34,8 +34,9 @@ export function PropertyShareModal({ isOpen, onClose, property }: PropertyShareM
       ? `${window.location.origin}/biens/${property.id}`
       : `https://nellimmo.fr/biens/${property.id}`;
 
-    return `Bonjour ${recipientName},\n\nNelly de l'agence Nell'Immo à Pélissanne.\n\nSuite à nos échanges, voici une opportunité pouvant correspondre à vos critères :\n\n🏡 ${property.title} (${mandateRef})\n📍 Secteur : ${property.city}\n💰 Prix : ${property.price_fai.toLocaleString('fr-FR')} € FAI\n📐 Surface : ${property.living_area} m² • ${property.rooms_count} pièces (${property.bedrooms_count} ch.)\n\n👉 Fiche détaillée & photos HD :\n${publicUrl}\n\nÀ votre disposition pour organiser une visite !\n\nBien cordialement,\nNelly Fernandez — Nell'Immo (04 90 55 55 55)`;
-  }, [property, recipientName]);
+    const agentContact = `${settings.agent_name || 'Nelly Fernandez'} — ${settings.agency_name || "Nell'Immo"} (${settings.phone || '07 55 68 61 09'})`;
+    return `Bonjour ${recipientName},\n\nNelly de l'agence Nell'Immo à Pélissanne.\n\nSuite à nos échanges, voici une opportunité pouvant correspondre à vos critères :\n\n🏡 ${property.title} (${mandateRef})\n📍 Secteur : ${property.city}\n💰 Prix : ${property.price_fai.toLocaleString('fr-FR')} € FAI\n📐 Surface : ${property.living_area} m² • ${property.rooms_count} pièces (${property.bedrooms_count} ch.)\n\n👉 Fiche détaillée & photos HD :\n${publicUrl}\n\nÀ votre disposition pour organiser une visite !\n\nBien cordialement,\n${agentContact}`;
+  }, [property, recipientName, settings]);
 
   const message = customMessage ?? defaultMessage;
 

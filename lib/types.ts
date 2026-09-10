@@ -404,6 +404,9 @@ export interface AgencySettings {
     contacts?: boolean;
     reviews?: boolean;
   };
+
+  // Intelligence Artificielle & DeepSeek V4.1 Flash
+  deepseek_api_key?: string;
 }
 
 export interface ContactLead {

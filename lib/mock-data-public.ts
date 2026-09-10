@@ -23,8 +23,8 @@ export const INITIAL_AGENCY_SETTINGS: AgencySettings = {
   mediator_name: "ANM Conso / Médiation FNAIM",
   mediator_url: "https://www.anm-conso.com",
   bareme_honoraires_url: "/honoraires",
-  agency_rib_iban: "FR76 3000 4000 5000 6000 7000 123",
-  agency_rib_bic: "BNPAFRPP",
+  agency_rib_iban: "",
+  agency_rib_bic: "",
 
   // Passerelles SFTP Portails
   seloger_agency_code: "NELLIMMO-13330",
@@ -75,6 +75,7 @@ export const INITIAL_AGENCY_SETTINGS: AgencySettings = {
     contacts: true,
     reviews: true,
   },
+  deepseek_api_key: "",
 };
 
 export const INITIAL_PROPERTIES: Property[] = [

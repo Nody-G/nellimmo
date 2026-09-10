@@ -5,15 +5,13 @@ import {
     qualifyLeadLocally,
     buildAssistantSystemPrompt,
 } from '@/lib/assistant';
+import { resolveDeepSeekApiKey, executeDeepSeekCall } from '@/lib/deepseek/server';
 
 /**
  * Endpoint de l'Assistant IA conversationnel « Nelly ».
  *
  * Reçoit un lead entrant (demande de contact / estimation / prospection) et retourne
  * une qualification structurée + une réponse suggérée à la plume de Nelly.
- *
- * - Si DEEPSEEK_API_KEY est configurée (côté serveur uniquement) : appel DeepSeek.
- * - Sinon : bascule automatique sur le moteur local haute fidélité (lib/assistant.ts).
  */
 export async function POST(req: NextRequest) {
     try {
@@ -33,13 +31,15 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // Sécurité : la clé DeepSeek est exclusivement gérée côté serveur.
-        const effectiveApiKey = process.env.DEEPSEEK_API_KEY || '';
+        const effectiveApiKey = resolveDeepSeekApiKey(req);
 
         // Fallback local si aucune clé n'est disponible.
         if (!effectiveApiKey) {
             const result = qualifyLeadLocally(ctx);
-            return NextResponse.json({ success: true, result });
+            return NextResponse.json({
+                success: true,
+                result: { ...result, draft_response: result.suggestedReply },
+            });
         }
 
         // Appel officiel DeepSeek V4 Flash
@@ -52,7 +52,6 @@ export async function POST(req: NextRequest) {
             message: ctx.message,
         });
 
-        const { executeDeepSeekCall } = await import('@/lib/deepseek/server');
         const dsResult = await executeDeepSeekCall({
             feature: 'assistant',
             featureLabel: `Qualification lead (${ctx.kind} - ${ctx.name || 'Anonyme'})`,
@@ -64,6 +63,7 @@ export async function POST(req: NextRequest) {
             temperature: 0.6,
             maxTokens: 1200,
             responseFormat: { type: 'json_object' },
+            req,
         });
 
         if (!dsResult.success || !dsResult.content) {
@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
             const result = qualifyLeadLocally(ctx);
             return NextResponse.json({
                 success: true,
-                result: { ...result, source: 'local' },
+                result: { ...result, draft_response: result.suggestedReply, source: 'local' },
                 log: dsResult.log,
                 message: 'Qualification via le moteur local certifié.',
             });
@@ -88,7 +88,7 @@ export async function POST(req: NextRequest) {
             const result = qualifyLeadLocally(ctx);
             return NextResponse.json({
                 success: true,
-                result: { ...result, source: 'local' },
+                result: { ...result, draft_response: result.suggestedReply, source: 'local' },
                 log: dsResult.log,
                 message: 'Réponse IA non structurée. Qualification via le moteur local.',
             });
@@ -107,7 +107,11 @@ export async function POST(req: NextRequest) {
             source: 'deepseek',
         };
 
-        return NextResponse.json({ success: true, result, log: dsResult.log });
+        return NextResponse.json({
+            success: true,
+            result: { ...result, draft_response: result.suggestedReply },
+            log: dsResult.log,
+        });
     } catch (error: unknown) {
         console.error('Assistant Route Error:', error);
         return NextResponse.json(

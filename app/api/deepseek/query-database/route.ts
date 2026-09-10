@@ -63,6 +63,7 @@ Réponds UNIQUEMENT avec un JSON valide :
       temperature: 0.2,
       maxTokens: 1000,
       responseFormat: { type: 'json_object' },
+      req,
     });
 
     if (!dsResult.success || !dsResult.content) {

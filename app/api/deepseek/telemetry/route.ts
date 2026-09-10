@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { executeDeepSeekCall } from '@/lib/deepseek/server';
+import { executeDeepSeekCall, resolveDeepSeekApiKey } from '@/lib/deepseek/server';
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const action = searchParams.get('action');
 
-  // Diagnostic Ping en direct avec deepseek-v4-flash
+  // Diagnostic Ping en direct avec deepseek-chat
   if (action === 'ping') {
-    const overrideKey = req.headers.get('x-deepseek-key') || undefined;
     const result = await executeDeepSeekCall({
       feature: 'diagnostic',
       featureLabel: 'Test de connectivité API',
@@ -19,7 +18,7 @@ export async function GET(req: NextRequest) {
       ],
       model: 'deepseek-v4-flash',
       maxTokens: 5,
-      overrideApiKey: overrideKey,
+      req,
     });
 
     return NextResponse.json({
@@ -31,7 +30,7 @@ export async function GET(req: NextRequest) {
     });
   }
 
-  const hasApiKey = Boolean(process.env.DEEPSEEK_API_KEY);
+  const hasApiKey = Boolean(resolveDeepSeekApiKey(req));
   return NextResponse.json({
     status: 'ready',
     hasServerApiKey: hasApiKey,

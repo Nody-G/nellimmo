@@ -10,12 +10,14 @@ import {
   pseudonymizeName,
 } from '@/lib/ai-privacy-guard';
 
+import { resolveDeepSeekApiKey, executeDeepSeekCall } from '@/lib/deepseek/server';
+
 export async function POST(req: NextRequest) {
   try {
     const body: CopilotPayload = await req.json();
     const { action = 'chat', message = '', context = {} } = body;
 
-    const apiKey = process.env.DEEPSEEK_API_KEY || '';
+    const apiKey = resolveDeepSeekApiKey(req);
 
     // 1. Assainissement préalable systématique des données (Zéro Fuite RGPD)
     const sanitizedContext: Record<string, unknown> = {
@@ -109,7 +111,6 @@ Demande de Nelly : ${sanitizedUserMessage}`;
     }
 
     // 4. Appel unifié officiel DeepSeek V4 Flash
-    const { executeDeepSeekCall } = await import('@/lib/deepseek/server');
     const result = await executeDeepSeekCall({
       feature: 'copilot',
       featureLabel: `Copilote action ${action}`,
@@ -120,6 +121,7 @@ Demande de Nelly : ${sanitizedUserMessage}`;
       model: 'deepseek-v4-flash',
       temperature: action === 'smart_form_parse' ? 0.1 : 0.7,
       maxTokens: 1500,
+      req,
     });
 
     if (!result.success || !result.content) {

@@ -8,6 +8,7 @@ import {
   getLocalConciergeAnswer,
   saveConciergeLead,
 } from './concierge-types';
+import { useNellimoStore } from '@/lib/store';
 import { ConciergeTriggerButton } from './ConciergeTriggerButton';
 import { ConciergeHeader } from './ConciergeHeader';
 import { ConciergeMessagesList } from './ConciergeMessagesList';
@@ -17,6 +18,27 @@ export function ConciergeChat() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>(INITIAL_MESSAGES);
   const [isTyping, setIsTyping] = useState(false);
+  const { addContactLead } = useNellimoStore();
+
+  const handleSaveLead = useCallback(
+    (name: string, contact: string, message: string) => {
+      saveConciergeLead(name, contact, message);
+      const isEmail = contact.includes('@');
+      try {
+        addContactLead({
+          name: name.trim() || 'Visiteur Site Web',
+          email: isEmail ? contact.trim() : 'non renseigné',
+          phone: !isEmail ? contact.trim() : 'non renseigné',
+          subject: 'Demande d’information via Nell’IA',
+          message: `${message}\n\n[Contact fourni : ${contact.trim()}]`,
+        });
+      } catch {
+        /* Repli local transparent */
+      }
+      return true;
+    },
+    [addContactLead]
+  );
 
   const handleSendMessage = useCallback(async (userText: string) => {
     const userMsg: ChatMessage = {
@@ -42,11 +64,12 @@ export function ConciergeChat() {
 
       if (res.ok) {
         const data = await res.json();
-        if (data.success && data.result?.draft_response) {
+        const replyText = data.result?.draft_response || data.result?.suggestedReply;
+        if (data.success && replyText) {
           const assistantMsg: ChatMessage = {
             id: `a-${Date.now()}`,
             sender: 'assistant',
-            text: data.result.draft_response,
+            text: replyText,
             timestamp: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
           };
           setMessages((prev) => [...prev, assistantMsg]);
@@ -93,7 +116,7 @@ export function ConciergeChat() {
 
           <ConciergeInputBar
             onSendMessage={handleSendMessage}
-            onSaveLead={saveConciergeLead}
+            onSaveLead={handleSaveLead}
             disabled={isTyping}
           />
         </div>

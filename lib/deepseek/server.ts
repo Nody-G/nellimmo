@@ -1,5 +1,45 @@
+import fs from 'fs';
+import path from 'path';
+import type { NextRequest } from 'next/server';
 import { calculateCallCost, DeepSeekModelId } from './pricing';
 import { DeepSeekCallLog, DeepSeekFeature } from './telemetry';
+
+const KEY_FILE_PATH = path.join(process.cwd(), '.deepseek_key');
+
+/**
+ * Résout la clé API DeepSeek officielle de manière unifiée et étanche :
+ * 1. Override explicite
+ * 2. Headers de requête (x-deepseek-key, x-deepseek-api-key)
+ * 3. Cookie HTTP sécurisé (nellimmo_deepseek_key)
+ * 4. Variable d'environnement (process.env.DEEPSEEK_API_KEY)
+ * 5. Fichier serveur persistant (.deepseek_key)
+ */
+export function resolveDeepSeekApiKey(req?: NextRequest, overrideKey?: string): string {
+  if (overrideKey?.trim()) return overrideKey.trim();
+
+  if (req) {
+    const headerKey = req.headers.get('x-deepseek-key') || req.headers.get('x-deepseek-api-key');
+    if (headerKey?.trim()) return headerKey.trim();
+
+    const cookieKey = req.cookies.get('nellimmo_deepseek_key')?.value;
+    if (cookieKey?.trim()) return cookieKey.trim();
+  }
+
+  if (process.env.DEEPSEEK_API_KEY?.trim()) {
+    return process.env.DEEPSEEK_API_KEY.trim();
+  }
+
+  try {
+    if (fs.existsSync(KEY_FILE_PATH)) {
+      const fileKey = fs.readFileSync(KEY_FILE_PATH, 'utf8').trim();
+      if (fileKey) return fileKey;
+    }
+  } catch {
+    // Ignore
+  }
+
+  return '';
+}
 
 export interface DeepSeekServerCallOptions {
   feature: DeepSeekFeature;
@@ -10,6 +50,7 @@ export interface DeepSeekServerCallOptions {
   maxTokens?: number;
   responseFormat?: { type: 'json_object' | 'text' };
   overrideApiKey?: string;
+  req?: NextRequest;
 }
 
 export interface DeepSeekServerCallResult {
@@ -21,7 +62,7 @@ export interface DeepSeekServerCallResult {
 }
 
 /**
- * Client serveur officiel pour DeepSeek V4 (Flash / Pro).
+ * Client serveur officiel pour DeepSeek V4.1 (Flash / Pro).
  * Gère automatiquement le prompt caching, le décompte d'usage officiel et le calcul de coût.
  */
 export async function executeDeepSeekCall({
@@ -33,8 +74,9 @@ export async function executeDeepSeekCall({
   maxTokens = 2048,
   responseFormat,
   overrideApiKey,
+  req,
 }: DeepSeekServerCallOptions): Promise<DeepSeekServerCallResult> {
-  const apiKey = overrideApiKey || process.env.DEEPSEEK_API_KEY || '';
+  const apiKey = resolveDeepSeekApiKey(req, overrideApiKey);
   const startTime = Date.now();
   const logId = `ds_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
 
@@ -73,6 +115,9 @@ export async function executeDeepSeekCall({
   }
 
   try {
+    // Mapping vers le modèle API officiel DeepSeek (deepseek-chat ou deepseek-reasoner)
+    const officialApiModel = (model.includes('pro') || model.includes('reason')) ? 'deepseek-reasoner' : 'deepseek-chat';
+
     const res = await fetch('https://api.deepseek.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -80,7 +125,7 @@ export async function executeDeepSeekCall({
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model,
+        model: officialApiModel,
         messages,
         temperature,
         max_tokens: maxTokens,

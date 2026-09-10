@@ -94,10 +94,10 @@ export function InvoiceFactureSection({ deal, prop, settings }: InvoiceFactureSe
               Titulaire : {settings.agency_name || "SASU NELL’IMMO"}
             </p>
             <p className="font-mono text-[11px] text-gray-800">
-              IBAN : {settings.agency_rib_iban || 'FR76 3000 4000 5000 6000 7000 123'}
+              IBAN : {settings.agency_rib_iban || 'Non renseigné (voir Paramètres Agence)'}
             </p>
             <p className="font-mono text-[11px] text-gray-800">
-              BIC : {settings.agency_rib_bic || 'BNPAFRPP'}
+              BIC : {settings.agency_rib_bic || 'Non renseigné'}
             </p>
             <p className="text-[10px] text-gray-500 italic mt-1">
               Conformément à l’article 6 de la Loi Hoguet (loi n° 70-9 du 2 janvier 1970), aucun versement ne peut être exigé avant la réitération effective par acte authentique de vente.

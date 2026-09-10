@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { BookOpen, Heading, Key, Lightbulb, Sparkles } from 'lucide-react';
 
 interface RedacteurHeaderProps {
@@ -62,13 +63,14 @@ export function RedacteurHeader({
                     <span>Titres Accrocheurs</span>
                 </button>
 
-                <span
-                    title="La clé IA est configurée côté serveur (variable DEEPSEEK_API_KEY)."
-                    className="px-3 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 border bg-white text-gray-700 border-gray-200 shadow-2xs"
+                <Link
+                    href="/cockpit/parametres"
+                    title="Gérer la clé API DeepSeek unique dans les Paramètres"
+                    className="px-3.5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 border bg-white hover:bg-[#FAF5F8] text-[#131B26] border-gray-200 hover:border-[#E12B7B]/40 shadow-2xs transition cursor-pointer"
                 >
                     <Key className="w-4 h-4 text-[#C59A45]" />
-                    <span>Clé IA (serveur)</span>
-                </span>
+                    <span>Clé DeepSeek</span>
+                </Link>
 
                 <button
                     onClick={onToggleTraining}
