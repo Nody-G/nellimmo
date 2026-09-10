@@ -6,6 +6,7 @@ import { useNellimoStore } from '@/lib/store';
 import { exportMasterBackup, restoreMasterBackup } from '@/components/cockpit/parametres/parametres-types';
 import { useToast } from '@/components/ui/Toast';
 import { Portal } from '@/components/ui/Portal';
+import { useBodyScrollLock } from '@/lib/useBodyScrollLock';
 
 interface LocalMobileSyncModalProps {
   isOpen: boolean;
@@ -18,16 +19,17 @@ export function LocalMobileSyncModal({ isOpen, onClose }: LocalMobileSyncModalPr
   const [activeTab, setActiveTab] = useState<'export' | 'import'>('export');
   const [isRestoring, setIsRestoring] = useState(false);
 
-  // Escape key handler + body scroll lock
+  // Verrou de défilement du body (compté, sûr en cas d'empilement de modales)
+  useBodyScrollLock(isOpen);
+
+  // Escape key handler
   React.useEffect(() => {
     if (!isOpen) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
     };
-    document.body.style.overflow = 'hidden';
     window.addEventListener('keydown', handleKeyDown);
     return () => {
-      document.body.style.overflow = '';
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [isOpen, onClose]);
@@ -99,18 +101,16 @@ export function LocalMobileSyncModal({ isOpen, onClose }: LocalMobileSyncModalPr
             <button
               type="button"
               onClick={() => setActiveTab('export')}
-              className={`py-2 text-xs font-bold rounded-lg transition ${
-                activeTab === 'export' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-900'
-              }`}
+              className={`py-2 text-xs font-bold rounded-lg transition ${activeTab === 'export' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-900'
+                }`}
             >
               1. Depuis votre PC (Exporter)
             </button>
             <button
               type="button"
               onClick={() => setActiveTab('import')}
-              className={`py-2 text-xs font-bold rounded-lg transition ${
-                activeTab === 'import' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-900'
-              }`}
+              className={`py-2 text-xs font-bold rounded-lg transition ${activeTab === 'import' ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-900'
+                }`}
             >
               2. Sur votre Mobile (Importer)
             </button>

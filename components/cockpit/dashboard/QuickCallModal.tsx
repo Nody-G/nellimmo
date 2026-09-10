@@ -5,6 +5,7 @@ import { PhoneCall, X, UserPlus, Send, Sparkles } from 'lucide-react';
 import { useNellimoStore } from '@/lib/store';
 import { useToast } from '@/components/ui/Toast';
 import { Portal } from '@/components/ui/Portal';
+import { useBodyScrollLock } from '@/lib/useBodyScrollLock';
 import type { PropertyType } from '@/lib/types';
 
 interface QuickCallModalProps {
@@ -41,16 +42,17 @@ export function QuickCallModal({ isOpen, onClose }: QuickCallModalProps) {
       .slice(0, 3);
   }, [properties, callType, budget, city, propType]);
 
-  // Escape key handler + body scroll lock
+  // Verrou de défilement du body (compté, sûr en cas d'empilement de modales)
+  useBodyScrollLock(isOpen);
+
+  // Escape key handler
   useEffect(() => {
     if (!isOpen) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
     };
-    document.body.style.overflow = 'hidden';
     window.addEventListener('keydown', handleKeyDown);
     return () => {
-      document.body.style.overflow = '';
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [isOpen, onClose]);
@@ -160,8 +162,8 @@ export function QuickCallModal({ isOpen, onClose }: QuickCallModalProps) {
                 type="button"
                 onClick={() => setCallType(t)}
                 className={`py-2 px-3 rounded-xl text-xs font-bold capitalize transition ${callType === t
-                    ? 'bg-[#131B26] text-white shadow-xs'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? 'bg-[#131B26] text-white shadow-xs'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
               >
                 {t === 'acquereur' ? '🔑 Acquéreur' : t === 'vendeur' ? '🏡 Vendeur' : 'Autre appel'}

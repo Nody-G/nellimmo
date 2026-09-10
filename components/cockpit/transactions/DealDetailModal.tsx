@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import type { Property, TransactionDeal } from '@/lib/types';
 import { Portal } from '@/components/ui/Portal';
+import { useBodyScrollLock } from '@/lib/useBodyScrollLock';
 import {
   DealWorkflowButtons,
   DealFinancialOverview,
@@ -36,18 +37,19 @@ export function DealDetailModal({
   const [isNotaryPackOpen, setIsNotaryPackOpen] = useState(false);
   const prop = properties.find((p) => p.id === deal.property_id);
 
-  // Écouteur touche Échap et verrouillage du défilement d'arrière-plan
+  // Verrou de défilement du body (compté, sûr en cas d'empilement de modales)
+  useBodyScrollLock(true);
+
+  // Écouteur touche Échap
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         onClose();
       }
     };
-    document.body.style.overflow = 'hidden';
     window.addEventListener('keydown', handleKeyDown);
 
     return () => {
-      document.body.style.overflow = '';
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [onClose]);

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Printer, Mail } from 'lucide-react';
 import { Portal } from '@/components/ui/Portal';
+import { useBodyScrollLock } from '@/lib/useBodyScrollLock';
 import type { Property, TransactionDeal, AgencySettings } from '@/lib/types';
 import {
   InvoiceAgencyHeader,
@@ -34,14 +35,15 @@ export function InvoicePrintModal({
   const prop = properties.find((p) => p.id === deal.property_id);
   const [emailNotice, setEmailNotice] = useState<{ type: 'error' | 'success'; message: string } | null>(null);
 
+  // Verrou de défilement du body (compté, sûr en cas d'empilement de modales)
+  useBodyScrollLock(true);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
     };
-    document.body.style.overflow = 'hidden';
     window.addEventListener('keydown', handleKeyDown);
     return () => {
-      document.body.style.overflow = '';
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [onClose]);
@@ -103,8 +105,8 @@ export function InvoicePrintModal({
           {emailNotice && (
             <div
               className={`p-3.5 rounded-2xl text-xs flex items-center justify-between border print:hidden ${emailNotice.type === 'error'
-                  ? 'bg-amber-50 border-amber-200 text-amber-900'
-                  : 'bg-emerald-50 border-emerald-200 text-emerald-900'
+                ? 'bg-amber-50 border-amber-200 text-amber-900'
+                : 'bg-emerald-50 border-emerald-200 text-emerald-900'
                 }`}
             >
               <span>{emailNotice.message}</span>
@@ -123,8 +125,8 @@ export function InvoicePrintModal({
               <button
                 onClick={() => onSetDocumentType('facture')}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${documentType === 'facture'
-                    ? 'bg-[#E12B7B] text-white shadow-xs'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? 'bg-[#E12B7B] text-white shadow-xs'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
               >
                 Facture d’Honoraires (Acte)
@@ -132,8 +134,8 @@ export function InvoicePrintModal({
               <button
                 onClick={() => onSetDocumentType('sequestre')}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${documentType === 'sequestre'
-                    ? 'bg-[#131B26] text-white shadow-xs'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? 'bg-[#131B26] text-white shadow-xs'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
               >
                 Appel de Fonds Séquestre Notaire

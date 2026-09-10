@@ -3,6 +3,7 @@
 import React, { useEffect, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import { X } from 'lucide-react';
+import { useBodyScrollLock } from '@/lib/useBodyScrollLock';
 
 export interface ModalProps {
   isOpen: boolean;
@@ -38,16 +39,15 @@ export const Modal: React.FC<ModalProps> = ({
     [closeOnEsc, onClose]
   );
 
+  // Verrou de défilement compté : ne restaure le body que lorsque la
+  // dernière modale ouverte se ferme (évite les verrous orphelins).
+  useBodyScrollLock(isOpen);
+
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = 'hidden';
       window.addEventListener('keydown', handleKeyDown);
-    } else {
-      document.body.style.overflow = '';
     }
-
     return () => {
-      document.body.style.overflow = '';
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [isOpen, handleKeyDown]);

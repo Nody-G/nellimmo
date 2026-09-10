@@ -5,6 +5,7 @@ import { X, FilePlus2, Compass, Calendar } from 'lucide-react';
 import { useNellimoStore } from '@/lib/store';
 import { useToast } from '@/components/ui/Toast';
 import { Portal } from '@/components/ui/Portal';
+import { useBodyScrollLock } from '@/lib/useBodyScrollLock';
 import type { PropertyType } from '@/lib/types';
 import { createGoogleCalendarUrl } from '@/lib/google';
 import { SellerDiscoveryDvfCard } from './SellerDiscoveryDvfCard';
@@ -41,16 +42,17 @@ export function SellerDiscoveryModal({ isOpen, onClose }: SellerDiscoveryModalPr
     return { estimatedValue, gap: desiredPrice > 0 ? desiredPrice - estimatedValue : 0 };
   }, [city, livingArea, condition, hasPool, hasGarage, desiredPrice]);
 
-  // Escape key handler + body scroll lock
+  // Verrou de défilement du body (compté, sûr en cas d'empilement de modales)
+  useBodyScrollLock(isOpen);
+
+  // Escape key handler
   useEffect(() => {
     if (!isOpen) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
     };
-    document.body.style.overflow = 'hidden';
     window.addEventListener('keydown', handleKeyDown);
     return () => {
-      document.body.style.overflow = '';
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [isOpen, onClose]);
@@ -111,111 +113,111 @@ export function SellerDiscoveryModal({ isOpen, onClose }: SellerDiscoveryModalPr
           onClick={(e) => e.stopPropagation()}
           className="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl border border-gray-100 max-h-[92vh] overflow-y-auto space-y-4"
         >
-        <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-[#C59A45]/20 text-[#967026] flex items-center justify-center">
-              <Compass className="w-5 h-5" />
+          <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-[#C59A45]/20 text-[#967026] flex items-center justify-center">
+                <Compass className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-serif font-bold text-gray-900 text-sm">Fiche Découverte Terrain Vendeur (R1)</h3>
+                <p className="text-[11px] text-gray-500">Carnet d&apos;estimation en face du propriétaire</p>
+              </div>
+            </div>
+            <button type="button" onClick={onClose} className="p-1 text-gray-400 hover:text-gray-700">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Coordonnées */}
+          <div className="grid grid-cols-2 gap-3 text-xs">
+            <div>
+              <label className="font-bold text-gray-700 block mb-1">Nom du Propriétaire *</label>
+              <input
+                type="text"
+                placeholder="ex. M. et Mme Blanc"
+                value={sellerName}
+                onChange={(e) => setSellerName(e.target.value)}
+                className="w-full p-2 rounded-lg border border-gray-200"
+              />
             </div>
             <div>
-              <h3 className="font-serif font-bold text-gray-900 text-sm">Fiche Découverte Terrain Vendeur (R1)</h3>
-              <p className="text-[11px] text-gray-500">Carnet d&apos;estimation en face du propriétaire</p>
+              <label className="font-bold text-gray-700 block mb-1">Téléphone *</label>
+              <input
+                type="tel"
+                placeholder="06 12 34 56 78"
+                value={sellerPhone}
+                onChange={(e) => setSellerPhone(e.target.value)}
+                className="w-full p-2 rounded-lg border border-gray-200"
+              />
+            </div>
+            <div className="col-span-2 grid grid-cols-3 gap-2">
+              <input
+                type="text"
+                placeholder="Adresse du bien"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                className="col-span-2 p-2 rounded-lg border border-gray-200"
+              />
+              <input
+                type="text"
+                placeholder="Ville"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                className="p-2 rounded-lg border border-gray-200"
+              />
             </div>
           </div>
-          <button type="button" onClick={onClose} className="p-1 text-gray-400 hover:text-gray-700">
-            <X className="w-4 h-4" />
-          </button>
-        </div>
 
-        {/* Coordonnées */}
-        <div className="grid grid-cols-2 gap-3 text-xs">
-          <div>
-            <label className="font-bold text-gray-700 block mb-1">Nom du Propriétaire *</label>
-            <input
-              type="text"
-              placeholder="ex. M. et Mme Blanc"
-              value={sellerName}
-              onChange={(e) => setSellerName(e.target.value)}
-              className="w-full p-2 rounded-lg border border-gray-200"
-            />
-          </div>
-          <div>
-            <label className="font-bold text-gray-700 block mb-1">Téléphone *</label>
-            <input
-              type="tel"
-              placeholder="06 12 34 56 78"
-              value={sellerPhone}
-              onChange={(e) => setSellerPhone(e.target.value)}
-              className="w-full p-2 rounded-lg border border-gray-200"
-            />
-          </div>
-          <div className="col-span-2 grid grid-cols-3 gap-2">
-            <input
-              type="text"
-              placeholder="Adresse du bien"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              className="col-span-2 p-2 rounded-lg border border-gray-200"
-            />
-            <input
-              type="text"
-              placeholder="Ville"
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-              className="p-2 rounded-lg border border-gray-200"
-            />
-          </div>
-        </div>
+          {/* Caractéristiques */}
+          <SellerDiscoverySpecsCard
+            propertyType={propertyType} onPropertyTypeChange={setPropertyType}
+            livingArea={livingArea} onLivingAreaChange={setLivingArea}
+            landArea={landArea} onLandAreaChange={setLandArea}
+            roomsCount={roomsCount} onRoomsCountChange={setRoomsCount}
+            bedroomsCount={bedroomsCount} onBedroomsCountChange={setBedroomsCount}
+            hasPool={hasPool} onHasPoolChange={setHasPool}
+            hasGarage={hasGarage} onHasGarageChange={setHasGarage}
+            condition={condition} onConditionChange={setCondition}
+          />
 
-        {/* Caractéristiques */}
-        <SellerDiscoverySpecsCard
-          propertyType={propertyType} onPropertyTypeChange={setPropertyType}
-          livingArea={livingArea} onLivingAreaChange={setLivingArea}
-          landArea={landArea} onLandAreaChange={setLandArea}
-          roomsCount={roomsCount} onRoomsCountChange={setRoomsCount}
-          bedroomsCount={bedroomsCount} onBedroomsCountChange={setBedroomsCount}
-          hasPool={hasPool} onHasPoolChange={setHasPool}
-          hasGarage={hasGarage} onHasGarageChange={setHasGarage}
-          condition={condition} onConditionChange={setCondition}
-        />
+          {/* DVF Benchmark Card */}
+          <SellerDiscoveryDvfCard
+            city={city}
+            estimatedValue={dvfBenchmark.estimatedValue}
+            desiredPrice={desiredPrice}
+            onDesiredPriceChange={setDesiredPrice}
+            gap={dvfBenchmark.gap}
+          />
 
-        {/* DVF Benchmark Card */}
-        <SellerDiscoveryDvfCard
-          city={city}
-          estimatedValue={dvfBenchmark.estimatedValue}
-          desiredPrice={desiredPrice}
-          onDesiredPriceChange={setDesiredPrice}
-          gap={dvfBenchmark.gap}
-        />
-
-        {/* Actions */}
-        <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-gray-100">
-          <button
-            type="button"
-            onClick={handleScheduleGoogleAgenda}
-            className="px-3.5 py-2.5 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-900 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
-            title="Bloquer le rendez-vous de restitution R2 dans Google Agenda"
-          >
-            <Calendar className="w-4 h-4 text-blue-600" />
-            <span>R2 Google Agenda</span>
-          </button>
-
-          <div className="flex items-center gap-2">
-            <button type="button" onClick={onClose} className="px-4 py-2 text-xs font-bold text-gray-600 cursor-pointer">
-              Annuler
-            </button>
+          {/* Actions */}
+          <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-gray-100">
             <button
               type="button"
-              onClick={handleCreateDraftMandate}
-              disabled={isSubmitting}
-              className="px-5 py-2.5 rounded-xl bg-[#E12B7B] hover:bg-[#C71B62] text-white text-xs font-bold flex items-center gap-1.5 shadow-md transition cursor-pointer"
+              onClick={handleScheduleGoogleAgenda}
+              className="px-3.5 py-2.5 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-900 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
+              title="Bloquer le rendez-vous de restitution R2 dans Google Agenda"
             >
-              <FilePlus2 className="w-4 h-4" />
-              <span>Enregistrer en Mandat Brouillon</span>
+              <Calendar className="w-4 h-4 text-blue-600" />
+              <span>R2 Google Agenda</span>
             </button>
+
+            <div className="flex items-center gap-2">
+              <button type="button" onClick={onClose} className="px-4 py-2 text-xs font-bold text-gray-600 cursor-pointer">
+                Annuler
+              </button>
+              <button
+                type="button"
+                onClick={handleCreateDraftMandate}
+                disabled={isSubmitting}
+                className="px-5 py-2.5 rounded-xl bg-[#E12B7B] hover:bg-[#C71B62] text-white text-xs font-bold flex items-center gap-1.5 shadow-md transition cursor-pointer"
+              >
+                <FilePlus2 className="w-4 h-4" />
+                <span>Enregistrer en Mandat Brouillon</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </Portal>
-);
+    </Portal>
+  );
 }

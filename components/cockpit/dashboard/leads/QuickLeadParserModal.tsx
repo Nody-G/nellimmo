@@ -5,6 +5,7 @@ import { MailCheck, X, Sparkles, Send, ArrowRight } from 'lucide-react';
 import { useNellimoStore } from '@/lib/store';
 import { useToast } from '@/components/ui/Toast';
 import { Portal } from '@/components/ui/Portal';
+import { useBodyScrollLock } from '@/lib/useBodyScrollLock';
 
 interface QuickLeadParserModalProps {
   isOpen: boolean;
@@ -91,16 +92,17 @@ export function QuickLeadParserModal({ isOpen, onClose }: QuickLeadParserModalPr
   const [parsed, setParsed] = useState<ReturnType<typeof parseRawLeadText> | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Escape key handler + body scroll lock
+  // Verrou de défilement du body (compté, sûr en cas d'empilement de modales)
+  useBodyScrollLock(isOpen);
+
+  // Escape key handler
   useEffect(() => {
     if (!isOpen) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
     };
-    document.body.style.overflow = 'hidden';
     window.addEventListener('keydown', handleKeyDown);
     return () => {
-      document.body.style.overflow = '';
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [isOpen, onClose]);

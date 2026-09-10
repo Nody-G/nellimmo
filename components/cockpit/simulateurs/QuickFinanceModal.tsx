@@ -5,6 +5,7 @@ import { Calculator, X, Send, Copy, Check, Landmark, Coins } from 'lucide-react'
 import { computeLoanSimulation } from '@/components/cockpit/acquereurs/acquereurs-types';
 import { useNellimoStore } from '@/lib/store';
 import { Portal } from '@/components/ui/Portal';
+import { useBodyScrollLock } from '@/lib/useBodyScrollLock';
 
 interface QuickFinanceModalProps {
   isOpen: boolean;
@@ -38,16 +39,17 @@ export function QuickFinanceModal({
     purchasePrice: price, downPayment, durationYears, interestRate, insuranceRate: 0.34,
   }), [price, downPayment, durationYears, interestRate]);
 
-  // Escape key handler + body scroll lock
+  // Verrou de défilement du body (compté, sûr en cas d'empilement de modales)
+  useBodyScrollLock(isOpen);
+
+  // Escape key handler
   useEffect(() => {
     if (!isOpen) return;
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
     };
-    document.body.style.overflow = 'hidden';
     window.addEventListener('keydown', handleKeyDown);
     return () => {
-      document.body.style.overflow = '';
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [isOpen, onClose]);
