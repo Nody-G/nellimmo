@@ -58,10 +58,18 @@ export function useGoogleConnection() {
         void refreshStatus();
     }, [refreshStatus]);
 
-    /** Redirige vers l'écran de consentement Google. */
-    const connect = useCallback((services?: GoogleServiceKey[]) => {
-        const query = services && services.length > 0 ? `?services=${services.join(',')}` : '';
-        window.location.href = `/api/google/oauth/start${query}`;
+    /**
+     * Redirige vers l'écran de consentement Google.
+     * @param services Services à autoriser (optionnel).
+     * @param returnTo Page de retour après le callback (défaut : page courante).
+     */
+    const connect = useCallback((services?: GoogleServiceKey[], returnTo?: string) => {
+        const params = new URLSearchParams();
+        if (services && services.length > 0) params.set('services', services.join(','));
+        const target =
+            returnTo ?? (typeof window !== 'undefined' ? window.location.pathname : '/cockpit');
+        params.set('returnTo', target);
+        window.location.href = `/api/google/oauth/start?${params.toString()}`;
     }, []);
 
     /** Révoque le jeton et repasse à l'état déconnecté. */

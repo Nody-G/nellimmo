@@ -26,6 +26,8 @@ export const PKCE_COOKIE = 'nellimmo_google_pkce';
 export const STATE_COOKIE = 'nellimmo_google_state';
 /** Cookie contenant les scopes demandés (pour l'affichage du statut). */
 export const SCOPES_COOKIE = 'nellimmo_google_scopes';
+/** Cookie contenant la page de retour après le callback OAuth. */
+export const RETURN_COOKIE = 'nellimmo_google_return';
 
 const SHORT_MAX_AGE = 600; // 10 minutes
 
@@ -50,19 +52,22 @@ function cookieOptions(maxAge: number) {
     };
 }
 
-/** Pose les cookies PKCE / state / scopes. */
+/** Pose les cookies PKCE / state / scopes / retour. */
 export function setOAuthFlowCookies(
     res: NextResponse,
-    params: { verifier: string; state: string; scopes: string[] }
+    params: { verifier: string; state: string; scopes: string[]; returnTo?: string }
 ): void {
     res.cookies.set(PKCE_COOKIE, params.verifier, cookieOptions(SHORT_MAX_AGE));
     res.cookies.set(STATE_COOKIE, params.state, cookieOptions(SHORT_MAX_AGE));
     res.cookies.set(SCOPES_COOKIE, params.scopes.join(' '), cookieOptions(SHORT_MAX_AGE));
+    if (params.returnTo) {
+        res.cookies.set(RETURN_COOKIE, params.returnTo, cookieOptions(SHORT_MAX_AGE));
+    }
 }
 
 /** Efface les cookies du flux OAuth. */
 export function clearOAuthFlowCookies(res: NextResponse): void {
-    for (const name of [PKCE_COOKIE, STATE_COOKIE, SCOPES_COOKIE]) {
+    for (const name of [PKCE_COOKIE, STATE_COOKIE, SCOPES_COOKIE, RETURN_COOKIE]) {
         res.cookies.set(name, '', cookieOptions(0));
     }
 }
@@ -89,6 +94,10 @@ export function getRequestTokenStore(req: NextRequest) {
  * Retourne un access token valide, en rafraîchissant paresseusement si besoin.
  * Marge de sécurité de 60 s avant expiration.
  *
+ * En mode cookie (sans Supabase), l'access token n'est jamais persisté : on
+ * rafraîchit systématiquement à partir du `refreshToken`. En mode Supabase, on
+ * réutilise l'access token tant qu'il n'est pas proche de l'expiration.
+ *
  * @throws GoogleNotConnectedError si aucun jeton n'existe.
  * @throws GoogleTokenRevokedError si le refresh échoue.
  */
@@ -102,8 +111,16 @@ export async function getValidAccessToken(req: NextRequest): Promise<string> {
         throw new GoogleNotConnectedError();
     }
 
-    if (record.expiry - Date.now() > 60_000) {
+    const hasUsableAccessToken =
+        Boolean(record.accessToken) && record.expiry - Date.now() > 60_000;
+
+    if (hasUsableAccessToken) {
         return record.accessToken;
+    }
+
+    if (!record.refreshToken) {
+        const { GoogleNotConnectedError } = await import('./oauth-client');
+        throw new GoogleNotConnectedError();
     }
 
     const refreshed = await refreshAccessToken(record.refreshToken);
@@ -113,7 +130,16 @@ export async function getValidAccessToken(req: NextRequest): Promise<string> {
         expiry: Date.now() + refreshed.expires_in * 1000,
         scope: refreshed.scope ?? record.scope,
     };
-    await store.save(updated);
+
+    // En mode cookie, `save` n'est pas supporté (le cookie est géré par les
+    // routes API). On ignore l'erreur : l'access token reste en mémoire pour
+    // cette requête et sera régénéré à la suivante.
+    try {
+        await store.save(updated);
+    } catch {
+        // Mode cookie : pas de persistance de l'access token, comportement attendu.
+    }
+
     return updated.accessToken;
 }
 

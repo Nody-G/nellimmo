@@ -141,6 +141,11 @@ class SupabaseTokenStore implements GoogleTokenStore {
 /**
  * Implémentation cookie : charge utile chiffrée, destinée au mode local-first.
  * Le cookie est posé/effacé par les routes API (httpOnly, Secure, SameSite=Lax).
+ *
+ * ⚠️ Les navigateurs limitent chaque cookie à ~4 Ko. On ne stocke donc **pas**
+ * l'`accessToken` (long, éphémère) : uniquement le `refreshToken` (courant) et
+ * les métadonnées d'affichage. L'access token est régénéré à la demande via
+ * `getValidAccessToken` (rafraîchissement paresseux).
  */
 class CookieTokenStore implements GoogleTokenStore {
     constructor(private readonly readCookie: () => string | undefined) { }
@@ -156,8 +161,19 @@ class CookieTokenStore implements GoogleTokenStore {
         const raw = this.readCookie();
         if (!raw) return null;
         try {
-            const parsed = JSON.parse(decryptSecret(raw)) as Omit<GoogleTokenRecord, 'ownerId'>;
-            return { ...parsed, ownerId };
+            const parsed = JSON.parse(decryptSecret(raw)) as Partial<GoogleTokenRecord>;
+            // En mode cookie, l'access token n'est pas persisté : on force une
+            // expiration passée pour déclencher le rafraîchissement paresseux.
+            return {
+                ownerId,
+                email: parsed.email ?? '',
+                name: parsed.name,
+                accessToken: parsed.accessToken ?? '',
+                refreshToken: parsed.refreshToken ?? '',
+                expiry: parsed.expiry ?? 0,
+                scope: parsed.scope ?? '',
+                tokenType: parsed.tokenType ?? 'Bearer',
+            };
         } catch {
             return null;
         }
@@ -171,11 +187,21 @@ class CookieTokenStore implements GoogleTokenStore {
 /**
  * Sérialise un enregistrement pour le cookie chiffré (mode local).
  * Utilisé par les routes API pour poser le cookie.
+ *
+ * On omet volontairement `accessToken` (volumineux et éphémère) afin de rester
+ * sous la limite de ~4 Ko par cookie. Le rafraîchissement paresseux régénère
+ * l'access token à partir du `refreshToken`.
  */
 export function serializeTokenForCookie(record: GoogleTokenRecord): string {
-    const { ownerId: _ownerId, ...rest } = record;
-    void _ownerId;
-    return encryptSecret(JSON.stringify(rest));
+    const compact = {
+        email: record.email,
+        name: record.name,
+        refreshToken: record.refreshToken,
+        expiry: record.expiry,
+        scope: record.scope,
+        tokenType: record.tokenType,
+    };
+    return encryptSecret(JSON.stringify(compact));
 }
 
 /**

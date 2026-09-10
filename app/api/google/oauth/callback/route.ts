@@ -12,6 +12,7 @@ import {
     PKCE_COOKIE,
     STATE_COOKIE,
     SCOPES_COOKIE,
+    RETURN_COOKIE,
 } from '@/lib/google/server-helpers';
 import { isPersistentTokenStoreAvailable, type GoogleTokenRecord } from '@/lib/google/token-store';
 
@@ -29,8 +30,11 @@ export async function GET(req: NextRequest) {
     const error = params.get('error');
     const code = params.get('code');
     const state = params.get('state');
+    const debug = params.get('debug') === '1';
 
-    const settingsUrl = new URL('/cockpit/parametres', req.nextUrl.origin);
+    // Page de retour : celle qui a initié le flux (cookie), sinon Paramètres.
+    const returnTo = req.cookies.get(RETURN_COOKIE)?.value || '/cockpit/parametres';
+    const settingsUrl = new URL(returnTo, req.nextUrl.origin);
 
     if (error) {
         settingsUrl.searchParams.set('google', 'denied');
@@ -42,6 +46,18 @@ export async function GET(req: NextRequest) {
     const requestedScopes = req.cookies.get(SCOPES_COOKIE)?.value || '';
 
     if (!code || !state || !expectedState || state !== expectedState || !verifier) {
+        if (debug) {
+            return NextResponse.json({
+                step: 'state_check',
+                ok: false,
+                hasCode: Boolean(code),
+                hasState: Boolean(state),
+                hasExpectedState: Boolean(expectedState),
+                stateMatches: state === expectedState,
+                hasVerifier: Boolean(verifier),
+                cookiesSeen: req.cookies.getAll().map((c) => c.name),
+            });
+        }
         settingsUrl.searchParams.set('google', 'invalid_state');
         const res = NextResponse.redirect(settingsUrl);
         clearOAuthFlowCookies(res);
@@ -64,8 +80,26 @@ export async function GET(req: NextRequest) {
             tokenType: tokens.token_type || 'Bearer',
         };
 
+        const persistent = isPersistentTokenStoreAvailable();
         const store = getRequestTokenStore(req);
-        await store.save(record);
+
+        // En mode Supabase, on persiste en base. En mode cookie, `save` n'est
+        // pas supporté : le cookie est posé ci-dessous.
+        if (persistent) {
+            await store.save(record);
+        }
+
+        if (debug) {
+            return NextResponse.json({
+                step: 'token_exchange',
+                ok: true,
+                email: profile.email,
+                hasRefreshToken: Boolean(record.refreshToken),
+                scope: record.scope,
+                persistentStore: persistent,
+                cookieMode: !persistent,
+            });
+        }
 
         settingsUrl.searchParams.set('google', 'connected');
         settingsUrl.searchParams.set('email', profile.email);
@@ -73,13 +107,21 @@ export async function GET(req: NextRequest) {
         const res = NextResponse.redirect(settingsUrl);
         clearOAuthFlowCookies(res);
 
-        // Mode local (Supabase non configuré) : on pose aussi le cookie chiffré.
-        if (!isPersistentTokenStoreAvailable()) {
+        // Mode local (Supabase non configuré) : on pose le cookie chiffré.
+        if (!persistent) {
             setTokenCookie(res, record);
         }
         return res;
     } catch (e) {
         const message = e instanceof GoogleOAuthError ? e.message : 'Échec de la connexion Google.';
+        if (debug) {
+            return NextResponse.json({
+                step: 'token_exchange',
+                ok: false,
+                error: message,
+                errorName: e instanceof Error ? e.name : 'Unknown',
+            });
+        }
         settingsUrl.searchParams.set('google', 'error');
         settingsUrl.searchParams.set('message', message.slice(0, 160));
         const res = NextResponse.redirect(settingsUrl);

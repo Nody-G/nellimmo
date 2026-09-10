@@ -35,6 +35,7 @@ export async function GET(req: NextRequest) {
 
     const servicesParam = req.nextUrl.searchParams.get('services');
     const loginHint = req.nextUrl.searchParams.get('login_hint') || undefined;
+    const returnTo = req.nextUrl.searchParams.get('returnTo') || '/cockpit/parametres';
 
     let selection: Partial<Record<GoogleServiceKey, boolean>>;
     if (servicesParam) {
@@ -57,6 +58,6 @@ export async function GET(req: NextRequest) {
     });
 
     const res = NextResponse.redirect(authUrl);
-    setOAuthFlowCookies(res, { verifier, state, scopes });
+    setOAuthFlowCookies(res, { verifier, state, scopes, returnTo });
     return res;
 }
