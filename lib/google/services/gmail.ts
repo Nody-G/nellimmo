@@ -113,7 +113,8 @@ export function buildMimeMessage(input: GmailMessageInput): string {
  * @returns le message Gmail créé (avec son `id`).
  */
 export async function sendGmailMessage(input: GmailMessageInput): Promise<GmailMessage> {
-    const raw = buildMimeMessage(input);
+    // L'API Gmail attend le message MIME complet encodé en base64url dans `raw`.
+    const raw = toBase64Url(buildMimeMessage(input));
     return callGoogleProxy<GmailMessage>({
         service: 'gmail',
         action: 'messages.send',
