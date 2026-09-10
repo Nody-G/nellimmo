@@ -51,18 +51,21 @@ export interface GmailMessageDetail {
     };
 }
 
-/** Encode une chaîne UTF-8 en base64url (requis par Gmail). */
-export function toBase64Url(input: string): string {
+/** Encode une chaîne UTF-8 en base64 standard (avec padding). */
+function toBase64(input: string): string {
     const bytes = new TextEncoder().encode(input);
     let binary = '';
     bytes.forEach((b) => {
         binary += String.fromCharCode(b);
     });
-    const base64 =
-        typeof btoa === 'function'
-            ? btoa(binary)
-            : Buffer.from(bytes).toString('base64');
-    return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    return typeof btoa === 'function'
+        ? btoa(binary)
+        : Buffer.from(bytes).toString('base64');
+}
+
+/** Encode une chaîne UTF-8 en base64url (requis par Gmail pour le champ `raw`). */
+export function toBase64Url(input: string): string {
+    return toBase64(input).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
 /** Encode un en-tête MIME en RFC 2047 si nécessaire (caractères non ASCII). */
@@ -89,12 +92,12 @@ export function buildMimeMessage(input: GmailMessageInput): string {
             'Content-Type: text/plain; charset="UTF-8"',
             'Content-Transfer-Encoding: base64',
             '',
-            toBase64Url(input.body),
+            toBase64(input.body),
             `--${boundary}`,
             'Content-Type: text/html; charset="UTF-8"',
             'Content-Transfer-Encoding: base64',
             '',
-            toBase64Url(input.html),
+            toBase64(input.html),
             `--${boundary}--`,
         ];
         return `${headers.join('\r\n')}\r\n\r\n${parts.join('\r\n')}`;
@@ -102,7 +105,7 @@ export function buildMimeMessage(input: GmailMessageInput): string {
 
     headers.push('Content-Type: text/plain; charset="UTF-8"');
     headers.push('Content-Transfer-Encoding: base64');
-    return `${headers.join('\r\n')}\r\n\r\n${toBase64Url(input.body)}`;
+    return `${headers.join('\r\n')}\r\n\r\n${toBase64(input.body)}`;
 }
 
 /**

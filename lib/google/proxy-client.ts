@@ -44,7 +44,13 @@ export async function callGoogleProxy<T = unknown>(call: GoogleProxyCall): Promi
 
     if (!res.ok) {
         const code = (json?.error as string) || 'unknown_error';
-        const message = (json?.message as string) || `Erreur Google (HTTP ${res.status}).`;
+        // Remonte le message d'erreur réel renvoyé par Google (utile pour diagnostiquer un 400).
+        const googleMessage =
+            (json?.data as { error?: { message?: string } } | null)?.error?.message;
+        const message =
+            (json?.message as string) ||
+            googleMessage ||
+            `Erreur Google (HTTP ${res.status}).`;
         throw new GoogleProxyError(message, code, res.status);
     }
 
