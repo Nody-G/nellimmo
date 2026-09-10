@@ -423,6 +423,13 @@ export interface AgencySettings {
 
   // Intelligence Artificielle & DeepSeek V4.1 Flash
   deepseek_api_key?: string;
+  /**
+   * Autorise le copilote IA à recevoir les données RÉELLES de l'agence
+   * (noms complets, téléphones, emails, adresses) au lieu de la version
+   * anonymisée RGPD. Désactivé par défaut : l'agent doit l'activer
+   * explicitement depuis Paramètres → Intelligence Artificielle.
+   */
+  copilot_share_real_data?: boolean;
 }
 
 export interface ContactLead {

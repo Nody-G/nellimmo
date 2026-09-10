@@ -3,6 +3,7 @@ import {
   CopilotPayload,
   buildSystemPrompt,
   generateLocalCopilotFallback,
+  parseCopilotToolCall,
 } from '@/lib/ai-copilot';
 import {
   sanitizeTextForLlm,
@@ -20,6 +21,7 @@ export async function POST(req: NextRequest) {
   try {
     const body: CopilotPayload = await req.json();
     const { action = 'chat', message = '', context = {} } = body;
+    const payloadToolResults = body.toolResults || [];
 
     const apiKey = resolveDeepSeekApiKey(req);
 
@@ -158,6 +160,20 @@ ${promptContent}
 CONSIGNE : Appuie-toi sur l'INSTANTANÉ DES DONNÉES DE L'AGENCE ci-dessus pour répondre de façon concrète et chiffrée (cite les références de mandat, les villes, les budgets, les échéances de relance). Si une information demandée n'y figure pas, indique-le honnêtement sans l'inventer.`;
     }
 
+    // 3ter. Résultats d'actions Google Workspace déjà confirmées par l'agent.
+    if (payloadToolResults.length > 0) {
+      const resultsBlock = payloadToolResults
+        .map(
+          (r) =>
+            `- ${r.tool} : ${r.success ? '✅ SUCCÈS' : '❌ ÉCHEC'} — ${r.message}${r.href ? ` (${r.href})` : ''}`
+        )
+        .join('\n');
+      promptContent = `${promptContent}
+
+ACTIONS DÉJÀ EXÉCUTÉES (confirme-les brièvement à Nelly, sans les rejouer) :
+${resultsBlock}`;
+    }
+
     // 4. Appel unifié officiel DeepSeek V4 Flash
     const result = await executeDeepSeekCall({
       feature: 'copilot',
@@ -200,10 +216,16 @@ CONSIGNE : Appuie-toi sur l'INSTANTANÉ DES DONNÉES DE L'AGENCE ci-dessus pour 
       }
     }
 
+    // 5. Détection d'une éventuelle demande d'action Google Workspace.
+    //    L'action n'est JAMAIS exécutée côté serveur : elle est renvoyée à
+    //    l'UI qui affichera une carte de confirmation à l'agent.
+    const { text: cleanText, call: pendingAction } = parseCopilotToolCall(rawAiResponse);
+
     return NextResponse.json({
       success: true,
-      text: rawAiResponse,
+      text: cleanText,
       data: structuredData,
+      pendingAction,
       source: 'deepseek',
       log: result.log,
       message: 'Généré avec succès via DeepSeek V4 Flash à la plume de Nelly Fernandez.',

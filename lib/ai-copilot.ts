@@ -9,6 +9,12 @@
 import { Property, Buyer, VisitSheet } from './types';
 import { sanitizeTextForLlm, pseudonymizeName } from './ai-privacy-guard';
 import type { AgencyDataSnapshot } from './ai-data-snapshot';
+import {
+  describeToolsForPrompt,
+  extractToolCallFromResponse,
+  type CopilotToolCall,
+  type CopilotToolResult,
+} from './ai-copilot-tools';
 
 export type CopilotAction =
   | 'chat'
@@ -39,7 +45,17 @@ export interface CopilotPayload {
      * copilote de répondre à des questions concrètes sur le portefeuille réel.
      */
     dataSnapshot?: AgencyDataSnapshot | null;
+    /**
+     * Indique si l'agent a autorisé le partage des données réelles (mode
+     * omniscient). Sert à adapter le ton et les garde-fous du prompt.
+     */
+    shareRealData?: boolean;
   };
+  /**
+   * Résultats d'exécution d'actions Google Workspace déjà confirmées par
+   * l'agent (renvoyés au LLM pour qu'il en tienne compte dans sa réponse).
+   */
+  toolResults?: CopilotToolResult[];
 }
 
 /**
@@ -144,22 +160,215 @@ Structure :
     default:
       return `${NELLY_EDITORIAL_DNA}
 
-MISSION : COPILOTE INTERACTIF AU QUOTIDIEN.
-Tu es l'assistant connecté de Nelly. Tu as connaissance de son espace professionnel (le mandat affiché à l'écran, les acquéreurs, les visites).
-Tu réponds avec rapidité, concision et pragmatisme. Tu es prêt à rédiger des messages, analyser des situations d'offres, proposer des idées de relance ou formuler des avis techniques.`;
+MISSION : COPILOTE INTERACTIF & AGENT AU QUOTIDIEN.
+Tu es l'assistant connecté de Nelly. Tu as une connaissance COMPLÈTE de son espace professionnel : portefeuille de mandats, acquéreurs, contacts, visites, transactions, leads de prospection et relances en attente (fournis dans l'INSTANTANÉ DES DONNÉES DE L'AGENCE).
+Tu réponds avec rapidité, concision et pragmatisme. Tu es prêt à rédiger des messages, analyser des situations d'offres, proposer des idées de relance, formuler des avis techniques, ET à préparer des actions concrètes dans Google Workspace (agenda, Gmail, tâches, Drive) que Nelly validera avant exécution.
+
+${describeToolsForPrompt()}`;
   }
+}
+
+/**
+ * Détecte l'intention de la question de l'utilisateur pour orienter la
+ * réponse locale vers la bonne section de l'instantané de données.
+ */
+function detectSnapshotIntent(question: string): {
+  relances: boolean;
+  portfolio: boolean;
+  buyers: boolean;
+  contacts: boolean;
+  transactions: boolean;
+  leads: boolean;
+  visits: boolean;
+  matching: boolean;
+} {
+  const q = question.toLowerCase();
+  const has = (...words: string[]) => words.some((w) => q.includes(w));
+  return {
+    relances: has('relance', 'relancer', 'rappel', 'tâche', 'tache', 'todo', 'à faire', 'a faire'),
+    portfolio: has('portefeuille', 'bien', 'mandat', 'estimation', 'valeur', 'prix moyen', 'stock'),
+    buyers: has('acquéreur', 'acquereur', 'acheteur', 'budget', 'recherche', 'critère', 'critere'),
+    contacts: has('contact', 'carnet', 'annuaire', 'prestataire', 'notaire', 'artisan'),
+    transactions: has('transaction', 'vente', 'compromis', 'notaire', 'dossier', 'acte', 'prêt', 'pret'),
+    leads: has('lead', 'pige', 'prospect', 'prospection', 'vendeur potentiel'),
+    visits: has('visite', 'visites', 'rendez-vous', 'rdv'),
+    matching: has('matching', 'correspond', 'rapproch', 'associe', 'sans acquéreur', 'sans acquereur'),
+  };
+}
+
+/**
+ * Construit une synthèse locale (sans LLM) à partir de l'instantané de données.
+ * Utilisée quand aucune clé DeepSeek n'est configurée : le copilote reste
+ * capable de répondre avec les données réelles de l'agence.
+ */
+function buildSnapshotAnswer(
+  snapshot: AgencyDataSnapshot,
+  question: string
+): string {
+  const intent = detectSnapshotIntent(question);
+  const t = snapshot.totals;
+  const blocks: string[] = [];
+
+  const anyIntent =
+    intent.relances ||
+    intent.portfolio ||
+    intent.buyers ||
+    intent.contacts ||
+    intent.transactions ||
+    intent.leads ||
+    intent.visits ||
+    intent.matching;
+
+  // Synthèse générale (toujours utile en amorce)
+  blocks.push(
+    `📊 **Votre agence en un coup d'œil**\n` +
+    `• ${t.properties} bien(s) au portefeuille — valeur cumulée ${snapshot.portfolio_value}\n` +
+    `• ${t.buyers} acquéreur(s) actif(s) • ${t.contacts} contact(s)\n` +
+    `• ${t.relances_pending} relance(s) en attente • ${t.transactions} transaction(s) en cours\n` +
+    `• ${t.leads} lead(s) de prospection • ${t.visits} visite(s) enregistrée(s)`
+  );
+
+  if (intent.relances || !anyIntent) {
+    if (snapshot.relances.length === 0) {
+      blocks.push(`✅ **Relances** : aucune relance en attente. Tout est à jour !`);
+    } else {
+      const lines = snapshot.relances
+        .slice(0, 8)
+        .map((r) => `• [${r.category}] ${r.title} — ${r.contact} (${r.due})`)
+        .join('\n');
+      blocks.push(
+        `🔔 **Relances en attente (${snapshot.totals.relances_pending})**\n${lines}` +
+        (snapshot.totals.relances_pending > 8
+          ? `\n… et ${snapshot.totals.relances_pending - 8} autre(s).`
+          : '')
+      );
+    }
+  }
+
+  if (intent.portfolio || intent.matching || !anyIntent) {
+    if (snapshot.properties.length === 0) {
+      blocks.push(`🏠 **Portefeuille** : aucun bien enregistré pour le moment.`);
+    } else {
+      const lines = snapshot.properties
+        .slice(0, 8)
+        .map(
+          (p) =>
+            `• ${p.ref} — ${p.title} (${p.type}, ${p.city}) ${p.price_fai} • ${p.surface} • DPE ${p.dpe} • ${p.status}`
+        )
+        .join('\n');
+      blocks.push(
+        `🏠 **Portefeuille (${snapshot.totals.properties})**\n${lines}` +
+        (snapshot.totals.properties > 8
+          ? `\n… et ${snapshot.totals.properties - 8} autre(s).`
+          : '')
+      );
+    }
+  }
+
+  if (intent.buyers || intent.matching) {
+    if (snapshot.buyers.length === 0) {
+      blocks.push(`👥 **Acquéreurs** : aucun acquéreur enregistré.`);
+    } else {
+      const lines = snapshot.buyers
+        .slice(0, 8)
+        .map(
+          (b) =>
+            `• ${b.name} — budget ${b.budget_max} • ${b.target_cities.join(', ') || 'secteur n/c'} • ${b.target_types.join(', ') || 'type n/c'} • ${b.financing}`
+        )
+        .join('\n');
+      blocks.push(
+        `👥 **Acquéreurs (${snapshot.totals.buyers})**\n${lines}` +
+        (snapshot.totals.buyers > 8 ? `\n… et ${snapshot.totals.buyers - 8} autre(s).` : '')
+      );
+    }
+  }
+
+  if (intent.transactions) {
+    if (snapshot.transactions.length === 0) {
+      blocks.push(`📁 **Transactions** : aucun dossier en cours.`);
+    } else {
+      const lines = snapshot.transactions
+        .slice(0, 8)
+        .map(
+          (tr) =>
+            `• ${tr.ref} — ${tr.property} → ${tr.buyer} • ${tr.status} • ${tr.price} • échéance ${tr.next_deadline}`
+        )
+        .join('\n');
+      blocks.push(`📁 **Transactions (${snapshot.totals.transactions})**\n${lines}`);
+    }
+  }
+
+  if (intent.leads) {
+    if (snapshot.leads.length === 0) {
+      blocks.push(`🎯 **Prospection** : aucun lead en cours.`);
+    } else {
+      const lines = snapshot.leads
+        .slice(0, 8)
+        .map((l) => `• [${l.source}] ${l.title} (${l.city}) — ${l.seller} • ${l.status} • ${l.estimated_value}`)
+        .join('\n');
+      blocks.push(`🎯 **Leads de prospection (${snapshot.totals.leads})**\n${lines}`);
+    }
+  }
+
+  if (intent.visits) {
+    if (snapshot.visits.length === 0) {
+      blocks.push(`📅 **Visites** : aucune visite enregistrée.`);
+    } else {
+      const lines = snapshot.visits
+        .slice(0, 8)
+        .map((v) => `• ${v.date} — ${v.property} avec ${v.buyer}${v.feedback ? ` • « ${v.feedback} »` : ''}`)
+        .join('\n');
+      blocks.push(`📅 **Visites (${snapshot.totals.visits})**\n${lines}`);
+    }
+  }
+
+  if (intent.contacts) {
+    if (snapshot.contacts.length === 0) {
+      blocks.push(`📇 **Contacts** : carnet d'adresses vide.`);
+    } else {
+      const lines = snapshot.contacts
+        .slice(0, 8)
+        .map(
+          (c) =>
+            `• ${c.name}${c.company ? ` (${c.company})` : ''} — ${c.role}${c.city ? ` • ${c.city}` : ''}${c.favorite ? ' ⭐' : ''}`
+        )
+        .join('\n');
+      blocks.push(`📇 **Contacts (${snapshot.totals.contacts})**\n${lines}`);
+    }
+  }
+
+  if (snapshot.truncated) {
+    blocks.push(
+      `ℹ️ _Listes tronquées aux 25 premiers éléments pour rester lisible. Demandez un détail précis pour affiner._`
+    );
+  }
+
+  return blocks.join('\n\n');
 }
 
 /**
  * Moteur de secours local certifié (Fallback haute fidélité)
  * Exécuté automatiquement si aucune clé DeepSeek n'est disponible.
+ * Exploite l'instantané des données réelles de l'agence quand il est fourni.
  */
 export function generateLocalCopilotFallback(payload: CopilotPayload): string {
   const { action, context, message } = payload;
   const prop = context?.property;
   const buyer = context?.buyer;
+  const snapshot = context?.dataSnapshot || null;
+  const toolResults = payload.toolResults || [];
 
   switch (action) {
+    case 'chat': {
+      if (snapshot) {
+        const question = message || '';
+        return `${buildSnapshotAnswer(snapshot, question)}
+
+---
+_💡 Mode local (aucune clé DeepSeek configurée) : je réponds directement depuis vos données enregistrées. Ajoutez une clé API dans Paramètres → IA pour des réponses rédigées et conversationnelles._`;
+      }
+      return `Bonjour Nelly ! Je suis à vos côtés pour votre gestion quotidienne. Je n'ai pas encore accès à vos données locales : ouvrez le copilote depuis une page du cockpit (tableau de bord, mandats, acquéreurs…) pour que je puisse analyser votre portefeuille. Que souhaitez-vous faire ?`;
+    }
     case 'vendor_debrief': {
       const sellerName = prop?.seller_name ? pseudonymizeName(prop.seller_name) : 'Monsieur, Madame';
       const sentiment = context?.sentiment || 'favorable';
@@ -229,4 +438,15 @@ Nelly Fernandez — Nell'Immo
     default:
       return `Bonjour Nelly ! Je suis à vos côtés pour votre gestion quotidienne. Le bien ${prop?.title ? `"${prop.title}"` : 'actuel'} est bien pris en compte dans mon analyse. Que souhaitez-vous rédiger ou planifier ?`;
   }
+}
+
+/**
+ * Réexport utilitaire : extrait un appel d'outil éventuel de la réponse IA.
+ * Permet à la route copilot de rester agnostique du format d'encodage.
+ */
+export function parseCopilotToolCall(rawResponse: string): {
+  text: string;
+  call: CopilotToolCall | null;
+} {
+  return extractToolCallFromResponse(rawResponse);
 }

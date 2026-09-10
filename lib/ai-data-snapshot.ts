@@ -11,11 +11,18 @@
  *   - les transactions en cours,
  *   - les leads de prospection.
  *
- * GARDE-FOUS DE CONFIDENTIALITÉ (RGPD) :
- *   1. Aucune coordonnée brute (téléphone, email, adresse exacte) n'est transmise.
- *   2. Les noms de famille sont pseudonymisés via `pseudonymizeName`.
- *   3. Les notes libres passent par `sanitizeTextForLlm` (caviardage IBAN/NIR/etc.).
- *   4. Le volume est plafonné (MAX_ITEMS) pour maîtriser le coût en tokens.
+ * DEUX MODES DE CONFIDENTIALITÉ :
+ *   - Mode RGPD (défaut, `includeRealData: false`) :
+ *       1. Aucune coordonnée brute (téléphone, email, adresse exacte) n'est transmise.
+ *       2. Les noms de famille sont pseudonymisés via `pseudonymizeName`.
+ *       3. Les notes libres passent par `sanitizeTextForLlm` (caviardage IBAN/NIR/etc.).
+ *   - Mode Omniscient (`includeRealData: true`, activé explicitement par l'agent) :
+ *       1. Les noms complets, téléphones, emails et adresses réelles sont transmis.
+ *       2. Le caviardage bancaire/fiscal (`sanitizeTextForLlm`) reste TOUJOURS actif.
+ *       3. Ce mode est piloté par le réglage `AgencySettings.copilot_share_real_data`.
+ *
+ * Dans les deux modes, le volume est plafonné (MAX_ITEMS) pour maîtriser le coût
+ * en tokens.
  *
  * Ce module est PUR (aucun accès au DOM, aucun effet de bord) : il peut être
  * appelé côté client comme côté serveur.
@@ -152,6 +159,8 @@ export interface AgencyDataSnapshot {
     visits: SnapshotVisit[];
     /** Indique si des listes ont été tronquées pour maîtriser le coût tokens. */
     truncated: boolean;
+    /** `true` si l'instantané contient les données réelles (mode omniscient). */
+    real_data: boolean;
 }
 
 /** Entrée brute de l'agrégateur (données issues du store). */
@@ -163,6 +172,12 @@ export interface AgencyDataSnapshotInput {
     transactions: TransactionDeal[];
     leads: ProspectingLead[];
     visits: VisitSheet[];
+    /**
+     * Mode omniscient : transmet les noms complets, téléphones, emails et
+     * adresses réelles au lieu de la version anonymisée RGPD.
+     * Piloté par `AgencySettings.copilot_share_real_data`.
+     */
+    includeRealData?: boolean;
 }
 
 /**
@@ -180,7 +195,15 @@ export function buildAgencyDataSnapshot(
         transactions = [],
         leads = [],
         visits = [],
+        includeRealData = false,
     } = input;
+
+    /**
+     * Pseudonymise un nom SAUF en mode omniscient (données réelles).
+     * Le caviardage bancaire/fiscal reste toujours appliqué via `sanitizeTextForLlm`.
+     */
+    const name = (fullName?: string): string =>
+        includeRealData ? (fullName || '').trim() || 'Client' : pseudonymizeName(fullName);
 
     const pendingRelances = relances.filter((r) => r.status === 'a_faire');
 
@@ -191,6 +214,7 @@ export function buildAgencyDataSnapshot(
 
     const snapshot: AgencyDataSnapshot = {
         generated_at: new Date().toISOString(),
+        real_data: includeRealData,
         totals: {
             properties: properties.length,
             buyers: buyers.length,
@@ -211,11 +235,11 @@ export function buildAgencyDataSnapshot(
             rooms: p.rooms_count || 0,
             dpe: p.dpe_letter || 'n/c',
             status: p.status || 'actif',
-            seller: pseudonymizeName(p.seller_name),
+            seller: name(p.seller_name),
             mandate_type: p.mandate_type || 'exclusif',
         })),
         buyers: cap(buyers).map((b) => ({
-            name: pseudonymizeName(`${b.first_name || ''} ${b.last_name || ''}`.trim()),
+            name: name(`${b.first_name || ''} ${b.last_name || ''}`.trim()),
             budget_max: compactEuro(b.budget_max),
             target_cities: b.target_cities || [],
             target_types: b.target_property_types || [],
@@ -224,7 +248,7 @@ export function buildAgencyDataSnapshot(
             status: b.status || 'actif',
         })),
         contacts: cap(contacts).map((c) => ({
-            name: pseudonymizeName(
+            name: name(
                 `${c.first_name || ''} ${c.last_name || ''}`.trim() || c.company || ''
             ),
             role: c.role || 'autre',
@@ -236,7 +260,7 @@ export function buildAgencyDataSnapshot(
         relances: cap(pendingRelances).map((r) => ({
             category: r.category,
             title: sanitizeTextForLlm(r.title),
-            contact: pseudonymizeName(r.contactName),
+            contact: name(r.contactName),
             due: r.dueLabel,
             status: r.status,
             message: sanitizeTextForLlm(r.message).slice(0, 220),
@@ -248,7 +272,7 @@ export function buildAgencyDataSnapshot(
                 ref: t.id.slice(0, 8),
                 property: sanitizeTextForLlm(prop?.title || 'Bien n/c'),
                 buyer: buyer
-                    ? pseudonymizeName(`${buyer.first_name || ''} ${buyer.last_name || ''}`.trim())
+                    ? name(`${buyer.first_name || ''} ${buyer.last_name || ''}`.trim())
                     : 'n/c',
                 status: t.status,
                 price: compactEuro(t.offer_price_fai || prop?.price_fai),
@@ -259,7 +283,7 @@ export function buildAgencyDataSnapshot(
             source: l.source || 'n/c',
             title: sanitizeTextForLlm(l.title || 'Lead sans titre'),
             city: l.city || 'n/c',
-            seller: pseudonymizeName(l.seller_name),
+            seller: name(l.seller_name),
             status: l.status || 'nouveau',
             estimated_value: compactEuro(l.estimated_dvf_price || l.price_asked),
         })),
@@ -269,7 +293,7 @@ export function buildAgencyDataSnapshot(
             return {
                 property: sanitizeTextForLlm(prop?.title || 'Bien n/c'),
                 buyer: buyer
-                    ? pseudonymizeName(`${buyer.first_name || ''} ${buyer.last_name || ''}`.trim())
+                    ? name(`${buyer.first_name || ''} ${buyer.last_name || ''}`.trim())
                     : 'n/c',
                 date: shortDate(v.visit_date),
                 feedback: sanitizeTextForLlm(v.notes || '').slice(0, 160),

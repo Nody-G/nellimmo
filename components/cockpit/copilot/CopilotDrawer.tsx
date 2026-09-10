@@ -15,6 +15,9 @@ import {
   Wand2,
 } from 'lucide-react';
 import { useCopilotContext } from './useCopilotContext';
+import { useCopilotActions } from './useCopilotActions';
+import { CopilotActionCard, type CopilotActionStatus } from './CopilotActionCard';
+import type { CopilotToolCall, CopilotToolResult } from '@/lib/ai-copilot-tools';
 
 interface CopilotDrawerProps {
   isOpen: boolean;
@@ -27,15 +30,24 @@ interface ChatMessage {
   content: string;
   source?: 'deepseek' | 'local' | 'local_fallback';
   timestamp: string;
+  /** Action proposée par le copilote, à confirmer par l'utilisateur. */
+  pendingAction?: CopilotToolCall | null;
+}
+
+interface ActionState {
+  status: CopilotActionStatus;
+  result?: CopilotToolResult | null;
 }
 
 export function CopilotDrawer({ isOpen, onClose }: CopilotDrawerProps) {
   const context = useCopilotContext();
+  const { executeAction } = useCopilotActions();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [busy, setBusy] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [actionStates, setActionStates] = useState<Record<string, ActionState>>({});
   const chatBottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -96,13 +108,20 @@ export function CopilotDrawer({ isOpen, onClose }: CopilotDrawerProps) {
         throw new Error(data.error || 'Erreur lors de la réponse du Copilote.');
       }
 
+      const pendingAction: CopilotToolCall | null = data.pendingAction || null;
+
       const assistantMsg: ChatMessage = {
         id: `msg-${new Date().getTime()}-ai`,
         role: 'assistant',
         content: data.text || 'Réponse reçue sans texte.',
         source: data.source,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        pendingAction,
       };
+
+      if (pendingAction) {
+        setActionStates((prev) => ({ ...prev, [pendingAction.id]: { status: 'pending' } }));
+      }
 
       setMessages((prev) => [...prev, assistantMsg]);
     } catch (err: unknown) {
@@ -111,6 +130,34 @@ export function CopilotDrawer({ isOpen, onClose }: CopilotDrawerProps) {
       setBusy(false);
     }
   }, [busy, context, input]);
+
+  const handleConfirmAction = React.useCallback(
+    async (call: CopilotToolCall) => {
+      setActionStates((prev) => ({ ...prev, [call.id]: { status: 'executing' } }));
+      const result = await executeAction(call);
+      setActionStates((prev) => ({
+        ...prev,
+        [call.id]: { status: result.success ? 'done' : 'error', result },
+      }));
+
+      const now = new Date();
+      const feedbackMsg: ChatMessage = {
+        id: `msg-${now.getTime()}-action`,
+        role: 'assistant',
+        content: result.success
+          ? `✅ ${result.message}`
+          : `⚠️ ${result.message}`,
+        source: 'local',
+        timestamp: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      };
+      setMessages((prev) => [...prev, feedbackMsg]);
+    },
+    [executeAction]
+  );
+
+  const handleCancelAction = React.useCallback((call: CopilotToolCall) => {
+    setActionStates((prev) => ({ ...prev, [call.id]: { status: 'cancelled' } }));
+  }, []);
 
   const handleCopy = async (id: string, text: string) => {
     try {
@@ -261,11 +308,21 @@ export function CopilotDrawer({ isOpen, onClose }: CopilotDrawerProps) {
 
                 <div
                   className={`max-w-[85%] rounded-2xl p-3.5 text-xs leading-relaxed space-y-2 shadow-2xs ${msg.role === 'user'
-                      ? 'bg-[#131B26] text-white rounded-br-none'
-                      : 'bg-white border border-gray-200 text-gray-800 rounded-bl-none'
+                    ? 'bg-[#131B26] text-white rounded-br-none'
+                    : 'bg-white border border-gray-200 text-gray-800 rounded-bl-none'
                     }`}
                 >
                   <p className="whitespace-pre-wrap">{msg.content}</p>
+
+                  {msg.pendingAction && (
+                    <CopilotActionCard
+                      call={msg.pendingAction}
+                      status={actionStates[msg.pendingAction.id]?.status || 'pending'}
+                      result={actionStates[msg.pendingAction.id]?.result || null}
+                      onConfirm={handleConfirmAction}
+                      onCancel={handleCancelAction}
+                    />
+                  )}
 
                   <div className="flex items-center justify-between gap-2 pt-1 border-t border-gray-100/50 text-[10px] text-gray-400">
                     <span>{msg.timestamp}</span>

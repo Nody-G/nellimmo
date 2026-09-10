@@ -11,6 +11,8 @@ import {
   Zap,
   Save,
   Trash2,
+  ShieldCheck,
+  ShieldAlert,
 } from 'lucide-react';
 import { useAiKeyManager } from './useAiKeyManager';
 import type { AgencySettings } from '@/lib/types';
@@ -138,6 +140,44 @@ export function AiKeyInputCard({
           </div>
         </div>
       )}
+
+      {/* Mode omniscient — partage des données réelles avec le copilote */}
+      <div className="pt-3 mt-1 border-t border-gray-100 space-y-2">
+        <label className="flex items-start gap-3 cursor-pointer group">
+          <input
+            type="checkbox"
+            checked={Boolean(formData.copilot_share_real_data)}
+            onChange={(e) => onChange({ copilot_share_real_data: e.target.checked })}
+            className="mt-0.5 w-4 h-4 accent-[#E12B7B] cursor-pointer shrink-0"
+          />
+          <span className="flex-1">
+            <span className="flex items-center gap-1.5 text-xs font-bold text-gray-800">
+              {formData.copilot_share_real_data ? (
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+              ) : (
+                <ShieldAlert className="w-3.5 h-3.5 text-amber-600" />
+              )}
+              <span>Mode omniscient — partager les données réelles avec le copilote</span>
+            </span>
+            <span className="block mt-1 text-[11px] leading-relaxed text-gray-500">
+              {formData.copilot_share_real_data ? (
+                <>
+                  Le copilote reçoit les <strong>noms complets, villes et montants réels</strong> de
+                  votre portefeuille pour des réponses précises et personnalisées. Les données
+                  bancaires et fiscales restent caviardées. Vous restez responsable de la
+                  conformité RGPD vis-à-vis de vos clients.
+                </>
+              ) : (
+                <>
+                  Par défaut, le copilote ne reçoit que des données <strong>pseudonymisées</strong>{' '}
+                  (ex. « Client A »). Activez ce mode pour qu'il connaisse vos vrais biens,
+                  acquéreurs et contacts et réponde de façon nominative.
+                </>
+              )}
+            </span>
+          </span>
+        </label>
+      </div>
     </div>
   );
 }
