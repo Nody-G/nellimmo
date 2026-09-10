@@ -105,21 +105,15 @@ export default function CockpitLayout({ children }: { children: React.ReactNode 
               </div>
 
               {/* Droite : Actions Épurées */}
-              <div className="flex items-center gap-2.5">
+              <div className="flex items-center gap-2">
                 <ContextualHelpDrawer />
                 <Link
                   href="/biens"
                   target="_blank"
-                  className="px-3 py-1.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl text-xs font-semibold transition"
+                  className="px-3 py-1.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-xl text-xs font-medium border border-gray-200/60 transition"
+                  title="Voir la vitrine publique Nell'Immo"
                 >
                   Site Public ↗
-                </Link>
-                <Link
-                  href="/cockpit/mandats/nouveau"
-                  className="px-3.5 py-1.5 bg-[#E12B7B] hover:bg-[#C71B62] text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-xs transition"
-                >
-                  <PlusCircle className="w-3.5 h-3.5" />
-                  Nouveau Mandat
                 </Link>
                 <CockpitUserDropdown onOpenSync={() => setMobileSyncOpen(true)} />
               </div>
