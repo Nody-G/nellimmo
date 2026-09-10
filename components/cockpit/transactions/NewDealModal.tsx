@@ -40,7 +40,7 @@ export function NewDealModal({ properties, onCreate, onClose }: NewDealModalProp
                 }}
             >
                 <div
-                    className="bg-white rounded-3xl max-w-2xl w-full max-h-[92vh] overflow-y-auto p-6 sm:p-8 space-y-4 shadow-2xl border border-gray-100"
+                    className="bg-white rounded-3xl max-w-5xl w-full max-h-[94vh] overflow-y-auto p-6 sm:p-8 space-y-4 shadow-2xl border border-gray-100"
                     onClick={(e) => e.stopPropagation()}
                 >
                     <div className="flex items-center justify-between border-b border-gray-100 pb-3">

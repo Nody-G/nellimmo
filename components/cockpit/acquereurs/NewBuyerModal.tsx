@@ -43,7 +43,7 @@ export function NewBuyerModal({
 
     return (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in">
-            <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-2xl w-full space-y-5 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-5xl w-full space-y-5 shadow-2xl max-h-[94vh] overflow-y-auto">
                 <div className="flex items-center justify-between border-b border-gray-100 pb-3">
                     <h3 className="font-serif font-bold text-lg text-[#131B26]">
                         Enregistrer un Nouvel Acquéreur en Portefeuille

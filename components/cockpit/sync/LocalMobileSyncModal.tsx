@@ -74,7 +74,7 @@ export function LocalMobileSyncModal({ isOpen, onClose }: LocalMobileSyncModalPr
         }}
       >
         <div
-          className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-gray-100 space-y-4 max-h-[92vh] overflow-y-auto"
+          className="bg-white rounded-3xl max-w-3xl w-full p-6 shadow-2xl border border-gray-100 space-y-4 max-h-[94vh] overflow-y-auto"
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex items-center justify-between border-b border-gray-100 pb-3">

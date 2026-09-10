@@ -95,7 +95,7 @@ export function VoiceDebriefModal({ isOpen, onClose, initialPropertyId }: VoiceD
   return (
     <Portal>
       <div className="fixed inset-0 z-9999 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs overflow-y-auto">
-        <div className="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl border border-rose-100 animate-in fade-in zoom-in-95 duration-150 my-auto">
+        <div className="bg-white rounded-3xl max-w-4xl w-full p-6 shadow-2xl border border-rose-100 animate-in fade-in zoom-in-95 duration-150 my-auto">
           {/* Header */}
           <div className="flex items-center justify-between pb-4 border-b border-gray-100">
             <div className="flex items-center gap-3">
@@ -155,11 +155,10 @@ export function VoiceDebriefModal({ isOpen, onClose, initialPropertyId }: VoiceD
                     key={s.id}
                     type="button"
                     onClick={() => setSentiment(s.id as VisitorSentiment)}
-                    className={`py-2 px-2.5 rounded-xl text-xs font-bold transition border ${
-                      sentiment === s.id
+                    className={`py-2 px-2.5 rounded-xl text-xs font-bold transition border ${sentiment === s.id
                         ? 'bg-[#E12B7B] text-white border-[#E12B7B] shadow-xs'
                         : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
-                    }`}
+                      }`}
                   >
                     {s.label}
                   </button>
@@ -175,11 +174,10 @@ export function VoiceDebriefModal({ isOpen, onClose, initialPropertyId }: VoiceD
                   <button
                     type="button"
                     onClick={handleToggleListening}
-                    className={`text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1.5 transition cursor-pointer ${
-                      isRecording
+                    className={`text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1.5 transition cursor-pointer ${isRecording
                         ? 'bg-rose-600 text-white animate-pulse'
                         : 'bg-rose-50 text-[#E12B7B] hover:bg-rose-100'
-                    }`}
+                      }`}
                   >
                     {isRecording ? <MicOff className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5" />}
                     {isRecording ? 'Arrêter la dictée' : 'Dicter au micro'}

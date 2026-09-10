@@ -43,7 +43,7 @@ export function ThemeSwitcherModal({ isOpen, onClose }: ThemeSwitcherModalProps)
         }}
       >
         <div
-          className="bg-white rounded-3xl max-w-3xl w-full max-h-[88vh] flex flex-col shadow-2xl border border-gray-100 overflow-hidden"
+          className="bg-white rounded-3xl max-w-5xl w-full max-h-[94vh] flex flex-col shadow-2xl border border-gray-100 overflow-hidden"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
@@ -89,8 +89,8 @@ export function ThemeSwitcherModal({ isOpen, onClose }: ThemeSwitcherModalProps)
                     key={item.id}
                     onClick={() => handleSelectTheme(item.id)}
                     className={`p-4 rounded-2xl border-2 transition text-left cursor-pointer relative flex flex-col justify-between gap-3 ${isSelected
-                        ? 'border-[#E12B7B] bg-[#E12B7B]/5 shadow-md ring-2 ring-[#E12B7B]/20'
-                        : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-xs'
+                      ? 'border-[#E12B7B] bg-[#E12B7B]/5 shadow-md ring-2 ring-[#E12B7B]/20'
+                      : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-xs'
                       }`}
                   >
                     <div className="space-y-1.5">
@@ -101,8 +101,8 @@ export function ThemeSwitcherModal({ isOpen, onClose }: ThemeSwitcherModalProps)
                         {item.badge && (
                           <span
                             className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${isSelected
-                                ? 'bg-[#E12B7B] text-white'
-                                : 'bg-gray-100 text-gray-600'
+                              ? 'bg-[#E12B7B] text-white'
+                              : 'bg-gray-100 text-gray-600'
                               }`}
                           >
                             {item.badge}

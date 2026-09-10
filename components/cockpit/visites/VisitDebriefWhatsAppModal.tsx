@@ -65,10 +65,10 @@ export function VisitDebriefWhatsAppModal({
     sentiment === 'coup_de_coeur'
       ? 'Coup de cœur confirmé ✨'
       : sentiment === 'interesse'
-      ? 'Très intéressé 🟢'
-      : sentiment === 'neutre'
-      ? 'Intérêt modéré / Réflexion 🟡'
-      : 'Visite mitigée / Non retenu 🔴';
+        ? 'Très intéressé 🟢'
+        : sentiment === 'neutre'
+          ? 'Intérêt modéré / Réflexion 🟡'
+          : 'Visite mitigée / Non retenu 🔴';
 
   const strengthsText = strengths.length > 0 ? strengths.join(', ') : 'Belle impression générale';
   const weaknessesText = weaknesses.length > 0 ? `Points d'hésitation : ${weaknesses.join(', ')}.` : '';
@@ -118,7 +118,7 @@ Nelly Fernandez — Nell'Immo Pélissanne
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fade-in">
-      <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-gray-100 space-y-4">
+      <div className="bg-white rounded-3xl max-w-3xl w-full p-6 shadow-2xl border border-gray-100 space-y-4">
         <div className="flex items-center justify-between border-b border-gray-100 pb-3">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">

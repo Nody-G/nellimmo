@@ -63,7 +63,7 @@ export function DealDetailModal({
         }}
       >
         <div
-          className="bg-white rounded-3xl max-w-4xl w-full max-h-[88vh] flex flex-col shadow-2xl border border-gray-100 overflow-hidden"
+          className="bg-white rounded-3xl max-w-6xl w-full max-h-[94vh] flex flex-col shadow-2xl border border-gray-100 overflow-hidden"
           onClick={(e) => e.stopPropagation()}
         >
           {/* En-tête Fixe Garanti Visible */}

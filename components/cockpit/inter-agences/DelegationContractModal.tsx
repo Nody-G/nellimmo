@@ -35,7 +35,7 @@ export function DelegationContractModal({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-3xl w-full max-h-[90vh] overflow-y-auto border border-gray-100 shadow-2xl space-y-6 animate-fade-in">
+      <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-5xl w-full max-h-[94vh] overflow-y-auto border border-gray-100 shadow-2xl space-y-6 animate-fade-in">
         <div className="flex items-center justify-between border-b border-gray-100 pb-3">
           <div className="flex items-center gap-2">
             <FileSignature className="w-5 h-5 text-[#E12B7B]" />

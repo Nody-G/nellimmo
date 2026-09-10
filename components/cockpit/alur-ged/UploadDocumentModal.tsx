@@ -44,7 +44,7 @@ export function UploadDocumentModal({
 
     return (
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full border border-gray-100 shadow-2xl space-y-6">
+            <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-3xl w-full border border-gray-100 shadow-2xl space-y-6">
                 <div className="flex items-center justify-between border-b border-gray-100 pb-4">
                     <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#E12B7B]">
                         <FileCheck2 className="w-4 h-4" />

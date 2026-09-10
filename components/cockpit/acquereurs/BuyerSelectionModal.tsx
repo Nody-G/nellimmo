@@ -127,7 +127,7 @@ Nelly Fernandez — SASU Nell'Immo
 
   return (
     <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 md:p-6 animate-fade-in overflow-y-auto">
-      <div className="bg-white rounded-3xl max-w-6xl w-full shadow-2xl border border-gray-100 flex flex-col max-h-[92vh] overflow-hidden">
+      <div className="bg-white rounded-3xl max-w-[95vw] w-full shadow-2xl border border-gray-100 flex flex-col max-h-[94vh] overflow-hidden">
         {/* Header */}
         <div className="p-5 border-b border-gray-100 flex items-center justify-between shrink-0 bg-[#FCFAF7]">
           <div>
@@ -170,8 +170,8 @@ Nelly Fernandez — SASU Nell'Immo
               <button
                 onClick={() => setActiveTab('whatsapp')}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${activeTab === 'whatsapp'
-                    ? 'bg-emerald-600 text-white shadow-2xs'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  ? 'bg-emerald-600 text-white shadow-2xs'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                   }`}
               >
                 <MessageCircle className="w-3.5 h-3.5" />
@@ -181,8 +181,8 @@ Nelly Fernandez — SASU Nell'Immo
               <button
                 onClick={() => setActiveTab('print')}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${activeTab === 'print'
-                    ? 'bg-[#131B26] text-white shadow-2xs'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  ? 'bg-[#131B26] text-white shadow-2xs'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                   }`}
               >
                 <Printer className="w-3.5 h-3.5 text-[#C59A45]" />

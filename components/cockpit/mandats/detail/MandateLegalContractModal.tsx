@@ -35,7 +35,7 @@ export const MandateLegalContractModal: React.FC<MandateLegalContractModalProps>
 
   return (
     <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 md:p-6 animate-fade-in overflow-y-auto">
-      <div className="bg-white rounded-3xl max-w-5xl w-full shadow-2xl border border-gray-200 flex flex-col max-h-[94vh] overflow-hidden">
+      <div className="bg-white rounded-3xl max-w-[95vw] w-full shadow-2xl border border-gray-200 flex flex-col max-h-[96vh] overflow-hidden">
         {/* Modal Top Bar */}
         <div className="p-4 sm:p-5 border-b border-gray-100 flex items-center justify-between shrink-0 bg-[#FCFAF7]">
           <div className="flex items-center gap-3">
@@ -82,21 +82,19 @@ export const MandateLegalContractModal: React.FC<MandateLegalContractModalProps>
             <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-gray-200">
               <button
                 onClick={() => setMandateType('exclusif')}
-                className={`px-3 py-1 rounded-lg font-bold transition cursor-pointer ${
-                  mandateType === 'exclusif'
+                className={`px-3 py-1 rounded-lg font-bold transition cursor-pointer ${mandateType === 'exclusif'
                     ? 'bg-[#E12B7B] text-white shadow-2xs'
                     : 'text-gray-600 hover:text-gray-900'
-                }`}
+                  }`}
               >
                 Mandat Exclusif
               </button>
               <button
                 onClick={() => setMandateType('simple')}
-                className={`px-3 py-1 rounded-lg font-bold transition cursor-pointer ${
-                  mandateType === 'simple'
+                className={`px-3 py-1 rounded-lg font-bold transition cursor-pointer ${mandateType === 'simple'
                     ? 'bg-[#131B26] text-white shadow-2xs'
                     : 'text-gray-600 hover:text-gray-900'
-                }`}
+                  }`}
               >
                 Mandat Simple
               </button>

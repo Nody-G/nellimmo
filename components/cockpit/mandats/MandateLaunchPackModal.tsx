@@ -66,7 +66,7 @@ export function MandateLaunchPackModal({ isOpen, onClose, property: initialPrope
   return (
     <Portal>
       <div className="fixed inset-0 z-9999 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs overflow-y-auto">
-        <div className="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl border border-gray-100 animate-in fade-in zoom-in-95 duration-150 my-auto">
+        <div className="bg-white rounded-3xl max-w-4xl w-full p-6 shadow-2xl border border-gray-100 animate-in fade-in zoom-in-95 duration-150 my-auto">
           {/* Header */}
           <div className="flex items-center justify-between pb-4 border-b border-gray-100">
             <div className="flex items-center gap-3">
@@ -112,9 +112,8 @@ export function MandateLaunchPackModal({ isOpen, onClose, property: initialPrope
                     key={tabKey}
                     type="button"
                     onClick={() => setActiveTab(tabKey)}
-                    className={`flex items-center gap-1.5 px-3 py-2 rounded-xl transition whitespace-nowrap ${
-                      isActive ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-900'
-                    }`}
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-xl transition whitespace-nowrap ${isActive ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:text-gray-900'
+                      }`}
                   >
                     {item.icon}
                     {item.label}

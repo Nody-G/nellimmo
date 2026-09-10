@@ -75,7 +75,7 @@ export function MandateAvenantModal({ property, isOpen, onClose }: MandateAvenan
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
-      <div className="bg-white rounded-3xl max-w-3xl w-full p-6 sm:p-8 space-y-5 shadow-2xl border border-gray-100 max-h-[92vh] overflow-y-auto">
+      <div className="bg-white rounded-3xl max-w-5xl w-full p-6 sm:p-8 space-y-5 shadow-2xl border border-gray-100 max-h-[94vh] overflow-y-auto">
         <AvenantHeader property={property} onClose={onClose} />
 
         {!previewMode ? (

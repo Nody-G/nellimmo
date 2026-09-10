@@ -71,7 +71,7 @@ export function ContactDetailModal({
         }}
       >
         <div
-          className="bg-white rounded-3xl border border-[#F3E8EE] shadow-2xl w-full max-w-3xl overflow-hidden flex flex-col max-h-[88vh]"
+          className="bg-white rounded-3xl border border-[#F3E8EE] shadow-2xl w-full max-w-6xl overflow-hidden flex flex-col max-h-[94vh]"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}

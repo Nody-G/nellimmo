@@ -98,7 +98,7 @@ export function InvoicePrintModal({
         }}
       >
         <div
-          className="bg-white rounded-3xl max-w-2xl w-full max-h-[92vh] overflow-y-auto p-6 sm:p-8 space-y-6 shadow-2xl border border-gray-200 print:p-0 print:border-none"
+          className="bg-white rounded-3xl max-w-4xl w-full max-h-[94vh] overflow-y-auto p-6 sm:p-8 space-y-6 shadow-2xl border border-gray-200 print:p-0 print:border-none"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Notice message */}

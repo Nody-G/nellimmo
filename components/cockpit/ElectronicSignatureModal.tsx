@@ -65,7 +65,7 @@ export function ElectronicSignatureModal({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-3xl w-full max-h-[92vh] overflow-y-auto border border-gray-100 shadow-2xl space-y-6">
+      <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-5xl w-full max-h-[94vh] overflow-y-auto border border-gray-100 shadow-2xl space-y-6">
         <SignatureModalHeader
           mandateNumber={property.mandate_number}
           step={step}

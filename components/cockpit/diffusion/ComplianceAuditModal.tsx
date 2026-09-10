@@ -16,7 +16,7 @@ export function ComplianceAuditModal({ property, onClose }: ComplianceAuditModal
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fade-in">
-      <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-[#F3E8EE] space-y-6 relative max-h-[90vh] overflow-y-auto">
+      <div className="bg-white rounded-3xl max-w-3xl w-full p-6 sm:p-8 shadow-2xl border border-[#F3E8EE] space-y-6 relative max-h-[94vh] overflow-y-auto">
         <button
           onClick={onClose}
           className="absolute top-6 right-6 p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition cursor-pointer"
@@ -37,13 +37,12 @@ export function ComplianceAuditModal({ property, onClose }: ComplianceAuditModal
 
         {/* Score Card */}
         <div
-          className={`p-4 rounded-2xl flex items-center justify-between border ${
-            report.status === 'compliant'
+          className={`p-4 rounded-2xl flex items-center justify-between border ${report.status === 'compliant'
               ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
               : report.status === 'warning'
-              ? 'bg-amber-50 border-amber-200 text-amber-900'
-              : 'bg-rose-50 border-rose-200 text-rose-900'
-          }`}
+                ? 'bg-amber-50 border-amber-200 text-amber-900'
+                : 'bg-rose-50 border-rose-200 text-rose-900'
+            }`}
         >
           <div>
             <div className="text-2xl font-black">{report.score} %</div>
@@ -51,8 +50,8 @@ export function ComplianceAuditModal({ property, onClose }: ComplianceAuditModal
               {report.status === 'compliant'
                 ? 'Conformité Portails Optimale'
                 : report.status === 'warning'
-                ? 'Acceptable avec Avertissements'
-                : 'Rejet Prévisible par les Portails'}
+                  ? 'Acceptable avec Avertissements'
+                  : 'Rejet Prévisible par les Portails'}
             </span>
           </div>
           <div className="text-right text-[11px] font-medium opacity-80">
@@ -89,11 +88,10 @@ export function ComplianceAuditModal({ property, onClose }: ComplianceAuditModal
               {report.issues.map((issue, idx) => (
                 <div
                   key={idx}
-                  className={`p-3 rounded-xl text-xs flex items-start gap-2.5 border ${
-                    issue.severity === 'error'
+                  className={`p-3 rounded-xl text-xs flex items-start gap-2.5 border ${issue.severity === 'error'
                       ? 'bg-rose-50 border-rose-200 text-rose-800'
                       : 'bg-amber-50 border-amber-200 text-amber-800'
-                  }`}
+                    }`}
                 >
                   {issue.severity === 'error' ? (
                     <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />

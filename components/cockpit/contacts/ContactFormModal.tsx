@@ -121,7 +121,7 @@ export function ContactFormModal({
         }}
       >
         <div
-          className="bg-white rounded-3xl border border-[#F3E8EE] shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]"
+          className="bg-white rounded-3xl border border-[#F3E8EE] shadow-2xl w-full max-w-5xl overflow-hidden flex flex-col max-h-[94vh]"
           onClick={(e) => e.stopPropagation()}
         >
           <div className="p-6 pb-4 border-b border-gray-100 flex items-center justify-between">

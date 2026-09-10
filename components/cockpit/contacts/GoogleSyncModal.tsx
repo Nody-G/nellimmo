@@ -141,7 +141,7 @@ export function GoogleSyncModal({ contacts, onClose }: GoogleSyncModalProps) {
         }}
       >
         <div
-          className="bg-white rounded-3xl border border-[#F3E8EE] shadow-2xl w-full max-w-xl overflow-hidden flex flex-col max-h-[90vh]"
+          className="bg-white rounded-3xl border border-[#F3E8EE] shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col max-h-[94vh]"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}

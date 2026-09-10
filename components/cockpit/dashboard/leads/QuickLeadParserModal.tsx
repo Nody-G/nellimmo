@@ -172,7 +172,7 @@ export function QuickLeadParserModal({ isOpen, onClose }: QuickLeadParserModalPr
       >
         <div
           onClick={(e) => e.stopPropagation()}
-          className="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl border border-gray-100 max-h-[92vh] overflow-y-auto space-y-4"
+          className="bg-white rounded-3xl max-w-4xl w-full p-6 shadow-2xl border border-gray-100 max-h-[94vh] overflow-y-auto space-y-4"
         >
           <div className="flex items-center justify-between border-b border-gray-100 pb-3">
             <div className="flex items-center gap-2.5">
