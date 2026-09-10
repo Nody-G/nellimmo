@@ -3,16 +3,19 @@
 import React from 'react';
 import { History, Calendar, CheckCircle2 } from 'lucide-react';
 import type { VendorReport } from '@/lib/types';
+import { EntityLink } from '@/components/ui/EntityLink';
 
 interface ReportsHistoryListProps {
   reports: VendorReport[];
   selectedReportId?: string;
+  propertyId?: string;
   onSelectReport: (report: VendorReport) => void;
 }
 
 export function ReportsHistoryList({
   reports,
   selectedReportId,
+  propertyId,
   onSelectReport,
 }: ReportsHistoryListProps) {
   if (reports.length <= 1) return null;
@@ -22,7 +25,11 @@ export function ReportsHistoryList({
       <div className="flex items-center gap-2 border-b border-gray-100 pb-3">
         <History className="w-4 h-4 text-[#C59A45]" />
         <h3 className="font-serif font-bold text-base text-[#131B26]">
-          Historique des Bilans Générés pour ce Mandat ({reports.length})
+          Historique des Bilans Générés pour{' '}
+          <EntityLink kind="property" id={propertyId} title="Voir la fiche du bien">
+            ce Mandat
+          </EntityLink>{' '}
+          ({reports.length})
         </h3>
       </div>
 
@@ -33,19 +40,18 @@ export function ReportsHistoryList({
           const periodLabel = report.report_period === 'hebdomadaire'
             ? 'Hebdo'
             : report.report_period === 'mensuel'
-            ? 'Mensuel'
-            : '30 Jours';
+              ? 'Mensuel'
+              : '30 Jours';
 
           return (
             <button
               key={report.id}
               type="button"
               onClick={() => onSelectReport(report)}
-              className={`p-4 rounded-2xl border text-left transition cursor-pointer space-y-2 ${
-                isCurrent
+              className={`p-4 rounded-2xl border text-left transition cursor-pointer space-y-2 ${isCurrent
                   ? 'border-[#E12B7B] bg-pink-50/30 shadow-xs'
                   : 'border-gray-200 bg-white hover:border-gray-300'
-              }`}
+                }`}
             >
               <div className="flex items-center justify-between">
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#131B26] text-white">

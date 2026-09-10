@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, Suspense } from 'react';
+import React, { useState, useMemo, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useNellimoStore } from '@/lib/store';
 import type { Buyer } from '@/lib/types';
@@ -24,6 +24,7 @@ function BuyersCrmContent() {
   const prefillEmail = searchParams.get('prefillEmail') || '';
   const prefillPhone = searchParams.get('prefillPhone') || '';
   const prefillNotes = searchParams.get('prefillNotes') || '';
+  const deepLinkBuyerId = searchParams.get('id') || '';
 
   const { buyers, properties } = useNellimoStore();
 
@@ -34,6 +35,15 @@ function BuyersCrmContent() {
   const [isBroadcastModalOpen, setIsBroadcastModalOpen] = useState(false);
   const [selectedBuyerForSelection, setSelectedBuyerForSelection] = useState<Buyer | null>(null);
   const [broadcastPropertyId, setBroadcastPropertyId] = useState<string>(properties[0]?.id || '');
+
+  // Deep-link : ouverture automatique de la fiche acquéreur via ?id=
+  useEffect(() => {
+    if (!deepLinkBuyerId) return;
+    const target = buyers.find((b) => b.id === deepLinkBuyerId);
+    if (target) {
+      setSelectedBuyerForSelection(target);
+    }
+  }, [deepLinkBuyerId, buyers]);
 
   const {
     isNewModalOpen,

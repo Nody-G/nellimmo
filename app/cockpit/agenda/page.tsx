@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, Suspense } from 'react';
+import React, { useState, useMemo, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useNellimoStore } from '@/lib/store';
 import { useToast } from '@/components/ui/Toast';
@@ -28,6 +28,7 @@ function AgendaContent() {
   const prefillName = searchParams.get('contactName') || '';
   const prefillPhone = searchParams.get('contactPhone') || '06 ';
   const prefillNotes = searchParams.get('notes') || '';
+  const deepLinkEventId = searchParams.get('eventId') || '';
 
   const {
     properties,
@@ -45,6 +46,7 @@ function AgendaContent() {
   const [viewMode, setViewMode] = useState<AgendaViewMode>('week');
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
+  const [highlightEventId, setHighlightEventId] = useState<string>('');
 
   const {
     customEvents,
@@ -106,6 +108,25 @@ function AgendaContent() {
 
   // 3. Week Days Calculation
   const currentWeekDays = useMemo(() => computeWeekDays(selectedDate), [selectedDate]);
+
+  // Deep-link : mise en évidence de l'événement ciblé via ?eventId=
+  useEffect(() => {
+    if (!deepLinkEventId) return;
+    const target = allEvents.find((e) => e.id === deepLinkEventId);
+    if (!target) return;
+    setCategoryFilter('all');
+    setViewMode('list');
+    setHighlightEventId(deepLinkEventId);
+    const scrollTimer = setTimeout(() => {
+      const el = document.getElementById(`event-${deepLinkEventId}`);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 150);
+    const clearTimer = setTimeout(() => setHighlightEventId(''), 4000);
+    return () => {
+      clearTimeout(scrollTimer);
+      clearTimeout(clearTimer);
+    };
+  }, [deepLinkEventId, allEvents]);
 
   // Navigation handlers
   const handlePrevWeek = () => {
@@ -197,7 +218,12 @@ function AgendaContent() {
       )}
 
       {viewMode === 'list' && (
-        <ListView events={filteredEvents} currentTime={currentTime} onWhatsApp={handleWhatsApp} />
+        <ListView
+          events={filteredEvents}
+          currentTime={currentTime}
+          onWhatsApp={handleWhatsApp}
+          highlightEventId={highlightEventId}
+        />
       )}
 
       <NewEventModal

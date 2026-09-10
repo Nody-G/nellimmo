@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { MessageCircle, Check, X, Phone, CalendarDays, Sparkles } from 'lucide-react';
+import { EntityLink } from '@/components/ui/EntityLink';
 import type { RelanceAction, RelanceCategory } from '@/lib/relances';
 
 interface RelanceCardProps {
@@ -77,7 +78,16 @@ export function RelanceCard({ action, onWhatsApp, onMarkDone, onIgnore }: Relanc
             <div>
                 <h3 className="text-sm font-bold text-[#131B26]">{action.title}</h3>
                 <p className="text-xs text-gray-500 mt-0.5">
-                    {action.contactName} &middot; {action.sourceLabel}
+                    {action.buyerId ? (
+                        <EntityLink kind="buyer" id={action.buyerId} title="Voir la fiche acquéreur">
+                            {action.contactName}
+                        </EntityLink>
+                    ) : (
+                        <EntityLink kind="contact" id={action.contactId} title="Voir la fiche contact">
+                            {action.contactName}
+                        </EntityLink>
+                    )}{' '}
+                    &middot; {action.sourceLabel}
                 </p>
             </div>
 

@@ -45,6 +45,10 @@ export interface RelanceAction {
     title: string;
     contactName: string;
     contactPhone: string;
+    /** Identifiant de la fiche contact liée (pour deep-link), si connue. */
+    contactId?: string;
+    /** Identifiant de la fiche acquéreur liée (pour deep-link), si connue. */
+    buyerId?: string;
     /** Message WhatsApp pré-formaté. */
     message: string;
     /** Libellé humain de la date d'échéance (ex. « demain », « 15 sept. »). */
@@ -220,7 +224,8 @@ function makeAction(
     contactPhone: string,
     title: string,
     message: string,
-    dueLabel: string
+    dueLabel: string,
+    link?: { contactId?: string; buyerId?: string }
 ): RelanceAction {
     return {
         id: `${category}-${sourceId}`,
@@ -228,6 +233,8 @@ function makeAction(
         title,
         contactName,
         contactPhone,
+        contactId: link?.contactId,
+        buyerId: link?.buyerId,
         message,
         dueLabel,
         sourceId,
@@ -283,7 +290,8 @@ export function computeRelances(input: RelanceEngineInput): RelanceAction[] {
                     contactPhone,
                     'Confirmer la visite de demain',
                     buildVisitReminderMessage({ contactName, sourceLabel: propertyLabel(prop), dueLabel, location }, settings),
-                    dueLabel
+                    dueLabel,
+                    { buyerId: buyer?.id || v.buyer_id }
                 )
             );
         }
@@ -299,7 +307,8 @@ export function computeRelances(input: RelanceEngineInput): RelanceAction[] {
                     contactPhone,
                     'Relancer l\'acquéreur après la visite',
                     buildVisitFollowUpMessage({ contactName, sourceLabel: propertyLabel(prop) }, settings),
-                    formatRelativeLabel(visitKey, today)
+                    formatRelativeLabel(visitKey, today),
+                    { buyerId: buyer?.id || v.buyer_id }
                 )
             );
         }
@@ -326,7 +335,8 @@ export function computeRelances(input: RelanceEngineInput): RelanceAction[] {
                         contactPhone,
                         'Relancer l\'accord de prêt (J-15)',
                         buildLoanMessage({ contactName, sourceLabel: label, dueLabel: formatDateKey(deadlineKey) }, settings),
-                        formatRelativeLabel(deadlineKey, today)
+                        formatRelativeLabel(deadlineKey, today),
+                        { buyerId: t.buyer_id }
                     )
                 );
             }
@@ -346,7 +356,8 @@ export function computeRelances(input: RelanceEngineInput): RelanceAction[] {
                         contactPhone,
                         'Suivi fin de délai SRU',
                         buildSruMessage({ contactName, sourceLabel: label, dueLabel: formatDateKey(expiryKey) }, settings),
-                        formatRelativeLabel(expiryKey, today)
+                        formatRelativeLabel(expiryKey, today),
+                        { buyerId: t.buyer_id }
                     )
                 );
             }
@@ -366,7 +377,8 @@ export function computeRelances(input: RelanceEngineInput): RelanceAction[] {
                         contactPhone,
                         'Préparer la signature de l\'acte',
                         buildDeedMessage({ contactName, sourceLabel: label, dueLabel: formatDateKey(deedKey) }, settings),
-                        formatRelativeLabel(deedKey, today)
+                        formatRelativeLabel(deedKey, today),
+                        { buyerId: t.buyer_id }
                     )
                 );
             }

@@ -3,6 +3,7 @@
 import React from 'react';
 import { AgencyKey, Property } from '@/lib/types';
 import { formatMandateRef } from '@/lib/hoguet';
+import { EntityLink } from '@/components/ui/EntityLink';
 import { MapPin, Clock, User, Phone, RotateCcw, Printer, UserCheck } from 'lucide-react';
 
 interface KeyCardItemProps {
@@ -11,6 +12,8 @@ interface KeyCardItemProps {
   onBorrowKey: (key: AgencyKey) => void;
   onReturnKey: (key: AgencyKey) => void;
   onPrintDischarge: (key: AgencyKey) => void;
+  /** Met en évidence la carte (deep-link ?keyId=). */
+  isHighlighted?: boolean;
 }
 
 export const KeyCardItem: React.FC<KeyCardItemProps> = ({
@@ -18,19 +21,21 @@ export const KeyCardItem: React.FC<KeyCardItemProps> = ({
   property,
   onBorrowKey,
   onReturnKey,
-  onPrintDischarge
+  onPrintDischarge,
+  isHighlighted = false
 }) => {
   const isBorrowed = keyItem.status === 'prete';
 
   return (
     <div
-      className={`bg-white rounded-2xl p-5 border transition shadow-xs hover:shadow-md flex flex-col justify-between space-y-4 ${
-        isBorrowed
-          ? 'border-amber-200 bg-amber-50/20'
-          : keyItem.status === 'disponible'
-          ? 'border-emerald-200'
-          : 'border-gray-200'
-      }`}
+      className={`bg-white rounded-2xl p-5 border transition shadow-xs hover:shadow-md flex flex-col justify-between space-y-4 ${isHighlighted
+          ? 'border-[#E12B7B] ring-2 ring-[#E12B7B]/30 shadow-md'
+          : isBorrowed
+            ? 'border-amber-200 bg-amber-50/20'
+            : keyItem.status === 'disponible'
+              ? 'border-emerald-200'
+              : 'border-gray-200'
+        }`}
     >
       <div className="space-y-3">
         {/* Card Header */}
@@ -40,9 +45,14 @@ export const KeyCardItem: React.FC<KeyCardItemProps> = ({
               #{keyItem.keyring_number}
             </div>
             <div>
-              <span className="text-xs font-bold text-[#131B26] block">
+              <EntityLink
+                kind="key"
+                id={keyItem.id}
+                title="Ouvrir la fiche du trousseau"
+                className="text-xs font-bold text-[#131B26] block"
+              >
                 Trousseau #{keyItem.keyring_number}
-              </span>
+              </EntityLink>
               <span className="text-[10px] font-semibold text-gray-500 block">
                 {keyItem.cabinet_location}
               </span>
@@ -50,19 +60,18 @@ export const KeyCardItem: React.FC<KeyCardItemProps> = ({
           </div>
 
           <span
-            className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-              keyItem.status === 'disponible'
+            className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${keyItem.status === 'disponible'
                 ? 'bg-emerald-100 text-emerald-800'
                 : keyItem.status === 'prete'
-                ? 'bg-amber-100 text-amber-800 animate-pulse'
-                : 'bg-blue-100 text-blue-800'
-            }`}
+                  ? 'bg-amber-100 text-amber-800 animate-pulse'
+                  : 'bg-blue-100 text-blue-800'
+              }`}
           >
             {keyItem.status === 'disponible'
               ? 'En Agence'
               : keyItem.status === 'prete'
-              ? 'Prêté'
-              : 'Propriétaire'}
+                ? 'Prêté'
+                : 'Propriétaire'}
           </span>
         </div>
 
@@ -72,7 +81,14 @@ export const KeyCardItem: React.FC<KeyCardItemProps> = ({
             <span className="text-[10px] font-bold uppercase text-[#C59A45] tracking-wider block">
               {formatMandateRef(property.mandate_number)} • {property.mandate_type}
             </span>
-            <h4 className="text-xs font-bold text-gray-800 line-clamp-1">{property.title}</h4>
+            <EntityLink
+              kind="property"
+              id={property.id}
+              title="Ouvrir la fiche du mandat"
+              className="text-xs font-bold text-gray-800 line-clamp-1"
+            >
+              {property.title}
+            </EntityLink>
             <p className="text-[11px] text-gray-500 flex items-center gap-1">
               <MapPin className="w-3 h-3 text-gray-400" />
               <span>
@@ -104,7 +120,13 @@ export const KeyCardItem: React.FC<KeyCardItemProps> = ({
             <div className="flex items-center justify-between">
               <span className="font-bold text-amber-900 flex items-center gap-1">
                 <User className="w-3.5 h-3.5" />
-                {keyItem.current_borrower.borrower_name}
+                <EntityLink
+                  kind="contact"
+                  id={keyItem.current_borrower.borrower_contact_id}
+                  title="Ouvrir la fiche du contact emprunteur"
+                >
+                  {keyItem.current_borrower.borrower_name}
+                </EntityLink>
               </span>
               <span className="text-[10px] font-bold uppercase px-1.5 py-0.2 bg-amber-200 text-amber-900 rounded">
                 {keyItem.current_borrower.borrower_role}

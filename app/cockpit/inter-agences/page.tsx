@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useNellimoStore, useInterAgency } from '@/lib/store';
 import { useToast } from '@/components/ui/Toast';
 import type { DelegationAgreement } from '@/lib/types';
@@ -14,7 +15,11 @@ import {
   DelegationContractModal,
 } from '@/components/cockpit/inter-agences';
 
-export default function InterAgencesPage() {
+function InterAgencesContent() {
+  const searchParams = useSearchParams();
+  const deepLinkPartnerId = searchParams.get('partnerId') || '';
+  const deepLinkDelegationId = searchParams.get('delegationId') || '';
+
   const { properties } = useNellimoStore();
   const {
     partners,
@@ -31,6 +36,16 @@ export default function InterAgencesPage() {
   const [isNewPartnerModalOpen, setIsNewPartnerModalOpen] = useState(false);
 
   const activeProperties = properties.filter((p) => p.status === 'actif');
+
+  // Deep-link : ouverture automatique de la convention de délégation via ?delegationId=
+  useEffect(() => {
+    if (!deepLinkDelegationId) return;
+    const target = delegations.find((d) => d.id === deepLinkDelegationId);
+    if (target) {
+      setSelectedDelegation(target);
+      setIsContractModalOpen(true);
+    }
+  }, [deepLinkDelegationId, delegations]);
 
   const handleSelectDelegation = (d: DelegationAgreement) => {
     setSelectedDelegation(d);
@@ -80,6 +95,7 @@ export default function InterAgencesPage() {
         onOpenNewPartner={() => setIsNewPartnerModalOpen(true)}
         onDeletePartner={deletePartner}
         showToast={showToast}
+        highlightPartnerId={deepLinkPartnerId || undefined}
       />
 
       {/* Modal New Delegation */}
@@ -109,5 +125,19 @@ export default function InterAgencesPage() {
         partner={selectedPartner}
       />
     </div>
+  );
+}
+
+export default function InterAgencesPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="p-8 text-center text-xs text-gray-400">
+          Chargement du réseau inter-agences...
+        </div>
+      }
+    >
+      <InterAgencesContent />
+    </Suspense>
   );
 }

@@ -3,6 +3,7 @@
 import React from 'react';
 import { Phone, Mail } from 'lucide-react';
 import { TransactionDeal } from '@/lib/types';
+import { EntityLink } from '@/components/ui/EntityLink';
 import { openGmailCompose } from '@/lib/gmail';
 
 interface DealPartiesCardsProps {
@@ -17,7 +18,11 @@ export const DealPartiesCards: React.FC<DealPartiesCardsProps> = ({ deal }) => {
         <span className="text-xs font-bold uppercase text-purple-700 block tracking-wider">
           Acquéreur (Acheteur)
         </span>
-        <p className="text-sm font-bold text-gray-900">{deal.buyer_name}</p>
+        <p className="text-sm font-bold text-gray-900">
+          <EntityLink kind="buyer" id={deal.buyer_id} withIcon title="Voir la fiche acquéreur">
+            {deal.buyer_name}
+          </EntityLink>
+        </p>
         <div className="flex items-center gap-3 text-xs text-gray-600">
           <a href={`tel:${deal.buyer_phone}`} className="flex items-center gap-1 text-blue-600 hover:underline">
             <Phone className="w-3.5 h-3.5" />
@@ -51,7 +56,11 @@ export const DealPartiesCards: React.FC<DealPartiesCardsProps> = ({ deal }) => {
         <span className="text-xs font-bold uppercase text-blue-700 block tracking-wider">
           Notaire Instrumentaire
         </span>
-        <p className="text-sm font-bold text-gray-900">{deal.seller_notary_name}</p>
+        <p className="text-sm font-bold text-gray-900">
+          <EntityLink kind="contact" id={deal.seller_notary_contact_id} withIcon title="Voir la fiche contact du notaire">
+            {deal.seller_notary_name}
+          </EntityLink>
+        </p>
         <p className="text-xs text-gray-600">{deal.seller_notary_office}</p>
         <div className="flex items-center gap-3 text-xs text-gray-600 pt-1">
           <a href={`tel:${deal.seller_notary_phone}`} className="flex items-center gap-1 text-blue-600 hover:underline">

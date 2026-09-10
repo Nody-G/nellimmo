@@ -5,16 +5,18 @@ import { ExternalLink, MapPin, MessageCircle, Navigation, Calendar } from 'lucid
 import { formatMandateRef } from '@/lib/hoguet';
 import type { AgendaEvent } from './agenda-types';
 import { EventBadge } from './EventBadge';
+import { EntityLink } from '@/components/ui/EntityLink';
 import { createGoogleMapsNavUrl, createGoogleCalendarUrl } from '@/lib/google';
 
 interface ListViewProps {
     events: AgendaEvent[];
     currentTime: number | null;
     onWhatsApp: (event: AgendaEvent) => void;
+    highlightEventId?: string;
 }
 
 /** Chronological list view of all upcoming & past events. */
-export function ListView({ events, currentTime, onWhatsApp }: ListViewProps) {
+export function ListView({ events, currentTime, onWhatsApp, highlightEventId }: ListViewProps) {
     return (
         <div className="bg-white rounded-3xl p-6 border border-[#F3E8EE] shadow-2xs space-y-4">
             <div className="flex items-center justify-between border-b border-gray-100 pb-3">
@@ -48,8 +50,11 @@ export function ListView({ events, currentTime, onWhatsApp }: ListViewProps) {
                     return (
                         <div
                             key={ev.id}
-                            className={`py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${isPast ? 'opacity-60' : ''
-                                }`}
+                            id={`event-${ev.id}`}
+                            className={`py-3.5 px-2 -mx-2 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-colors ${highlightEventId === ev.id
+                                ? 'bg-[#FDF2F8] ring-2 ring-[#E12B7B]/30'
+                                : ''
+                                } ${isPast ? 'opacity-60' : ''}`}
                         >
                             <div className="flex items-start gap-4">
                                 <div className="w-20 shrink-0 text-center bg-gray-50 p-2 rounded-xl border border-gray-200">
@@ -77,11 +82,27 @@ export function ListView({ events, currentTime, onWhatsApp }: ListViewProps) {
                                         )}
                                     </div>
 
-                                    <h4 className="font-serif font-bold text-sm text-[#131B26]">{ev.title}</h4>
-                                    <p className="text-xs text-gray-500 flex items-center gap-1.5">
+                                    <h4 className="font-serif font-bold text-sm text-[#131B26]">
+                                        <EntityLink kind="event" id={ev.id} withIcon title="Voir l'événement dans l'agenda">
+                                            {ev.title}
+                                        </EntityLink>
+                                    </h4>
+                                    <p className="text-xs text-gray-500 flex items-center gap-1.5 flex-wrap">
                                         <MapPin className="w-3.5 h-3.5 text-gray-400" />
                                         <span>{ev.location}</span>
-                                        <span>&bull; Contact : {ev.contactName} ({ev.contactPhone})</span>
+                                        <span>
+                                            &bull; Contact :{' '}
+                                            {ev.buyerId ? (
+                                                <EntityLink kind="buyer" id={ev.buyerId} title="Voir la fiche acquéreur">
+                                                    {ev.contactName}
+                                                </EntityLink>
+                                            ) : (
+                                                <EntityLink kind="contact" id={ev.contactId} title="Voir la fiche contact">
+                                                    {ev.contactName}
+                                                </EntityLink>
+                                            )}{' '}
+                                            ({ev.contactPhone})
+                                        </span>
                                     </p>
                                 </div>
                             </div>

@@ -10,6 +10,7 @@ import {
   Send
 } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
+import { EntityLink } from '@/components/ui/EntityLink';
 import { openGmailCompose } from '@/lib/gmail';
 import { BatchBuyerPushModal } from '@/components/cockpit/mandats/BatchBuyerPushModal';
 
@@ -92,17 +93,19 @@ export const MandateMatchingTab: React.FC<MandateMatchingTabProps> = ({
                   <div className="flex items-center gap-3">
                     <div
                       className={`w-11 h-11 rounded-xl flex items-center justify-center font-bold text-xs ${score >= 80
-                          ? 'bg-emerald-500 text-white'
-                          : score >= 50
-                            ? 'bg-amber-500 text-white'
-                            : 'bg-gray-200 text-gray-700'
+                        ? 'bg-emerald-500 text-white'
+                        : score >= 50
+                          ? 'bg-amber-500 text-white'
+                          : 'bg-gray-200 text-gray-700'
                         }`}
                     >
                       {score}%
                     </div>
                     <div>
                       <h4 className="font-bold text-gray-900 text-xs">
-                        {buyer.first_name} {buyer.last_name}
+                        <EntityLink kind="buyer" id={buyer.id} title="Voir la fiche acquéreur">
+                          {buyer.first_name} {buyer.last_name}
+                        </EntityLink>
                       </h4>
                       <div className="flex items-center gap-3 text-[11px] text-gray-500 mt-0.5">
                         <span className="flex items-center gap-1 font-bold text-gray-700">

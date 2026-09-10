@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useNellimoStore } from '@/lib/store';
 import { TransactionDeal, TransactionStatus } from '@/lib/types';
 import { useToast } from '@/components/ui/Toast';
@@ -9,7 +10,10 @@ import { KanbanBoard } from '@/components/cockpit/transactions/KanbanBoard';
 import { TransactionsModals } from '@/components/cockpit/transactions/TransactionsModals';
 import { getDaysRemaining, computeUrgentAlert } from '@/components/cockpit/transactions/transactions-types';
 
-export default function TransactionsPipelinePage() {
+function TransactionsPipelineContent() {
+  const searchParams = useSearchParams();
+  const deepLinkDealId = searchParams.get('id') || '';
+
   const { transactions, properties, settings, updateTransaction, createTransaction } = useNellimoStore();
   const { showToast } = useToast();
   const [selectedDeal, setSelectedDeal] = useState<TransactionDeal | null>(null);
@@ -17,6 +21,15 @@ export default function TransactionsPipelinePage() {
   const [invoiceDocumentType, setInvoiceDocumentType] = useState<'facture' | 'sequestre'>('facture');
   const [isNewDealModalOpen, setIsNewDealModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+
+  // Deep-link : ouverture automatique de la fiche transaction via ?id=
+  useEffect(() => {
+    if (!deepLinkDealId) return;
+    const target = transactions.find((t) => t.id === deepLinkDealId);
+    if (target) {
+      setSelectedDeal(target);
+    }
+  }, [deepLinkDealId, transactions]);
 
   // Metrics
   const activeDeals = transactions.filter((t) => t.status !== 'acte_signe' && t.status !== 'annule');
@@ -176,5 +189,19 @@ export default function TransactionsPipelinePage() {
         onCloseNewDealModal={() => setIsNewDealModalOpen(false)}
       />
     </div>
+  );
+}
+
+export default function TransactionsPipelinePage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="p-8 text-center text-xs text-gray-400">
+          Chargement du pipeline transactions...
+        </div>
+      }
+    >
+      <TransactionsPipelineContent />
+    </Suspense>
   );
 }

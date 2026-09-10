@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import type { Property, TransactionDeal } from '@/lib/types';
 import { Portal } from '@/components/ui/Portal';
+import { EntityLink } from '@/components/ui/EntityLink';
 import { useBodyScrollLock } from '@/lib/useBodyScrollLock';
 import {
   DealWorkflowButtons,
@@ -76,7 +77,9 @@ export function DealDetailModal({
                 <span className="text-xs font-bold text-gray-400">ID: {deal.id}</span>
               </div>
               <h2 className="text-lg sm:text-xl font-serif font-bold text-[#131B26] mt-0.5 line-clamp-1">
-                {prop?.title || 'Transaction Immobilière'}
+                <EntityLink kind="property" id={prop?.id} withIcon title="Voir la fiche du bien">
+                  {prop?.title || 'Transaction Immobilière'}
+                </EntityLink>
               </h2>
               <p className="text-xs text-gray-500">
                 {prop?.city || 'Pélissanne'} — Mandat N° {prop?.mandate_number}

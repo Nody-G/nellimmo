@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useNellimoStore } from '@/lib/store';
 import { filterLeads, computeDvfGap } from '@/components/cockpit/pige/pige-types';
 import { PigeHeader } from '@/components/cockpit/pige/PigeHeader';
@@ -12,8 +13,10 @@ import { PigeImportModal } from '@/components/cockpit/pige/PigeImportModal';
 import { PigeScannerModal } from '@/components/cockpit/pige/PigeScannerModal';
 import { usePigeActions } from '@/components/cockpit/pige/usePigeActions';
 
-export default function ProspectingPage() {
+function ProspectingContent() {
   const { prospectingLeads } = useNellimoStore();
+  const searchParams = useSearchParams();
+  const deepLinkLeadId = searchParams.get('leadId') || '';
 
   const [selectedSourceFilter, setSelectedSourceFilter] = useState<string>('all');
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>('all');
@@ -21,6 +24,7 @@ export default function ProspectingPage() {
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
   const [sortBy, setSortBy] = useState<PigeSortOption>('recent');
   const [isScannerModalOpen, setIsScannerModalOpen] = useState(false);
+  const [highlightLeadId, setHighlightLeadId] = useState<string>('');
 
   const {
     isNewLeadModalOpen,
@@ -34,6 +38,20 @@ export default function ProspectingPage() {
     handleUpdateStatus,
     handleConvertToMandate,
   } = usePigeActions();
+
+  // Deep-link : mise en évidence du lead ciblé via ?leadId=
+  useEffect(() => {
+    if (!deepLinkLeadId) return;
+    const target = prospectingLeads.find((l) => l.id === deepLinkLeadId);
+    if (!target) return;
+    setHighlightLeadId(deepLinkLeadId);
+    // On s'assure que le lead ciblé est visible (réinitialise les filtres si besoin)
+    setSelectedSourceFilter('all');
+    setSelectedStatusFilter('all');
+    setSearchKeyword('');
+    const timer = setTimeout(() => setHighlightLeadId(''), 4000);
+    return () => clearTimeout(timer);
+  }, [deepLinkLeadId, prospectingLeads]);
 
   const filteredAndSortedLeads = useMemo(() => {
     const filtered = filterLeads(
@@ -125,6 +143,7 @@ export default function ProspectingPage() {
                 key={lead.id}
                 lead={lead}
                 rankIndex={idx + 1}
+                isHighlighted={highlightLeadId === lead.id}
                 onConvertToMandate={handleConvertToMandate}
                 onStatusChange={handleUpdateStatus}
               />
@@ -138,6 +157,7 @@ export default function ProspectingPage() {
           onStatusChange={handleUpdateStatus}
           sortBy={sortBy}
           onSortChange={setSortBy}
+          highlightLeadId={highlightLeadId}
         />
       )}
 
@@ -160,5 +180,19 @@ export default function ProspectingPage() {
         onClose={() => setIsScannerModalOpen(false)}
       />
     </div>
+  );
+}
+
+export default function ProspectingPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="p-12 text-center text-xs text-gray-400">
+          Chargement de la pige…
+        </div>
+      }
+    >
+      <ProspectingContent />
+    </Suspense>
   );
 }

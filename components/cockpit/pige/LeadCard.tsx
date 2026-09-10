@@ -2,6 +2,7 @@
 
 import { Phone, MessageCircle, ExternalLink, Sparkles } from 'lucide-react';
 import type { ProspectingLead, ProspectingStatus } from '@/lib/types';
+import { EntityLink } from '@/components/ui/EntityLink';
 import {
     computeDvfGap,
     buildWhatsAppMessage,
@@ -13,33 +14,39 @@ import {
 interface LeadCardProps {
     lead: ProspectingLead;
     rankIndex?: number;
+    isHighlighted?: boolean;
     onConvertToMandate: (lead: ProspectingLead) => void;
     onStatusChange?: (leadId: string, newStatus: ProspectingStatus) => void;
 }
 
 /** A single prospecting lead card with DVF gap analyzer and action buttons. */
-export function LeadCard({ lead, rankIndex, onConvertToMandate, onStatusChange }: LeadCardProps) {
+export function LeadCard({ lead, rankIndex, isHighlighted = false, onConvertToMandate, onStatusChange }: LeadCardProps) {
     const { priceM2, benchmarkDvf, diffPct } = computeDvfGap(lead);
     const whatsappMessage = buildWhatsAppMessage(lead);
     const cleanPhoneNumber = cleanPhone(lead.seller_phone);
 
     return (
-        <div className="bg-white rounded-3xl p-6 border border-[#F3E8EE] shadow-2xs hover:shadow-md transition space-y-4 flex flex-col justify-between">
+        <div
+            id={`lead-${lead.id}`}
+            className={`bg-white rounded-3xl p-6 border shadow-2xs hover:shadow-md transition space-y-4 flex flex-col justify-between ${isHighlighted
+                    ? 'border-[#E12B7B] ring-2 ring-[#E12B7B]/30 shadow-md'
+                    : 'border-[#F3E8EE]'
+                }`}
+        >
             <div className="space-y-3">
                 <div className="flex items-start justify-between gap-2">
                     <div>
                         <div className="flex items-center gap-2 flex-wrap">
                             {rankIndex !== undefined && (
                                 <span
-                                    className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
-                                        rankIndex === 1
+                                    className={`text-[10px] font-black px-2 py-0.5 rounded-full ${rankIndex === 1
                                             ? 'bg-amber-100 text-amber-900 border border-amber-300'
                                             : rankIndex === 2
-                                            ? 'bg-slate-200 text-slate-800'
-                                            : rankIndex === 3
-                                            ? 'bg-amber-50 text-amber-800'
-                                            : 'bg-gray-100 text-gray-600'
-                                    }`}
+                                                ? 'bg-slate-200 text-slate-800'
+                                                : rankIndex === 3
+                                                    ? 'bg-amber-50 text-amber-800'
+                                                    : 'bg-gray-100 text-gray-600'
+                                        }`}
                                 >
                                     #{rankIndex}
                                 </span>
@@ -57,7 +64,9 @@ export function LeadCard({ lead, rankIndex, onConvertToMandate, onStatusChange }
                             </span>
                         </div>
                         <h3 className="font-serif font-bold text-base text-[#131B26] mt-1">
-                            {lead.title}
+                            <EntityLink kind="lead" id={lead.id} withIcon title="Voir la fiche du prospect">
+                                {lead.title}
+                            </EntityLink>
                         </h3>
                     </div>
 
@@ -87,7 +96,12 @@ export function LeadCard({ lead, rankIndex, onConvertToMandate, onStatusChange }
                 <div className="bg-[#FCFAF7] p-3 rounded-2xl border border-[#F3E8EE] text-xs space-y-1.5 text-gray-700">
                     <div className="flex justify-between">
                         <span className="text-gray-500">Vendeur :</span>
-                        <span className="font-bold text-gray-900">{lead.seller_name} ({lead.seller_phone})</span>
+                        <span className="font-bold text-gray-900">
+                            <EntityLink kind="contact" id={lead.contact_id} title="Voir la fiche contact">
+                                {lead.seller_name}
+                            </EntityLink>{' '}
+                            ({lead.seller_phone})
+                        </span>
                     </div>
                     <div className="flex justify-between">
                         <span className="text-gray-500">Localisation :</span>

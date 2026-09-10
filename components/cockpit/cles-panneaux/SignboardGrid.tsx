@@ -2,18 +2,22 @@
 
 import React from 'react';
 import { AgencySignboard, Property } from '@/lib/types';
+import { EntityLink } from '@/components/ui/EntityLink';
 import { ShieldCheck, Building, Check } from 'lucide-react';
 
 interface SignboardGridProps {
   signboards: AgencySignboard[];
   properties: Property[];
   onUpdateStatus: (id: string, updates: Partial<AgencySignboard>) => Promise<void>;
+  /** Id du panneau à mettre en évidence (deep-link ?signboardId=). */
+  highlightSignboardId?: string;
 }
 
 export const SignboardGrid: React.FC<SignboardGridProps> = ({
   signboards,
   properties,
-  onUpdateStatus
+  onUpdateStatus,
+  highlightSignboardId
 }) => {
   return (
     <div className="space-y-4">
@@ -38,32 +42,39 @@ export const SignboardGrid: React.FC<SignboardGridProps> = ({
           return (
             <div
               key={sign.id}
-              className={`bg-white rounded-2xl p-5 border transition shadow-xs hover:shadow-md flex flex-col justify-between space-y-4 ${
-                isToDeposit ? 'border-rose-300 bg-rose-50/30' : 'border-[#F3E8EE]'
-              }`}
+              className={`bg-white rounded-2xl p-5 border transition shadow-xs hover:shadow-md flex flex-col justify-between space-y-4 ${highlightSignboardId === sign.id
+                  ? 'border-[#E12B7B] ring-2 ring-[#E12B7B]/30 shadow-md'
+                  : isToDeposit
+                    ? 'border-rose-300 bg-rose-50/30'
+                    : 'border-[#F3E8EE]'
+                }`}
             >
               <div className="space-y-3">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <div
-                      className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-white ${
-                        sign.signboard_type === 'exclusivite'
+                      className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-white ${sign.signboard_type === 'exclusivite'
                           ? 'bg-[#E12B7B]'
                           : sign.signboard_type === 'vendu'
-                          ? 'bg-emerald-600'
-                          : 'bg-[#131B26]'
-                      }`}
+                            ? 'bg-emerald-600'
+                            : 'bg-[#131B26]'
+                        }`}
                     >
                       {sign.signboard_type === 'exclusivite'
                         ? 'EXCLU'
                         : sign.signboard_type === 'vendu'
-                        ? 'VENDU'
-                        : 'VENTE'}
+                          ? 'VENDU'
+                          : 'VENTE'}
                     </div>
                     <div>
-                      <span className="text-xs font-bold text-gray-900 block capitalize">
+                      <EntityLink
+                        kind="signboard"
+                        id={sign.id}
+                        title="Ouvrir la fiche du panneau"
+                        className="text-xs font-bold text-gray-900 block capitalize"
+                      >
                         Panneau {sign.signboard_type.replace('_', ' ')}
-                      </span>
+                      </EntityLink>
                       <span className="text-[10px] text-gray-500 block">
                         {sign.location_details || 'Emplacement non précisé'}
                       </span>
@@ -71,23 +82,22 @@ export const SignboardGrid: React.FC<SignboardGridProps> = ({
                   </div>
 
                   <span
-                    className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
-                      sign.status === 'pose'
+                    className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${sign.status === 'pose'
                         ? 'bg-blue-100 text-blue-800'
                         : sign.status === 'a_deposer'
-                        ? 'bg-rose-100 text-rose-800 animate-bounce'
-                        : sign.status === 'en_stock'
-                        ? 'bg-gray-100 text-gray-700'
-                        : 'bg-emerald-100 text-emerald-800'
-                    }`}
+                          ? 'bg-rose-100 text-rose-800 animate-bounce'
+                          : sign.status === 'en_stock'
+                            ? 'bg-gray-100 text-gray-700'
+                            : 'bg-emerald-100 text-emerald-800'
+                      }`}
                   >
                     {sign.status === 'pose'
                       ? 'Sur Place'
                       : sign.status === 'a_deposer'
-                      ? 'À Déposer Urgence'
-                      : sign.status === 'en_stock'
-                      ? 'En Réserve'
-                      : 'Déposé'}
+                        ? 'À Déposer Urgence'
+                        : sign.status === 'en_stock'
+                          ? 'En Réserve'
+                          : 'Déposé'}
                   </span>
                 </div>
 
@@ -96,7 +106,14 @@ export const SignboardGrid: React.FC<SignboardGridProps> = ({
                     <span className="text-[10px] font-bold text-[#E12B7B] uppercase block">
                       Mandat #{prop.mandate_number} • {prop.city}
                     </span>
-                    <p className="font-semibold text-gray-800 line-clamp-1">{prop.title}</p>
+                    <EntityLink
+                      kind="property"
+                      id={prop.id}
+                      title="Ouvrir la fiche du mandat"
+                      className="font-semibold text-gray-800 line-clamp-1"
+                    >
+                      {prop.title}
+                    </EntityLink>
                   </div>
                 ) : (
                   <div className="p-3 bg-gray-50 rounded-xl border border-dashed border-gray-200 text-xs text-gray-400 italic">

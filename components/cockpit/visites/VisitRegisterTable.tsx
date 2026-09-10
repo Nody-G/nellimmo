@@ -7,6 +7,7 @@ import { Property, Buyer, VisitSheet } from '@/lib/types';
 import { formatMandateRef } from '@/lib/hoguet';
 import { Printer, Navigation, Calendar } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
+import { EntityLink } from '@/components/ui/EntityLink';
 import { PrintableVisitData } from './PrintableVisitModal';
 import { createGoogleMapsNavUrl, createGoogleCalendarUrl } from '@/lib/google';
 
@@ -68,9 +69,9 @@ export const VisitRegisterTable: React.FC<VisitRegisterTableProps> = ({
                 className="p-3.5 bg-[#FCFAF7] rounded-xl border border-[#F3E8EE] space-y-2 text-xs hover:border-gray-300 transition"
               >
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-gray-900">
+                  <EntityLink kind="buyer" id={buyer?.id} title="Voir la fiche acquéreur" className="font-bold text-gray-900">
                     {buyer?.first_name} {buyer?.last_name}
-                  </span>
+                  </EntityLink>
                   <span className="text-[10px] text-gray-400">
                     {new Date(v.visit_date).toLocaleDateString('fr-FR')}
                   </span>

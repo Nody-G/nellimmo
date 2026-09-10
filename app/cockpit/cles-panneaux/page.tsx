@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useNellimoStore } from '@/lib/store';
 import { AgencyKey, KeyLoanRecord } from '@/lib/types';
 import { useToast } from '@/components/ui/Toast';
@@ -15,7 +16,11 @@ import {
   KeyLoanHistoryTable,
 } from '@/components/cockpit/cles-panneaux';
 
-export default function KeysAndSignboardsPage() {
+function KeysAndSignboardsContent() {
+  const searchParams = useSearchParams();
+  const deepLinkKeyId = searchParams.get('keyId') || '';
+  const deepLinkSignboardId = searchParams.get('signboardId') || '';
+
   const {
     keys,
     signboards,
@@ -44,6 +49,15 @@ export default function KeysAndSignboardsPage() {
     key: AgencyKey;
     loan: KeyLoanRecord;
   } | null>(null);
+
+  // Deep-link : bascule automatique sur le bon onglet selon ?keyId= / ?signboardId=
+  useEffect(() => {
+    if (deepLinkKeyId) {
+      setActiveTab('armoire');
+    } else if (deepLinkSignboardId) {
+      setActiveTab('panneaux');
+    }
+  }, [deepLinkKeyId, deepLinkSignboardId]);
 
   const handleReturnKey = async (key: AgencyKey) => {
     await returnKey(key.id);
@@ -96,6 +110,7 @@ export default function KeysAndSignboardsPage() {
               setIsDischargePrintModalOpen(true);
             }
           }}
+          highlightKeyId={deepLinkKeyId || undefined}
         />
       )}
 
@@ -108,6 +123,7 @@ export default function KeysAndSignboardsPage() {
             await updateSignboard(id, updates);
             showToast('Statut du panneau mis à jour avec succès.', 'success');
           }}
+          highlightSignboardId={deepLinkSignboardId || undefined}
         />
       )}
 
@@ -170,5 +186,19 @@ export default function KeysAndSignboardsPage() {
         settings={settings}
       />
     </div>
+  );
+}
+
+export default function KeysAndSignboardsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="p-8 text-center text-xs text-gray-400">
+          Chargement de l'armoire à clés...
+        </div>
+      }
+    >
+      <KeysAndSignboardsContent />
+    </Suspense>
   );
 }

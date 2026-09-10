@@ -2,6 +2,7 @@
 
 import { Clock, Calendar, CheckCircle2, ChevronRight } from 'lucide-react';
 import type { Property, TransactionDeal, TransactionStatus } from '@/lib/types';
+import { EntityLink } from '@/components/ui/EntityLink';
 import { STATUS_COLUMNS } from './transactions-types';
 
 interface KanbanBoardProps {
@@ -69,7 +70,14 @@ export function KanbanBoard({
                                             </div>
 
                                             <h4 className="text-xs font-bold text-gray-800 line-clamp-1 group-hover:text-[#E12B7B] transition">
-                                                {prop?.title || 'Bien en cours de vente'}
+                                                <EntityLink
+                                                    kind="property"
+                                                    id={prop?.id}
+                                                    stopPropagation
+                                                    title="Voir la fiche du bien"
+                                                >
+                                                    {prop?.title || 'Bien en cours de vente'}
+                                                </EntityLink>
                                             </h4>
 
                                             <div className="text-[11px] text-gray-500 space-y-0.5">

@@ -21,6 +21,10 @@ export interface AgendaEvent {
     contactName: string;
     contactPhone: string;
     contactRole?: string;
+    /** Identifiant de la fiche contact liée (pour deep-link). */
+    contactId?: string;
+    /** Identifiant de la fiche acquéreur liée (pour deep-link). */
+    buyerId?: string;
     mandateNumber?: number;
     propertyId?: string;
     transactionId?: string;
@@ -82,6 +86,7 @@ export function buildAllEvents(
             contactName: buyer ? `${buyer.first_name} ${buyer.last_name}` : 'Acquéreur intéressé',
             contactPhone: buyer?.phone || '07 55 68 61 09',
             contactRole: 'Acquéreur',
+            buyerId: buyer?.id,
             mandateNumber: prop?.mandate_number,
             propertyId: prop?.id,
             notes: v.notes || 'Visite qualifiée avec bon de visite dématérialisé',
@@ -105,6 +110,7 @@ export function buildAllEvents(
                 contactName: t.seller_notary_name || 'Maître Notaire',
                 contactPhone: t.seller_notary_phone || '04 90 00 00 00',
                 contactRole: 'Notaire Vendeur',
+                contactId: t.seller_notary_contact_id,
                 mandateNumber: prop?.mandate_number,
                 propertyId: prop?.id,
                 transactionId: t.id,
@@ -164,6 +170,7 @@ export function buildAllEvents(
                 contactName: t.seller_notary_name,
                 contactPhone: t.seller_notary_phone,
                 contactRole: 'Notaire Instrumentaire',
+                contactId: t.seller_notary_contact_id,
                 mandateNumber: prop?.mandate_number,
                 propertyId: prop?.id,
                 transactionId: t.id,
@@ -188,6 +195,7 @@ export function buildAllEvents(
                 contactName: k.current_borrower.borrower_name,
                 contactPhone: k.current_borrower.borrower_phone,
                 contactRole: k.current_borrower.borrower_role.toUpperCase(),
+                contactId: k.current_borrower.borrower_contact_id,
                 mandateNumber: prop?.mandate_number,
                 propertyId: prop?.id,
                 notes: `Trousseau emprunté pour : ${k.current_borrower.purpose}`,

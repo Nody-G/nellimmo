@@ -10,6 +10,8 @@ interface PartnersDirectoryProps {
   onOpenNewPartner: () => void;
   onDeletePartner: (id: string) => Promise<void>;
   showToast: (message: string, type?: 'success' | 'error' | 'info') => void;
+  /** Id du partenaire à mettre en évidence (deep-link ?partnerId=). */
+  highlightPartnerId?: string;
 }
 
 export function PartnersDirectory({
@@ -17,6 +19,7 @@ export function PartnersDirectory({
   onOpenNewPartner,
   onDeletePartner,
   showToast,
+  highlightPartnerId,
 }: PartnersDirectoryProps) {
   const handleDelete = async (partner: PartnerAgency) => {
     if (confirm(`Confirmez-vous le retrait de l'agence "${partner.agency_name}" du réseau partenaire ?`)) {
@@ -51,7 +54,10 @@ export function PartnersDirectory({
         {partners.map((p) => (
           <div
             key={p.id}
-            className="p-4 bg-[#FCFAF7] rounded-2xl border border-[#F3E8EE] space-y-2 relative group hover:shadow-xs transition"
+            className={`p-4 bg-[#FCFAF7] rounded-2xl border space-y-2 relative group hover:shadow-xs transition ${highlightPartnerId === p.id
+                ? 'border-[#E12B7B] ring-2 ring-[#E12B7B]/30 shadow-md'
+                : 'border-[#F3E8EE]'
+              }`}
           >
             <div className="flex items-start justify-between gap-2">
               <span className="font-bold text-gray-900 block text-sm">{p.agency_name}</span>

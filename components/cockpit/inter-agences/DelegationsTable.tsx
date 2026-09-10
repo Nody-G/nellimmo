@@ -3,6 +3,7 @@
 import React from 'react';
 import { Handshake, FileSignature } from 'lucide-react';
 import { formatMandateRef } from '@/lib/hoguet';
+import { EntityLink } from '@/components/ui/EntityLink';
 import type { DelegationAgreement, Property, PartnerAgency } from '@/lib/types';
 
 interface DelegationsTableProps {
@@ -59,14 +60,20 @@ export function DelegationsTable({
                   <tr key={d.id} className="hover:bg-gray-50/80 transition-colors">
                     <td className="py-3.5">
                       <span className="font-bold text-gray-900 block truncate max-w-xs">
-                        {prop.title}
+                        <EntityLink kind="property" id={prop.id} withIcon title="Voir la fiche du bien">
+                          {prop.title}
+                        </EntityLink>
                       </span>
                       <span className="text-[10px] text-gray-400 font-mono">
                         {formatMandateRef(prop.mandate_number)} • {prop.city} • {prop.price_fai.toLocaleString('fr-FR')} €
                       </span>
                     </td>
                     <td className="py-3.5">
-                      <span className="font-bold text-[#131B26] block">{partner.agency_name}</span>
+                      <span className="font-bold text-[#131B26] block">
+                        <EntityLink kind="partner" id={partner.id} withIcon title="Voir la fiche de l'agence partenaire">
+                          {partner.agency_name}
+                        </EntityLink>
+                      </span>
                       <span className="text-[10px] text-gray-500">{partner.director_name} ({partner.city})</span>
                     </td>
                     <td className="py-3.5">
@@ -86,14 +93,25 @@ export function DelegationsTable({
                       </span>
                     </td>
                     <td className="py-3.5 text-right">
-                      <button
-                        type="button"
-                        onClick={() => onSelectDelegation(d)}
-                        className="px-3 py-1.5 bg-[#131B26] hover:bg-gray-800 text-white rounded-lg text-[11px] font-bold inline-flex items-center gap-1.5 transition cursor-pointer"
-                      >
-                        <FileSignature className="w-3.5 h-3.5 text-[#C59A45]" />
-                        <span>Voir Convention</span>
-                      </button>
+                      <div className="flex items-center justify-end gap-1.5">
+                        <EntityLink
+                          kind="delegation"
+                          id={d.id}
+                          title="Ouvrir la convention de délégation"
+                          className="px-2.5 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-[11px] font-bold inline-flex items-center gap-1.5 transition"
+                        >
+                          <FileSignature className="w-3.5 h-3.5 text-gray-500" />
+                          <span>Convention</span>
+                        </EntityLink>
+                        <button
+                          type="button"
+                          onClick={() => onSelectDelegation(d)}
+                          className="px-3 py-1.5 bg-[#131B26] hover:bg-gray-800 text-white rounded-lg text-[11px] font-bold inline-flex items-center gap-1.5 transition cursor-pointer"
+                        >
+                          <FileSignature className="w-3.5 h-3.5 text-[#C59A45]" />
+                          <span>Voir Convention</span>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );

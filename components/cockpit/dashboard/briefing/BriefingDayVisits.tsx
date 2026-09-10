@@ -3,6 +3,7 @@
 import React from 'react';
 import { Calendar, MapPin, PenTool, Navigation } from 'lucide-react';
 import Link from 'next/link';
+import { EntityLink } from '@/components/ui/EntityLink';
 import type { VisitSheet, Property, Buyer } from '@/lib/types';
 
 interface BriefingDayVisitsProps {
@@ -51,12 +52,12 @@ export function BriefingDayVisits({ visits, properties, buyers }: BriefingDayVis
 
           const visitDateStr = v.visit_date
             ? new Date(v.visit_date).toLocaleDateString('fr-FR', {
-                weekday: 'short',
-                day: 'numeric',
-                month: 'short',
-                hour: '2-digit',
-                minute: '2-digit',
-              })
+              weekday: 'short',
+              day: 'numeric',
+              month: 'short',
+              hour: '2-digit',
+              minute: '2-digit',
+            })
             : "Aujourd'hui";
 
           return (
@@ -66,9 +67,17 @@ export function BriefingDayVisits({ visits, properties, buyers }: BriefingDayVis
             >
               <div className="space-y-0.5">
                 <div className="flex items-center gap-2">
-                  <span className="font-bold text-gray-900">{buyerName}</span>
+                  <span className="font-bold text-gray-900">
+                    <EntityLink kind="buyer" id={buyer?.id} title="Voir la fiche acquéreur">
+                      {buyerName}
+                    </EntityLink>
+                  </span>
                   <span className="text-gray-400">•</span>
-                  <span className="text-gray-600 font-medium">{prop?.title || 'Bien'}</span>
+                  <span className="text-gray-600 font-medium">
+                    <EntityLink kind="property" id={prop?.id} title="Voir la fiche du bien">
+                      {prop?.title || 'Bien'}
+                    </EntityLink>
+                  </span>
                 </div>
                 <div className="flex items-center gap-2 text-[11px] text-gray-500">
                   <MapPin className="w-3 h-3 text-gray-400 shrink-0" />

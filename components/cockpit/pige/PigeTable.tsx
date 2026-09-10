@@ -3,6 +3,7 @@
 import React from 'react';
 import { Phone, MessageCircle, Sparkles, ExternalLink, Target } from 'lucide-react';
 import type { ProspectingLead, ProspectingStatus } from '@/lib/types';
+import { EntityLink } from '@/components/ui/EntityLink';
 import {
   computeDvfGap,
   buildWhatsAppMessage,
@@ -20,6 +21,7 @@ interface PigeTableProps {
   onStatusChange?: (leadId: string, newStatus: ProspectingStatus) => void;
   sortBy?: PigeSortOption;
   onSortChange?: (newSort: PigeSortOption) => void;
+  highlightLeadId?: string;
 }
 
 export function PigeTable({
@@ -28,6 +30,7 @@ export function PigeTable({
   onStatusChange,
   sortBy = 'recent',
   onSortChange,
+  highlightLeadId,
 }: PigeTableProps) {
   const handleSort = (option: PigeSortOption) => {
     if (onSortChange) onSortChange(option);
@@ -119,19 +122,25 @@ export function PigeTable({
               const rank = idx + 1;
 
               return (
-                <tr key={lead.id} className="hover:bg-gray-50/80 transition-colors">
+                <tr
+                  key={lead.id}
+                  id={`lead-${lead.id}`}
+                  className={`transition-colors ${highlightLeadId === lead.id
+                      ? 'bg-[#FDF2F8] ring-2 ring-inset ring-[#E12B7B]/30'
+                      : 'hover:bg-gray-50/80'
+                    }`}
+                >
                   {/* Rang */}
                   <td className="p-4 text-center font-bold text-gray-500">
                     <span
-                      className={`inline-block px-2 py-0.5 rounded text-[11px] ${
-                        rank === 1
+                      className={`inline-block px-2 py-0.5 rounded text-[11px] ${rank === 1
                           ? 'bg-amber-100 text-amber-900 font-black'
                           : rank === 2
-                          ? 'bg-slate-200 text-slate-800 font-black'
-                          : rank === 3
-                          ? 'bg-amber-50 text-amber-800 font-black'
-                          : 'text-gray-400'
-                      }`}
+                            ? 'bg-slate-200 text-slate-800 font-black'
+                            : rank === 3
+                              ? 'bg-amber-50 text-amber-800 font-black'
+                              : 'text-gray-400'
+                        }`}
                     >
                       #{rank}
                     </span>
@@ -140,7 +149,9 @@ export function PigeTable({
                   {/* Title & City */}
                   <td className="p-4">
                     <span className="font-bold text-gray-900 text-sm block">
-                      {lead.title}
+                      <EntityLink kind="lead" id={lead.id} withIcon title="Voir la fiche du prospect">
+                        {lead.title}
+                      </EntityLink>
                     </span>
                     <span className="text-[11px] text-gray-500">
                       {lead.city} {lead.neighborhood ? `(${lead.neighborhood})` : ''} • {lead.living_area} m² ({lead.rooms_count}p)
@@ -150,7 +161,9 @@ export function PigeTable({
                   {/* Seller */}
                   <td className="p-4">
                     <span className="font-semibold text-gray-800 block">
-                      {lead.seller_name}
+                      <EntityLink kind="contact" id={lead.contact_id} title="Voir la fiche contact">
+                        {lead.seller_name}
+                      </EntityLink>
                     </span>
                     <a
                       href={`tel:${lead.seller_phone}`}
@@ -180,13 +193,12 @@ export function PigeTable({
                   {/* DVF Gap */}
                   <td className="p-4">
                     <span
-                      className={`px-2 py-0.5 rounded-md text-[11px] font-bold inline-block ${
-                        diffPct > 5
+                      className={`px-2 py-0.5 rounded-md text-[11px] font-bold inline-block ${diffPct > 5
                           ? 'bg-red-50 text-red-700 border border-red-200'
                           : diffPct < -5
-                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                          : 'bg-gray-100 text-gray-700'
-                      }`}
+                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                            : 'bg-gray-100 text-gray-700'
+                        }`}
                     >
                       {diffPct > 0 ? `+${diffPct}%` : `${diffPct}%`} vs DVF
                     </span>

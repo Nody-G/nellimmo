@@ -11,3 +11,4 @@ export * from './EmptyState';
 export * from './Toast';
 export * from './DpeBadge';
 export * from './BrandLogo';
+export * from './EntityLink';

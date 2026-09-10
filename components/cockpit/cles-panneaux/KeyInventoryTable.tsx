@@ -15,6 +15,8 @@ interface KeyInventoryTableProps {
   onBorrowKey: (key: AgencyKey) => void;
   onReturnKey: (key: AgencyKey) => void;
   onPrintDischarge: (key: AgencyKey) => void;
+  /** Id de la clé à mettre en évidence (deep-link ?keyId=). */
+  highlightKeyId?: string;
 }
 
 export const KeyInventoryTable: React.FC<KeyInventoryTableProps> = ({
@@ -26,7 +28,8 @@ export const KeyInventoryTable: React.FC<KeyInventoryTableProps> = ({
   onStatusFilterChange,
   onBorrowKey,
   onReturnKey,
-  onPrintDischarge
+  onPrintDischarge,
+  highlightKeyId
 }) => {
   const filteredKeys = keys.filter((k) => {
     const prop = properties.find((p) => p.id === k.property_id);
@@ -57,6 +60,7 @@ export const KeyInventoryTable: React.FC<KeyInventoryTableProps> = ({
               onBorrowKey={onBorrowKey}
               onReturnKey={onReturnKey}
               onPrintDischarge={onPrintDischarge}
+              isHighlighted={highlightKeyId === key.id}
             />
           );
         })}
