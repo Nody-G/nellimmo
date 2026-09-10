@@ -84,6 +84,7 @@ export interface Property {
   publish_figaro?: boolean;
   publish_greenacres?: boolean;
   publish_facebook?: boolean;
+  publish_pap?: boolean;
   url?: string;
 
   // Cadastre & Références Foncières Officielles
@@ -369,6 +370,13 @@ export interface AgencySettings {
   last_sftp_sync_at?: string;
   last_sftp_sync_status?: 'success' | 'error' | 'idle';
 
+  // Passerelles additionnelles (export local-first, sans abonnement tiers)
+  figaro_agency_code?: string;
+  greenacres_agency_code?: string;
+  pap_agency_code?: string;
+  pap_sftp_host?: string;
+  pap_sftp_user?: string;
+
   // Quotas Portails (Multi-diffusion)
   portal_quotas?: PortalQuotaConfig;
 
@@ -634,6 +642,7 @@ export interface PortalQuotaConfig {
   figaro: number;
   greenacres: number;
   facebook: number;
+  pap?: number;
 }
 
 export type SocialChannel = 'instagram' | 'facebook' | 'linkedin' | 'tiktok';

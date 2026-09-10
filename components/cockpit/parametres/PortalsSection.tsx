@@ -61,6 +61,48 @@ export function PortalsSection({ formData, onChange }: PortalsSectionProps) {
                     </span>
                 </div>
             </div>
+
+            <div className="pt-2 border-t border-gray-100">
+                <p className="text-[11px] font-semibold text-gray-500 mb-3">
+                    Passerelles additionnelles — export XML/CSV immédiat, sans abonnement à une
+                    passerelle tierce (Ubiflow, Hektor…). Renseignez le code agence fourni par le
+                    portail pour activer le référencement.
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label className="block text-xs font-bold uppercase text-gray-700 mb-1">Code Agence Figaro Immo</label>
+                        <input
+                            type="text"
+                            value={formData.figaro_agency_code || ''}
+                            onChange={(e) => onChange({ figaro_agency_code: e.target.value })}
+                            placeholder="Ex : FIG-13330"
+                            className={inputClass}
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-xs font-bold uppercase text-gray-700 mb-1">Code Agence Green-Acres</label>
+                        <input
+                            type="text"
+                            value={formData.greenacres_agency_code || ''}
+                            onChange={(e) => onChange({ greenacres_agency_code: e.target.value })}
+                            placeholder="Ex : GA-NELLIMMO"
+                            className={inputClass}
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-xs font-bold uppercase text-gray-700 mb-1">Code Agence PAP</label>
+                        <input
+                            type="text"
+                            value={formData.pap_agency_code || ''}
+                            onChange={(e) => onChange({ pap_agency_code: e.target.value })}
+                            placeholder="Ex : PAP-13330"
+                            className={inputClass}
+                        />
+                    </div>
+                </div>
+            </div>
         </SectionCard>
     );
 }

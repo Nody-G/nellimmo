@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import { generatePolirisAnnoncesCsv, generatePolirisPhotosCfg, generatePolirisConfigTxt } from '@/lib/poliris';
 import { getPolirisFeedToken, isValidFeedToken } from '@/lib/feed-tokens';
 import { resolveFeedData } from '@/lib/feed-data';
+import { buildPolirisZipBuffer } from '@/lib/feed-archive';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -23,39 +23,9 @@ export async function GET(request: Request) {
     );
   }
 
-  const agencyCode = source.settings.seloger_agency_code || 'NEL13';
-  const csv = generatePolirisAnnoncesCsv(source.properties, agencyCode);
-  const photos = generatePolirisPhotosCfg(source.properties);
-  const config = generatePolirisConfigTxt(agencyCode);
+  const zipBuffer = await buildPolirisZipBuffer(source.properties, source.settings);
 
-  // Load archiver dynamically for route handler
-  const archiverModule = await import('archiver');
-  const mod = (archiverModule as unknown as { default?: unknown; ZipArchive?: new (opts?: unknown) => unknown }).default || archiverModule;
-  const ZipArchiveClass = (archiverModule as unknown as { ZipArchive?: new (opts?: unknown) => unknown }).ZipArchive ||
-    (mod as unknown as { ZipArchive?: new (opts?: unknown) => unknown }).ZipArchive;
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const archive: any = ZipArchiveClass
-    ? new ZipArchiveClass({ zlib: { level: 9 } })
-    : typeof mod === 'function'
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ? (mod as any)('zip', { zlib: { level: 9 } })
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      : new (mod as any).ZipArchive({ zlib: { level: 9 } });
-
-  const chunks: Buffer[] = [];
-
-  archive.on('data', (chunk: Buffer) => chunks.push(chunk));
-
-  archive.append(csv, { name: 'annonces.csv' });
-  archive.append(photos, { name: 'photos.cfg' });
-  archive.append(config, { name: 'config.txt' });
-
-  await archive.finalize();
-
-  const zipBuffer = Buffer.concat(chunks);
-
-  return new NextResponse(zipBuffer, {
+  return new NextResponse(new Uint8Array(zipBuffer), {
     headers: {
       'Content-Type': 'application/zip',
       'Content-Disposition': 'attachment; filename="import_nellimo_poliris.zip"',

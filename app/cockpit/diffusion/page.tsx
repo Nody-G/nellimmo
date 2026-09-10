@@ -7,6 +7,7 @@ import {
   generatePolirisPhotosCfg,
   generatePolirisConfigTxt,
 } from '@/lib/poliris';
+import { downloadFeed } from '@/lib/feed-download-client';
 import {
   DiffusionHeader,
   ChannelsStatusGrid,
@@ -21,6 +22,8 @@ export default function DiffusionDashboardPage() {
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncLogs, setSyncLogs] = useState<string[]>([]);
   const [copiedWebhook, setCopiedWebhook] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [downloadError, setDownloadError] = useState<string | null>(null);
 
   const activeProperties = properties.filter((p) => p.status === 'actif' || p.status === 'sous_compromis');
 
@@ -71,6 +74,18 @@ export default function DiffusionDashboardPage() {
     }
   };
 
+  const handleDownloadZip = async () => {
+    setIsDownloading(true);
+    setDownloadError(null);
+
+    const result = await downloadFeed('poliris', activeProperties, settings);
+    if (!result.ok && result.error) {
+      setDownloadError(result.error);
+    }
+
+    setIsDownloading(false);
+  };
+
   const copyWebhook = () => {
     navigator.clipboard.writeText(webhookUrl);
     setCopiedWebhook(true);
@@ -80,7 +95,13 @@ export default function DiffusionDashboardPage() {
   return (
     <div className="space-y-6 animate-fade-in pb-16">
       {/* Header with actions */}
-      <DiffusionHeader onRunSync={handleRunSync} isSyncing={isSyncing} />
+      <DiffusionHeader
+        onRunSync={handleRunSync}
+        isSyncing={isSyncing}
+        onDownloadZip={handleDownloadZip}
+        isDownloading={isDownloading}
+        downloadError={downloadError}
+      />
 
       {/* Syndication Channels Status Grid */}
       <ChannelsStatusGrid activeProperties={activeProperties} settings={settings} />
