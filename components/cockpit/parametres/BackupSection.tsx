@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Shield, Trash2, AlertCircle, FileSpreadsheet, Database } from 'lucide-react';
+import { Shield, Trash2, AlertCircle, FileSpreadsheet } from 'lucide-react';
 import type { AgencySettings } from '@/lib/types';
 import type { ToastType } from '@/components/ui/Toast';
 import { SectionCard } from './SectionCard';
@@ -105,25 +105,6 @@ export function BackupSection({ formData, showToast }: BackupSectionProps) {
             </div>
           </div>
           <span className="text-xs font-black text-purple-600">Ouvrir →</span>
-        </Link>
-
-        {/* Explorateur Base de Données */}
-        <Link
-          href="/cockpit/base-de-donnees"
-          className="p-4 bg-[#FCFAF7] hover:bg-blue-50 border border-[#F3E8EE] hover:border-blue-200 rounded-2xl flex items-center justify-between transition cursor-pointer text-left group"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center shrink-0">
-              <Database className="w-4 h-4" />
-            </div>
-            <div>
-              <span className="font-bold text-xs text-gray-900 group-hover:text-blue-900 block">
-                Explorateur & Télémétrie
-              </span>
-              <span className="text-[11px] text-gray-500">15+ collections & requêtes IA</span>
-            </div>
-          </div>
-          <span className="text-xs font-black text-blue-600">Explorer →</span>
         </Link>
       </div>
 

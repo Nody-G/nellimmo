@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { ShieldCheck, CheckCircle2 } from 'lucide-react';
-import { LegalDates } from '@/components/cockpit/aide/aide-types';
+import { LegalDates } from '../legal-deadlines-types';
 
 interface LegalDeadlinesTimelineProps {
   dates: LegalDates;

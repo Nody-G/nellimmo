@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { Scale, Copy, Check } from 'lucide-react';
-import { computeLegalDates } from '@/components/cockpit/aide/aide-types';
+import { computeLegalDates } from './legal-deadlines-types';
 import { LegalDeadlinesInputs } from './sru/LegalDeadlinesInputs';
 import { LegalDeadlinesTimeline } from './sru/LegalDeadlinesTimeline';
 

@@ -1,9 +1,9 @@
 'use client';
 
 import React from 'react';
-import { Building2, Sparkles, Share2, ShieldCheck, Layers } from 'lucide-react';
+import { Building2, Sparkles, Share2, ShieldCheck, Layers, Activity } from 'lucide-react';
 
-export type SettingsTabId = 'identite' | 'ia' | 'integrations' | 'securite' | 'tous';
+export type SettingsTabId = 'identite' | 'ia' | 'telemetrie' | 'integrations' | 'securite' | 'tous';
 
 interface SettingsCategoryNavProps {
   activeTab: SettingsTabId;
@@ -28,6 +28,11 @@ export function SettingsCategoryNav({
       icon: <Sparkles className="w-4 h-4" />,
       badge: hasAiKey ? 'Actif' : 'Clé requise',
       badgeColor: hasAiKey ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800',
+    },
+    {
+      id: 'telemetrie' as const,
+      label: 'Télémétrie IA',
+      icon: <Activity className="w-4 h-4" />,
     },
     {
       id: 'integrations' as const,
@@ -55,11 +60,10 @@ export function SettingsCategoryNav({
             key={t.id}
             type="button"
             onClick={() => onTabChange(t.id)}
-            className={`px-3.5 py-2 rounded-xl text-xs flex items-center gap-2 transition whitespace-nowrap cursor-pointer ${
-              isActive
-                ? 'bg-[#131B26] text-white font-bold shadow-2xs'
-                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100 font-medium'
-            }`}
+            className={`px-3.5 py-2 rounded-xl text-xs flex items-center gap-2 transition whitespace-nowrap cursor-pointer ${isActive
+              ? 'bg-[#131B26] text-white font-bold shadow-2xs'
+              : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100 font-medium'
+              }`}
           >
             <span className={isActive ? 'text-[#C59A45]' : 'text-gray-400'}>
               {t.icon}

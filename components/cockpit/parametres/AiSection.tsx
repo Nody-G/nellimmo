@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
 import {
   Sparkles,
   ShieldCheck,
@@ -17,13 +16,14 @@ import type { AgencySettings } from '@/lib/types';
 interface AiSectionProps {
   formData: AgencySettings;
   onChange: (patch: Partial<AgencySettings>) => void;
+  onOpenTelemetry?: () => void;
 }
 
 /**
  * Section 4 : Centre Unique de Gestion de la Clé API DeepSeek V4.1 Flash
  * Répercute la clé automatiquement et instantanément sur l'ensemble de l'application.
  */
-export function AiSection({ formData, onChange }: AiSectionProps) {
+export function AiSection({ formData, onChange, onOpenTelemetry }: AiSectionProps) {
   const isPeak = isPeakHour();
   const [serverKeyStatus, setServerKeyStatus] = useState<{ hasKey: boolean; maskedKey: string } | null>(null);
 
@@ -107,13 +107,14 @@ export function AiSection({ formData, onChange }: AiSectionProps) {
             </p>
           </div>
 
-          <Link
-            href="/cockpit/base-de-donnees"
-            className="px-3 py-1.5 bg-[#131B26] hover:bg-gray-800 text-white text-xs font-bold rounded-lg transition flex items-center gap-1 shrink-0 justify-center"
+          <button
+            type="button"
+            onClick={onOpenTelemetry}
+            className="px-3 py-1.5 bg-[#131B26] hover:bg-gray-800 text-white text-xs font-bold rounded-lg transition flex items-center gap-1 shrink-0 justify-center cursor-pointer"
           >
             <span>Ouvrir la Télémétrie</span>
             <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
+          </button>
         </div>
       </div>
     </SectionCard>

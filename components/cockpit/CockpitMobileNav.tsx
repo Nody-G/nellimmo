@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  ShieldCheck,
+  LayoutDashboard,
   FileText,
   Users,
   PenTool,
@@ -15,7 +15,7 @@ export function CockpitMobileNav() {
   const pathname = usePathname();
 
   const navItems = [
-    { href: '/cockpit', label: 'Dashboard', icon: ShieldCheck },
+    { href: '/cockpit', label: 'Accueil', icon: LayoutDashboard },
     { href: '/cockpit/mandats', label: 'Mandats', icon: FileText },
     { href: '/cockpit/mandats/nouveau', label: 'Créer', icon: PlusCircle, highlight: true },
     { href: '/cockpit/acquereurs', label: 'Acquéreurs', icon: Users },

@@ -10,6 +10,7 @@ import { ThemeSettingsSection } from '@/components/cockpit/parametres/ThemeSetti
 import { SocialSection } from '@/components/cockpit/parametres/SocialSection';
 import { GoogleSection } from '@/components/cockpit/parametres/GoogleSection';
 import { AiSection } from '@/components/cockpit/parametres/AiSection';
+import { DeepSeekTelemetryDashboard } from '@/components/cockpit/deepseek/DeepSeekTelemetryDashboard';
 import { PortalsSection } from '@/components/cockpit/parametres/PortalsSection';
 import { BackupSection } from '@/components/cockpit/parametres/BackupSection';
 import { UsersSection } from '@/components/cockpit/parametres/UsersSection';
@@ -54,6 +55,7 @@ export default function AgencySettingsPage() {
 
   const showIdentite = activeTab === 'identite' || activeTab === 'tous';
   const showAi = activeTab === 'ia' || activeTab === 'tous';
+  const showTelemetrie = activeTab === 'telemetrie' || activeTab === 'tous';
   const showIntegrations = activeTab === 'integrations' || activeTab === 'tous';
   const showSecurite = activeTab === 'securite' || activeTab === 'tous';
 
@@ -78,7 +80,17 @@ export default function AgencySettingsPage() {
 
         {showAi && (
           <div className="space-y-6">
-            <AiSection formData={formData} onChange={handleFieldChange} />
+            <AiSection
+              formData={formData}
+              onChange={handleFieldChange}
+              onOpenTelemetry={() => setActiveTab('telemetrie')}
+            />
+          </div>
+        )}
+
+        {showTelemetrie && (
+          <div className="space-y-6">
+            <DeepSeekTelemetryDashboard />
           </div>
         )}
 

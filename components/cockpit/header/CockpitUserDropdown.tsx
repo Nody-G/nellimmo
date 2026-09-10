@@ -121,14 +121,17 @@ export function CockpitUserDropdown({ onOpenSync }: CockpitUserDropdownProps) {
               <span>Voir le Site Public ↗</span>
             </Link>
 
-            <Link
-              href="/cockpit/aide"
-              onClick={() => setIsOpen(false)}
-              className="w-full px-3 py-2 text-left text-gray-700 hover:bg-[#FCFAF7] hover:text-[#E12B7B] rounded-xl flex items-center gap-2.5 transition font-medium"
+            <button
+              type="button"
+              onClick={() => {
+                setIsOpen(false);
+                window.dispatchEvent(new CustomEvent('open-cockpit-help'));
+              }}
+              className="w-full px-3 py-2 text-left text-gray-700 hover:bg-[#FCFAF7] hover:text-[#E12B7B] rounded-xl flex items-center gap-2.5 transition font-medium cursor-pointer"
             >
               <HelpCircle className="w-4 h-4 text-gray-400" />
               <span>Aide & Raccourcis Clavier</span>
-            </Link>
+            </button>
 
             <Link
               href="/cockpit/parametres"

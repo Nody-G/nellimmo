@@ -144,24 +144,6 @@ export function useCopilotContext(): CopilotContextData {
       ];
     }
 
-    // Détection de la page Réseaux Sociaux
-    else if (pathname.includes('/reseaux-sociaux')) {
-      contextTitle = 'Studio Réseaux Sociaux';
-      contextSubtitle = 'Instagram, Facebook & Storytelling';
-      suggestedPrompts = [
-        {
-          label: '📸 Post "Juste Vendu"',
-          action: 'social_post',
-          prompt: 'Rédige un post chaleureux célébrant une nouvelle vente réussie à Pélissanne pour féliciter les acquéreurs et remercier les vendeurs.',
-        },
-        {
-          label: '☀️ Coulisses d’agent en Provence',
-          action: 'social_post',
-          prompt: 'Rédige un post authentique sur le quotidien d’une journée de visites sous le soleil provençal.',
-        },
-      ];
-    }
-
     return {
       pathname,
       contextTitle,
