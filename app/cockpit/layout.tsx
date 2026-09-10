@@ -14,6 +14,7 @@ import { LocalMobileSyncModal } from '@/components/cockpit/sync/LocalMobileSyncM
 import { LocalDataHealthPill } from '@/components/cockpit/LocalDataHealthPill';
 import { CopilotDrawer, CopilotFloatingTrigger } from '@/components/cockpit/copilot';
 import { CockpitUserDropdown } from '@/components/cockpit/header/CockpitUserDropdown';
+import { GoogleStartupModal } from '@/components/cockpit/google/GoogleStartupModal';
 
 export default function CockpitLayout({ children }: { children: React.ReactNode }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -36,6 +37,7 @@ export default function CockpitLayout({ children }: { children: React.ReactNode 
     <NellimoProvider>
       <AuthGate>
         <PwaRegister />
+        <GoogleStartupModal />
         <div className="min-h-screen bg-[#FAF5F8] flex flex-col md:flex-row text-gray-900 font-sans antialiased pb-16 md:pb-0 print:pb-0 print:bg-white">
 
           {/* Desktop Sidebar */}
