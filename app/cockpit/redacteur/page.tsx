@@ -13,6 +13,8 @@ import {
   CopywritingStyle,
 } from '@/components/cockpit/redacteur';
 
+import { MarketingSubNav } from '@/components/cockpit/marketing/MarketingSubNav';
+
 export default function RedacteurPage() {
   const {
     properties,
@@ -61,7 +63,8 @@ export default function RedacteurPage() {
   } = useRedacteurStudio();
 
   return (
-    <div className="space-y-8 animate-fade-in pb-16">
+    <div className="space-y-6 animate-fade-in pb-16">
+      <MarketingSubNav />
       <RedacteurHeader
         showAnglesDrawer={showAnglesDrawer}
         showTitlesDrawer={showTitlesDrawer}

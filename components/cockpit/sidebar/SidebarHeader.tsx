@@ -17,7 +17,7 @@ export const SidebarHeader: React.FC = () => {
               COCKPIT
             </span>
             <span className="text-[10px] uppercase font-bold tracking-widest text-[#C59A45]">
-              Nell&apos;Immo
+              Nell’Immo
             </span>
           </div>
         </Link>

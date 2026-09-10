@@ -5,18 +5,14 @@ import {
   TrendingUp,
   Users,
   PenTool,
-  Printer,
   Radio,
-  Sparkles,
   Settings,
   Landmark,
   Radar,
-  FileCheck2,
-  KeyRound,
   Calendar,
   BellRing,
   BookUser,
-  Database,
+  Calculator,
 } from 'lucide-react';
 
 export interface NavItem {
@@ -36,12 +32,12 @@ export interface NavSection {
 export function getNavSections(pendingRelancesCount: number): NavSection[] {
   return [
     {
-      title: 'Activité',
+      title: 'Mon Quotidien',
       items: [
         { name: 'Tableau de bord', href: '/cockpit', icon: LayoutDashboard },
         { name: 'Planning & Agenda', href: '/cockpit/agenda', icon: Calendar },
         {
-          name: 'Relances',
+          name: 'Relances & Alertes',
           href: '/cockpit/relances',
           icon: BellRing,
           badge: pendingRelancesCount > 0 ? String(pendingRelancesCount) : undefined,
@@ -50,32 +46,28 @@ export function getNavSections(pendingRelancesCount: number): NavSection[] {
       ],
     },
     {
-      title: 'Métier & Ventes',
+      title: 'Mes Affaires',
       items: [
-        { name: 'Mandats', href: '/cockpit/mandats', icon: FileText },
+        { name: 'Mandats & Biens', href: '/cockpit/mandats', icon: FileText },
         { name: 'Acquéreurs', href: '/cockpit/acquereurs', icon: Users },
-        { name: 'Visites', href: '/cockpit/visites', icon: PenTool },
+        { name: 'Bons de Visite', href: '/cockpit/visites', icon: PenTool },
         { name: 'Ventes & Notaire', href: '/cockpit/transactions', icon: Landmark },
       ],
     },
     {
-      title: 'Prospection & Réseau',
+      title: 'Développement',
       items: [
-        { name: 'Pige immobilière', href: '/cockpit/pige', icon: Radar },
-        { name: 'Avis de valeur DVF', href: '/cockpit/avis-de-valeur', icon: TrendingUp },
-        { name: 'Contacts', href: '/cockpit/contacts', icon: BookUser },
-        { name: 'Comptes-rendus', href: '/cockpit/comptes-rendus', icon: FileCheck2 },
+        { name: 'Pige Immobilière', href: '/cockpit/pige', icon: Radar },
+        { name: 'Avis de Valeur DVF', href: '/cockpit/avis-de-valeur', icon: TrendingUp },
+        { name: 'Partenaires & Réseau', href: '/cockpit/contacts', icon: BookUser },
       ],
     },
     {
-      title: 'Studio & Agence',
+      title: 'Outils & Gestion',
       items: [
-        { name: 'Studio Marketing', href: '/cockpit/redacteur', icon: Sparkles },
-        { name: 'Fiches Vitrine', href: '/cockpit/fiches-vitrine', icon: Printer },
-        { name: 'Multidiffusion', href: '/cockpit/diffusion', icon: Radio },
-        { name: 'Clés & Panneaux', href: '/cockpit/cles-panneaux', icon: KeyRound },
-        { name: 'Base de données', href: '/cockpit/base-de-donnees', icon: Database },
-        { name: 'Paramètres', href: '/cockpit/parametres', icon: Settings },
+        { name: 'Marketing & Diffusion', href: '/cockpit/redacteur', icon: Radio },
+        { name: 'Simulateurs & Outils', href: '/cockpit/simulateurs', icon: Calculator },
+        { name: 'Paramètres Agence', href: '/cockpit/parametres', icon: Settings },
       ],
     },
   ];

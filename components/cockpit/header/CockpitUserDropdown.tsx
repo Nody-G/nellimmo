@@ -71,7 +71,7 @@ export function CockpitUserDropdown({ onOpenSync }: CockpitUserDropdownProps) {
               <p className="font-bold text-gray-900 truncate">Nelly Fernandez</p>
               <p className="text-[11px] text-gray-400 truncate flex items-center gap-1">
                 <Shield className="w-3 h-3 text-emerald-500" />
-                Gérante • SASU Nell&apos;Immo
+                Gérante • SASU Nell’Immo
               </p>
             </div>
           </div>
@@ -136,7 +136,7 @@ export function CockpitUserDropdown({ onOpenSync }: CockpitUserDropdownProps) {
               className="w-full px-3 py-2 text-left text-gray-700 hover:bg-[#FCFAF7] hover:text-[#E12B7B] rounded-xl flex items-center gap-2.5 transition font-medium"
             >
               <Settings className="w-4 h-4 text-gray-500" />
-              <span>Paramètres de l&apos;Agence</span>
+              <span>Paramètres de l’Agence</span>
             </Link>
           </div>
 

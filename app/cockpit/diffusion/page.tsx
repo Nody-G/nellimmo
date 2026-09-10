@@ -15,6 +15,7 @@ import {
   PolirisInspector,
   PropertiesDiffusionTable,
 } from '@/components/cockpit/diffusion';
+import { MarketingSubNav } from '@/components/cockpit/marketing/MarketingSubNav';
 
 export default function DiffusionDashboardPage() {
   const { properties, settings, updateSettings } = useNellimoStore();
@@ -78,7 +79,8 @@ export default function DiffusionDashboardPage() {
   };
 
   return (
-    <div className="space-y-8 animate-fade-in pb-16">
+    <div className="space-y-6 animate-fade-in pb-16">
+      <MarketingSubNav />
       {/* Header with actions */}
       <DiffusionHeader onRunSync={handleRunSync} isSyncing={isSyncing} />
 

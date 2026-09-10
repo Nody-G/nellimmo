@@ -17,7 +17,7 @@ export function DiffusionHeader({ onRunSync, isSyncing }: DiffusionHeaderProps) 
           <span>Multidiffusion Portails</span>
         </div>
         <h1 className="text-2xl sm:text-3xl font-serif font-bold text-[#131B26] mt-1">
-          Diffusion SeLoger, LeBonCoin & Bien&apos;ici
+          Diffusion SeLoger, LeBonCoin & Bien’ici
         </h1>
         <p className="text-xs text-gray-500">
           Préparez et exportez vos annonces vers vos portails partenaires (SeLoger, LeBonCoin, Bien’ici).

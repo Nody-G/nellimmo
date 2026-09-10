@@ -76,7 +76,7 @@ export const MandateOverviewTab: React.FC<MandateOverviewTabProps> = ({ property
           <Card className="p-5">
             <h3 className="text-sm font-bold text-[#131B26] mb-3 flex items-center gap-2">
               <FileText className="w-4 h-4 text-[#E12B7B]" />
-              <span>Descriptif de l&apos;Annonce</span>
+              <span>Descriptif de l’Annonce</span>
             </h3>
             <div className="text-xs text-gray-700 whitespace-pre-line leading-relaxed">
               {property.description}

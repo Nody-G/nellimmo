@@ -53,14 +53,14 @@ export function ContactsHeader({
           <div>
             <div className="flex items-center gap-2.5">
               <h1 className="text-2xl font-bold font-serif text-[#131B26]">
-                Carnet de Contacts Pro & Hub Gmail
+                Réseau Pro &amp; Partenaires
               </h1>
               <span className="px-2.5 py-0.5 text-xs font-bold bg-[#FCFAF7] text-[#E12B7B] border border-[#F3E8EE] rounded-full">
                 {totalCount} contacts
               </span>
             </div>
             <p className="text-xs text-gray-500 mt-0.5">
-              Annuaire métier unifié et connecté : notaires, diagnostiqueurs, courtiers, artisans, acquéreurs & vendeurs.
+              Annuaire professionnel : notaires, diagnostiqueurs, courtiers, artisans et confrères partenaires.
             </p>
           </div>
         </div>

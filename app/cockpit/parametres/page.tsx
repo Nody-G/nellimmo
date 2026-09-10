@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useNellimoStore } from '@/lib/store';
 import { useToast } from '@/components/ui/Toast';
 import { SettingsHeader } from '@/components/cockpit/parametres/SettingsHeader';
+import { SettingsCategoryNav, SettingsTabId } from '@/components/cockpit/parametres/SettingsCategoryNav';
 import { IdentitySection } from '@/components/cockpit/parametres/IdentitySection';
 import { ThemeSettingsSection } from '@/components/cockpit/parametres/ThemeSettingsSection';
 import { SocialSection } from '@/components/cockpit/parametres/SocialSection';
@@ -23,6 +24,7 @@ export default function AgencySettingsPage() {
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [copiedLink, setCopiedLink] = useState<string | null>(null);
   const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<SettingsTabId>('identite');
 
   const handleFieldChange = (patch: Partial<AgencySettings>) => {
     setFormData((prev) => ({ ...prev, ...patch }));
@@ -50,24 +52,55 @@ export default function AgencySettingsPage() {
     }, 600);
   };
 
+  const showIdentite = activeTab === 'identite' || activeTab === 'tous';
+  const showAi = activeTab === 'ia' || activeTab === 'tous';
+  const showIntegrations = activeTab === 'integrations' || activeTab === 'tous';
+  const showSecurite = activeTab === 'securite' || activeTab === 'tous';
+
   return (
-    <div className="max-w-5xl mx-auto space-y-8 animate-fade-in pb-20">
+    <div className="max-w-5xl mx-auto space-y-6 animate-fade-in pb-20">
       <SettingsHeader onReset={() => setIsResetConfirmOpen(true)} />
 
-      <form onSubmit={handleSubmit} className="space-y-8">
-        <IdentitySection formData={formData} onChange={handleFieldChange} />
-        <ThemeSettingsSection />
-        <SocialSection formData={formData} onChange={handleFieldChange} />
-        <GoogleSection
-          formData={formData}
-          onChange={handleFieldChange}
-          copiedLink={copiedLink}
-          onCopy={handleCopy}
-        />
-        <AiSection formData={formData} onChange={handleFieldChange} />
-        <PortalsSection formData={formData} onChange={handleFieldChange} />
-        <BackupSection formData={formData} showToast={showToast} />
-        <UsersSection showToast={showToast} />
+      <SettingsCategoryNav
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        hasAiKey={Boolean(formData.deepseek_api_key)}
+      />
+
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {showIdentite && (
+          <div className="space-y-6">
+            <IdentitySection formData={formData} onChange={handleFieldChange} />
+            <ThemeSettingsSection />
+            <UsersSection showToast={showToast} />
+          </div>
+        )}
+
+        {showAi && (
+          <div className="space-y-6">
+            <AiSection formData={formData} onChange={handleFieldChange} />
+          </div>
+        )}
+
+        {showIntegrations && (
+          <div className="space-y-6">
+            <PortalsSection formData={formData} onChange={handleFieldChange} />
+            <GoogleSection
+              formData={formData}
+              onChange={handleFieldChange}
+              copiedLink={copiedLink}
+              onCopy={handleCopy}
+            />
+            <SocialSection formData={formData} onChange={handleFieldChange} />
+          </div>
+        )}
+
+        {showSecurite && (
+          <div className="space-y-6">
+            <BackupSection formData={formData} showToast={showToast} />
+          </div>
+        )}
+
         <SettingsActionBar savedSuccess={savedSuccess} />
       </form>
 

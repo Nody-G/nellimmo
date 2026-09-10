@@ -33,84 +33,84 @@ export function QuickCockpitActionsBar() {
         <button
           type="button"
           onClick={() => setVoiceOpen(true)}
-          className="p-2.5 rounded-xl bg-[#FAF5F8] hover:bg-[#F3E8EE] border border-[#F3E8EE] text-gray-800 flex items-center gap-2.5 transition text-left group cursor-pointer"
+          className="p-2.5 rounded-xl bg-white hover:bg-gray-50 border border-gray-200/80 text-gray-800 flex items-center gap-2.5 transition text-left group cursor-pointer shadow-2xs"
         >
-          <div className="w-7 h-7 rounded-lg bg-rose-100 text-[#E12B7B] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+          <div className="w-7 h-7 rounded-lg bg-rose-50 text-[#E12B7B] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
             <Mic className="w-3.5 h-3.5" />
           </div>
           <div className="truncate">
-            <span className="block text-xs font-bold leading-tight truncate">Débrief Vocal</span>
-            <span className="text-[9px] text-gray-500 font-medium">WhatsApp vendeur</span>
+            <span className="block text-xs font-semibold leading-tight truncate text-gray-900">Débrief Vocal</span>
+            <span className="text-[10px] text-gray-400 font-normal">WhatsApp vendeur</span>
           </div>
         </button>
 
         <button
           type="button"
           onClick={() => setVisitSignOpen(true)}
-          className="p-2.5 rounded-xl bg-purple-50/50 hover:bg-purple-100/60 border border-purple-100 text-gray-800 flex items-center gap-2.5 transition text-left group cursor-pointer"
+          className="p-2.5 rounded-xl bg-white hover:bg-gray-50 border border-gray-200/80 text-gray-800 flex items-center gap-2.5 transition text-left group cursor-pointer shadow-2xs"
         >
-          <div className="w-7 h-7 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+          <div className="w-7 h-7 rounded-lg bg-gray-100 text-gray-700 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
             <Smartphone className="w-3.5 h-3.5" />
           </div>
           <div className="truncate">
-            <span className="block text-xs font-bold leading-tight truncate">Bon Tactile</span>
-            <span className="text-[9px] text-gray-500 font-medium">Signer au doigt</span>
+            <span className="block text-xs font-semibold leading-tight truncate text-gray-900">Bon Tactile</span>
+            <span className="text-[10px] text-gray-400 font-normal">Signer au doigt</span>
           </div>
         </button>
 
         <button
           type="button"
           onClick={() => setLeadParserOpen(true)}
-          className="p-2.5 rounded-xl bg-blue-50/50 hover:bg-blue-100/60 border border-blue-100 text-gray-800 flex items-center gap-2.5 transition text-left group cursor-pointer"
+          className="p-2.5 rounded-xl bg-white hover:bg-gray-50 border border-gray-200/80 text-gray-800 flex items-center gap-2.5 transition text-left group cursor-pointer shadow-2xs"
         >
-          <div className="w-7 h-7 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+          <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
             <Sparkles className="w-3.5 h-3.5" />
           </div>
           <div className="truncate">
-            <span className="block text-xs font-bold leading-tight truncate">Coller un Lead</span>
-            <span className="text-[9px] text-gray-500 font-medium">Portail ou SMS</span>
+            <span className="block text-xs font-semibold leading-tight truncate text-gray-900">Coller un Lead</span>
+            <span className="text-[10px] text-gray-400 font-normal">Portail ou SMS</span>
           </div>
         </button>
 
         <button
           type="button"
           onClick={() => setLaunchPackOpen(true)}
-          className="p-2.5 rounded-xl bg-amber-50/50 hover:bg-amber-100/60 border border-amber-100 text-gray-800 flex items-center gap-2.5 transition text-left group cursor-pointer"
+          className="p-2.5 rounded-xl bg-white hover:bg-gray-50 border border-gray-200/80 text-gray-800 flex items-center gap-2.5 transition text-left group cursor-pointer shadow-2xs"
         >
-          <div className="w-7 h-7 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+          <div className="w-7 h-7 rounded-lg bg-amber-50 text-[#C59A45] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
             <Megaphone className="w-3.5 h-3.5" />
           </div>
           <div className="truncate">
-            <span className="block text-xs font-bold leading-tight truncate">Pack Lancement</span>
-            <span className="text-[9px] text-gray-500 font-medium">ALUR & Réseaux</span>
+            <span className="block text-xs font-semibold leading-tight truncate text-gray-900">Pack Lancement</span>
+            <span className="text-[10px] text-gray-400 font-normal">ALUR & Réseaux</span>
           </div>
         </button>
 
         <button
           type="button"
           onClick={() => setPigeScannerOpen(true)}
-          className="p-2.5 rounded-xl bg-emerald-50/50 hover:bg-emerald-100/60 border border-emerald-100 text-gray-800 flex items-center gap-2.5 transition text-left group cursor-pointer"
+          className="p-2.5 rounded-xl bg-white hover:bg-gray-50 border border-gray-200/80 text-gray-800 flex items-center gap-2.5 transition text-left group cursor-pointer shadow-2xs"
         >
-          <div className="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+          <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
             <ScanText className="w-3.5 h-3.5" />
           </div>
           <div className="truncate">
-            <span className="block text-xs font-bold leading-tight truncate">Scanner Pige</span>
-            <span className="text-[9px] text-gray-500 font-medium">DVF & Appel 30s</span>
+            <span className="block text-xs font-semibold leading-tight truncate text-gray-900">Scanner Pige</span>
+            <span className="text-[10px] text-gray-400 font-normal">DVF & Appel 30s</span>
           </div>
         </button>
 
         <button
           type="button"
           onClick={() => setCallModalOpen(true)}
-          className="p-2.5 rounded-xl bg-gray-50 hover:bg-gray-100 border border-gray-200/80 text-gray-800 flex items-center gap-2.5 transition text-left group cursor-pointer"
+          className="p-2.5 rounded-xl bg-white hover:bg-gray-50 border border-gray-200/80 text-gray-800 flex items-center gap-2.5 transition text-left group cursor-pointer shadow-2xs"
         >
-          <div className="w-7 h-7 rounded-lg bg-gray-200/80 text-gray-700 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+          <div className="w-7 h-7 rounded-lg bg-gray-100 text-gray-700 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
             <PhoneCall className="w-3.5 h-3.5" />
           </div>
           <div className="truncate">
-            <span className="block text-xs font-bold leading-tight truncate">Noter Appel</span>
-            <span className="text-[9px] text-gray-500 font-medium">Fiche contact</span>
+            <span className="block text-xs font-semibold leading-tight truncate text-gray-900">Noter Appel</span>
+            <span className="text-[10px] text-gray-400 font-normal">Fiche contact</span>
           </div>
         </button>
       </div>

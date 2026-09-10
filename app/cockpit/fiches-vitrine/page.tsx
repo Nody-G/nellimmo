@@ -11,6 +11,7 @@ import {
   SocialCaptionStudio,
   useFlyerCustomizerState,
 } from '@/components/cockpit/fiches-vitrine';
+import { MarketingSubNav } from '@/components/cockpit/marketing/MarketingSubNav';
 
 function WindowFlyersContent() {
   const {
@@ -60,7 +61,8 @@ function WindowFlyersContent() {
   };
 
   return (
-    <div className="space-y-8 animate-fade-in pb-20">
+    <div className="space-y-6 animate-fade-in pb-20">
+      <MarketingSubNav />
       <VitrinePrintStyles flyerFormat={flyerFormat} />
 
       <VitrineHeader
