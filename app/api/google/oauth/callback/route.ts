@@ -2,17 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import {
     exchangeCodeForTokens,
     fetchUserInfo,
+    decodeState,
     GoogleOAuthError,
 } from '@/lib/google/oauth-client';
 import {
     getRequestTokenStore,
     resolveOwnerId,
     setTokenCookie,
-    clearOAuthFlowCookies,
-    PKCE_COOKIE,
-    STATE_COOKIE,
-    SCOPES_COOKIE,
-    RETURN_COOKIE,
 } from '@/lib/google/server-helpers';
 import { isPersistentTokenStoreAvailable, type GoogleTokenRecord } from '@/lib/google/token-store';
 
@@ -20,10 +16,15 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 /**
- * Callback OAuth : vérifie le `state`, échange le `code` contre des jetons,
- * récupère le profil (`userinfo`) et persiste le jeton.
+ * Callback OAuth : vérifie le `state` **autonome** (chiffré + signé), échange
+ * le `code` contre des jetons, récupère le profil (`userinfo`) et persiste le
+ * jeton.
  *
- * Redirige ensuite vers le cockpit avec un indicateur de succès ou d'erreur.
+ * Le `state` embarque le `code_verifier` PKCE, les scopes et la page de retour :
+ * aucune dépendance à un cookie devant survivre à la redirection cross-site de
+ * Google (cause fréquente d'échec `invalid_state` en production).
+ *
+ * Redirige ensuite vers la page d'origine avec un indicateur de succès/erreur.
  */
 export async function GET(req: NextRequest) {
     const params = req.nextUrl.searchParams;
@@ -32,37 +33,37 @@ export async function GET(req: NextRequest) {
     const state = params.get('state');
     const debug = params.get('debug') === '1';
 
-    // Page de retour : celle qui a initié le flux (cookie), sinon Paramètres.
-    const returnTo = req.cookies.get(RETURN_COOKIE)?.value || '/cockpit/parametres';
-    const settingsUrl = new URL(returnTo, req.nextUrl.origin);
-
     if (error) {
-        settingsUrl.searchParams.set('google', 'denied');
-        return NextResponse.redirect(settingsUrl);
+        const deniedUrl = new URL('/cockpit/parametres', req.nextUrl.origin);
+        deniedUrl.searchParams.set('google', 'denied');
+        return NextResponse.redirect(deniedUrl);
     }
 
-    const expectedState = req.cookies.get(STATE_COOKIE)?.value;
-    const verifier = req.cookies.get(PKCE_COOKIE)?.value;
-    const requestedScopes = req.cookies.get(SCOPES_COOKIE)?.value || '';
+    const payload = state ? decodeState(state) : null;
 
-    if (!code || !state || !expectedState || state !== expectedState || !verifier) {
+    if (!code || !payload) {
         if (debug) {
             return NextResponse.json({
                 step: 'state_check',
                 ok: false,
                 hasCode: Boolean(code),
                 hasState: Boolean(state),
-                hasExpectedState: Boolean(expectedState),
-                stateMatches: state === expectedState,
-                hasVerifier: Boolean(verifier),
-                cookiesSeen: req.cookies.getAll().map((c) => c.name),
+                stateDecoded: Boolean(payload),
+                reason: !state
+                    ? 'state_absent'
+                    : !payload
+                        ? 'state_invalide_ou_expire'
+                        : 'code_absent',
             });
         }
-        settingsUrl.searchParams.set('google', 'invalid_state');
-        const res = NextResponse.redirect(settingsUrl);
-        clearOAuthFlowCookies(res);
-        return res;
+        const invalidUrl = new URL('/cockpit/parametres', req.nextUrl.origin);
+        invalidUrl.searchParams.set('google', 'invalid_state');
+        return NextResponse.redirect(invalidUrl);
     }
+
+    const verifier = payload.verifier;
+    const requestedScopes = payload.scopes;
+    const settingsUrl = new URL(payload.returnTo || '/cockpit/parametres', req.nextUrl.origin);
 
     try {
         const tokens = await exchangeCodeForTokens({ code, codeVerifier: verifier });
@@ -105,7 +106,6 @@ export async function GET(req: NextRequest) {
         settingsUrl.searchParams.set('email', profile.email);
 
         const res = NextResponse.redirect(settingsUrl);
-        clearOAuthFlowCookies(res);
 
         // Mode local (Supabase non configuré) : on pose le cookie chiffré.
         if (!persistent) {
@@ -124,8 +124,6 @@ export async function GET(req: NextRequest) {
         }
         settingsUrl.searchParams.set('google', 'error');
         settingsUrl.searchParams.set('message', message.slice(0, 160));
-        const res = NextResponse.redirect(settingsUrl);
-        clearOAuthFlowCookies(res);
-        return res;
+        return NextResponse.redirect(settingsUrl);
     }
 }

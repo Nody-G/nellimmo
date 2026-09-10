@@ -11,7 +11,14 @@
  * Aucune dépendance externe : appels `fetch` directs vers les endpoints Google.
  */
 
-import { createHash, randomBytes, createHmac, timingSafeEqual } from 'node:crypto';
+import {
+    createHash,
+    randomBytes,
+    createHmac,
+    timingSafeEqual,
+    createCipheriv,
+    createDecipheriv,
+} from 'node:crypto';
 import { IDENTITY_SCOPES } from './scopes';
 
 const GOOGLE_AUTH_ENDPOINT = 'https://accounts.google.com/o/oauth2/v2/auth';
@@ -104,6 +111,99 @@ export function generatePkcePair(): PkcePair {
 /** Génère un `state` aléatoire anti-CSRF. */
 export function generateState(): string {
     return randomBytes(24).toString('base64url');
+}
+
+/** Données embarquées dans le `state` OAuth (flux sans cookie). */
+export interface OAuthStatePayload {
+    /** Nonce aléatoire anti-CSRF. */
+    nonce: string;
+    /** `code_verifier` PKCE. */
+    verifier: string;
+    /** Scopes demandés (séparés par des espaces). */
+    scopes: string;
+    /** Page de retour après le callback. */
+    returnTo: string;
+    /** Horodatage d'émission (epoch ms) pour expiration. */
+    issuedAt: number;
+}
+
+/** Durée de validité du `state` (10 minutes). */
+const STATE_TTL_MS = 10 * 60 * 1000;
+
+/**
+ * Encode un `state` OAuth **autonome** : les données (verifier PKCE, scopes,
+ * page de retour) sont chiffrées puis signées, et voyagent dans le paramètre
+ * `state` lui-même.
+ *
+ * Avantage : le flux ne dépend plus de cookies devant survivre à la
+ * redirection cross-site de Google — cause fréquente d'échec `invalid_state`
+ * en production (Vercel, SameSite, domaines multiples).
+ *
+ * Format : `base64url(iv:authTag:ciphertext).base64url(hmac)`.
+ */
+export function encodeState(payload: OAuthStatePayload): string {
+    const secret = process.env.GOOGLE_OAUTH_STATE_SECRET;
+    if (!secret) {
+        throw new GoogleOAuthError(
+            'GOOGLE_OAUTH_STATE_SECRET manquant. Définissez-le dans .env.local.'
+        );
+    }
+    const json = JSON.stringify(payload);
+    const iv = randomBytes(12);
+    const cipher = createCipheriv('aes-256-gcm', deriveStateKey(secret), iv);
+    const encrypted = Buffer.concat([cipher.update(json, 'utf8'), cipher.final()]);
+    const authTag = cipher.getAuthTag();
+    const blob = `${iv.toString('base64')}:${authTag.toString('base64')}:${encrypted.toString('base64')}`;
+    const encoded = Buffer.from(blob, 'utf8').toString('base64url');
+    const signature = createHmac('sha256', secret).update(encoded).digest('base64url');
+    return `${encoded}.${signature}`;
+}
+
+/**
+ * Décode et vérifie un `state` produit par {@link encodeState}.
+ * @returns Le payload, ou `null` si la signature est invalide ou le `state` expiré.
+ */
+export function decodeState(state: string): OAuthStatePayload | null {
+    const secret = process.env.GOOGLE_OAUTH_STATE_SECRET;
+    if (!secret) return null;
+
+    const parts = state.split('.');
+    if (parts.length !== 2) return null;
+    const [encoded, signature] = parts;
+
+    try {
+        const expected = createHmac('sha256', secret).update(encoded).digest('base64url');
+        const a = Buffer.from(expected);
+        const b = Buffer.from(signature);
+        if (a.length !== b.length || !timingSafeEqual(a, b)) return null;
+
+        const blob = Buffer.from(encoded, 'base64url').toString('utf8');
+        const [ivB64, tagB64, dataB64] = blob.split(':');
+        if (!ivB64 || !tagB64 || !dataB64) return null;
+
+        const decipher = createDecipheriv(
+            'aes-256-gcm',
+            deriveStateKey(secret),
+            Buffer.from(ivB64, 'base64')
+        );
+        decipher.setAuthTag(Buffer.from(tagB64, 'base64'));
+        const json = Buffer.concat([
+            decipher.update(Buffer.from(dataB64, 'base64')),
+            decipher.final(),
+        ]).toString('utf8');
+
+        const payload = JSON.parse(json) as OAuthStatePayload;
+        if (!payload.nonce || !payload.verifier) return null;
+        if (Date.now() - payload.issuedAt > STATE_TTL_MS) return null;
+        return payload;
+    } catch {
+        return null;
+    }
+}
+
+/** Dérive une clé AES-256 déterministe depuis le secret d'état. */
+function deriveStateKey(secret: string): Buffer {
+    return createHash('sha256').update(secret, 'utf8').digest();
 }
 
 /**

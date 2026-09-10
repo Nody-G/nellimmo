@@ -3,10 +3,10 @@ import {
     buildAuthorizationUrl,
     generatePkcePair,
     generateState,
+    encodeState,
     isOAuthConfigured,
 } from '@/lib/google/oauth-client';
 import { buildScopesForServices, defaultServiceSelection, type GoogleServiceKey } from '@/lib/google/scopes';
-import { setOAuthFlowCookies } from '@/lib/google/server-helpers';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -48,7 +48,17 @@ export async function GET(req: NextRequest) {
 
     const scopes = buildScopesForServices(selection);
     const { verifier, challenge } = generatePkcePair();
-    const state = generateState();
+
+    // `state` autonome : verifier PKCE + scopes + page de retour sont chiffrés
+    // et signés dans le paramètre lui-même. Aucune dépendance à un cookie
+    // devant survivre à la redirection cross-site de Google.
+    const state = encodeState({
+        nonce: generateState(),
+        verifier,
+        scopes: scopes.join(' '),
+        returnTo,
+        issuedAt: Date.now(),
+    });
 
     const authUrl = buildAuthorizationUrl({
         scopes,
@@ -57,7 +67,5 @@ export async function GET(req: NextRequest) {
         loginHint,
     });
 
-    const res = NextResponse.redirect(authUrl);
-    setOAuthFlowCookies(res, { verifier, state, scopes, returnTo });
-    return res;
+    return NextResponse.redirect(authUrl);
 }
