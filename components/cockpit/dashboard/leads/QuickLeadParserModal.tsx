@@ -47,7 +47,7 @@ function parseRawLeadText(raw: string) {
 }
 
 export function QuickLeadParserModal({ isOpen, onClose }: QuickLeadParserModalProps) {
-  const { addContactLead } = useNellimoStore();
+  const { addContactLead, properties } = useNellimoStore();
   const { showToast } = useToast();
 
   const [rawText, setRawText] = useState('');
@@ -108,122 +108,134 @@ export function QuickLeadParserModal({ isOpen, onClose }: QuickLeadParserModalPr
           onClick={(e) => e.stopPropagation()}
           className="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl border border-gray-100 max-h-[92vh] overflow-y-auto space-y-4"
         >
-        <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center">
-              <Sparkles className="w-5 h-5" />
+          <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center">
+                <Sparkles className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-serif font-bold text-gray-900 text-sm">
+                  Coller un Lead Portail (SeLoger / LeBonCoin / SMS)
+                </h3>
+                <p className="text-[11px] text-gray-500">
+                  Collez le texte brut du mail ou du SMS reçu : l&apos;IA extrait automatiquement les coordonnées
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="font-serif font-bold text-gray-900 text-sm">
-                Coller un Lead Portail (SeLoger / LeBonCoin / SMS)
-              </h3>
-              <p className="text-[11px] text-gray-500">
-                Collez le texte brut du mail ou du SMS reçu : l&apos;IA extrait automatiquement les coordonnées
-              </p>
-            </div>
+            <button type="button" onClick={onClose} className="p-1 text-gray-400 hover:text-gray-700">
+              <X className="w-4 h-4" />
+            </button>
           </div>
-          <button type="button" onClick={onClose} className="p-1 text-gray-400 hover:text-gray-700">
-            <X className="w-4 h-4" />
-          </button>
-        </div>
 
-        <div>
-          <label className="text-xs font-bold text-gray-700 block mb-1">
-            Collez le contenu brut du message ici :
-          </label>
-          <textarea
-            rows={4}
-            placeholder="Exemple : Vous avez reçu un message de M. Thomas Martin (06 12 34 56 78 - tmartin@email.com) concernant l'annonce Réf NEL-102 sur SeLoger : Bonjour, nous aimerions visiter cette maison à Pélissanne ce samedi..."
-            value={rawText}
-            onChange={(e) => setRawText(e.target.value)}
-            className="w-full text-xs p-3 rounded-xl border border-gray-200 focus:border-purple-600 focus:ring-1 focus:ring-purple-600 font-sans"
-          />
-          <button
-            type="button"
-            onClick={handleAnalyze}
-            disabled={!rawText.trim()}
-            className="mt-2 w-full py-2 rounded-xl bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white font-bold text-xs flex items-center justify-center gap-2 transition cursor-pointer"
-          >
-            <Sparkles className="w-4 h-4" />
-            Extraire & Analyser Automatiquement
-          </button>
-        </div>
+          <div>
+            <label className="text-xs font-bold text-gray-700 block mb-1">
+              Collez le contenu brut du message ici :
+            </label>
+            <textarea
+              rows={4}
+              placeholder="Exemple : Vous avez reçu un message de M. Thomas Martin (06 12 34 56 78 - tmartin@email.com) concernant l'annonce Réf NEL-102 sur SeLoger : Bonjour, nous aimerions visiter cette maison à Pélissanne ce samedi..."
+              value={rawText}
+              onChange={(e) => setRawText(e.target.value)}
+              className="w-full text-xs p-3 rounded-xl border border-gray-200 focus:border-purple-600 focus:ring-1 focus:ring-purple-600 font-sans"
+            />
+            <button
+              type="button"
+              onClick={handleAnalyze}
+              disabled={!rawText.trim()}
+              className="mt-2 w-full py-2 rounded-xl bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white font-bold text-xs flex items-center justify-center gap-2 transition cursor-pointer"
+            >
+              <Sparkles className="w-4 h-4" />
+              Extraire & Analyser Automatiquement
+            </button>
+          </div>
 
-        {parsed && (
-          <div className="p-4 bg-purple-50/60 rounded-2xl border border-purple-200/80 space-y-3">
-            <span className="text-xs font-bold uppercase text-purple-900 tracking-wider flex items-center gap-1.5">
-              <MailCheck className="w-4 h-4 text-purple-600" />
-              Données Détectées ({parsed.source})
-            </span>
+          {parsed && (
+            <div className="p-4 bg-purple-50/60 rounded-2xl border border-purple-200/80 space-y-3">
+              <span className="text-xs font-bold uppercase text-purple-900 tracking-wider flex items-center gap-1.5">
+                <MailCheck className="w-4 h-4 text-purple-600" />
+                Données Détectées ({parsed.source})
+              </span>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-              <div>
-                <span className="text-gray-500 text-[10px] block">Nom :</span>
-                <input
-                  type="text"
-                  value={parsed.name}
-                  onChange={(e) => setParsed({ ...parsed, name: e.target.value })}
-                  className="w-full font-bold p-1.5 bg-white border border-purple-200 rounded-lg text-gray-900"
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                <div>
+                  <span className="text-gray-500 text-[10px] block">Nom :</span>
+                  <input
+                    type="text"
+                    value={parsed.name}
+                    onChange={(e) => setParsed({ ...parsed, name: e.target.value })}
+                    className="w-full font-bold p-1.5 bg-white border border-purple-200 rounded-lg text-gray-900"
+                  />
+                </div>
+                <div>
+                  <span className="text-gray-500 text-[10px] block">Téléphone :</span>
+                  <input
+                    type="text"
+                    value={parsed.phone}
+                    onChange={(e) => setParsed({ ...parsed, phone: e.target.value })}
+                    className="w-full font-bold p-1.5 bg-white border border-purple-200 rounded-lg text-gray-900"
+                  />
+                </div>
+                <div>
+                  <span className="text-gray-500 text-[10px] block">Email :</span>
+                  <input
+                    type="email"
+                    value={parsed.email}
+                    onChange={(e) => setParsed({ ...parsed, email: e.target.value })}
+                    className="w-full p-1.5 bg-white border border-purple-200 rounded-lg text-gray-900"
+                  />
+                </div>
+                <div>
+                  <span className="text-gray-500 text-[10px] block">Référence Bien :</span>
+                  <select
+                    value={parsed.reference}
+                    onChange={(e) => setParsed({ ...parsed, reference: e.target.value })}
+                    className="w-full p-1.5 bg-white border border-purple-200 rounded-lg text-gray-900 cursor-pointer"
+                  >
+                    <option value="">— Aucune / non détectée —</option>
+                    {parsed.reference &&
+                      !properties.some((p) => String(p.mandate_number) === parsed.reference) && (
+                        <option value={parsed.reference}>
+                          {parsed.reference} (détectée par l'IA)
+                        </option>
+                      )}
+                    {properties.map((property) => (
+                      <option key={property.id} value={String(property.mandate_number)}>
+                        N°{property.mandate_number} — {property.title} ({property.city})
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
-              <div>
-                <span className="text-gray-500 text-[10px] block">Téléphone :</span>
-                <input
-                  type="text"
-                  value={parsed.phone}
-                  onChange={(e) => setParsed({ ...parsed, phone: e.target.value })}
-                  className="w-full font-bold p-1.5 bg-white border border-purple-200 rounded-lg text-gray-900"
-                />
-              </div>
-              <div>
-                <span className="text-gray-500 text-[10px] block">Email :</span>
-                <input
-                  type="email"
-                  value={parsed.email}
-                  onChange={(e) => setParsed({ ...parsed, email: e.target.value })}
-                  className="w-full p-1.5 bg-white border border-purple-200 rounded-lg text-gray-900"
-                />
-              </div>
-              <div>
-                <span className="text-gray-500 text-[10px] block">Référence Bien :</span>
-                <input
-                  type="text"
-                  value={parsed.reference}
-                  onChange={(e) => setParsed({ ...parsed, reference: e.target.value })}
-                  className="w-full p-1.5 bg-white border border-purple-200 rounded-lg text-gray-900"
-                />
-              </div>
-            </div>
 
-            <div className="flex items-center gap-2 pt-1">
-              <button
-                type="button"
-                onClick={handleSave}
-                disabled={isSubmitting}
-                className="flex-1 py-2.5 rounded-xl bg-[#131B26] hover:bg-gray-800 text-white font-bold text-xs flex items-center justify-center gap-2 transition"
-              >
-                <ArrowRight className="w-4 h-4 text-[#C59A45]" />
-                {isSubmitting ? 'Enregistrement...' : 'Enregistrer dans la boîte de réception'}
-              </button>
-              {parsed.phone && (
-                <a
-                  href={`https://wa.me/${parsed.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
-                    `Bonjour ${parsed.name}, Nelly Fernandez de l'agence Nell'Immo à Pélissanne. J'ai bien reçu votre demande concernant notre bien ${parsed.reference ? `(Réf: ${parsed.reference})` : ''}. Quand seriez-vous disponible pour que nous en discutions ? Bien à vous.`
-                  )}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-1 text-xs font-bold transition"
-                  title="Ouvrir WhatsApp"
+              <div className="flex items-center gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={handleSave}
+                  disabled={isSubmitting}
+                  className="flex-1 py-2.5 rounded-xl bg-[#131B26] hover:bg-gray-800 text-white font-bold text-xs flex items-center justify-center gap-2 transition"
                 >
-                  <Send className="w-4 h-4" />
-                  WhatsApp
-                </a>
-              )}
+                  <ArrowRight className="w-4 h-4 text-[#C59A45]" />
+                  {isSubmitting ? 'Enregistrement...' : 'Enregistrer dans la boîte de réception'}
+                </button>
+                {parsed.phone && (
+                  <a
+                    href={`https://wa.me/${parsed.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(
+                      `Bonjour ${parsed.name}, Nelly Fernandez de l'agence Nell'Immo à Pélissanne. J'ai bien reçu votre demande concernant notre bien ${parsed.reference ? `(Réf: ${parsed.reference})` : ''}. Quand seriez-vous disponible pour que nous en discutions ? Bien à vous.`
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-1 text-xs font-bold transition"
+                    title="Ouvrir WhatsApp"
+                  >
+                    <Send className="w-4 h-4" />
+                    WhatsApp
+                  </a>
+                )}
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
-    </div>
-  </Portal>
-);
+    </Portal>
+  );
 }
