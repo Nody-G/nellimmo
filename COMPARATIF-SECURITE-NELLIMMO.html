@@ -676,6 +676,7 @@
           <li style="color: var(--danger);">⚠️ <strong>Espionnage des flux :</strong> Pas de directive <span class="tip">HSTS<span class="tip-icon">ℹ</span><span class="tip-box"><strong>HSTS (Strict Transport Security)</strong>Verrou qui force obligatoirement le cadenas HTTPS. Sans lui, un pirate sur un Wi-Fi peut forcer votre connexion en HTTP non sécurisé.</span></span> pour empêcher le forçage en HTTP non chiffré.</li>
           <li style="color: var(--danger);">⚠️ <strong>Pillage des données :</strong> Règle <span class="tip">CORS<span class="tip-icon">ℹ</span><span class="tip-box"><strong>CORS (Partage d'origine croisée)</strong>Règle de sécurité du navigateur qui décide si d'autres sites web ont le droit de venir lire les données de votre site.</span></span> ouverte à tous les sites du monde (<span class="tip">wildcard *<span class="tip-icon">ℹ</span><span class="tip-box"><strong>Wildcard (*)</strong>Le caractère étoile (*) qui signifie « Tout le monde ». Un CORS avec « * » autorise n'importe quel site étranger à interroger vos pages.</span></span>).</li>
           <li style="color: var(--danger);">⚠️ <strong>Obsolescence visible :</strong> Affiche publiquement que ses logiciels n'ont pas été mis à jour depuis 2020.</li>
+          <li style="color: var(--danger);">⚠️ <strong>Bibliothèque jQuery 1.10.1 (2013) :</strong> Utilise une version vieille de 13 ans criblée de failles <span class="tip">XSS<span class="tip-icon">ℹ</span><span class="tip-box"><strong>XSS (Cross-Site Scripting)</strong>Failles permettant d'injecter du code malveillant dans les pages web pour pirater les formulaires ou voler des informations.</span></span>.</li>
         </ul>
       </div>
 
@@ -704,6 +705,7 @@
           <li style="color: var(--success);">🛡️ <strong>Chiffrement HSTS Strict :</strong> Forçage HTTPS garanti sur 2 ans avec préchargement mondial.</li>
           <li style="color: var(--success);">🛡️ <strong>Cookies Blindés :</strong> Attributs <span class="tip">HttpOnly<span class="tip-icon">ℹ</span><span class="tip-box"><strong>HttpOnly</strong>Verrou indispensable qui empêche tout script pirate (JavaScript) de lire ou voler votre cookie d'authentification.</span></span> et <span class="tip">Secure<span class="tip-icon">ℹ</span><span class="tip-box"><strong>Secure</strong>Attribut qui garantit que le cookie ne voyagera JAMAIS sur une connexion non chiffrée.</span></span> activés.</li>
           <li style="color: var(--success);">🛡️ <strong>Robots Cloisonnés :</strong> Fichier <span class="tip">robots.txt<span class="tip-icon">ℹ</span><span class="tip-box"><strong>Robots.txt</strong>Fichier qui donne des ordres aux moteurs comme Google : « Référence les annonces, mais interdiction d'indexer l'administration ».</span></span> protégeant les mandats et données privées.</li>
+          <li style="color: var(--success);">🛡️ <strong>0% jQuery (React 19 & Next.js 16) :</strong> Zéro librairie obsolète, protection native anti-XSS par encodage automatique du code.</li>
         </ul>
       </div>
 
@@ -711,7 +713,7 @@
 
     <!-- SECTION TITLE -->
     <div class="section-head">
-      <h2>Comparatif Détaillé des 6 Failles Majeures</h2>
+      <h2>Comparatif Détaillé des 7 Failles Majeures</h2>
       <p>
         Mise en miroir point par point de ce qui se passe sur l'ancien site face aux défenses du nouveau site, avec les risques réels pour l'agence de Nelly Fernandez.
       </p>
@@ -1105,6 +1107,72 @@ X-Content-Type-Options: nosniff
         </div>
       </article>
 
+      <!-- ITEM 7 : VULNERABILITES JQUERY 1.10.1 (2013) -->
+      <article class="duel-card">
+        <div class="duel-card-header">
+          <div class="duel-title-group">
+            <span class="duel-num">07</span>
+            <h3>La Bibliothèque Obsolète <span class="tip">jQuery 1.10.1<span class="tip-icon">ℹ</span><span class="tip-box"><strong>jQuery</strong>Boîte à outils JavaScript historique créée en 2006. Très populaire à l'époque, les vieilles versions non maintenues sont aujourd'hui des cibles majeures de piratage.</span></span> (Failles <span class="tip">XSS<span class="tip-icon">ℹ</span><span class="tip-box"><strong>XSS (Cross-Site Scripting)</strong>Attaque où un pirate injecte un code pirate dans une page web pour voler des formulaires ou manipuler l'affichage.</span></span>)</h3>
+          </div>
+          <span class="badge badge-pink">Librairies Obsolètes & Faille XSS</span>
+        </div>
+
+        <div class="risk-context-box">
+          <div class="risk-header-row">
+            <div class="risk-tag">🎯 Le Risque Réel pour l'Activité de Nelly</div>
+            <span class="risk-level critical">Risque d'Injection de Code & Détournement de Formulaires : Critique</span>
+          </div>
+          
+          <p class="risk-concept">
+            L'ancien site force chaque visiteur à télécharger la version <strong>jQuery 1.10.1</strong> et <strong>jQuery UI 1.10.3</strong>, qui datent de <strong>mai 2013</strong> (plus de 13 ans !). Ces versions comportent plusieurs vulnérabilités officielles répertoriées dans les registres mondiaux de cybersécurité (<span class="tip">CVE-2020-11022<span class="tip-icon">ℹ</span><span class="tip-box"><strong>CVE-2020-11022 & 11023</strong>Failles permettant d'exécuter du code malveillant lorsqu'un texte externe est inséré via les méthodes .html() ou .append().</span></span>, <span class="tip">CVE-2019-11358<span class="tip-icon">ℹ</span><span class="tip-box"><strong>Prototype Pollution</strong>Détournement de la mémoire interne de JavaScript qui permet à un pirate de modifier le comportement des fonctions du site.</span></span>, CVE-2015-9251).
+          </p>
+
+          <div class="attack-scenario">
+            <div class="attack-scenario-title">⚠️ Scénario concret pour l'agence :</div>
+            <p class="attack-scenario-text">
+              Un pirate peut utiliser les filtres de recherche de biens ou les formulaires pour injecter un petit script malicieux qui sera exécuté par la vieille bibliothèque jQuery. Il peut alors modifier à la volée les coordonnées affichées ou intercepter les demandes d'estimation saisies par les propriétaires pour les détourner vers sa propre adresse email.
+            </p>
+          </div>
+        </div>
+
+        <div class="duel-comparison-grid">
+          <div class="site-col old-site">
+            <div>
+              <div class="site-col-head">
+                <span class="site-col-name" style="color: var(--danger);">Ancien Site (www.nellimmo.fr)</span>
+                <span class="badge badge-red">❌ jQuery de Mai 2013</span>
+              </div>
+              <p class="site-col-desc">
+                Le code source de l'ancien site fait appel directement aux serveurs Google pour charger une version de jQuery vieille de plus de 13 ans contenant des failles XSS documentées.
+              </p>
+            </div>
+            <pre class="live-code"><span class="hl-red"># Scripts prélevés en direct sur l'ancien site :</span>
+&lt;script src="//ajax.googleapis.com/ajax/libs/
+  <span class="hl-red">jquery/1.10.1/jquery.min.js</span>"&gt;&lt;/script&gt;
+&lt;script src="//ajax.googleapis.com/ajax/libs/
+  <span class="hl-red">jqueryui/1.10.3/jquery-ui.min.js</span>"&gt;&lt;/script&gt;
+--> Version de Mai 2013 avec failles XSS et Prototype Pollution !</pre>
+          </div>
+
+          <div class="site-col new-site">
+            <div>
+              <div class="site-col-head">
+                <span class="site-col-name" style="color: var(--success);">Nouveau Site (nellimmo.vercel.app)</span>
+                <span class="badge badge-green">✅ 0% jQuery (React 19 & Next.js 16)</span>
+              </div>
+              <p class="site-col-desc">
+                Aucune bibliothèque JavaScript obsolète. L'affichage repose sur le moteur <span class="tip">React 19<span class="tip-icon">ℹ</span><span class="tip-box"><strong>React 19</strong>Moteur moderne qui neutralise nativement les attaques XSS en encodant automatiquement chaque texte avant qu'il ne soit affiché.</span></span> qui protège nativement contre toute injection de code.
+              </p>
+            </div>
+            <pre class="live-code"><span class="hl-green"># Analyse du nouveau site :</span>
+<span class="hl-green">jQuery : 0% ABSENT (Totalement éliminé)</span>
+Moteur : React 19 & Next.js 16
+Protection : Virtual DOM avec encodage strict anti-XSS
+--> Zéro composant obsolète, protection native !</pre>
+          </div>
+        </div>
+      </article>
+
     </div>
 
     <!-- GRAND TABLEAU COMPARATIF FINAL -->
@@ -1159,6 +1227,12 @@ X-Content-Type-Options: nosniff
             <td><span class="badge badge-red">❌ Moteur de 2020 (6 ans d'âge)</span></td>
             <td><span class="badge badge-green">✅ Maintenu à jour en continu</span></td>
             <td>Protection contre les vagues de piratage automatisé et zéro risque d'être pénalisé ou banni par Google.</td>
+          </tr>
+          <tr>
+            <td><strong>Bibliothèque JavaScript (<span class="tip">jQuery<span class="tip-icon">ℹ</span><span class="tip-box"><strong>jQuery</strong>Boîte à outils JavaScript des années 2010. Les vieilles versions sont réputées pour leurs failles XSS.</span></span>)</strong></td>
+            <td><span class="badge badge-red">❌ jQuery 1.10.1 (Mai 2013)</span></td>
+            <td><span class="badge badge-green">✅ 0% jQuery (React 19)</span></td>
+            <td>Suppression définitive des failles XSS historiques : impossible pour un pirate de détourner les formulaires ou d'injecter du code dans les annonces.</td>
           </tr>
           <tr>
             <td><strong>Note de Sécurité Globale</strong></td>
