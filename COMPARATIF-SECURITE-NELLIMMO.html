@@ -349,7 +349,7 @@
 
     .risk-box {
       background: var(--surface-card);
-      border-left: 3px solid var(--primary);
+      border-left: 3px solid var(--info);
       border-radius: 8px;
       padding: 1rem 1.25rem;
       font-size: 0.9rem;
@@ -359,6 +359,65 @@
 
     .risk-box strong {
       color: #fff;
+    }
+
+    /* SCENARIO D'ATTAQUE CONCRET */
+    .attack-scenario {
+      background: rgba(225, 43, 123, 0.04);
+      border: 1px solid rgba(225, 43, 123, 0.22);
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+    }
+
+    .scenario-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.6rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .scenario-title {
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .scenario-actor {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+    }
+
+    .scenario-story {
+      font-size: 0.88rem;
+      color: #cbd5e1;
+      line-height: 1.6;
+    }
+
+    .scenario-story strong {
+      color: #fff;
+    }
+
+    .scenario-impact {
+      margin-top: 0.65rem;
+      padding-top: 0.55rem;
+      border-top: 1px dashed rgba(225, 43, 123, 0.25);
+      font-size: 0.84rem;
+      color: #fca5a5;
+    }
+
+    .scenario-impact strong {
+      color: #fecdd3;
     }
 
     .comparison-grid {
@@ -565,6 +624,20 @@
           <div class="risk-box">
             <strong>Risque pour l'activité de Nelly :</strong> Un site tiers peut encapsuler l'ancien site Nell'Immo dans une fenêtre invisible (<span class="term" data-title="iframe" data-desc="Cadre HTML permettant d'afficher un site web à l'intérieur d'une autre page.">iframe</span>) et superposer de faux boutons pour intercepter des demandes de contact ou faire exécuter des actions à des prospects à leur insu.
           </div>
+
+          <div class="attack-scenario">
+            <div class="scenario-header">
+              <span class="scenario-title">⚡ Exemple d'attaque : Le faux portail d'estimation locale</span>
+              <span class="scenario-actor">Attaquant : Escroc ou diffuseur de spam</span>
+            </div>
+            <p class="scenario-story">
+              Un fraudeur crée une fausse page d'actualités immobilières de quartier (ex. <em>« Baromètre des prix 2026 »</em>). Il charge l'ancien site Nell'Immo en arrière-plan transparent (opacité 0). Par-dessus, il place un bouton visible : <em>« Télécharger l'étude gratuite »</em>. En réalité, quand l'internaute clique, son clic traverse l'écran et clique sur le bouton d'envoi du formulaire de contact de Nell'Immo.
+            </p>
+            <div class="scenario-impact">
+              <strong>Impact concret :</strong> L'agence reçoit des demandes faussées, et les internautes accusent Nell'Immo de démarchage abusif, dégradant la réputation locale de l'agence.
+            </div>
+          </div>
+
           <div class="comparison-grid">
             <div class="comparison-col">
               <div class="col-title old">Ancien Site (www.nellimmo.fr)</div>
@@ -600,6 +673,20 @@ Content-Security-Policy: frame-ancestors 'none';</pre>
           <div class="risk-box">
             <strong>Risque pour l'activité de Nelly :</strong> Si Nelly ou un client utilise le site depuis un réseau non sécurisé (Wi-Fi de gare, d'hôtel ou de salon immobilier), un tiers peut capturer le badge de session en clair et usurper l'accès sans avoir besoin du mot de passe.
           </div>
+
+          <div class="attack-scenario">
+            <div class="scenario-header">
+              <span class="scenario-title">⚡ Exemple d'attaque : Interception de session sur Wi-Fi public</span>
+              <span class="scenario-actor">Attaquant : Pirate connecté sur le même réseau Wi-Fi</span>
+            </div>
+            <p class="scenario-story">
+              Nelly consulte son espace de gestion depuis son ordinateur portable connecté au Wi-Fi d'un café ou d'un salon immobilier. Comme le cookie <code>PHPSESSID</code> n'a pas l'attribut <code>Secure</code>, il circule en clair dans les ondes. Un pirate sur le même Wi-Fi capture ce paquet avec un analyseur réseau gratuit (ex. Wireshark), copie le cookie dans son propre navigateur et actualise la page : il est immédiatement connecté sous l'identité de Nelly sans jamais avoir eu besoin de son mot de passe.
+            </p>
+            <div class="scenario-impact">
+              <strong>Impact concret :</strong> Consultation des estimations et des dossiers en cours sans effraction visible, avec violation directe du RGPD.
+            </div>
+          </div>
+
           <div class="comparison-grid">
             <div class="comparison-col">
               <div class="col-title old">Ancien Site (www.nellimmo.fr)</div>
@@ -635,6 +722,20 @@ SameSite: Lax</pre>
           <div class="risk-box">
             <strong>Risque pour l'activité de Nelly :</strong> L'exposition publique d'une page de connexion permet aux robots de tester des milliers de mots de passe automatiquement (<span class="term" data-title="Attaque par Force Brute" data-desc="Méthode automatisée consistant à tester un très grand nombre de combinaisons de mots de passe jusqu'à trouver la bonne.">force brute</span>), menaçant les dossiers Loi ALUR (avis d'impôt, pièces d'identité) et le registre des clés d'appartements.
           </div>
+
+          <div class="attack-scenario">
+            <div class="scenario-header">
+              <span class="scenario-title">⚡ Exemple d'attaque : Force brute et localisation de clés physiques</span>
+              <span class="scenario-actor">Attaquant : Robot automatisé (botnet) / Cambrioleurs</span>
+            </div>
+            <p class="scenario-story">
+              Un robot scanne le web, découvre l'adresse d'administration et lance 50 000 tests de mots de passe par heure. En l'absence de filtrage réseau initial (pas de HTTP 401), le serveur répond sans bloquer. Si le mot de passe finit par céder, l'intrus accède au registre <em>« Clés & Panneaux »</em> : il obtient la liste exacte des biens vacants à la vente avec les codes à 4 chiffres des boîtes à clés fixées sur place.
+            </p>
+            <div class="scenario-impact">
+              <strong>Impact concret :</strong> Risque réel de cambriolage des logements sous mandat exclusif et responsabilité civile/pénale engagée pour l'agence.
+            </div>
+          </div>
+
           <div class="comparison-grid">
             <div class="comparison-col">
               <div class="col-title old">Ancien Site (www.nellimmo.fr)</div>
@@ -669,6 +770,20 @@ X-Robots-Tag: noindex, nofollow, noarchive</pre>
           <div class="risk-box">
             <strong>Risque pour l'activité de Nelly :</strong> Sans politique HSTS stricte, un pirate sur un réseau intermédiaire peut forcer le déclassement de la communication vers du HTTP non sécurisé et lire en clair les formulaires d'estimation ou de contact remplis par les clients.
           </div>
+
+          <div class="attack-scenario">
+            <div class="scenario-header">
+              <span class="scenario-title">⚡ Exemple d'attaque : Interception d'un formulaire d'estimation (SSL Strip)</span>
+              <span class="scenario-actor">Attaquant : Espionnage de flux réseau</span>
+            </div>
+            <p class="scenario-story">
+              Un propriétaire tape <code>nellimmo.fr</code> depuis son lieu de travail. Comme aucun en-tête HSTS n'impose fermement le HTTPS, un équipement réseau intermédiaire intercepte la connexion et maintient l'échange en HTTP simple. Le propriétaire remplit l'estimation détaillée de sa villa (adresse, surface, téléphone, motif de vente). Toutes ces données voyagent sans chiffrement et sont lues directement au passage.
+            </p>
+            <div class="scenario-impact">
+              <strong>Impact concret :</strong> Vol de leads vendeurs qualifiés revendus à des mandataires concurrents et perte immédiate de mandats exclusifs.
+            </div>
+          </div>
+
           <div class="comparison-grid">
             <div class="comparison-col">
               <div class="col-title old">Ancien Site (www.nellimmo.fr)</div>
@@ -701,6 +816,20 @@ Strict-Transport-Security:
           <div class="risk-box">
             <strong>Risque pour l'activité de Nelly :</strong> Une règle CORS trop permissive (<span class="term" data-title="Wildcard (*)" data-desc="Caractère astérisque indiquant une absence de restriction, autorisant l'ensemble des sites tiers sans distinction.">wildcard *</span>) permet à des sites concurrents ou à des robots de collecter automatiquement le catalogue des annonces et les données de contact directement depuis le navigateur de leurs visiteurs.
           </div>
+
+          <div class="attack-scenario">
+            <div class="scenario-header">
+              <span class="scenario-title">⚡ Exemple d'attaque : Aspiration automatisée du catalogue de mandats</span>
+              <span class="scenario-actor">Attaquant : Concurrent indélicat ou agrégateur sauvage</span>
+            </div>
+            <p class="scenario-story">
+              Une agence concurrente intègre sur son propre portail web un script en arrière-plan qui interroge l'ancien site de Nell'Immo grâce au joker <code>Access-Control-Allow-Origin: *</code>. Dès que Nelly publie un nouveau mandat exclusif ou ajuste un prix, le script aspire instantanément la fiche, les photos et la description pour republier l'annonce sur son propre site sans autorisation.
+            </p>
+            <div class="scenario-impact">
+              <strong>Impact concret :</strong> Perte de l'avantage commercial des exclusivités, cannibalisation du référencement Google et détournement d'acheteurs.
+            </div>
+          </div>
+
           <div class="comparison-grid">
             <div class="comparison-col">
               <div class="col-title old">Ancien Site (www.nellimmo.fr)</div>
@@ -735,6 +864,20 @@ HTTP/1.1 401 Unauthorized
           <div class="risk-box">
             <strong>Risque pour l'activité de Nelly :</strong> Afficher publiquement la version exacte d'un serveur ou d'un moteur obsolète permet aux outils d'analyse automatisés de cibler directement les failles de sécurité non corrigées sur cette version spécifique.
           </div>
+
+          <div class="attack-scenario">
+            <div class="scenario-header">
+              <span class="scenario-title">⚡ Exemple d'attaque : Scan de vulnérabilités connues sur composants figés</span>
+              <span class="scenario-actor">Attaquant : Robots scanners mondiaux (type Shodan)</span>
+            </div>
+            <p class="scenario-story">
+              Des cybercriminels scannent internet en continu à la recherche de logiciels non mis à jour. L'ancien serveur annonce publiquement <code>x-bobcat-version: kitty.pryde.20201020.rev2</code> (octobre 2020). Les robots identifient un serveur mutualisé vieux de 6 ans et lancent des attaques connues sur cette version pour tenter d'injecter des redirections frauduleuses ou héberger des pages de phishing bancaire.
+            </p>
+            <div class="scenario-impact">
+              <strong>Impact concret :</strong> Blacklistage du nom de domaine par Google avec affichage d'un écran rouge d'alerte « Site trompeur », détruisant le trafic web.
+            </div>
+          </div>
+
           <div class="comparison-grid">
             <div class="comparison-col">
               <div class="col-title old">Ancien Site (www.nellimmo.fr)</div>
@@ -770,6 +913,20 @@ X-Content-Type-Options: nosniff
           <div class="risk-box">
             <strong>Risque pour l'activité de Nelly :</strong> Cette version de jQuery (13 ans d'ancienneté) est affectée par des failles connues de type <span class="term" data-title="XSS (Cross-Site Scripting)" data-desc="Faiblesse permettant d'injecter du code JavaScript pirate dans une page web pour intercepter des saisies ou rediriger un internaute.">XSS</span> (<span class="term" data-title="CVE-2020-11022" data-desc="Numéro d'identification d'une faille documentée permettant d'exécuter du code malveillant via des fonctions de manipulation HTML de jQuery.">CVE-2020-11022</span>, <span class="term" data-title="Prototype Pollution" data-desc="Vulnérabilité modifiant le comportement global des objets JavaScript dans le navigateur.">CVE-2019-11358</span>) pouvant permettre l'altération de formulaires ou la redirection de prospects.
           </div>
+
+          <div class="attack-scenario">
+            <div class="scenario-header">
+              <span class="scenario-title">⚡ Exemple d'attaque : Détournement du formulaire de contact par faille XSS</span>
+              <span class="scenario-actor">Attaquant : Pirate exploitant les failles applicatives web</span>
+            </div>
+            <p class="scenario-story">
+              En exploitant la vulnérabilité CVE-2020-11022 liée à jQuery 1.10.1, un pirate diffuse sur les réseaux sociaux un lien de recherche d'annonces piégé. Lorsqu'un acquéreur clique sur le lien, le script malveillant s'exécute silencieusement dans son navigateur et détourne le formulaire de contact : les coordonnées et demandes de visite saisies par l'acquéreur sont transmises au pirate au lieu d'arriver chez Nelly.
+            </p>
+            <div class="scenario-impact">
+              <strong>Impact concret :</strong> Perte sèche de prospects acquéreurs qualifiés et dégradation de la relation client (l'acheteur pensant que l'agence ne lui répond pas).
+            </div>
+          </div>
+
           <div class="comparison-grid">
             <div class="comparison-col">
               <div class="col-title old">Ancien Site (www.nellimmo.fr)</div>
@@ -805,6 +962,20 @@ Protection XSS : Encodage automatique du rendu</pre>
           <div class="risk-box">
             <strong>Risque pour l'activité de Nelly :</strong> En l'absence de politique DMARC stricte, un tiers peut envoyer des emails affichant comme expéditeur <code>contact@nellimmo.fr</code> ou <code>nelly@nellimmo.fr</code>. C'est le vecteur classique de l'arnaque au faux RIB lors d'un appel de fonds pour un séquestre ou des honoraires.
           </div>
+
+          <div class="attack-scenario">
+            <div class="scenario-header">
+              <span class="scenario-title">⚡ Exemple d'attaque : L'arnaque au faux RIB de séquestre notarié</span>
+              <span class="scenario-actor">Attaquant : Escrocs spécialisés dans la fraude immobilière</span>
+            </div>
+            <p class="scenario-story">
+              Un escroc repère qu'un bien vient de passer sous compromis. En exploitant l'absence de DMARC sur <code>nellimmo.fr</code>, il envoie un email forgé avec l'expéditeur officiel <code>contact@nellimmo.fr</code> directement à l'acquéreur : <em>« Suite à votre accord, merci de virer le séquestre de garantie de 15 000 € sur le RIB bancaire joint avant vendredi midi »</em>. La messagerie de l'acheteur ne bloque pas le message car DMARC est absent. L'acheteur réalise le virement sur le compte pirate.
+            </p>
+            <div class="scenario-impact">
+              <strong>Impact concret :</strong> Préjudice financier majeur pour le client, blocage de la vente et poursuite judiciaire contre l'agence pour négligence sur son nom de domaine.
+            </div>
+          </div>
+
           <div class="comparison-grid">
             <div class="comparison-col">
               <div class="col-title old">Ancien Site & Domaine Actuel</div>
