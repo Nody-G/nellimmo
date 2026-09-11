@@ -3,31 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Comparatif de Sécurité : Ancien Site vs Nouveau Site — Nell'Immo</title>
+  <title>Audit Comparatif de Sécurité : Ancien Site vs Nouveau Site — Nell'Immo</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #090d16;
-      --surface: #0f172a;
-      --surface-card: #141e33;
-      --surface-card-hover: #1a2742;
-      --border: #243452;
-      --text: #f8fafc;
+      --bg: #0b1120;
+      --surface: #111a2e;
+      --surface-card: #152238;
+      --border: #23334d;
+      --border-light: #334766;
+      --text: #f1f5f9;
       --text-muted: #94a3b8;
       --primary: #e12b7b;
-      --primary-glow: rgba(225, 43, 123, 0.25);
-      --accent: #c59a45;
-      --accent-glow: rgba(197, 154, 69, 0.25);
+      --info: #38bdf8;
       --success: #10b981;
-      --success-glow: rgba(16, 185, 129, 0.25);
       --danger: #ef4444;
-      --danger-glow: rgba(239, 68, 68, 0.25);
-      --warning: #f59e0b;
-      --code-bg: #060911;
-      --tooltip-bg: #1e293b;
-      --tooltip-border: #475569;
+      --code-bg: #070c18;
     }
 
     * {
@@ -40,593 +33,399 @@
       font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
       background-color: var(--bg);
       color: var(--text);
-      line-height: 1.65;
-      padding: 2.5rem 1.25rem;
+      line-height: 1.6;
+      padding: 2rem 1rem;
     }
 
     .container {
-      max-width: 1260px;
+      max-width: 1180px;
       margin: 0 auto;
     }
 
-    /* HEADER HERO */
-    .hero {
-      text-align: center;
-      padding: 3.5rem 2rem;
-      background: radial-gradient(circle at 50% 0%, rgba(225, 43, 123, 0.18) 0%, rgba(15, 23, 42, 0.95) 60%, rgba(9, 13, 22, 1) 100%);
-      border: 1px solid var(--border);
-      border-radius: 28px;
-      margin-bottom: 3rem;
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-    }
-
-    .hero-badges {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.45rem;
-      font-size: 0.75rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      padding: 0.45rem 1rem;
-      border-radius: 9999px;
-    }
-
-    .badge-pink {
-      background: rgba(225, 43, 123, 0.15);
-      color: var(--primary);
-      border: 1px solid rgba(225, 43, 123, 0.35);
-    }
-
-    .badge-gold {
-      background: rgba(197, 154, 69, 0.15);
-      color: var(--accent);
-      border: 1px solid rgba(197, 154, 69, 0.35);
-    }
-
-    .badge-green {
-      background: rgba(16, 185, 129, 0.15);
-      color: var(--success);
-      border: 1px solid rgba(16, 185, 129, 0.35);
-    }
-
-    .badge-red {
-      background: rgba(239, 68, 68, 0.15);
-      color: var(--danger);
-      border: 1px solid rgba(239, 68, 68, 0.35);
-    }
-
-    .hero h1 {
-      font-size: 2.6rem;
-      font-weight: 900;
-      color: #ffffff;
-      line-height: 1.2;
-      margin-bottom: 1.25rem;
-      letter-spacing: -0.02em;
-    }
-
-    .hero h1 span.pink { color: var(--primary); }
-    .hero h1 span.gold { color: var(--accent); }
-
-    .hero p {
-      font-size: 1.15rem;
-      color: var(--text-muted);
-      max-width: 880px;
-      margin: 0 auto;
-      line-height: 1.7;
-    }
-
-    .tip-instruction {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-top: 1.5rem;
-      background: rgba(197, 154, 69, 0.12);
-      border: 1px solid rgba(197, 154, 69, 0.3);
-      padding: 0.6rem 1.25rem;
-      border-radius: 12px;
-      font-size: 0.9rem;
-      color: #fef08a;
-    }
-
-    /* SYSTEME D'INFOBULLES (TOOLTIPS) INTERACTIFS */
-    .tip {
-      position: relative;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.25rem;
-      cursor: help;
-      border-bottom: 1.5px dotted var(--accent);
-      color: #fff;
-      font-weight: 700;
-      padding-bottom: 1px;
-      transition: color 0.15s ease;
-    }
-
-    .tip:hover {
-      color: var(--accent);
-    }
-
-    .tip-icon {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 15px;
-      height: 15px;
-      background: rgba(197, 154, 69, 0.2);
-      color: var(--accent);
-      border-radius: 50%;
-      font-size: 0.65rem;
-      font-weight: 900;
-      font-style: normal;
-      margin-left: 2px;
-    }
-
-    /* Bulle flottante */
-    .tip .tip-box {
-      visibility: hidden;
-      opacity: 0;
-      width: 280px;
-      background: var(--tooltip-bg);
-      color: #f1f5f9;
-      text-align: left;
-      border-radius: 12px;
-      padding: 0.85rem 1rem;
-      position: absolute;
-      z-index: 999;
-      bottom: 135%;
-      left: 50%;
-      transform: translateX(-50%);
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
-      border: 1px solid var(--tooltip-border);
-      font-size: 0.82rem;
-      font-weight: 400;
-      line-height: 1.45;
-      transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.2s ease, transform 0.2s ease;
-      pointer-events: none;
-    }
-
-    .tip .tip-box::after {
-      content: "";
-      position: absolute;
-      top: 100%;
-      left: 50%;
-      margin-left: -6px;
-      border-width: 6px;
-      border-style: solid;
-      border-color: var(--tooltip-border) transparent transparent transparent;
-    }
-
-    .tip:hover .tip-box {
-      visibility: visible;
-      opacity: 1;
-      transform: translateX(-50%) translateY(-4px);
-    }
-
-    .tip-box strong {
-      color: var(--accent);
-      display: block;
-      font-size: 0.86rem;
-      margin-bottom: 0.3rem;
-    }
-
-    /* MATCH CARD (VERSUS) */
-    .match-banner {
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      gap: 1.5rem;
-      align-items: stretch;
-      margin-bottom: 3.5rem;
-    }
-
-    @media (max-width: 920px) {
-      .match-banner {
-        grid-template-columns: 1fr;
-      }
-      .vs-divider {
-        display: none;
-      }
-    }
-
-    .team-card {
-      background: var(--surface-card);
-      border: 1px solid var(--border);
-      border-radius: 22px;
-      padding: 2.25rem;
-      position: relative;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-
-    .team-card.old {
-      border-color: rgba(239, 68, 68, 0.35);
-      background: linear-gradient(180deg, rgba(239, 68, 68, 0.06) 0%, rgba(20, 30, 51, 1) 100%);
-    }
-
-    .team-card.new {
-      border-color: rgba(16, 185, 129, 0.4);
-      background: linear-gradient(180deg, rgba(16, 185, 129, 0.08) 0%, rgba(20, 30, 51, 1) 100%);
-      box-shadow: 0 15px 35px -10px var(--success-glow);
-    }
-
-    .team-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 1.25rem;
-      gap: 1rem;
-    }
-
-    .team-title {
-      font-size: 1.35rem;
-      font-weight: 800;
-      color: #fff;
-    }
-
-    .team-url {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      margin-top: 0.3rem;
-      display: block;
-    }
-
-    .grade-box {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      font-weight: 900;
-      flex-shrink: 0;
-    }
-
-    .grade-box.red {
-      background: rgba(239, 68, 68, 0.15);
-      border: 3px solid var(--danger);
-      color: var(--danger);
-      box-shadow: 0 0 25px rgba(239, 68, 68, 0.25);
-    }
-
-    .grade-box.green {
-      background: rgba(16, 185, 129, 0.15);
-      border: 3px solid var(--success);
-      color: var(--success);
-      box-shadow: 0 0 25px rgba(16, 185, 129, 0.3);
-    }
-
-    .grade-val { font-size: 2.1rem; line-height: 1; }
-    .grade-sub { font-size: 0.65rem; text-transform: uppercase; font-weight: 800; }
-
-    .team-points {
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 0.85rem;
-      margin-top: 1.5rem;
-    }
-
-    .team-points li {
-      font-size: 0.92rem;
-      display: flex;
-      align-items: flex-start;
-      gap: 0.65rem;
-      line-height: 1.5;
-    }
-
-    .vs-divider {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-      font-weight: 900;
-      color: var(--accent);
+    /* EN-TETE SOBRE */
+    header.report-header {
       background: var(--surface);
-      border: 2px dashed var(--border);
-      border-radius: 50%;
-      width: 64px;
-      height: 64px;
-      align-self: center;
-      box-shadow: 0 0 20px rgba(0,0,0,0.6);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem 2.5rem;
+      margin-bottom: 2rem;
     }
 
-    /* SECTION TITLES */
-    .section-head {
-      margin-bottom: 2.25rem;
-      text-align: center;
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1rem;
     }
 
-    .section-head h2 {
-      font-size: 2.1rem;
-      font-weight: 900;
+    .report-title {
+      font-size: 1.75rem;
+      font-weight: 800;
       color: #fff;
-      margin-bottom: 0.6rem;
       letter-spacing: -0.01em;
     }
 
-    .section-head p {
-      color: var(--text-muted);
-      font-size: 1.05rem;
-      max-width: 800px;
-      margin: 0 auto;
-    }
-
-    /* VULNERABILITY COMPARISON CARDS */
-    .vuln-list {
-      display: flex;
-      flex-direction: column;
-      gap: 2.5rem;
-      margin-bottom: 4rem;
-    }
-
-    .duel-card {
-      background: var(--surface-card);
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      overflow: hidden;
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.35);
-      transition: border-color 0.2s ease;
-    }
-
-    .duel-card:hover {
-      border-color: rgba(225, 43, 123, 0.4);
-    }
-
-    .duel-card-header {
-      padding: 1.6rem 2.25rem;
-      background: rgba(255, 255, 255, 0.02);
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    .duel-title-group {
-      display: flex;
-      align-items: center;
-      gap: 1.25rem;
-    }
-
-    .duel-num {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 1.1rem;
-      font-weight: 900;
-      color: #fff;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      padding: 0.4rem 0.85rem;
-      border-radius: 10px;
-    }
-
-    .duel-title-group h3 {
-      font-size: 1.35rem;
-      font-weight: 800;
-      color: #fff;
-    }
-
-    /* RISK CONTEXT BOX */
-    .risk-context-box {
-      background: linear-gradient(135deg, #181427 0%, #111a2f 100%);
-      border-left: 5px solid var(--primary);
-      padding: 1.75rem 2.25rem;
-      margin: 1.75rem 2.25rem 0;
-      border-radius: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 1.15rem;
-      border-top: 1px solid rgba(225, 43, 123, 0.15);
-      border-right: 1px solid rgba(255, 255, 255, 0.03);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-    }
-
-    .risk-header-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-    }
-
-    .risk-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.8rem;
-      font-weight: 800;
-      color: #fda4af;
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-    }
-
-    .risk-level {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      font-size: 0.75rem;
-      font-weight: 800;
-      padding: 0.3rem 0.8rem;
-      border-radius: 9999px;
-      text-transform: uppercase;
-    }
-
-    .risk-level.critical {
-      background: rgba(239, 68, 68, 0.2);
-      color: #fca5a5;
-      border: 1px solid rgba(239, 68, 68, 0.4);
-    }
-
-    .risk-level.high {
-      background: rgba(245, 158, 11, 0.2);
-      color: #fcd34d;
-      border: 1px solid rgba(245, 158, 11, 0.4);
-    }
-
-    .risk-concept {
-      font-size: 1.02rem;
-      line-height: 1.7;
-      color: #e2e8f0;
-    }
-
-    .attack-scenario {
-      background: rgba(6, 9, 17, 0.7);
-      border: 1px solid rgba(225, 43, 123, 0.25);
-      border-radius: 12px;
-      padding: 1.2rem 1.5rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .attack-scenario-title {
+    .report-meta {
       font-size: 0.85rem;
-      font-weight: 800;
-      color: var(--primary);
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
+      color: var(--text-muted);
       display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .report-meta span {
+      display: inline-flex;
       align-items: center;
       gap: 0.4rem;
     }
 
-    .attack-scenario-text {
-      font-size: 0.94rem;
+    .header-desc {
+      font-size: 0.95rem;
       color: #cbd5e1;
+      max-width: 900px;
       line-height: 1.6;
     }
 
-    /* SIDE BY SIDE COMPARISON */
-    .duel-comparison-grid {
+    /* BARRE DE SYNTHESE COMPARATIVE */
+    .summary-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 1.5rem;
-      padding: 1.75rem 2.25rem 2.25rem;
+      margin-bottom: 2.5rem;
     }
 
-    @media (max-width: 920px) {
-      .duel-comparison-grid {
+    @media (max-width: 768px) {
+      .summary-grid {
         grid-template-columns: 1fr;
       }
     }
 
-    .site-col {
+    .summary-card {
       background: var(--surface);
-      border-radius: 18px;
-      padding: 1.6rem;
       border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.5rem;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
     }
 
-    .site-col.old-site {
-      border-color: rgba(239, 68, 68, 0.3);
+    .summary-card.old {
+      border-left: 4px solid var(--danger);
     }
 
-    .site-col.new-site {
-      border-color: rgba(16, 185, 129, 0.35);
+    .summary-card.new {
+      border-left: 4px solid var(--success);
     }
 
-    .site-col-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 1rem;
-      padding-bottom: 0.85rem;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .site-col-name {
-      font-size: 0.95rem;
-      font-weight: 800;
+    .card-label {
+      font-size: 0.75rem;
+      font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.05em;
+      margin-bottom: 0.3rem;
     }
 
-    .site-col-desc {
-      font-size: 0.92rem;
-      color: var(--text-muted);
-      line-height: 1.6;
-      margin-bottom: 1.25rem;
-    }
+    .card-label.old { color: var(--danger); }
+    .card-label.new { color: var(--success); }
 
-    pre.live-code {
-      background: var(--code-bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 1rem 1.25rem;
+    .site-url {
       font-family: 'JetBrains Mono', monospace;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.5rem;
+    }
+
+    .site-stack {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+
+    .score-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+      font-weight: 700;
+      padding: 0.4rem 0.8rem;
+      border-radius: 8px;
+      width: fit-content;
+    }
+
+    .score-badge.danger {
+      background: rgba(239, 68, 68, 0.15);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .score-badge.success {
+      background: rgba(16, 185, 129, 0.15);
+      color: #6ee7b7;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    /* NOTICE INFO-BULLES */
+    .glossary-hint {
+      background: rgba(56, 189, 248, 0.08);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 10px;
+      padding: 0.75rem 1.25rem;
+      margin-bottom: 2rem;
+      font-size: 0.88rem;
+      color: #bae6fd;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    /* INFOBULLE / TERME TECHNIQUE */
+    .term {
+      color: #38bdf8;
+      font-weight: 600;
+      border-bottom: 1px dotted #38bdf8;
+      cursor: pointer;
+      position: relative;
+      display: inline;
+    }
+
+    .term:hover {
+      color: #7dd3fc;
+      border-bottom-style: solid;
+    }
+
+    /* BULLE FLOTTANTE UNIQUE (JS) */
+    #tooltip-popup {
+      position: fixed;
+      display: none;
+      z-index: 10000;
+      max-width: 320px;
+      background: #1e293b;
+      color: #f8fafc;
+      border: 1px solid #475569;
+      border-radius: 10px;
+      padding: 0.85rem 1rem;
       font-size: 0.82rem;
-      color: #94a3b8;
-      overflow-x: auto;
       line-height: 1.5;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      pointer-events: none;
     }
 
-    .hl-green { color: #34d399; font-weight: 700; }
-    .hl-red { color: #f87171; font-weight: 700; }
-    .hl-yellow { color: #fbbf24; font-weight: 700; }
+    #tooltip-popup strong {
+      display: block;
+      color: #38bdf8;
+      font-size: 0.88rem;
+      margin-bottom: 0.3rem;
+    }
 
-    /* BIG SUMMARY TABLE */
-    .matrix-card {
-      background: var(--surface-card);
+    /* SECTION TITLES */
+    .section-title {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 0.5rem;
+    }
+
+    .section-subtitle {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+    }
+
+    /* TABLEAU SYNTHETIQUE */
+    .table-container {
+      background: var(--surface);
       border: 1px solid var(--border);
-      border-radius: 24px;
-      overflow: hidden;
-      margin-bottom: 3.5rem;
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+      border-radius: 14px;
+      overflow-x: auto;
+      margin-bottom: 3rem;
     }
 
-    table.matrix-table {
+    table.report-table {
       width: 100%;
       border-collapse: collapse;
       text-align: left;
+      font-size: 0.88rem;
     }
 
-    table.matrix-table th {
-      padding: 1.35rem 1.75rem;
+    table.report-table th {
       background: rgba(255, 255, 255, 0.03);
-      font-size: 0.82rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
+      padding: 1rem 1.25rem;
+      font-weight: 700;
       color: var(--text-muted);
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
       border-bottom: 1px solid var(--border);
     }
 
-    table.matrix-table td {
-      padding: 1.3rem 1.75rem;
-      font-size: 0.94rem;
+    table.report-table td {
+      padding: 1rem 1.25rem;
       border-bottom: 1px solid var(--border);
       vertical-align: top;
-      line-height: 1.6;
     }
 
-    table.matrix-table tr:last-child td {
+    table.report-table tr:last-child td {
       border-bottom: none;
     }
 
-    /* FOOTER */
-    footer {
-      text-align: center;
-      padding: 3.5rem 1rem 2rem;
-      border-top: 1px solid var(--border);
+    .badge-status {
+      display: inline-block;
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    .badge-status.danger {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+    }
+
+    .badge-status.success {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+    }
+
+    /* CARTES DETAILLEES PAR VULNERABILITE */
+    .vuln-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 1.75rem;
+      margin-bottom: 3rem;
+    }
+
+    .vuln-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    .vuln-header {
+      padding: 1.25rem 1.5rem;
+      background: rgba(255, 255, 255, 0.02);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .vuln-title-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .vuln-index {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      font-weight: 700;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
       color: var(--text-muted);
-      font-size: 0.92rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+    }
+
+    .vuln-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .vuln-body {
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .risk-box {
+      background: var(--surface-card);
+      border-left: 3px solid var(--primary);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      font-size: 0.9rem;
+      color: #e2e8f0;
+      line-height: 1.55;
+    }
+
+    .risk-box strong {
+      color: #fff;
+    }
+
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+
+    @media (max-width: 768px) {
+      .comparison-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .comparison-col {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.1rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .col-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.6rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .col-title.old { color: #f87171; }
+    .col-title.new { color: #34d399; }
+
+    .col-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 0.85rem;
+      line-height: 1.5;
+    }
+
+    pre.code-evidence {
+      background: #040711;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.75rem 0.9rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      color: #94a3b8;
+      overflow-x: auto;
+      line-height: 1.45;
+    }
+
+    .code-evidence .err { color: #f87171; font-weight: 600; }
+    .code-evidence .ok { color: #34d399; font-weight: 600; }
+
+    /* FOOTER */
+    footer.report-footer {
+      border-top: 1px solid var(--border);
+      padding-top: 2rem;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
     }
   </style>
 </head>
@@ -634,707 +433,467 @@
 
   <div class="container">
 
-    <!-- HERO HEADER -->
-    <header class="hero">
-      <div class="hero-badges">
-        <span class="badge badge-pink">✦ Comparatif Sécurité Web</span>
-        <span class="badge badge-gold">Audits Réalisés en Direct — Septembre 2026</span>
-        <span class="badge badge-green">Nouveau Site 100% Validé A+ (9.8/10)</span>
+    <!-- EN-TETE DU RAPPORT -->
+    <header class="report-header">
+      <div class="header-top">
+        <h1 class="report-title">Audit Comparatif de Sécurité : Ancien vs Nouveau Site</h1>
+        <div class="report-meta">
+          <span><strong>Client :</strong> Nell'Immo (Nelly Fernandez)</span>
+          <span><strong>Date :</strong> 11 Septembre 2026</span>
+          <span><strong>Type :</strong> Audit Technique & Risques Métier</span>
+        </div>
       </div>
-      <h1>L'Ancien Site <span class="pink">VS</span> Le Nouveau Site Nell'Immo</h1>
-      <p>
-        Comparaison concrète de la sécurité entre l'ancienne vitrine de l'agence et la nouvelle plateforme en ligne.
-        Découvrez les failles qui menaçaient l'activité de <strong>Nelly Fernandez</strong>, ses mandats et ses clients, face au bouclier du nouveau site.
+      <p class="header-desc">
+        Ce document compare directement la posture de sécurité de l'ancien site de l'agence (hébergé chez La Boîte Immo) et du nouveau site développé sous Next.js 16 (déployé sur Vercel). Les mesures ont été prélevées en conditions réelles sur les deux serveurs de production.
       </p>
-      <div class="tip-instruction">
-        💡 <strong>Besoin d'aide sur un mot ?</strong> Survolez tous les termes soulignés d'or avec l'icône <span class="tip-icon">ℹ</span> pour ouvrir instantanément leur définition en clair.
-      </div>
     </header>
 
-    <!-- SCORE BOARD VERSUS -->
-    <section class="match-banner">
-      
-      <!-- ANCIEN SITE -->
-      <div class="team-card old">
-        <div class="team-header">
-          <div>
-            <span class="badge badge-red">Ancien Site Web</span>
-            <h2 class="team-title" style="margin-top: 0.6rem;">https://www.nellimmo.fr/</h2>
-            <span class="team-url">Prestataire La Boîte Immo • Moteur de 2020</span>
-          </div>
-          <div class="grade-box red">
-            <span class="grade-val">D</span>
-            <span class="grade-sub">3.2 / 10</span>
-          </div>
+    <!-- CARTOUCHES DE SYNTHESE -->
+    <section class="summary-grid">
+      <div class="summary-card old">
+        <div>
+          <div class="card-label old">Ancien Site Web</div>
+          <div class="site-url">https://www.nellimmo.fr/</div>
+          <div class="site-stack">Hébergement mutualisé Apache • Moteur La Boîte Immo (2020)</div>
         </div>
-        <p style="font-size: 0.92rem; color: #cbd5e1; margin-bottom: 1.25rem;">
-          Une infrastructure vieillissante hébergée sur un <span class="tip">serveur mutualisé<span class="tip-icon">ℹ</span><span class="tip-box"><strong>Serveur mutualisé</strong>Un gros ordinateur central partagé entre des centaines de sites d'agences différentes. Si un voisin est piraté ou surchargé, votre site trinque aussi.</span></span>. Les défenses du web moderne y sont totalement absentes.
-        </p>
-        <ul class="team-points">
-          <li style="color: var(--danger);">⚠️ <strong>Détournement d'écran possible :</strong> Absence d'en-tête anti-<span class="tip">clickjacking<span class="tip-icon">ℹ</span><span class="tip-box"><strong>Clickjacking</strong>Technique de piratage où un site malveillant piège un internaute en superposant une page transparente sur un bouton anodin pour voler son clic.</span></span>.</li>
-          <li style="color: var(--danger);">⚠️ <strong>Vol de session :</strong> Le <span class="tip">cookie<span class="tip-icon">ℹ</span><span class="tip-box"><strong>Cookie de session</strong>Petit fichier témoin qui sert de badge d'entrée temporaire pour savoir qui vous êtes quand vous naviguez d'une page à l'autre.</span></span> d'identification circule sans cadenas.</li>
-          <li style="color: var(--danger);">⚠️ <strong>Espionnage des flux :</strong> Pas de directive <span class="tip">HSTS<span class="tip-icon">ℹ</span><span class="tip-box"><strong>HSTS (Strict Transport Security)</strong>Verrou qui force obligatoirement le cadenas HTTPS. Sans lui, un pirate sur un Wi-Fi peut forcer votre connexion en HTTP non sécurisé.</span></span> pour empêcher le forçage en HTTP non chiffré.</li>
-          <li style="color: var(--danger);">⚠️ <strong>Pillage des données :</strong> Règle <span class="tip">CORS<span class="tip-icon">ℹ</span><span class="tip-box"><strong>CORS (Partage d'origine croisée)</strong>Règle de sécurité du navigateur qui décide si d'autres sites web ont le droit de venir lire les données de votre site.</span></span> ouverte à tous les sites du monde (<span class="tip">wildcard *<span class="tip-icon">ℹ</span><span class="tip-box"><strong>Wildcard (*)</strong>Le caractère étoile (*) qui signifie « Tout le monde ». Un CORS avec « * » autorise n'importe quel site étranger à interroger vos pages.</span></span>).</li>
-          <li style="color: var(--danger);">⚠️ <strong>Obsolescence visible :</strong> Affiche publiquement que ses logiciels n'ont pas été mis à jour depuis 2020.</li>
-          <li style="color: var(--danger);">⚠️ <strong>Bibliothèque jQuery 1.10.1 (2013) :</strong> Utilise une version vieille de 13 ans criblée de failles <span class="tip">XSS<span class="tip-icon">ℹ</span><span class="tip-box"><strong>XSS (Cross-Site Scripting)</strong>Failles permettant d'injecter du code malveillant dans les pages web pour pirater les formulaires ou voler des informations.</span></span>.</li>
-          <li style="color: var(--danger);">⚠️ <strong>Usurpation d'email (Spoofing) :</strong> Zéro protection <span class="tip">DMARC<span class="tip-icon">ℹ</span><span class="tip-box"><strong>DMARC</strong>Protocole de sécurité email qui bloque les escrocs voulant envoyer de faux messages avec votre adresse @nellimmo.fr.</span></span> et <span class="tip">SPF<span class="tip-icon">ℹ</span><span class="tip-box"><strong>SPF</strong>Enregistrement DNS listant les seuls serveurs autorisés à envoyer des emails pour Nell'Immo.</span></span> permissif.</li>
-        </ul>
+        <div class="score-badge danger">
+          <span>Score Sécurité : 3.2 / 10 (Niveau Critique)</span>
+        </div>
       </div>
 
-      <!-- VS -->
-      <div class="vs-divider">VS</div>
-
-      <!-- NOUVEAU SITE -->
-      <div class="team-card new">
-        <div class="team-header">
-          <div>
-            <span class="badge badge-green">Nouveau Site Web</span>
-            <h2 class="team-title" style="margin-top: 0.6rem;">https://nellimmo.vercel.app/</h2>
-            <span class="team-url">Architecture Next.js 16 • Réseau Vercel Edge</span>
-          </div>
-          <div class="grade-box green">
-            <span class="grade-val">A+</span>
-            <span class="grade-sub">9.8 / 10</span>
-          </div>
+      <div class="summary-card new">
+        <div>
+          <div class="card-label new">Nouveau Site Web</div>
+          <div class="site-url">https://nellimmo.vercel.app/</div>
+          <div class="site-stack">Architecture Next.js 16 • Réseau Vercel Edge</div>
         </div>
-        <p style="font-size: 0.92rem; color: #cbd5e1; margin-bottom: 1.25rem;">
-          Une infrastructure de pointe de niveau bancaire. Chaque visiteur est inspecté instantanément par un <span class="tip">pare-feu Edge<span class="tip-icon">ℹ</span><span class="tip-box"><strong>Edge Network</strong>Réseau mondial de serveurs ultra-rapides situés au plus près de l'utilisateur, capables de bloquer les cyberattaques avant qu'elles ne touchent le site.</span></span> ultra-sécurisé.
-        </p>
-        <ul class="team-points">
-          <li style="color: var(--success);">🛡️ <strong>Anti-Détournement certifié :</strong> Verrou strict <span class="tip">X-Frame-Options: DENY<span class="tip-icon">ℹ</span><span class="tip-box"><strong>X-Frame-Options: DENY</strong>Consigne stricte donnée aux navigateurs : interdiction absolue d'afficher ce site dans une fenêtre ou un cadre tiers.</span></span> et politique <span class="tip">CSP<span class="tip-icon">ℹ</span><span class="tip-box"><strong>Content-Security-Policy (CSP)</strong>La charte de sécurité la plus stricte du web. Elle dicte exactement d'où les images, polices et scripts ont le droit d'être chargés.</span></span>.</li>
-          <li style="color: var(--success);">🛡️ <strong>Espace Cockpit sous alarme :</strong> Vigile <span class="tip">HTTP 401<span class="tip-icon">ℹ</span><span class="tip-box"><strong>HTTP 401 Unauthorized</strong>Code de rejet immédiat signifiant « Accès refusé : vous n'avez pas montré patte blanche ».</span></span> empêchant toute intrusion de robot.</li>
-          <li style="color: var(--success);">🛡️ <strong>Chiffrement HSTS Strict :</strong> Forçage HTTPS garanti sur 2 ans avec préchargement mondial.</li>
-          <li style="color: var(--success);">🛡️ <strong>Cookies Blindés :</strong> Attributs <span class="tip">HttpOnly<span class="tip-icon">ℹ</span><span class="tip-box"><strong>HttpOnly</strong>Verrou indispensable qui empêche tout script pirate (JavaScript) de lire ou voler votre cookie d'authentification.</span></span> et <span class="tip">Secure<span class="tip-icon">ℹ</span><span class="tip-box"><strong>Secure</strong>Attribut qui garantit que le cookie ne voyagera JAMAIS sur une connexion non chiffrée.</span></span> activés.</li>
-          <li style="color: var(--success);">🛡️ <strong>Robots Cloisonnés :</strong> Fichier <span class="tip">robots.txt<span class="tip-icon">ℹ</span><span class="tip-box"><strong>Robots.txt</strong>Fichier qui donne des ordres aux moteurs comme Google : « Référence les annonces, mais interdiction d'indexer l'administration ».</span></span> protégeant les mandats et données privées.</li>
-          <li style="color: var(--success);">🛡️ <strong>0% jQuery (React 19 & Next.js 16) :</strong> Zéro librairie obsolète, protection native anti-XSS par encodage automatique du code.</li>
-          <li style="color: var(--success);">🛡️ <strong>Protection de la Messagerie :</strong> Recommandations DNS strictes (DMARC, SPF -all) pour éliminer les faux emails d'escrocs.</li>
-        </ul>
+        <div class="score-badge success">
+          <span>Score Sécurité : 9.8 / 10 (Conforme aux standards)</span>
+        </div>
       </div>
-
     </section>
 
-    <!-- SECTION TITLE -->
-    <div class="section-head">
-      <h2>Comparatif Détaillé des 8 Failles Majeures</h2>
-      <p>
-        Mise en miroir point par point de ce qui se passe sur l'ancien site face aux défenses du nouveau site, avec les risques réels pour l'agence de Nelly Fernandez.
-      </p>
+    <!-- NOTICE INFOBULLES -->
+    <div class="glossary-hint">
+      <span>ℹ️</span>
+      <span><strong>Aide de lecture :</strong> Les termes techniques soulignés (en bleu) disposent d'une infobulle explicative. Cliquez ou survolez un mot pour afficher sa définition en langage clair.</span>
     </div>
 
-    <!-- VULNERABILITY COMPARISON LIST -->
-    <div class="vuln-list">
+    <!-- TABLEAU RECAPITULATIF -->
+    <h2 class="section-title">Tableau Récapitulatif des 8 Points de Contrôle</h2>
+    <p class="section-subtitle">Vue d'ensemble des vulnérabilités identifiées et de leur impact sur l'activité de l'agence.</p>
 
-      <!-- ITEM 1 : CLICKJACKING -->
-      <article class="duel-card">
-        <div class="duel-card-header">
-          <div class="duel-title-group">
-            <span class="duel-num">01</span>
-            <h3>Le Risque de Détournement d'Écran (<span class="tip">Clickjacking<span class="tip-icon">ℹ</span><span class="tip-box"><strong>Clickjacking</strong>Piratage visuel consistant à placer un calque invisible par-dessus un vrai bouton pour forcer un clic involontaire.</span></span>)</h3>
-          </div>
-          <span class="badge badge-pink">En-tête X-Frame-Options & CSP</span>
-        </div>
-
-        <div class="risk-context-box">
-          <div class="risk-header-row">
-            <div class="risk-tag">🎯 Le Risque Réel pour l'Activité de Nelly</div>
-            <span class="risk-level critical">Risque Réputationnel & Fraude : Élevé</span>
-          </div>
-          
-          <p class="risk-concept">
-            Un pirate peut intégrer l'ancien site Nell'Immo dans une fenêtre <span class="tip">&lt;iframe&gt;<span class="tip-icon">ℹ</span><span class="tip-box"><strong>&lt;iframe&gt;</strong>Balise HTML permettant d'intégrer un site web à l'intérieur d'un autre site, comme une vidéo YouTube dans un article.</span></span> sur son propre site malveillant, mais en le rendant <strong>100% invisible</strong> (comme une vitre transparente). Il place par-dessus un bouton séduisant (ex: <em>« Téléchargez votre estimation gratuite »</em>). Quand le visiteur clique, son doigt appuie en réalité à travers la vitre sur un bouton du site de Nell'Immo sans qu'il le sache.
-          </p>
-
-          <div class="attack-scenario">
-            <div class="attack-scenario-title">⚠️ Scénario concret pour l'agence :</div>
-            <p class="attack-scenario-text">
-              Un faux site concurrent peut ainsi détourner les formulaires de demande de mandat, soumettre de fausses coordonnées d'acquéreurs ou faire envoyer des messages frauduleux en se servant de l'identité et du nom de Nelly Fernandez.
-            </p>
-          </div>
-        </div>
-
-        <div class="duel-comparison-grid">
-          <div class="site-col old-site">
-            <div>
-              <div class="site-col-head">
-                <span class="site-col-name" style="color: var(--danger);">Ancien Site (www.nellimmo.fr)</span>
-                <span class="badge badge-red">❌ Non Protégé</span>
-              </div>
-              <p class="site-col-desc">
-                Le serveur n'envoie aucune consigne de blocage. N'importe quel site internet du monde peut intégrer et détourner les pages de l'agence.
-              </p>
-            </div>
-            <pre class="live-code"><span class="hl-red"># En-têtes constatés sur l'ancien site :</span>
-HTTP/1.1 200 OK
-server: Apache
-<span class="hl-red">X-Frame-Options: [ABSENT !]</span>
-<span class="hl-red">Content-Security-Policy: [ABSENT !]</span>
---> Porte ouverte au détournement visuel !</pre>
-          </div>
-
-          <div class="site-col new-site">
-            <div>
-              <div class="site-col-head">
-                <span class="site-col-name" style="color: var(--success);">Nouveau Site (nellimmo.vercel.app)</span>
-                <span class="badge badge-green">✅ Verrouillage Strict</span>
-              </div>
-              <p class="site-col-desc">
-                Le serveur ordonne fermement aux navigateurs d'interdire l'affichage du site dans toute fenêtre externe grâce à l'en-tête anti-détournement.
-              </p>
-            </div>
-            <pre class="live-code"><span class="hl-green"># En-têtes constatés sur le nouveau site :</span>
-HTTP/1.1 200 OK
-<span class="hl-green">X-Frame-Options: DENY</span>
-<span class="hl-green">Content-Security-Policy: frame-ancestors 'none';</span>
---> Aucun pirate ne peut enfermer le site !</pre>
-          </div>
-        </div>
-      </article>
-
-      <!-- ITEM 2 : COOKIE SANS PROTECTION -->
-      <article class="duel-card">
-        <div class="duel-card-header">
-          <div class="duel-title-group">
-            <span class="duel-num">02</span>
-            <h3>Le Risque d'Usurpation d'Identité (<span class="tip">Vol de Cookie de Session<span class="tip-icon">ℹ</span><span class="tip-box"><strong>Vol de session</strong>Lorsqu'un pirate s'empare de votre badge de connexion pour agir sur le site exactement comme s'il était vous.</span></span>)</h3>
-          </div>
-          <span class="badge badge-pink">Protection des Cookies & En-têtes Set-Cookie</span>
-        </div>
-
-        <div class="risk-context-box">
-          <div class="risk-header-row">
-            <div class="risk-tag">🎯 Le Risque Réel pour l'Activité de Nelly</div>
-            <span class="risk-level critical">Risque de Confidentialité & Sanctions RGPD : Critique</span>
-          </div>
-          
-          <p class="risk-concept">
-            Le badge de visiteur (le <span class="tip">cookie PHPSESSID<span class="tip-icon">ℹ</span><span class="tip-box"><strong>PHPSESSID</strong>Nom technique donné par le langage PHP au cookie de session qui suit un utilisateur lorsqu'il navigue sur le site.</span></span>) distribué par l'ancien site n'a aucun cadenas. Il n'a pas l'attribut <span class="tip">HttpOnly<span class="tip-icon">ℹ</span><span class="tip-box"><strong>HttpOnly</strong>Barrière qui empêche un script malveillant présent dans une page de voler le cookie de session via JavaScript.</span></span> et peut donc être aspiré par un script pirate. De plus, il n'a pas l'attribut <span class="tip">Secure<span class="tip-icon">ℹ</span><span class="tip-box"><strong>Secure</strong>Attribut garantissant que le cookie ne peut circuler que dans un tunnel crypté SSL/HTTPS.</span></span>, ce qui l'autorise à voyager en clair dans l'air.
-          </p>
-
-          <div class="attack-scenario">
-            <div class="attack-scenario-title">⚠️ Scénario concret pour l'agence :</div>
-            <p class="attack-scenario-text">
-              Si Nelly Fernandez consulte son site sur son ordinateur ou son smartphone depuis le réseau Wi-Fi d'un café, d'une gare ou d'un salon immobilier, son badge de session circule sans protection. Un tiers malveillant connecté au même Wi-Fi peut capturer ce badge et usurper son identité sans jamais avoir à taper son mot de passe.
-            </p>
-          </div>
-        </div>
-
-        <div class="duel-comparison-grid">
-          <div class="site-col old-site">
-            <div>
-              <div class="site-col-head">
-                <span class="site-col-name" style="color: var(--danger);">Ancien Site (www.nellimmo.fr)</span>
-                <span class="badge badge-red">❌ Badge Sans Cadenas</span>
-              </div>
-              <p class="site-col-desc">
-                Le cookie de session voyage sans protection. Tout petit script JavaScript peut lire sa valeur via <code>document.cookie</code> et l'envoyer à un serveur distant.
-              </p>
-            </div>
-            <pre class="live-code"><span class="hl-red"># Cookie délivré par l'ancien site :</span>
-<span class="hl-red">set-cookie: PHPSESSID=8e9fit...; path=/</span>
-<span class="hl-red">HttpOnly: ABSENT</span> (Volable par JavaScript)
-<span class="hl-red">Secure:   ABSENT</span> (Peut voyager en clair)
-<span class="hl-red">SameSite: ABSENT</span> (Exposé aux fausses requêtes)</pre>
-          </div>
-
-          <div class="site-col new-site">
-            <div>
-              <div class="site-col-head">
-                <span class="site-col-name" style="color: var(--success);">Nouveau Site (nellimmo.vercel.app)</span>
-                <span class="badge badge-green">✅ Badge Ultra-Sécurisé</span>
-              </div>
-              <p class="site-col-desc">
-                Le cookie d'authentification est totalement scellé : invisible pour les scripts du navigateur et confiné aux connexions cryptées HTTPS de bout en bout.
-              </p>
-            </div>
-            <pre class="live-code"><span class="hl-green"># Cookie délivré par le nouveau site :</span>
-<span class="hl-green">set-cookie: nellimmo_cockpit_auth=...; Path=/;</span>
-<span class="hl-green">HttpOnly: OUI</span> (Totalement inaccessible en JS)
-<span class="hl-green">Secure:   OUI</span> (Uniquement sous cadenas SSL)
-<span class="hl-green">SameSite: Lax</span> (Protégé contre les faux clics)</pre>
-          </div>
-        </div>
-      </article>
-
-      <!-- ITEM 3 : EXPOSITION DU COCKPIT -->
-      <article class="duel-card">
-        <div class="duel-card-header">
-          <div class="duel-title-group">
-            <span class="duel-num">03</span>
-            <h3>L'Exposition de l'Espace de Gestion (<span class="tip">Panneau d'Administration / Cockpit<span class="tip-icon">ℹ</span><span class="tip-box"><strong>Espace Cockpit</strong>Le tableau de bord réservé à Nelly Fernandez pour gérer l'ensemble des affaires internes de son agence.</span></span>)</h3>
-          </div>
-          <span class="badge badge-pink">Contrôle d'Accès & Barrière HTTP 401</span>
-        </div>
-
-        <div class="risk-context-box">
-          <div class="risk-header-row">
-            <div class="risk-tag">🎯 Le Risque Réel pour l'Activité de Nelly</div>
-            <span class="risk-level critical">Risque Métier Ultime : Vol des Dossiers et Clés Physiques</span>
-          </div>
-          
-          <p class="risk-concept">
-            Le <strong>Cockpit Nell'Immo</strong> regroupe les données les plus stratégiques de l'agence : la pige immobilière, les dossiers de location <span class="tip">Loi ALUR<span class="tip-icon">ℹ</span><span class="tip-box"><strong>Loi ALUR (Dossiers locataires)</strong>Pièces ultra-sensibles : avis d'impôt, bulletins de salaire, pièces d'identité et RIB transmis par les candidats locataires.</span></span>, les coordonnées privées des propriétaires et surtout le <strong>registre de localisation et des codes des boîtes à clés physiques</strong> des maisons en vente.
-          </p>
-
-          <div class="attack-scenario">
-            <div class="attack-scenario-title">⚠️ Scénario concret pour l'agence :</div>
-            <p class="attack-scenario-text">
-              Si l'adresse du panneau de gestion est en accès libre sur le web avec un bouton public invitant à s'inscrire, des robots pirates peuvent lancer des attaques par <span class="tip">force brute<span class="tip-icon">ℹ</span><span class="tip-box"><strong>Attaque par force brute</strong>Robot automatisé qui teste des dizaines de milliers de mots de passe par minute pour fracturer une page de connexion.</span></span> sans être filtrés, mettant en péril la sécurité physique des appartements sous mandat.
-            </p>
-          </div>
-        </div>
-
-        <div class="duel-comparison-grid">
-          <div class="site-col old-site">
-            <div>
-              <div class="site-col-head">
-                <span class="site-col-name" style="color: var(--danger);">Ancien Site (www.nellimmo.fr)</span>
-                <span class="badge badge-red">❌ Aucune Barrière Réseau</span>
-              </div>
-              <p class="site-col-desc">
-                Les pages d'administration répondent directement à n'importe quel robot sur internet sans filtre de filtrage préalable à l'entrée.
-              </p>
-            </div>
-            <pre class="live-code"><span class="hl-red"># Comportement sans pare-feu réseau :</span>
-HTTP/1.1 200 OK
-Formulaire de connexion ouvert à tous
---> Les robots peuvent tester des millions de mots de passe !</pre>
-          </div>
-
-          <div class="site-col new-site">
-            <div>
-              <div class="site-col-head">
-                <span class="site-col-name" style="color: var(--success);">Nouveau Site (nellimmo.vercel.app)</span>
-                <span class="badge badge-green">✅ Vigile Infranchissable HTTP 401</span>
-              </div>
-              <p class="site-col-desc">
-                L'adresse <code>/cockpit</code> est protégée dès l'entrée par un <span class="tip">Middleware Edge<span class="tip-icon">ℹ</span><span class="tip-box"><strong>Middleware Edge</strong>Garde du corps électronique qui intercepte chaque demande avant même qu'elle ne touche le site pour exiger le mot de passe maître.</span></span>. Sans l'authentification secrète de Nelly, la porte reste close avec un refus <strong>HTTP 401</strong>.
-              </p>
-            </div>
-            <pre class="live-code"><span class="hl-green"># Test réel constaté sur https://nellimmo.vercel.app/cockpit :</span>
-<span class="hl-green">HTTP/1.1 401 Unauthorized</span>
-<span class="hl-green">Www-Authenticate: Basic realm="Espace Cockpit Administration"</span>
-<span class="hl-green">X-Robots-Tag: noindex, nofollow, noarchive</span>
---> L'intrus est stoppé net sur le palier !</pre>
-          </div>
-        </div>
-      </article>
-
-      <!-- ITEM 4 : CHIFFREMENT OBLIGATOIRE HSTS -->
-      <article class="duel-card">
-        <div class="duel-card-header">
-          <div class="duel-title-group">
-            <span class="duel-num">04</span>
-            <h3>L'Absence de Cadenas Garanti (<span class="tip">Déclassement HTTP sans HSTS<span class="tip-icon">ℹ</span><span class="tip-box"><strong>Déclassement HTTP (SSL Strip)</strong>Technique pirate où un espion intercepte votre connexion et vous force discrètement à naviguer en HTTP sans cadenas pour lire vos formulaires.</span></span>)</h3>
-          </div>
-          <span class="badge badge-pink">En-tête Strict-Transport-Security</span>
-        </div>
-
-        <div class="risk-context-box">
-          <div class="risk-header-row">
-            <div class="risk-tag">🎯 Le Risque Réel pour l'Activité de Nelly</div>
-            <span class="risk-level high">Risque d'Interception d'Estimations : Élevé</span>
-          </div>
-          
-          <p class="risk-concept">
-            Avoir un cadenas <span class="tip">HTTPS<span class="tip-icon">ℹ</span><span class="tip-box"><strong>HTTPS</strong>Protocole web sécurisé (le petit cadenas dans la barre d'adresse) qui crypte les données entre votre écran et le serveur.</span></span> ne suffit pas si le serveur n'interdit pas expressément au navigateur de repasser en HTTP classique. C'est le rôle de l'en-tête <span class="tip">HSTS<span class="tip-icon">ℹ</span><span class="tip-box"><strong>HSTS</strong>Ordre gravé dans le navigateur disant : « N'accepte JAMAIS de communiquer avec Nell'Immo sans cadenas crypté, sous aucun prétexte ».</span></span>.
-          </p>
-
-          <div class="attack-scenario">
-            <div class="attack-scenario-title">⚠️ Scénario concret pour l'agence :</div>
-            <p class="attack-scenario-text">
-              Un client potentiel remplit une demande d'estimation ou un dossier acquéreur depuis son lieu de travail ou un hotspot Wi-Fi. Un espion réseau force discrètement la connexion en HTTP non sécurisé : les coordonnées du client, son budget d'achat et son adresse postale sont alors interceptés en clair.
-            </p>
-          </div>
-        </div>
-
-        <div class="duel-comparison-grid">
-          <div class="site-col old-site">
-            <div>
-              <div class="site-col-head">
-                <span class="site-col-name" style="color: var(--danger);">Ancien Site (www.nellimmo.fr)</span>
-                <span class="badge badge-red">❌ HSTS Absent</span>
-              </div>
-              <p class="site-col-desc">
-                L'ancien serveur ne transmet aucune directive HSTS. Un pirate peut facilement rétrograder la connexion vers du HTTP classique pour espionner les messages.
-              </p>
-            </div>
-            <pre class="live-code"><span class="hl-red"># En-tête sur l'ancien site :</span>
-<span class="hl-red">Strict-Transport-Security: [ABSENT !]</span>
---> Possibilité de rétrograder la connexion en HTTP non chiffré !</pre>
-          </div>
-
-          <div class="site-col new-site">
-            <div>
-              <div class="site-col-head">
-                <span class="site-col-name" style="color: var(--success);">Nouveau Site (nellimmo.vercel.app)</span>
-                <span class="badge badge-green">✅ HSTS Strict sur 2 Ans</span>
-              </div>
-              <p class="site-col-desc">
-                Le nouveau site impose le cadenas HTTPS de façon inviolable sur 2 ans (<span class="tip">63 072 000 secondes<span class="tip-icon">ℹ</span><span class="tip-box"><strong>Durée de 2 ans</strong>Norme maximale recommandée par la CNIL et les banques pour garantir un cryptage total sur la durée.</span></span>) avec inscription sur les listes mondiales de sécurité Google & Apple.
-              </p>
-            </div>
-            <pre class="live-code"><span class="hl-green"># En-tête strict actif sur le nouveau site :</span>
-<span class="hl-green">Strict-Transport-Security: max-age=63072000; includeSubDomains; preload</span>
---> Connexion 100% infalsifiable et cryptée !</pre>
-          </div>
-        </div>
-      </article>
-
-      <!-- ITEM 5 : CORS WILDCARD -->
-      <article class="duel-card">
-        <div class="duel-card-header">
-          <div class="duel-title-group">
-            <span class="duel-num">05</span>
-            <h3>Le Risque de Pillage Commercial (<span class="tip">CORS Permissif Wildcard *<span class="tip-icon">ℹ</span><span class="tip-box"><strong>CORS Wildcard (*)</strong>Autorisation donnée par le serveur disant que TOUS les autres sites du web ont le droit de venir lire ses pages et ses données.</span></span>)</h3>
-          </div>
-          <span class="badge badge-pink">En-tête Access-Control-Allow-Origin: *</span>
-        </div>
-
-        <div class="risk-context-box">
-          <div class="risk-header-row">
-            <div class="risk-tag">🎯 Le Risque Réel pour l'Activité de Nelly</div>
-            <span class="risk-level high">Risque de Pillage d'Annonces par des Concurrents : Élevé</span>
-          </div>
-          
-          <p class="risk-concept">
-            Le mécanisme <span class="tip">CORS<span class="tip-icon">ℹ</span><span class="tip-box"><strong>CORS</strong>Mécanisme du navigateur qui empêche un site A d'aller fouiller en douce dans le contenu d'un site B.</span></span> est une barrière qui empêche des sites inconnus de venir piocher dans vos données. Sur l'ancien site de La Boîte Immo, le serveur affiche une étoile universelle (<code>*</code>), donnant carte blanche à n'importe quel site internet pour interroger les pages de Nell'Immo.
-          </p>
-
-          <div class="attack-scenario">
-            <div class="attack-scenario-title">⚠️ Scénario concret pour l'agence :</div>
-            <p class="attack-scenario-text">
-              Une agence concurrente ou un agrégateur sauvage peut placer un script sur son propre site pour aspirer automatiquement en temps réel toutes les annonces de Nelly, les baisses de prix et les photos haute définition, sans jamais demander son accord et en détournant son trafic naturel.
-            </p>
-          </div>
-        </div>
-
-        <div class="duel-comparison-grid">
-          <div class="site-col old-site">
-            <div>
-              <div class="site-col-head">
-                <span class="site-col-name" style="color: var(--danger);">Ancien Site (www.nellimmo.fr)</span>
-                <span class="badge badge-red">❌ Portes Ouvertes à Tous</span>
-              </div>
-              <p class="site-col-desc">
-                Le serveur Apache autorise tous les domaines de la terre à interroger la page d'accueil de Nell'Immo sans aucune restriction.
-              </p>
-            </div>
-            <pre class="live-code"><span class="hl-red"># En-tête relevé sur l'ancien site :</span>
-<span class="hl-red">access-control-allow-origin: *</span>
-<span class="hl-red">access-control-allow-headers: Authorization, Content-Type</span>
---> N'importe quel site étranger est invité à lire les données !</pre>
-          </div>
-
-          <div class="site-col new-site">
-            <div>
-              <div class="site-col-head">
-                <span class="site-col-name" style="color: var(--success);">Nouveau Site (nellimmo.vercel.app)</span>
-                <span class="badge badge-green">✅ Cloisonnement Étanche</span>
-              </div>
-              <p class="site-col-desc">
-                Aucun wildcard laxiste. Les requêtes de données sensibles exigent une authentification stricte, garantissant que seuls les outils officiels de l'agence peuvent communiquer avec le serveur.
-              </p>
-            </div>
-            <pre class="live-code"><span class="hl-green"># Réponse du nouveau site face à une tentative externe :</span>
-curl -i https://nellimmo.vercel.app/api/settings/ai-key
-<span class="hl-green">HTTP/1.1 401 Unauthorized</span>
-{"error":"unauthorized","message":"Accès restreint"}</pre>
-          </div>
-        </div>
-      </article>
-
-      <!-- ITEM 6 : OBSOLESCENCE SERVEUR -->
-      <article class="duel-card">
-        <div class="duel-card-header">
-          <div class="duel-title-group">
-            <span class="duel-num">06</span>
-            <h3>La Divulgation des Logiciels Obsolètes (<span class="tip">Signature Serveur de 2020<span class="tip-icon">ℹ</span><span class="tip-box"><strong>Signature Serveur</strong>Texte renvoyé par un site qui dévoile aux pirates la marque et la version exacte de ses logiciels informatiques.</span></span>)</h3>
-          </div>
-          <span class="badge badge-pink">En-tête Serveur & Failles Logicielles Connues</span>
-        </div>
-
-        <div class="risk-context-box">
-          <div class="risk-header-row">
-            <div class="risk-tag">🎯 Le Risque Réel pour l'Activité de Nelly</div>
-            <span class="risk-level high">Risque de Blacklistage Google & Piratage Automatisé : Élevé</span>
-          </div>
-          
-          <p class="risk-concept">
-            Les cybercriminels ne cherchent pas à attaquer Nelly en personne : ils lancent des <span class="tip">robots scanners<span class="tip-icon">ℹ</span><span class="tip-box"><strong>Robots scanners</strong>Programmes informatiques qui testent des millions de sites web par jour pour repérer automatiquement les serveurs obsolètes qui n'ont pas été mis à jour.</span></span> qui parcourent le web. Dès qu'un robot découvre un serveur qui annonce publiquement utiliser des logiciels non mis à jour depuis des années, il lance automatiquement des attaques toutes prêtes.
-          </p>
-
-          <div class="attack-scenario">
-            <div class="attack-scenario-title">⚠️ Scénario concret pour l'agence :</div>
-            <p class="attack-scenario-text">
-              L'ancien site utilise un moteur de 2020. Si un pirate exploite une vieille faille de cette version, il peut injecter des redirections publicitaires malveillantes sur les fiches de biens de Nell'Immo. Résultat : <strong>Google classe immédiatement le site en « Site dangereux ou trompeur »</strong>, détruisant des années de réputation locale.
-            </p>
-          </div>
-        </div>
-
-        <div class="duel-comparison-grid">
-          <div class="site-col old-site">
-            <div>
-              <div class="site-col-head">
-                <span class="site-col-name" style="color: var(--danger);">Ancien Site (www.nellimmo.fr)</span>
-                <span class="badge badge-red">❌ Carte d'Identité Exposée</span>
-              </div>
-              <p class="site-col-desc">
-                L'hébergement historique de La Boîte Immo étale tous les détails de son moteur interne et le nom de ses machines de répartition.
-              </p>
-            </div>
-            <pre class="live-code"><span class="hl-red"># En-têtes réels constatés sur l'ancien site :</span>
-server: Apache
-<span class="hl-red">x-bobcat-version: kitty.pryde.20201020.rev2</span> (Date du 20/10/2020 !)
-<span class="hl-red">x-server-id: cluster8-w3</span>
-<span class="hl-red">x-lbi-loadbalancer: cluster8-lb1</span>
-<span class="hl-red">x-lbi-server: cluster8-w3</span>
---> Les robots savent exactement quelles failles de 2020 viser !</pre>
-          </div>
-
-          <div class="site-col new-site">
-            <div>
-              <div class="site-col-head">
-                <span class="site-col-name" style="color: var(--success);">Nouveau Site (nellimmo.vercel.app)</span>
-                <span class="badge badge-green">✅ Silence Radio Total</span>
-              </div>
-              <p class="site-col-desc">
-                Le réseau Vercel Edge applique un anonymat complet. Aucune version interne n'est divulguée et la plateforme est maintenue à jour quotidiennement de manière invisible.
-              </p>
-            </div>
-            <pre class="live-code"><span class="hl-green"># En-têtes relevés sur le nouveau site :</span>
-<span class="hl-green">Server: Vercel</span>
-X-Content-Type-Options: nosniff
---> Zéro information exploitable par les robots pirates !</pre>
-          </div>
-        </div>
-      </article>
-
-      <!-- ITEM 7 : VULNERABILITES JQUERY 1.10.1 (2013) -->
-      <article class="duel-card">
-        <div class="duel-card-header">
-          <div class="duel-title-group">
-            <span class="duel-num">07</span>
-            <h3>La Bibliothèque Obsolète <span class="tip">jQuery 1.10.1<span class="tip-icon">ℹ</span><span class="tip-box"><strong>jQuery</strong>Boîte à outils JavaScript historique créée en 2006. Très populaire à l'époque, les vieilles versions non maintenues sont aujourd'hui des cibles majeures de piratage.</span></span> (Failles <span class="tip">XSS<span class="tip-icon">ℹ</span><span class="tip-box"><strong>XSS (Cross-Site Scripting)</strong>Attaque où un pirate injecte un code pirate dans une page web pour voler des formulaires ou manipuler l'affichage.</span></span>)</h3>
-          </div>
-          <span class="badge badge-pink">Librairies Obsolètes & Faille XSS</span>
-        </div>
-
-        <div class="risk-context-box">
-          <div class="risk-header-row">
-            <div class="risk-tag">🎯 Le Risque Réel pour l'Activité de Nelly</div>
-            <span class="risk-level critical">Risque d'Injection de Code & Détournement de Formulaires : Critique</span>
-          </div>
-          
-          <p class="risk-concept">
-            L'ancien site force chaque visiteur à télécharger la version <strong>jQuery 1.10.1</strong> et <strong>jQuery UI 1.10.3</strong>, qui datent de <strong>mai 2013</strong> (plus de 13 ans !). Ces versions comportent plusieurs vulnérabilités officielles répertoriées dans les registres mondiaux de cybersécurité (<span class="tip">CVE-2020-11022<span class="tip-icon">ℹ</span><span class="tip-box"><strong>CVE-2020-11022 & 11023</strong>Failles permettant d'exécuter du code malveillant lorsqu'un texte externe est inséré via les méthodes .html() ou .append().</span></span>, <span class="tip">CVE-2019-11358<span class="tip-icon">ℹ</span><span class="tip-box"><strong>Prototype Pollution</strong>Détournement de la mémoire interne de JavaScript qui permet à un pirate de modifier le comportement des fonctions du site.</span></span>, CVE-2015-9251).
-          </p>
-
-          <div class="attack-scenario">
-            <div class="attack-scenario-title">⚠️ Scénario concret pour l'agence :</div>
-            <p class="attack-scenario-text">
-              Un pirate peut utiliser les filtres de recherche de biens ou les formulaires pour injecter un petit script malicieux qui sera exécuté par la vieille bibliothèque jQuery. Il peut alors modifier à la volée les coordonnées affichées ou intercepter les demandes d'estimation saisies par les propriétaires pour les détourner vers sa propre adresse email.
-            </p>
-          </div>
-        </div>
-
-        <div class="duel-comparison-grid">
-          <div class="site-col old-site">
-            <div>
-              <div class="site-col-head">
-                <span class="site-col-name" style="color: var(--danger);">Ancien Site (www.nellimmo.fr)</span>
-                <span class="badge badge-red">❌ jQuery de Mai 2013</span>
-              </div>
-              <p class="site-col-desc">
-                Le code source de l'ancien site fait appel directement aux serveurs Google pour charger une version de jQuery vieille de plus de 13 ans contenant des failles XSS documentées.
-              </p>
-            </div>
-            <pre class="live-code"><span class="hl-red"># Scripts prélevés en direct sur l'ancien site :</span>
-&lt;script src="//ajax.googleapis.com/ajax/libs/
-  <span class="hl-red">jquery/1.10.1/jquery.min.js</span>"&gt;&lt;/script&gt;
-&lt;script src="//ajax.googleapis.com/ajax/libs/
-  <span class="hl-red">jqueryui/1.10.3/jquery-ui.min.js</span>"&gt;&lt;/script&gt;
---> Version de Mai 2013 avec failles XSS et Prototype Pollution !</pre>
-          </div>
-
-          <div class="site-col new-site">
-            <div>
-              <div class="site-col-head">
-                <span class="site-col-name" style="color: var(--success);">Nouveau Site (nellimmo.vercel.app)</span>
-                <span class="badge badge-green">✅ 0% jQuery (React 19 & Next.js 16)</span>
-              </div>
-              <p class="site-col-desc">
-                Aucune bibliothèque JavaScript obsolète. L'affichage repose sur le moteur <span class="tip">React 19<span class="tip-icon">ℹ</span><span class="tip-box"><strong>React 19</strong>Moteur moderne qui neutralise nativement les attaques XSS en encodant automatiquement chaque texte avant qu'il ne soit affiché.</span></span> qui protège nativement contre toute injection de code.
-              </p>
-            </div>
-            <pre class="live-code"><span class="hl-green"># Analyse du nouveau site :</span>
-<span class="hl-green">jQuery : 0% ABSENT (Totalement éliminé)</span>
-Moteur : React 19 & Next.js 16
-Protection : Virtual DOM avec encodage strict anti-XSS
---> Zéro composant obsolète, protection native !</pre>
-          </div>
-        </div>
-      </article>
-
-      <!-- ITEM 8 : USURPATION EMAIL ET ABSENCE DMARC -->
-      <article class="duel-card">
-        <div class="duel-card-header">
-          <div class="duel-title-group">
-            <span class="duel-num">08</span>
-            <h3>L'Usurpation d'Adresse Email (<span class="tip">Email Spoofing<span class="tip-icon">ℹ</span><span class="tip-box"><strong>Email Spoofing</strong>Technique où un pirate expédie des emails frauduleux en falsifiant l'expéditeur pour afficher @nellimmo.fr aux yeux du destinataire.</span></span> & Absence de <span class="tip">DMARC<span class="tip-icon">ℹ</span><span class="tip-box"><strong>DMARC</strong>Protection DNS suprême qui ordonne aux messageries (Gmail, Outlook) de détruire automatiquement les faux emails se faisant passer pour Nell'Immo.</span></span>)</h3>
-          </div>
-          <span class="badge badge-pink">Sécurité Messagerie & Réputation</span>
-        </div>
-
-        <div class="risk-context-box">
-          <div class="risk-header-row">
-            <div class="risk-tag">🎯 Le Risque Réel pour l'Activité de Nelly</div>
-            <span class="risk-level critical">Risque Majeur : Fraude au Faux RIB & Escroquerie aux Acquéreurs</span>
-          </div>
-          
-          <p class="risk-concept">
-            Sans consigne de sécurité stricte gravée dans le nom de domaine, envoyer un email est comme poster une lettre dans la rue : n'importe quel escroc peut écrire <strong>« De la part de : contact@nellimmo.fr »</strong> sur l'enveloppe ! Actuellement, le domaine <code>nellimmo.fr</code> n'a <strong>aucun enregistrement DMARC</strong> et possède un <span class="tip">SPF neutre (?all)<span class="tip-icon">ℹ</span><span class="tip-box"><strong>SPF Neutre (?all)</strong>Configuration incomplète qui n'ordonne aucun rejet des faux emails, laissant les serveurs tiers accepter les faux messages sans alerte.</span></span>.
-          </p>
-
-          <div class="attack-scenario">
-            <div class="attack-scenario-title">⚠️ Scénario concret pour l'agence (L'arnaque au faux RIB) :</div>
-            <p class="attack-scenario-text">
-              Un cybercriminel envoie un faux message depuis <code>nelly@nellimmo.fr</code> à un acquéreur qui vient de visiter un bien : <em>« Bonjour, suite à notre accord, merci de verser le séquestre de 15 000 € sur ce RIB joint »</em>. L'acheteur voit l'adresse légitime de l'agence, effectue le virement vers le compte du pirate, et Nelly se retrouve confrontée à un préjudice financier et judiciaire dramatique.
-            </p>
-          </div>
-        </div>
-
-        <div class="duel-comparison-grid">
-          <div class="site-col old-site">
-            <div>
-              <div class="site-col-head">
-                <span class="site-col-name" style="color: var(--danger);">Ancien Site & Domaine Actuel</span>
-                <span class="badge badge-red">❌ Portes Ouvertes aux Faux Mails</span>
-              </div>
-              <p class="site-col-desc">
-                Le nom de domaine n'a aucun garde-fou DMARC. Les serveurs de messagerie (Orange, Gmail, SFR, banques) ne rejettent pas les emails usurpés.
-              </p>
-            </div>
-            <pre class="live-code"><span class="hl-red"># Enregistrements DNS réels prélevés sur nellimmo.fr :</span>
-SPF : <span class="hl-red">v=spf1 include:la-boite-immo.fr ?all</span> (?all = Neutre, ne bloque rien !)
-DMARC : <span class="hl-red">_dmarc.nellimmo.fr : Le nom DNS n'existe pas !</span>
---> N'importe qui peut envoyer des emails en se faisant passer pour l'agence !</pre>
-          </div>
-
-          <div class="site-col new-site">
-            <div>
-              <div class="site-col-head">
-                <span class="site-col-name" style="color: var(--success);">Nouveau Projet & DNS Sécurisés</span>
-                <span class="badge badge-green">✅ Blindage Anti-Usurpation DMARC</span>
-              </div>
-              <p class="site-col-desc">
-                Mise en place recommandée des règles strictes <span class="tip">DMARC p=reject<span class="tip-icon">ℹ</span><span class="tip-box"><strong>DMARC p=reject</strong>Ordre formel donné au monde entier : rejeter et détruire immédiatement tout email qui n'émane pas des serveurs autorisés de Nelly.</span></span> et d'un SPF durci avec signature cryptographique <span class="tip">DKIM<span class="tip-icon">ℹ</span><span class="tip-box"><strong>DKIM</strong>Signature électronique cryptographique 2048 bits apposée sur chaque email prouvant de façon certaine son authenticité.</span></span>.
-              </p>
-            </div>
-            <pre class="live-code"><span class="hl-green"># Configuration recommandée à la bascule :</span>
-SPF : <span class="hl-green">v=spf1 include:... -all</span> (-all = Rejet catégorique des imposteurs)
-DMARC : <span class="hl-green">v=DMARC1; p=reject; rua=mailto:securite@nellimmo.fr</span>
-DKIM : Clé cryptographique 2048 bits scellée
---> Impossible d'usurper l'adresse de Nell'Immo !</pre>
-          </div>
-        </div>
-      </article>
-
-    </div>
-
-    <!-- GRAND TABLEAU COMPARATIF FINAL -->
-    <div class="section-head">
-      <h2>Tableau Récapitulatif : Face-à-Face Global</h2>
-      <p>Synthèse directe entre les deux plateformes pour l'activité de Nelly Fernandez.</p>
-    </div>
-
-    <div class="matrix-card">
-      <table class="matrix-table">
+    <div class="table-container">
+      <table class="report-table">
         <thead>
           <tr>
-            <th style="width: 26%;">Élément de Sécurité</th>
-            <th style="width: 22%;">Ancien Site (La Boîte Immo)</th>
-            <th style="width: 24%;">Nouveau Site (Vercel Edge)</th>
-            <th style="width: 28%;">Ce que ça change pour l'Agence</th>
+            <th style="width: 25%;">Point de Contrôle</th>
+            <th style="width: 20%;">Ancien Site (www.nellimmo.fr)</th>
+            <th style="width: 22%;">Nouveau Site (nellimmo.vercel.app)</th>
+            <th style="width: 33%;">Risque Concret pour Nelly Fernandez</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><strong>Protection <span class="tip">Clickjacking<span class="tip-icon">ℹ</span><span class="tip-box"><strong>Clickjacking</strong>Détournement de clic par superposition d'un calque invisible sur une page.</span></span></strong></td>
-            <td><span class="badge badge-red">❌ Totalement Absente</span></td>
-            <td><span class="badge badge-green">✅ X-Frame-Options: DENY</span></td>
-            <td>Aucun escroc ne peut piéger l'écran de Nell'Immo pour soutirer des clics ou des validations involontaires.</td>
+            <td><strong>1. Protection <span class="term" data-title="Clickjacking" data-desc="Piratage visuel consistant à superposer une fenêtre invisible sur un site pour tromper l'internaute et voler son clic sans qu'il s'en rende compte.">Clickjacking</span></strong></td>
+            <td><span class="badge-status danger">Non protégé</span></td>
+            <td><span class="badge-status success">Verrouillé (X-Frame-Options: DENY)</span></td>
+            <td>Détournement possible des clics de visiteurs ou manipulation frauduleuse de formulaires de contact.</td>
           </tr>
           <tr>
-            <td><strong>Accès au Cockpit Administrateur</strong></td>
-            <td><span class="badge badge-red">❌ Porte sans barrière</span></td>
-            <td><span class="badge badge-green">✅ Vigile HTTP 401 à l'Edge</span></td>
-            <td>Sécurité absolue pour les dossiers Loi ALUR (RIB, impôts) et le registre des clés physiques d'appartements.</td>
+            <td><strong>2. Protection des <span class="term" data-title="Cookies de Session" data-desc="Fichier témoin qui sert de badge d'accès temporaire pour maintenir une connexion active sur le site.">Cookies de Session</span></strong></td>
+            <td><span class="badge-status danger">Non sécurisés (sans HttpOnly/Secure)</span></td>
+            <td><span class="badge-status success">Sécurisés (HttpOnly + Secure + Lax)</span></td>
+            <td>Usurpation de session possible si Nelly ou un client se connecte sur un réseau Wi-Fi public non protégé.</td>
           </tr>
           <tr>
-            <td><strong>Chiffrement Obligatoire (<span class="tip">HSTS<span class="tip-icon">ℹ</span><span class="tip-box"><strong>HSTS</strong>Verrou qui force le cadenas crypté HTTPS et interdit le déclassement en HTTP.</span></span>)</strong></td>
-            <td><span class="badge badge-red">❌ Inexistant</span></td>
-            <td><span class="badge badge-green">✅ Strict 2 Ans + Preload</span></td>
-            <td>Garantie d'une liaison 100% inviolable, même si Nelly ou un client navigue sur un Wi-Fi public ouvert.</td>
+            <td><strong>3. Accès au <span class="term" data-title="Cockpit Administrateur" data-desc="Panneau de gestion interne réservé à l'agence pour gérer les mandats, dossiers clients et clés d'appartements.">Cockpit Administration</span></strong></td>
+            <td><span class="badge-status danger">Accès libre sans filtrage réseau</span></td>
+            <td><span class="badge-status success">Filtré par Middleware Edge (HTTP 401)</span></td>
+            <td>Tentatives d'intrusion par force brute sur les dossiers clients (Loi ALUR) et le registre des clés physiques.</td>
           </tr>
           <tr>
-            <td><strong>Cookies de Session (<span class="tip">HttpOnly<span class="tip-icon">ℹ</span><span class="tip-box"><strong>HttpOnly</strong>Verrou empêchant les scripts espions de dérober le cookie de connexion.</span></span>)</strong></td>
-            <td><span class="badge badge-red">❌ Sans HttpOnly ni Secure</span></td>
-            <td><span class="badge badge-green">✅ HttpOnly + Secure + SameSite</span></td>
-            <td>Le badge d'accès au site ne peut pas être dérobé par un virus ou une extension de navigateur douteuse.</td>
+            <td><strong>4. Chiffrement Forcé (<span class="term" data-title="HSTS" data-desc="Consigne stricte donnée au navigateur interdisant formellement d'ouvrir le site sans cadenas sécurisé (HTTPS).">HSTS</span>)</strong></td>
+            <td><span class="badge-status danger">Inexistant</span></td>
+            <td><span class="badge-status success">Strict 2 ans (Preload mondial)</span></td>
+            <td>Interception possible de données confidentielles (estimations, identifiants) en cas de dégradation en HTTP.</td>
           </tr>
           <tr>
-            <td><strong>Cloisonnement (<span class="tip">CORS Wildcard<span class="tip-icon">ℹ</span><span class="tip-box"><strong>CORS Wildcard (*)</strong>Autorisation donnée à tous les sites tiers de venir lire les données du site.</span></span>)</strong></td>
-            <td><span class="badge badge-red">❌ Ouvert à tous (*)</span></td>
-            <td><span class="badge badge-green">✅ Verrouillé & Authentifié</span></td>
-            <td>Les annonces, photos et baisses de prix sont protégées contre l'aspiration automatique par des concurrents.</td>
+            <td><strong>5. Cloisonnement des Requêtes (<span class="term" data-title="Politique CORS" data-desc="Règle du navigateur déterminant si d'autres sites web sont autorisés à lire ou aspirer les données de votre site.">CORS</span>)</strong></td>
+            <td><span class="badge-status danger">Ouvert à tous (Wildcard *)</span></td>
+            <td><span class="badge-status success">Cloisonné & Authentifié</span></td>
+            <td>Aspiration automatisée du catalogue d'annonces, des photos et des baisses de prix par des sites concurrents.</td>
           </tr>
           <tr>
-            <td><strong>Vieillissement des Logiciels Serveur</strong></td>
-            <td><span class="badge badge-red">❌ Moteur de 2020 (6 ans d'âge)</span></td>
-            <td><span class="badge badge-green">✅ Maintenu à jour en continu</span></td>
-            <td>Protection contre les vagues de piratage automatisé et zéro risque d'être pénalisé ou banni par Google.</td>
+            <td><strong>6. Divulgation de l'Infrastructure</strong></td>
+            <td><span class="badge-status danger">Détails et versions 2020 affichés</span></td>
+            <td><span class="badge-status success">Anonymisé (Silence radio)</span></td>
+            <td>Aide les robots scanners à repérer des composants obsolètes pour lancer des attaques ciblées.</td>
           </tr>
           <tr>
-            <td><strong>Bibliothèque JavaScript (<span class="tip">jQuery<span class="tip-icon">ℹ</span><span class="tip-box"><strong>jQuery</strong>Boîte à outils JavaScript des années 2010. Les vieilles versions sont réputées pour leurs failles XSS.</span></span>)</strong></td>
-            <td><span class="badge badge-red">❌ jQuery 1.10.1 (Mai 2013)</span></td>
-            <td><span class="badge badge-green">✅ 0% jQuery (React 19)</span></td>
-            <td>Suppression définitive des failles XSS historiques : impossible pour un pirate de détourner les formulaires ou d'injecter du code dans les annonces.</td>
+            <td><strong>7. Librairie JavaScript (<span class="term" data-title="jQuery" data-desc="Bibliothèque JavaScript très utilisée dans les années 2010. Les versions anciennes non maintenues contiennent des failles de sécurité connues.">jQuery 1.10.1</span>)</strong></td>
+            <td><span class="badge-status danger">Version de mai 2013 (failles XSS)</span></td>
+            <td><span class="badge-status success">0% jQuery (React 19 natif)</span></td>
+            <td>Failles d'injection de script (XSS) pouvant détourner les formulaires d'estimation vers un tiers.</td>
           </tr>
           <tr>
-            <td><strong>Protection Anti-Usurpation Email (<span class="tip">DMARC & SPF<span class="tip-icon">ℹ</span><span class="tip-box"><strong>DMARC & SPF</strong>Normes internationales empêchant les escrocs d'envoyer des emails avec le nom de domaine de l'agence.</span></span>)</strong></td>
-            <td><span class="badge badge-red">❌ Aucun DMARC & SPF neutre (?all)</span></td>
-            <td><span class="badge badge-green">✅ DMARC p=reject & SPF strict (-all)</span></td>
-            <td>Protection absolue contre l'arnaque au faux RIB et l'usurpation d'identité de l'agence auprès des acquéreurs et notaires.</td>
-          </tr>
-          <tr>
-            <td><strong>Note de Sécurité Globale</strong></td>
-            <td><span class="badge badge-red">🔴 3.2 / 10 (Note D)</span></td>
-            <td><span class="badge badge-green">🟢 9.8 / 10 (Note A+)</span></td>
-            <td>Passage d'une passoire numérique mutualisée à une forteresse moderne conforme aux exigences <span class="tip">RGPD<span class="tip-icon">ℹ</span><span class="tip-box"><strong>RGPD</strong>Règlement Général sur la Protection des Données imposant de protéger les données personnelles sous peine de lourdes amendes.</span></span>.</td>
+            <td><strong>8. Messagerie (<span class="term" data-title="DMARC & SPF" data-desc="Règles de sécurité sur le nom de domaine empêchant des tiers d'envoyer des emails avec votre adresse @nellimmo.fr.">DMARC & SPF</span>)</strong></td>
+            <td><span class="badge-status danger">SPF neutre (?all), aucun DMARC</span></td>
+            <td><span class="badge-status success">Protocole DMARC strict (p=reject)</span></td>
+            <td>Risque d'arnaque au faux RIB : un escroc peut envoyer un email avec l'adresse @nellimmo.fr pour détourner un séquestre.</td>
           </tr>
         </tbody>
       </table>
     </div>
 
-    <!-- CONCLUSION -->
-    <div style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(20, 30, 51, 0.9) 100%); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 22px; padding: 2.5rem; text-align: center; margin-bottom: 3.5rem; box-shadow: 0 15px 35px rgba(0,0,0,0.3);">
-      <h3 style="font-size: 1.6rem; font-weight: 800; color: #fff; margin-bottom: 0.85rem;">
-        Bilan pour Nelly Fernandez et Nell'Immo 🏆
-      </h3>
-      <p style="color: #cbd5e1; max-width: 900px; margin: 0 auto; line-height: 1.7; font-size: 1.02rem;">
-        La comparaison démontre sans ambiguïté que l'ancien site de La Boîte Immo exposait l'agence à des <strong>risques critiques de détournement, d'interception de session et de pillage de données</strong> dus à une technologie vieillissante figée en 2020.
-        <br><br>
-        Le <strong>nouveau site Nell'Immo</strong> apporte une réponse technologique radicale : une sécurité impénétrable de niveau bancaire (<strong>Note A+ de 9.8/10</strong>). Dès que le nom de domaine <code>nellimmo.fr</code> basculera sur cette nouvelle plateforme, l'agence, ses mandats exclusifs et ses clients bénéficieront d'une sérénité totale.
-      </p>
+    <!-- DETAILS PAR POINT DE CONTROLE -->
+    <h2 class="section-title">Analyse Détaillée Point par Point</h2>
+    <p class="section-subtitle">Examen technique et preuves constatées sur les serveurs de production.</p>
+
+    <div class="vuln-cards">
+
+      <!-- 1. CLICKJACKING -->
+      <article class="vuln-card">
+        <div class="vuln-header">
+          <div class="vuln-title-group">
+            <span class="vuln-index">01</span>
+            <h3 class="vuln-title">Protection contre le Détournement de Clic (<span class="term" data-title="Clickjacking" data-desc="Technique consistant à superposer un site légitime invisible dans une page piégée pour forcer un clic non consenti.">Clickjacking</span>)</h3>
+          </div>
+          <span class="badge-status danger">Vulnérabilité Écran</span>
+        </div>
+        <div class="vuln-body">
+          <div class="risk-box">
+            <strong>Risque pour l'activité de Nelly :</strong> Un site tiers peut encapsuler l'ancien site Nell'Immo dans une fenêtre invisible (<span class="term" data-title="iframe" data-desc="Cadre HTML permettant d'afficher un site web à l'intérieur d'une autre page.">iframe</span>) et superposer de faux boutons pour intercepter des demandes de contact ou faire exécuter des actions à des prospects à leur insu.
+          </div>
+          <div class="comparison-grid">
+            <div class="comparison-col">
+              <div class="col-title old">Ancien Site (www.nellimmo.fr)</div>
+              <p class="col-desc">Aucun en-tête <span class="term" data-title="X-Frame-Options" data-desc="Consigne envoyée au navigateur pour interdire ou autoriser l'affichage du site dans une iframe.">X-Frame-Options</span> ni directive de sécurité de contenu (<span class="term" data-title="CSP (Content Security Policy)" data-desc="Règle stricte limitant les sources autorisées à charger ou encadrer le contenu du site.">CSP</span>).</p>
+              <pre class="code-evidence"><span class="err"># En-têtes constatés :</span>
+HTTP/1.1 200 OK
+server: Apache
+X-Frame-Options: [ABSENT]
+Content-Security-Policy: [ABSENT]</pre>
+            </div>
+            <div class="comparison-col">
+              <div class="col-title new">Nouveau Site (nellimmo.vercel.app)</div>
+              <p class="col-desc">Blocage formel configuré au niveau du serveur. Tout encadrement externe est immédiatement rejeté par les navigateurs.</p>
+              <pre class="code-evidence"><span class="ok"># En-têtes constatés :</span>
+HTTP/1.1 200 OK
+X-Frame-Options: DENY
+Content-Security-Policy: frame-ancestors 'none';</pre>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- 2. COOKIES DE SESSION -->
+      <article class="vuln-card">
+        <div class="vuln-header">
+          <div class="vuln-title-group">
+            <span class="vuln-index">02</span>
+            <h3 class="vuln-title">Sécurité des <span class="term" data-title="Cookies de Session" data-desc="Fichiers contenant les identifiants temporaires d'un utilisateur connecté sur le site.">Cookies de Session</span> (Vol d'Accès)</h3>
+          </div>
+          <span class="badge-status danger">Confidentialité & RGPD</span>
+        </div>
+        <div class="vuln-body">
+          <div class="risk-box">
+            <strong>Risque pour l'activité de Nelly :</strong> Si Nelly ou un client utilise le site depuis un réseau non sécurisé (Wi-Fi de gare, d'hôtel ou de salon immobilier), un tiers peut capturer le badge de session en clair et usurper l'accès sans avoir besoin du mot de passe.
+          </div>
+          <div class="comparison-grid">
+            <div class="comparison-col">
+              <div class="col-title old">Ancien Site (www.nellimmo.fr)</div>
+              <p class="col-desc">Le cookie de session PHP est envoyé sans protection contre le vol par script ni obligation de chiffrement.</p>
+              <pre class="code-evidence"><span class="err"># En-tête Set-Cookie constaté :</span>
+set-cookie: PHPSESSID=8e9fit...; path=/
+HttpOnly: ABSENT (lisible par script)
+Secure:   ABSENT (peut circuler en non chiffré)</pre>
+            </div>
+            <div class="comparison-col">
+              <div class="col-title new">Nouveau Site (nellimmo.vercel.app)</div>
+              <p class="col-desc">Cookie d'authentification entièrement verrouillé : inaccessible aux scripts externes et limité aux connexions chiffrées.</p>
+              <pre class="code-evidence"><span class="ok"># En-tête Set-Cookie constaté :</span>
+set-cookie: nellimmo_cockpit_auth=...; Path=/;
+HttpOnly: OUI (protégé contre le vol)
+Secure:   OUI (HTTPS obligatoire)
+SameSite: Lax</pre>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- 3. ACCES ADMINISTRATION -->
+      <article class="vuln-card">
+        <div class="vuln-header">
+          <div class="vuln-title-group">
+            <span class="vuln-index">03</span>
+            <h3 class="vuln-title">Contrôle d'Accès au Panneau d'Administration (<span class="term" data-title="Cockpit" data-desc="Espace d'administration centralisant les mandats, dossiers clients et informations sensibles de l'agence.">Cockpit</span>)</h3>
+          </div>
+          <span class="badge-status danger">Accès Données Sensibles</span>
+        </div>
+        <div class="vuln-body">
+          <div class="risk-box">
+            <strong>Risque pour l'activité de Nelly :</strong> L'exposition publique d'une page de connexion permet aux robots de tester des milliers de mots de passe automatiquement (<span class="term" data-title="Attaque par Force Brute" data-desc="Méthode automatisée consistant à tester un très grand nombre de combinaisons de mots de passe jusqu'à trouver la bonne.">force brute</span>), menaçant les dossiers Loi ALUR (avis d'impôt, pièces d'identité) et le registre des clés d'appartements.
+          </div>
+          <div class="comparison-grid">
+            <div class="comparison-col">
+              <div class="col-title old">Ancien Site (www.nellimmo.fr)</div>
+              <p class="col-desc">Aucune barrière réseau à l'entrée. Les requêtes sur les espaces d'administration reçoivent un accord direct de chargement de page.</p>
+              <pre class="code-evidence"><span class="err"># Comportement observé :</span>
+HTTP/1.1 200 OK
+Accès direct à la page de connexion
+Aucun filtrage réseau préalable</pre>
+            </div>
+            <div class="comparison-col">
+              <div class="col-title new">Nouveau Site (nellimmo.vercel.app)</div>
+              <p class="col-desc">Protection par <span class="term" data-title="Middleware Edge" data-desc="Programme de sécurité exécuté au plus près de l'utilisateur qui filtre les requêtes avant même qu'elles n'atteignent l'application.">Middleware Edge</span> : blocage strict avec code <span class="term" data-title="HTTP 401" data-desc="Code de rejet officiel indiquant que l'accès est refusé sans authentification préalable.">HTTP 401 Unauthorized</span> pour toute personne non habilitée.</p>
+              <pre class="code-evidence"><span class="ok"># Test réel sur /cockpit :</span>
+HTTP/1.1 401 Unauthorized
+Www-Authenticate: Basic realm="Cockpit"
+X-Robots-Tag: noindex, nofollow, noarchive</pre>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- 4. HSTS -->
+      <article class="vuln-card">
+        <div class="vuln-header">
+          <div class="vuln-title-group">
+            <span class="vuln-index">04</span>
+            <h3 class="vuln-title">Chiffrement Obligatoire des Échanges (<span class="term" data-title="HSTS (Strict-Transport-Security)" data-desc="Mécanisme obligeant le navigateur à communiquer exclusivement en HTTPS, empêchant toute dégradation de sécurité.">HSTS</span>)</h3>
+          </div>
+          <span class="badge-status danger">Chiffrement Réseau</span>
+        </div>
+        <div class="vuln-body">
+          <div class="risk-box">
+            <strong>Risque pour l'activité de Nelly :</strong> Sans politique HSTS stricte, un pirate sur un réseau intermédiaire peut forcer le déclassement de la communication vers du HTTP non sécurisé et lire en clair les formulaires d'estimation ou de contact remplis par les clients.
+          </div>
+          <div class="comparison-grid">
+            <div class="comparison-col">
+              <div class="col-title old">Ancien Site (www.nellimmo.fr)</div>
+              <p class="col-desc">Aucun en-tête HSTS n'est émis. Le navigateur n'a aucune consigne d'obligation stricte du protocole HTTPS.</p>
+              <pre class="code-evidence"><span class="err"># En-tête HSTS :</span>
+Strict-Transport-Security: [ABSENT]
+--> Possibilité de rétrogradation en HTTP non chiffré</pre>
+            </div>
+            <div class="comparison-col">
+              <div class="col-title new">Nouveau Site (nellimmo.vercel.app)</div>
+              <p class="col-desc">Directive HSTS active sur 2 ans (<span class="term" data-title="max-age" data-desc="Durée en secondes pendant laquelle le navigateur retient l'obligation de se connecter en HTTPS (63 072 000 s = 2 ans).">63 072 000 secondes</span>) avec intégration aux listes de préchargement mondiales (Preload).</p>
+              <pre class="code-evidence"><span class="ok"># En-tête HSTS constaté :</span>
+Strict-Transport-Security: 
+  max-age=63072000; includeSubDomains; preload</pre>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- 5. CORS -->
+      <article class="vuln-card">
+        <div class="vuln-header">
+          <div class="vuln-title-group">
+            <span class="vuln-index">05</span>
+            <h3 class="vuln-title">Cloisonnement des Requêtes Inter-Domaines (<span class="term" data-title="CORS (Cross-Origin Resource Sharing)" data-desc="Norme de sécurité contrôlant quels sites internet tiers ont l'autorisation d'accéder aux données d'un domaine.">CORS</span>)</h3>
+          </div>
+          <span class="badge-status danger">Pillage Commercial</span>
+        </div>
+        <div class="vuln-body">
+          <div class="risk-box">
+            <strong>Risque pour l'activité de Nelly :</strong> Une règle CORS trop permissive (<span class="term" data-title="Wildcard (*)" data-desc="Caractère astérisque indiquant une absence de restriction, autorisant l'ensemble des sites tiers sans distinction.">wildcard *</span>) permet à des sites concurrents ou à des robots de collecter automatiquement le catalogue des annonces et les données de contact directement depuis le navigateur de leurs visiteurs.
+          </div>
+          <div class="comparison-grid">
+            <div class="comparison-col">
+              <div class="col-title old">Ancien Site (www.nellimmo.fr)</div>
+              <p class="col-desc">Le serveur transmet une autorisation générale sans restriction d'origine sur des réponses de page d'accueil.</p>
+              <pre class="code-evidence"><span class="err"># En-têtes constatés :</span>
+access-control-allow-origin: *
+access-control-allow-headers: Authorization, Content-Type
+--> Accès ouvert à l'ensemble des domaines tiers</pre>
+            </div>
+            <div class="comparison-col">
+              <div class="col-title new">Nouveau Site (nellimmo.vercel.app)</div>
+              <p class="col-desc">Suppression de tout wildcard non justifié. Les points d'entrée applicatifs exigent une session active et rejettent les accès tiers non autorisés.</p>
+              <pre class="code-evidence"><span class="ok"># Test sur point d'entrée privé :</span>
+curl -i https://nellimmo.vercel.app/api/settings/ai-key
+HTTP/1.1 401 Unauthorized
+{"error":"unauthorized"}</pre>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- 6. SIGNATURE SERVEUR -->
+      <article class="vuln-card">
+        <div class="vuln-header">
+          <div class="vuln-title-group">
+            <span class="vuln-index">06</span>
+            <h3 class="vuln-title">Divulgation d'Informations Techniques sur l'Infrastructure</h3>
+          </div>
+          <span class="badge-status danger">Reconnaissance d'Attaque</span>
+        </div>
+        <div class="vuln-body">
+          <div class="risk-box">
+            <strong>Risque pour l'activité de Nelly :</strong> Afficher publiquement la version exacte d'un serveur ou d'un moteur obsolète permet aux outils d'analyse automatisés de cibler directement les failles de sécurité non corrigées sur cette version spécifique.
+          </div>
+          <div class="comparison-grid">
+            <div class="comparison-col">
+              <div class="col-title old">Ancien Site (www.nellimmo.fr)</div>
+              <p class="col-desc">L'ancien hébergement expose le nom du serveur Apache, la version interne de 2020 et les identifiants de cluster de répartition.</p>
+              <pre class="code-evidence"><span class="err"># En-têtes exposés :</span>
+server: Apache
+x-bobcat-version: kitty.pryde.20201020.rev2 (octobre 2020)
+x-server-id: cluster8-w3
+x-lbi-loadbalancer: cluster8-lb1</pre>
+            </div>
+            <div class="comparison-col">
+              <div class="col-title new">Nouveau Site (nellimmo.vercel.app)</div>
+              <p class="col-desc">L'infrastructure Vercel Edge masque toute référence logicielle interne ou numéro de version système.</p>
+              <pre class="code-evidence"><span class="ok"># En-têtes constatés :</span>
+Server: Vercel
+X-Content-Type-Options: nosniff
+--> Aucune version logicielle interne n'est divulguée</pre>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- 7. JQUERY -->
+      <article class="vuln-card">
+        <div class="vuln-header">
+          <div class="vuln-title-group">
+            <span class="vuln-index">07</span>
+            <h3 class="vuln-title">Obsolescence de Dépendance : <span class="term" data-title="jQuery" data-desc="Bibliothèque JavaScript historique pour manipuler le code d'une page web.">jQuery 1.10.1</span> (Mai 2013)</h3>
+          </div>
+          <span class="badge-status danger">Vulnérabilité Applicative</span>
+        </div>
+        <div class="vuln-body">
+          <div class="risk-box">
+            <strong>Risque pour l'activité de Nelly :</strong> Cette version de jQuery (13 ans d'ancienneté) est affectée par des failles connues de type <span class="term" data-title="XSS (Cross-Site Scripting)" data-desc="Faiblesse permettant d'injecter du code JavaScript pirate dans une page web pour intercepter des saisies ou rediriger un internaute.">XSS</span> (<span class="term" data-title="CVE-2020-11022" data-desc="Numéro d'identification d'une faille documentée permettant d'exécuter du code malveillant via des fonctions de manipulation HTML de jQuery.">CVE-2020-11022</span>, <span class="term" data-title="Prototype Pollution" data-desc="Vulnérabilité modifiant le comportement global des objets JavaScript dans le navigateur.">CVE-2019-11358</span>) pouvant permettre l'altération de formulaires ou la redirection de prospects.
+          </div>
+          <div class="comparison-grid">
+            <div class="comparison-col">
+              <div class="col-title old">Ancien Site (www.nellimmo.fr)</div>
+              <p class="col-desc">Chargement direct de bibliothèques tierces obsolètes hébergées sur des dépôts publics non mis à jour.</p>
+              <pre class="code-evidence"><span class="err"># Code source prélevé :</span>
+&lt;script src="//ajax.googleapis.com/ajax/libs/
+  jquery/1.10.1/jquery.min.js"&gt;&lt;/script&gt;
+&lt;script src="//ajax.googleapis.com/ajax/libs/
+  jqueryui/1.10.3/jquery-ui.min.js"&gt;&lt;/script&gt;</pre>
+            </div>
+            <div class="comparison-col">
+              <div class="col-title new">Nouveau Site (nellimmo.vercel.app)</div>
+              <p class="col-desc">Aucune utilisation de jQuery. L'interface repose sur React 19 qui neutralise nativement les injections de contenu via son système d'encodage strict.</p>
+              <pre class="code-evidence"><span class="ok"># Analyse applicative :</span>
+jQuery : Absent (0%)
+Moteur d'interface : React 19 / Next.js 16
+Protection XSS : Encodage automatique du rendu</pre>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- 8. MESSAGERIE (DMARC/SPF) -->
+      <article class="vuln-card">
+        <div class="vuln-header">
+          <div class="vuln-title-group">
+            <span class="vuln-index">08</span>
+            <h3 class="vuln-title">Sécurité de la Messagerie : Risque d'Usurpation (<span class="term" data-title="Email Spoofing" data-desc="Pratique consistant à envoyer un faux email en falsifiant l'adresse d'expéditeur pour tromper le destinataire.">Email Spoofing</span>)</h3>
+          </div>
+          <span class="badge-status danger">Fraude & Usurpation</span>
+        </div>
+        <div class="vuln-body">
+          <div class="risk-box">
+            <strong>Risque pour l'activité de Nelly :</strong> En l'absence de politique DMARC stricte, un tiers peut envoyer des emails affichant comme expéditeur <code>contact@nellimmo.fr</code> ou <code>nelly@nellimmo.fr</code>. C'est le vecteur classique de l'arnaque au faux RIB lors d'un appel de fonds pour un séquestre ou des honoraires.
+          </div>
+          <div class="comparison-grid">
+            <div class="comparison-col">
+              <div class="col-title old">Ancien Site & Domaine Actuel</div>
+              <p class="col-desc">L'enregistrement <span class="term" data-title="SPF" data-desc="Enregistrement DNS spécifiant quels serveurs ont le droit d'envoyer des emails pour ce domaine.">SPF</span> actuel se termine par <code>?all</code> (neutre, ne bloque rien) et l'enregistrement <span class="term" data-title="DMARC" data-desc="Consigne officielle ordonnant le rejet ou la mise en quarantaine des emails frauduleux n'émanant pas de l'agence.">DMARC</span> est inexistant.</p>
+              <pre class="code-evidence"><span class="err"># Résolution DNS en direct :</span>
+SPF : v=spf1 include:la-boite-immo.fr ?all (?all = neutre)
+DMARC : _dmarc.nellimmo.fr -> Le nom DNS n'existe pas
+--> Les serveurs de messagerie ne rejettent pas les faux mails</pre>
+            </div>
+            <div class="comparison-col">
+              <div class="col-title new">Nouveau Projet & DNS Cibles</div>
+              <p class="col-desc">Recommandation d'application des standards stricts lors du rattachement du domaine : DMARC en politique de rejet (<code>p=reject</code>) et durcissement SPF (<code>-all</code>).</p>
+              <pre class="code-evidence"><span class="ok"># Configuration préconisée :</span>
+SPF : v=spf1 include:... -all (-all = rejet strict)
+DMARC : v=DMARC1; p=reject; rua=mailto:contact@nellimmo.fr
+DKIM : Signature cryptographique 2048 bits</pre>
+            </div>
+          </div>
+        </div>
+      </article>
+
     </div>
 
     <!-- FOOTER -->
-    <footer>
-      <p>Document officiel d'audit comparatif réalisé pour l'agence <strong>Nell'Immo (Nelly Fernandez)</strong> — Septembre 2026.</p>
-      <p style="margin-top: 0.5rem; font-size: 0.82rem; color: #64748b;">Mesures et en-têtes prélevés en conditions réelles sur https://www.nellimmo.fr/ et https://nellimmo.vercel.app/.</p>
+    <footer class="report-footer">
+      <p>Rapport d'audit de sécurité et de conformité réalisé pour <strong>Nell'Immo</strong> (Nelly Fernandez) — 11 Septembre 2026.</p>
+      <p style="margin-top: 0.3rem; font-size: 0.78rem;">Données prélevées par requêtes HTTP directes et requêtes DNS sur les domaines officiels.</p>
     </footer>
 
   </div>
+
+  <!-- POPUP D'INFOBULLE UNIQUE PILOTE PAR JS (ROBUSTE & SANS GLITCH) -->
+  <div id="tooltip-popup"></div>
+
+  <script>
+    (function() {
+      const popup = document.getElementById('tooltip-popup');
+      const terms = document.querySelectorAll('.term');
+
+      terms.forEach(term => {
+        function showTip(e) {
+          const title = term.getAttribute('data-title') || term.textContent;
+          const desc = term.getAttribute('data-desc') || '';
+          popup.innerHTML = '<strong>' + title + '</strong>' + desc;
+          popup.style.display = 'block';
+          positionTip(e);
+        }
+
+        function hideTip() {
+          popup.style.display = 'none';
+        }
+
+        function positionTip(e) {
+          const x = e.clientX;
+          const y = e.clientY;
+          const popupRect = popup.getBoundingClientRect();
+          const padding = 15;
+
+          let left = x + 15;
+          let top = y + 15;
+
+          // Eviter le débordement à droite
+          if (left + popupRect.width > window.innerWidth - padding) {
+            left = x - popupRect.width - 15;
+          }
+
+          // Eviter le débordement en bas
+          if (top + popupRect.height > window.innerHeight - padding) {
+            top = y - popupRect.height - 15;
+          }
+
+          popup.style.left = Math.max(padding, left) + 'px';
+          popup.style.top = Math.max(padding, top) + 'px';
+        }
+
+        term.addEventListener('mouseenter', showTip);
+        term.addEventListener('mousemove', positionTip);
+        term.addEventListener('mouseleave', hideTip);
+        term.addEventListener('click', function(e) {
+          showTip(e);
+          e.stopPropagation();
+        });
+      });
+
+      document.addEventListener('click', function() {
+        popup.style.display = 'none';
+      });
+    })();
+  </script>
 
 </body>
 </html>
