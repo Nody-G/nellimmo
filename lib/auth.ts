@@ -34,6 +34,7 @@ import {
     type CockpitUser,
     type NewCockpitUser,
 } from './users';
+import { lockVault } from './vault';
 
 const PASSWORD_KEY = 'nellimo_auth_password_v1';
 const SESSION_KEY = 'nellimo_auth_session_v1';
@@ -134,11 +135,13 @@ export function isAuthenticated(): boolean {
     }
 }
 
-/** Déconnecte l'utilisateur (session + utilisateur courant). */
+/** Déconnecte l'utilisateur (session + utilisateur courant + verrouillage coffre). */
 export function logout(): void {
     if (!isBrowser()) return;
     sessionStorage.removeItem(SESSION_KEY);
+    sessionStorage.removeItem('nellimo_agency_key_session_v1');
     clearCurrentUser();
+    lockVault();
 }
 
 /** Change le mot de passe (doit être authentifié). */

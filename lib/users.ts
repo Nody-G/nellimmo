@@ -269,7 +269,11 @@ export function isCurrentUserAdmin(): boolean {
 
 // --- Clé d'agence (déverrouillage du coffre-fort partagé) ---
 
-const AGENCY_KEY_STORAGE = 'nellimo_agency_key_v1';
+const LEGACY_AGENCY_KEY_STORAGE = 'nellimo_agency_key_v1';
+const AGENCY_KEY_SESSION = 'nellimo_agency_key_session_v1';
+const AGENCY_KEY_CONFIGURED = 'nellimo_agency_key_configured_v1';
+
+let memoryAgencyKey = '';
 
 /**
  * Une clé d'agence a-t-elle été définie ?
@@ -278,7 +282,12 @@ const AGENCY_KEY_STORAGE = 'nellimo_agency_key_v1';
 export function hasAgencyKey(): boolean {
     if (!isBrowser()) return false;
     try {
-        return !!localStorage.getItem(AGENCY_KEY_STORAGE);
+        // Migration transparente : si l'ancienne clé en clair existe, on migre l'indicateur
+        if (localStorage.getItem(LEGACY_AGENCY_KEY_STORAGE)) {
+            localStorage.setItem(AGENCY_KEY_CONFIGURED, 'true');
+            return true;
+        }
+        return !!localStorage.getItem(AGENCY_KEY_CONFIGURED) || !!memoryAgencyKey;
     } catch {
         return false;
     }
@@ -287,22 +296,51 @@ export function hasAgencyKey(): boolean {
 /**
  * Définit (ou change) la clé d'agence.
  * Réservé à l'admin. Cette clé déverrouille le coffre-fort partagé pour tout
- * utilisateur authentifié. Elle est stockée localement (solution transitoire) ;
- * le cloud (Supabase Vault) remplacera ce mécanisme en Phase E.
+ * utilisateur authentifié.
+ *
+ * ⚠️ SÉCURITÉ : La clé d'agence n'est plus JAMAIS écrite en clair dans le localStorage.
+ * Elle est conservée uniquement en mémoire vive et dans le sessionStorage de l'onglet actif.
  */
 export function setAgencyKey(passphrase: string): void {
     if (!isBrowser()) return;
     if (passphrase.length < 6) {
-        throw new Error('La cl\u00E9 d\u2019agence doit contenir au moins 6 caract\u00E8res.');
+        throw new Error('La clé d’agence doit contenir au moins 6 caractères.');
     }
-    localStorage.setItem(AGENCY_KEY_STORAGE, passphrase);
+
+    memoryAgencyKey = passphrase;
+
+    try {
+        sessionStorage.setItem(AGENCY_KEY_SESSION, passphrase);
+        localStorage.setItem(AGENCY_KEY_CONFIGURED, 'true');
+        // Nettoyage immédiat et définitif de tout stockage en clair dans localStorage
+        localStorage.removeItem(LEGACY_AGENCY_KEY_STORAGE);
+    } catch {
+        /* ignore */
+    }
 }
 
 /** Retrouve la clé d'agence (pour déverrouiller le coffre après authentification). */
 export function getAgencyKey(): string {
+    if (memoryAgencyKey) return memoryAgencyKey;
     if (!isBrowser()) return '';
     try {
-        return localStorage.getItem(AGENCY_KEY_STORAGE) || '';
+        // Lecture prioritaire depuis la session de l'onglet
+        const sessionKey = sessionStorage.getItem(AGENCY_KEY_SESSION);
+        if (sessionKey) {
+            memoryAgencyKey = sessionKey;
+            return sessionKey;
+        }
+
+        // Migration unique si un ancien stockage local subsistait
+        const legacy = localStorage.getItem(LEGACY_AGENCY_KEY_STORAGE);
+        if (legacy) {
+            memoryAgencyKey = legacy;
+            sessionStorage.setItem(AGENCY_KEY_SESSION, legacy);
+            localStorage.setItem(AGENCY_KEY_CONFIGURED, 'true');
+            localStorage.removeItem(LEGACY_AGENCY_KEY_STORAGE); // Nettoie le clair
+            return legacy;
+        }
+        return '';
     } catch {
         return '';
     }

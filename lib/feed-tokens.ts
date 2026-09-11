@@ -18,6 +18,7 @@
 export function getCalendarFeedToken(): string {
     const t = process.env.CALENDAR_FEED_TOKEN;
     if (t) return t;
+    if (process.env.NODE_ENV === 'production') return '';
     // En dev uniquement : valeur par défaut documentée.
     return 'nellimo_calendar_token';
 }
@@ -25,24 +26,27 @@ export function getCalendarFeedToken(): string {
 export function getBieniciFeedToken(): string {
     const t = process.env.BIENICI_FEED_TOKEN;
     if (t) return t;
+    if (process.env.NODE_ENV === 'production') return '';
     return 'bi_token_nellimmo_live_2026';
 }
 
 export function getPolirisFeedToken(): string {
     const t = process.env.POLIRIS_FEED_TOKEN;
     if (t) return t;
+    if (process.env.NODE_ENV === 'production') return '';
     return 'poliris_token_nellimmo_dev';
 }
 
 export function getFacebookFeedToken(): string {
     const t = process.env.FACEBOOK_FEED_TOKEN;
     if (t) return t;
+    if (process.env.NODE_ENV === 'production') return '';
     return 'fb_catalog_token_nellimmo_2026';
 }
 
 /** Vérifie un token fourni contre la valeur attendue. */
 export function isValidFeedToken(provided: string | null, expected: string): boolean {
-    if (!provided) return false;
+    if (!provided || !expected) return false;
     // Comparaison à temps constant pour limiter les attaques par timing.
     const a = Buffer.from(provided);
     const b = Buffer.from(expected);

@@ -21,21 +21,20 @@
 import { AgencySettings } from './types';
 
 const VAULT_KEY = 'nellimo_settings_vault_v1';
-const VAULT_SESSION_KEY = 'nellimo_vault_session_v1';
+const VAULT_SESSION_KEY = 'nellimo_vault_session_v2';
+const LEGACY_VAULT_SESSION_KEY = 'nellimo_vault_session_v1';
 const PBKDF2_ITERATIONS = 150_000;
 
 /**
- * Champs sensibles de AgencySettings à chiffrer au repos.
+ * Champs sensibles de AgencySettings à chiffrer au repos côté client.
  *
- * ⚠️ `google_client_secret` a été retiré : un secret OAuth ne doit jamais
- * transiter par le navigateur. Il est désormais lu côté serveur uniquement
- * (`process.env.GOOGLE_CLIENT_SECRET`). Voir `plans/integration-google-oauth.md`.
+ * ⚠️ Sécurité & Bonnes Pratiques d'Architecture :
+ * Les secrets de passerelle serveur (SFTP_PASSWORD, META_APP_SECRET, LINKEDIN_CLIENT_SECRET)
+ * ont été retirés du client et sont désormais gérés exclusivement côté serveur Node.js / Vercel.
+ * Seules les clés ou jetons réellement utilisés côté navigateur sont listés ici.
  */
 export const SENSITIVE_SETTINGS_FIELDS: (keyof AgencySettings)[] = [
-    'sftp_password',
-    'meta_app_secret',
     'facebook_page_access_token',
-    'linkedin_client_secret',
     'google_maps_api_key',
 ];
 
@@ -59,7 +58,7 @@ function fromBase64(b64: string): Uint8Array {
     return bytes;
 }
 
-/** Dérive la clé AES-GCM depuis le mot de passe (PBKDF2). Non persistée. */
+/** Dérive la clé AES-GCM depuis le mot de passe (PBKDF2). Clé exportable pour session RAM/sessionStorage. */
 async function deriveKey(password: string): Promise<CryptoKey> {
     const enc = new TextEncoder();
     const salt = enc.encode('nellimo-cockpit-vault-v1');
@@ -79,19 +78,30 @@ async function deriveKey(password: string): Promise<CryptoKey> {
         },
         baseKey,
         { name: 'AES-GCM', length: 256 },
-        false,
+        true, // exportable pour stockage du tampon brut de clé de session (jamais le mot de passe)
         ['encrypt', 'decrypt']
     );
 }
 
-/** Restaure la clé depuis le sessionStorage si elle y a été mise en cache. */
+/** Restaure la clé depuis le sessionStorage (tampon brut de clé de session, jamais le mot de passe). */
 async function restoreKeyFromSession(): Promise<void> {
     if (!isBrowser() || cachedKey) return;
     try {
-        const raw = sessionStorage.getItem(VAULT_SESSION_KEY);
-        if (!raw) return;
-        const { password } = JSON.parse(raw) as { password: string };
-        cachedKey = await deriveKey(password);
+        // Nettoyage proactif de l'ancien format vulnérable stockant le mot de passe en clair
+        if (sessionStorage.getItem(LEGACY_VAULT_SESSION_KEY)) {
+            sessionStorage.removeItem(LEGACY_VAULT_SESSION_KEY);
+        }
+
+        const rawB64 = sessionStorage.getItem(VAULT_SESSION_KEY);
+        if (!rawB64) return;
+        const keyBytes = fromBase64(rawB64);
+        cachedKey = await crypto.subtle.importKey(
+            'raw',
+            keyBytes as BufferSource,
+            { name: 'AES-GCM', length: 256 },
+            true,
+            ['encrypt', 'decrypt']
+        );
     } catch {
         cachedKey = null;
     }
@@ -101,10 +111,15 @@ async function restoreKeyFromSession(): Promise<void> {
 export async function unlockVault(password: string): Promise<void> {
     if (!isBrowser()) return;
     try {
+        // Nettoyage immédiat de tout vestige de mot de passe en clair
+        sessionStorage.removeItem(LEGACY_VAULT_SESSION_KEY);
+
         cachedKey = await deriveKey(password);
-        // Cache en sessionStorage pour survivre aux rechargements de page au sein
-        // de la même session (effacé à la fermeture de l'onglet / déconnexion).
-        sessionStorage.setItem(VAULT_SESSION_KEY, JSON.stringify({ password }));
+
+        // Cache uniquement le tampon brut de la clé AES-256 (JAMAIS le mot de passe en clair !)
+        // pour survivre aux rechargements au sein de l'onglet actif.
+        const exportedRaw = await crypto.subtle.exportKey('raw', cachedKey);
+        sessionStorage.setItem(VAULT_SESSION_KEY, toBase64(exportedRaw));
     } catch (e) {
         console.error('[Vault] Impossible de dériver la clé :', e);
         cachedKey = null;
@@ -117,6 +132,7 @@ export function lockVault(): void {
     if (isBrowser()) {
         try {
             sessionStorage.removeItem(VAULT_SESSION_KEY);
+            sessionStorage.removeItem(LEGACY_VAULT_SESSION_KEY);
         } catch {
             /* ignore */
         }

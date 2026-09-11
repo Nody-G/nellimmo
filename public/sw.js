@@ -19,7 +19,6 @@ const PRECACHE_URLS = [
     '/manifest.json',
     '/favicon.png',
     '/logo.png',
-    '/cockpit',
 ];
 
 self.addEventListener('install', (event) => {

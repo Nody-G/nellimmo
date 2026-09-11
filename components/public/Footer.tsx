@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Phone, Mail, MapPin, ShieldCheck, Clock } from 'lucide-react';
+import { Phone, Mail, MapPin, Clock } from 'lucide-react';
 import { BrandLogo } from '@/components/ui/BrandLogo';
 import type { BrandKey } from '@/lib/brand-logos';
 
@@ -171,22 +171,20 @@ export function PublicFooter() {
             </ul>
           </div>
 
-          {/* Col 4 : Espace Admin */}
+          {/* Col 4 : Horaires & Disponibilité */}
           <div className="space-y-3">
             <h4 className="text-xs font-bold uppercase tracking-widest text-[#C59A45]">
-              Espace Admin
+              Horaires & Disponibilité
             </h4>
             <p className="text-xs text-gray-400 leading-relaxed">
-              Accès sécurisé à la suite de pilotage de l&apos;agence et au registre des mandats.
+              Accueil agence et visites sur rendez-vous à Salon-de-Provence et en Pays Salonais.
             </p>
-            <div className="pt-2">
-              <Link
-                href="/cockpit"
-                className="px-4 py-2.5 bg-[#E12B7B] hover:bg-[#C71B62] text-white rounded-xl text-xs font-bold uppercase tracking-wider inline-flex items-center gap-2 shadow-md transition"
-              >
-                <ShieldCheck className="w-4 h-4" />
-                <span>Accès Espace Admin</span>
-              </Link>
+            <div className="pt-2 space-y-1.5 text-xs text-gray-300">
+              <div className="flex items-center gap-2">
+                <Clock className="w-3.5 h-3.5 text-[#C59A45]" />
+                <span>Lun – Sam : 9h00 – 19h30</span>
+              </div>
+              <p className="text-[11px] text-gray-400">Permanence téléphonique 6j/7</p>
             </div>
           </div>
 

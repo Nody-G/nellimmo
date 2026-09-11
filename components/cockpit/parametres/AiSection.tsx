@@ -91,7 +91,7 @@ export function AiSection({ formData, onChange, onOpenTelemetry }: AiSectionProp
         <div className="flex items-start gap-2 text-[11px] text-gray-500 bg-teal-50/60 p-2.5 rounded-xl border border-teal-100">
           <ShieldCheck className="w-4 h-4 text-teal-700 shrink-0 mt-0.5" />
           <span>
-            <strong>Sécurité & Confidentialité RGPD :</strong> Votre clé est stockée de manière chiffrée côté serveur et reste strictement privée. Vos requêtes bénéficient du <strong>Prompt Caching DeepSeek</strong>, qui réduit le coût des contextes répétés.
+            <strong>Sécurité & Confidentialité RGPD :</strong> Votre clé est stockée de manière chiffrée côté serveur et n'est jamais exposée publiquement. Vos requêtes bénéficient du <strong>Prompt Caching DeepSeek</strong>, qui réduit le coût des contextes répétés.
           </span>
         </div>
 
@@ -120,3 +120,4 @@ export function AiSection({ formData, onChange, onOpenTelemetry }: AiSectionProp
     </SectionCard>
   );
 }
+

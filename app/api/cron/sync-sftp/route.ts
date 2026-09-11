@@ -21,7 +21,10 @@ import { resolveFeedData } from '@/lib/feed-data';
 
 function isCronAuthorized(req: NextRequest): boolean {
   const cronSecret = process.env.CRON_SECRET;
-  if (!cronSecret) return true; // En dev sans secret, on autorise.
+  if (!cronSecret) {
+    // En production : fail-closed si le secret n'est pas configuré
+    return process.env.NODE_ENV !== 'production';
+  }
   const authHeader = req.headers.get('authorization');
   const token = req.nextUrl.searchParams.get('token');
   return authHeader === `Bearer ${cronSecret}` || token === cronSecret;
