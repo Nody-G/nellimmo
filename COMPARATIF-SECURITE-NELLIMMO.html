@@ -677,6 +677,7 @@
           <li style="color: var(--danger);">⚠️ <strong>Pillage des données :</strong> Règle <span class="tip">CORS<span class="tip-icon">ℹ</span><span class="tip-box"><strong>CORS (Partage d'origine croisée)</strong>Règle de sécurité du navigateur qui décide si d'autres sites web ont le droit de venir lire les données de votre site.</span></span> ouverte à tous les sites du monde (<span class="tip">wildcard *<span class="tip-icon">ℹ</span><span class="tip-box"><strong>Wildcard (*)</strong>Le caractère étoile (*) qui signifie « Tout le monde ». Un CORS avec « * » autorise n'importe quel site étranger à interroger vos pages.</span></span>).</li>
           <li style="color: var(--danger);">⚠️ <strong>Obsolescence visible :</strong> Affiche publiquement que ses logiciels n'ont pas été mis à jour depuis 2020.</li>
           <li style="color: var(--danger);">⚠️ <strong>Bibliothèque jQuery 1.10.1 (2013) :</strong> Utilise une version vieille de 13 ans criblée de failles <span class="tip">XSS<span class="tip-icon">ℹ</span><span class="tip-box"><strong>XSS (Cross-Site Scripting)</strong>Failles permettant d'injecter du code malveillant dans les pages web pour pirater les formulaires ou voler des informations.</span></span>.</li>
+          <li style="color: var(--danger);">⚠️ <strong>Usurpation d'email (Spoofing) :</strong> Zéro protection <span class="tip">DMARC<span class="tip-icon">ℹ</span><span class="tip-box"><strong>DMARC</strong>Protocole de sécurité email qui bloque les escrocs voulant envoyer de faux messages avec votre adresse @nellimmo.fr.</span></span> et <span class="tip">SPF<span class="tip-icon">ℹ</span><span class="tip-box"><strong>SPF</strong>Enregistrement DNS listant les seuls serveurs autorisés à envoyer des emails pour Nell'Immo.</span></span> permissif.</li>
         </ul>
       </div>
 
@@ -706,6 +707,7 @@
           <li style="color: var(--success);">🛡️ <strong>Cookies Blindés :</strong> Attributs <span class="tip">HttpOnly<span class="tip-icon">ℹ</span><span class="tip-box"><strong>HttpOnly</strong>Verrou indispensable qui empêche tout script pirate (JavaScript) de lire ou voler votre cookie d'authentification.</span></span> et <span class="tip">Secure<span class="tip-icon">ℹ</span><span class="tip-box"><strong>Secure</strong>Attribut qui garantit que le cookie ne voyagera JAMAIS sur une connexion non chiffrée.</span></span> activés.</li>
           <li style="color: var(--success);">🛡️ <strong>Robots Cloisonnés :</strong> Fichier <span class="tip">robots.txt<span class="tip-icon">ℹ</span><span class="tip-box"><strong>Robots.txt</strong>Fichier qui donne des ordres aux moteurs comme Google : « Référence les annonces, mais interdiction d'indexer l'administration ».</span></span> protégeant les mandats et données privées.</li>
           <li style="color: var(--success);">🛡️ <strong>0% jQuery (React 19 & Next.js 16) :</strong> Zéro librairie obsolète, protection native anti-XSS par encodage automatique du code.</li>
+          <li style="color: var(--success);">🛡️ <strong>Protection de la Messagerie :</strong> Recommandations DNS strictes (DMARC, SPF -all) pour éliminer les faux emails d'escrocs.</li>
         </ul>
       </div>
 
@@ -713,7 +715,7 @@
 
     <!-- SECTION TITLE -->
     <div class="section-head">
-      <h2>Comparatif Détaillé des 7 Failles Majeures</h2>
+      <h2>Comparatif Détaillé des 8 Failles Majeures</h2>
       <p>
         Mise en miroir point par point de ce qui se passe sur l'ancien site face aux défenses du nouveau site, avec les risques réels pour l'agence de Nelly Fernandez.
       </p>
@@ -1173,6 +1175,70 @@ Protection : Virtual DOM avec encodage strict anti-XSS
         </div>
       </article>
 
+      <!-- ITEM 8 : USURPATION EMAIL ET ABSENCE DMARC -->
+      <article class="duel-card">
+        <div class="duel-card-header">
+          <div class="duel-title-group">
+            <span class="duel-num">08</span>
+            <h3>L'Usurpation d'Adresse Email (<span class="tip">Email Spoofing<span class="tip-icon">ℹ</span><span class="tip-box"><strong>Email Spoofing</strong>Technique où un pirate expédie des emails frauduleux en falsifiant l'expéditeur pour afficher @nellimmo.fr aux yeux du destinataire.</span></span> & Absence de <span class="tip">DMARC<span class="tip-icon">ℹ</span><span class="tip-box"><strong>DMARC</strong>Protection DNS suprême qui ordonne aux messageries (Gmail, Outlook) de détruire automatiquement les faux emails se faisant passer pour Nell'Immo.</span></span>)</h3>
+          </div>
+          <span class="badge badge-pink">Sécurité Messagerie & Réputation</span>
+        </div>
+
+        <div class="risk-context-box">
+          <div class="risk-header-row">
+            <div class="risk-tag">🎯 Le Risque Réel pour l'Activité de Nelly</div>
+            <span class="risk-level critical">Risque Majeur : Fraude au Faux RIB & Escroquerie aux Acquéreurs</span>
+          </div>
+          
+          <p class="risk-concept">
+            Sans consigne de sécurité stricte gravée dans le nom de domaine, envoyer un email est comme poster une lettre dans la rue : n'importe quel escroc peut écrire <strong>« De la part de : contact@nellimmo.fr »</strong> sur l'enveloppe ! Actuellement, le domaine <code>nellimmo.fr</code> n'a <strong>aucun enregistrement DMARC</strong> et possède un <span class="tip">SPF neutre (?all)<span class="tip-icon">ℹ</span><span class="tip-box"><strong>SPF Neutre (?all)</strong>Configuration incomplète qui n'ordonne aucun rejet des faux emails, laissant les serveurs tiers accepter les faux messages sans alerte.</span></span>.
+          </p>
+
+          <div class="attack-scenario">
+            <div class="attack-scenario-title">⚠️ Scénario concret pour l'agence (L'arnaque au faux RIB) :</div>
+            <p class="attack-scenario-text">
+              Un cybercriminel envoie un faux message depuis <code>nelly@nellimmo.fr</code> à un acquéreur qui vient de visiter un bien : <em>« Bonjour, suite à notre accord, merci de verser le séquestre de 15 000 € sur ce RIB joint »</em>. L'acheteur voit l'adresse légitime de l'agence, effectue le virement vers le compte du pirate, et Nelly se retrouve confrontée à un préjudice financier et judiciaire dramatique.
+            </p>
+          </div>
+        </div>
+
+        <div class="duel-comparison-grid">
+          <div class="site-col old-site">
+            <div>
+              <div class="site-col-head">
+                <span class="site-col-name" style="color: var(--danger);">Ancien Site & Domaine Actuel</span>
+                <span class="badge badge-red">❌ Portes Ouvertes aux Faux Mails</span>
+              </div>
+              <p class="site-col-desc">
+                Le nom de domaine n'a aucun garde-fou DMARC. Les serveurs de messagerie (Orange, Gmail, SFR, banques) ne rejettent pas les emails usurpés.
+              </p>
+            </div>
+            <pre class="live-code"><span class="hl-red"># Enregistrements DNS réels prélevés sur nellimmo.fr :</span>
+SPF : <span class="hl-red">v=spf1 include:la-boite-immo.fr ?all</span> (?all = Neutre, ne bloque rien !)
+DMARC : <span class="hl-red">_dmarc.nellimmo.fr : Le nom DNS n'existe pas !</span>
+--> N'importe qui peut envoyer des emails en se faisant passer pour l'agence !</pre>
+          </div>
+
+          <div class="site-col new-site">
+            <div>
+              <div class="site-col-head">
+                <span class="site-col-name" style="color: var(--success);">Nouveau Projet & DNS Sécurisés</span>
+                <span class="badge badge-green">✅ Blindage Anti-Usurpation DMARC</span>
+              </div>
+              <p class="site-col-desc">
+                Mise en place recommandée des règles strictes <span class="tip">DMARC p=reject<span class="tip-icon">ℹ</span><span class="tip-box"><strong>DMARC p=reject</strong>Ordre formel donné au monde entier : rejeter et détruire immédiatement tout email qui n'émane pas des serveurs autorisés de Nelly.</span></span> et d'un SPF durci avec signature cryptographique <span class="tip">DKIM<span class="tip-icon">ℹ</span><span class="tip-box"><strong>DKIM</strong>Signature électronique cryptographique 2048 bits apposée sur chaque email prouvant de façon certaine son authenticité.</span></span>.
+              </p>
+            </div>
+            <pre class="live-code"><span class="hl-green"># Configuration recommandée à la bascule :</span>
+SPF : <span class="hl-green">v=spf1 include:... -all</span> (-all = Rejet catégorique des imposteurs)
+DMARC : <span class="hl-green">v=DMARC1; p=reject; rua=mailto:securite@nellimmo.fr</span>
+DKIM : Clé cryptographique 2048 bits scellée
+--> Impossible d'usurper l'adresse de Nell'Immo !</pre>
+          </div>
+        </div>
+      </article>
+
     </div>
 
     <!-- GRAND TABLEAU COMPARATIF FINAL -->
@@ -1233,6 +1299,12 @@ Protection : Virtual DOM avec encodage strict anti-XSS
             <td><span class="badge badge-red">❌ jQuery 1.10.1 (Mai 2013)</span></td>
             <td><span class="badge badge-green">✅ 0% jQuery (React 19)</span></td>
             <td>Suppression définitive des failles XSS historiques : impossible pour un pirate de détourner les formulaires ou d'injecter du code dans les annonces.</td>
+          </tr>
+          <tr>
+            <td><strong>Protection Anti-Usurpation Email (<span class="tip">DMARC & SPF<span class="tip-icon">ℹ</span><span class="tip-box"><strong>DMARC & SPF</strong>Normes internationales empêchant les escrocs d'envoyer des emails avec le nom de domaine de l'agence.</span></span>)</strong></td>
+            <td><span class="badge badge-red">❌ Aucun DMARC & SPF neutre (?all)</span></td>
+            <td><span class="badge badge-green">✅ DMARC p=reject & SPF strict (-all)</span></td>
+            <td>Protection absolue contre l'arnaque au faux RIB et l'usurpation d'identité de l'agence auprès des acquéreurs et notaires.</td>
           </tr>
           <tr>
             <td><strong>Note de Sécurité Globale</strong></td>
